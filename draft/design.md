@@ -246,6 +246,10 @@ expose idは頭にuser_,company_,role_をつけるか
 
 refresh tokenはuuid  
 passwordは100文字ぐらいまで  
+access tokenはjwt
+
+userはidでもemailでもログインできる。最初に登録したemailのみ。後にemail自体は変更できるが、ログイン時に使うemailは変更できずそのまま。
+idは自動発行。emailの前者はemail idと呼ぶ。
 
 ```sql
 create table user (
@@ -364,4 +368,26 @@ Rdb Schemaに習う感じだが、そっちで表現しきれないものを記�
     - assign role
     - create role
     - role delete
+
+## access token
+TODO
+jwtだが、そのモデリングが必要
+
+user
+  - user expose id
+  - user name
+  - user email id
+  - user email
+  - role label
+  - company expose id
+  - company name
+  - bot flag
+token
+  - token expire date
+
+## package
+### access token middleware
+TODO
+この認証サーバを利用するアプリケーションでは、access tokenからユーザ情報を取得する。  
+jwt tokenなので、これを分解してユーザ情報をハンドリングするwebのmiddleware moduleを提供する
 
