@@ -370,7 +370,6 @@ Rdb Schemaに習う感じだが、そっちで表現しきれないものを記�
     - role delete
 
 ## access token
-TODO
 jwtだが、そのモデリングが必要
 
 user
@@ -387,7 +386,9 @@ token
 
 ## package
 ### access token middleware
-TODO
 この認証サーバを利用するアプリケーションでは、access tokenからユーザ情報を取得する。  
 jwt tokenなので、これを分解してユーザ情報をハンドリングするwebのmiddleware moduleを提供する
+
+機能としては、jwt tokenを分解してuserオブジェクトを作る機能となる。jwt tokenがあってもなくても、認可自体は各種処理に記載するので、userをラップしたオブジェクトを用意し、認証があったかユーザがあったかを、各処理に渡せるようにする。  
+あくまで認可は行わず、下に情報を渡すだけの機能とする。  
 
