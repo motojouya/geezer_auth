@@ -384,6 +384,20 @@ user
 token
   - token expire date
 
+## ライブラリ
+### web
+これは標準ライブラリが優秀なので、それを利用する。  
+middlewareの実装もtransducerを用意するだけなので、grue codeとしてそういったものを用意して利用する。  
+パラメータのハンドリングやresponseのjsonのハンドリングは、packageとして公開するので説明はそちらに譲る
+
+### db
+dbは、gorp+goquで行う。  
+primary keyでの出し入れはモデリングを伴ったほうが楽だし、scanをそのまま使うのは大変なのでormapper likeなgorpがちょうどいい。  
+queryはquery builderで組み立てたいのでgoquで行う。リレーションという概念がgorpに無いので、常にquery builderでjoin句を書くわけだが、よりsqlの構文に近くなって、わかりやすくなることを期待している。  
+
+リレーションは、単純なテーブル同士ならワークするが、サマリテーブルのモデリングとの関連や、複数のキーでjoinパターンが違う場合等、様々考えられるので、そこは愚直にコーディングするイメージ。
+なので、gorp+goquがちょうどいい。また、この構成を助けるためのhelper関数も用意して公開する。  
+
 ## package
 ### access token middleware
 この認証サーバを利用するアプリケーションでは、access tokenからユーザ情報を取得する。  
@@ -391,4 +405,14 @@ jwt tokenなので、これを分解してユーザ情報をハンドリング�
 
 機能としては、jwt tokenを分解してuserオブジェクトを作る機能となる。jwt tokenがあってもなくても、認可自体は各種処理に記載するので、userをラップしたオブジェクトを用意し、認証があったかユーザがあったかを、各処理に渡せるようにする。  
 あくまで認可は行わず、下に情報を渡すだけの機能とする。  
+
+### webのパラメータハンドリング
+goは標準ライブラリが優秀なのでそれを利用したいが、入力パラメータのハンドリング、json変換はモジュールを用意してやるほうがいい。  
+jsonをparse,serializeする標準ライブラリはあるが、query string, form, file dateを宣言的に記載して自動的にハンドリングできるようにはなっていない。  
+jsonのtagのような感じで、formなのかbody jsonなのかquery stringなのかを示しつつ、それらの構造体の中で、propertyを定義してparseできるようにしたい。  
+
+returnされるjsonのserializeも同じモジュールで実現したい。  
+
+### dbアクセス
+gorp+goquを利用するつもりだが、helper関数もいくつか用意しておく。これも公開する。  
 
