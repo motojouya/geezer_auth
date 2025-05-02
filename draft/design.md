@@ -10,7 +10,7 @@
 独立性を高めるため、認可は行わないが、認可に一貫性を持たせるために、利用者の役職、役割などを示すタグは管理する  
 他アプリケーションから認証を呼び出すことがなるべく少なく、スケールできるようにしておく  
 
-### thinking
+### consideration
 認証の機能  
 認可の機能は提供しないが、認可に一貫性を持たせるための支援機能は提供する  
 権限管理する企業と、使用者である人がいる。  
@@ -240,16 +240,6 @@ work flowとして流れを記載するが、WEB API ENDPOINTも記載する
 
 ## Rdb Schema
 id はserialで自動発行連番  
-expose_idはアプリケーションで発行するuuidか、uuidは長すぎるので数桁のcodeとか  
-6桁のアルファベットなら3億パターンとかなのでバッティングしづらいはず。あとはdbチェックしてという感じで  
-expose idは頭にuser_,company_,role_をつけるか
-
-refresh tokenはuuid  
-passwordは100文字ぐらいまで  
-access tokenはjwt
-
-userはidでもemailでもログインできる。最初に登録したemailのみ。後にemail自体は変更できるが、ログイン時に使うemailは変更できずそのまま。
-idは自動発行。emailの前者はemail idと呼ぶ。
 
 ```sql
 create table user (
@@ -332,6 +322,18 @@ create table role (
 ## Application Modeling
 Rdb Schemaに習う感じだが、そっちで表現しきれないものを記載していく  
 
+expose_idはアプリケーションで発行するuuidか、uuidは長すぎるので数桁のcodeとか  
+6桁のアルファベットなら3億パターンとかなのでバッティングしづらいはず。あとはdbチェックしてという感じで  
+expose idは頭にuser_,company_,role_をつけるか  
+そう考えると、role expose idはcompany単位で一意としたほうが良さそう  
+
+refresh tokenはuuid  
+passwordは100文字ぐらいまで  
+access tokenはjwt
+
+userはidでもemailでもログインできる。最初に登録したemailのみ。後にemail自体は変更できるが、ログイン時に使うemailは変更できずそのまま。
+idは自動発行。emailの前者はemail idと呼ぶ。
+
 - user
   - user
     - create user
@@ -369,6 +371,19 @@ Rdb Schemaに習う感じだが、そっちで表現しきれないものを記�
     - create role
     - role delete
 
+### role
+とりあえず3つ用意する
+- unauthorized  
+  ユーザ未登録かemailが未承認状態のもの  
+  タグなので、そういったユーザに権限をつけたい場合はこちらをいじることもできるが、意味としては認証がないユーザ
+- none  
+  emailが承認され、会社にアサインされると付与されるもの  
+  いわゆるdefault権限  
+  自分個人の情報は操作できるが、それはそもそもroleを見ない仕組みとしたい  
+- administrator  
+  企業を作ると作ったユーザは自動的にこれになる  
+  ロールの作成、付与、ユーザのinviteなどができる  
+
 ## access token
 jwtだが、そのモデリングが必要
 
@@ -383,6 +398,11 @@ user
   - bot flag
 token
   - token expire date
+
+## アーキテクチャ
+[ソフトウェア設計のマイブーム](https://zenn.dev/motojouya/articles/software_design_my_boom)の記事に従う。
+webだけを想定されたものではないため言及がないが、url routingは塊を一つのファイルに纏めて、コメントでworkflowなどを補って書きたい。  
+基本的にinbound handlingの部分だが、入力値を、構造体に変換する機能しか持たないので、宣言的、あるいは設定的に書くことできるようにする  
 
 ## ライブラリ
 ### web
