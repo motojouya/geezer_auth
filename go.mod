@@ -1,3 +1,3 @@
 module github.com/motojouya/geezer_auth
 
-go 1.24
+go 1.24.3
