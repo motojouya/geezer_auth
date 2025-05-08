@@ -13,5 +13,6 @@ lint:
 check:
 	staticcheck ./...
 
+# TODO findでファイルを探して、goimportsで整形する
 import:
 	goimports -w cmd/main.go
