@@ -8,3 +8,10 @@ format:
 
 lint:
 	go vet ./...
+
+# TODO なんかエラー出る
+check:
+	staticcheck ./...
+
+import:
+	goimports -w cmd/main.go
