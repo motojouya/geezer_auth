@@ -71,3 +71,16 @@ NewCompanyRole(company: Company, role: Role): CompanyRole
 実装順だが、ほとんどコンストラクタなので、company, role, user, credentialsの順で実装する。
 credentialsは、ライブラリ利用もあるので、後
 
+TODO
+DB 側の処理もけっこうあるので、これもドキュメントにまとめてからの実装にする。
+できればmodel実装前に定義したほうがいいと思う。忘れるので。
+
+この順番かな
+- model
+- query
+- procedure
+- middleware
+- router
+
+それぞれ、utilityも定義した後かな。modelは無いけど
+
