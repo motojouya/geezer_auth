@@ -305,6 +305,7 @@ create table company_invite (
 
 create table user_role (
   user_id
+  company_id
   role_id
   registered_date
   expire_date
@@ -333,6 +334,8 @@ access tokenはjwt
 
 userはidでもemailでもログインできる。最初に登録したemailのみ。後にemail自体は変更できるが、ログイン時に使うemailは変更できずそのまま。
 idは自動発行。emailの前者はemail idと呼ぶ。
+
+emailはverifyされて初めて使えるようになる。つまり、verifiedでnot expiredなものが有効だし、それは1レコードに保つようにロジックを組む。
 
 - user
   - user
@@ -386,12 +389,17 @@ idは自動発行。emailの前者はemail idと呼ぶ。
 
 ## access token
 jwtだが、そのモデリングが必要
+access tokenは2つまで発行できる。これは、一つ前のものがexpireしそうなときに、事前に取得しておけるようにするため。
+とはいえ、アプリケーション側で、ミッションクリティカルな処理では、expireの値で一元的にと切るのではなく、sessionをexpandするなどの処理も必要。
+
+ただし、user情報が更新された際には、access tokenは再発行できる。passwordやrefresh tokenはuser情報なので、更新されても変わらない。
+このuser情報の一意性に対して、有効なaccess tokenは2つまでとする。
 
 user
   - user expose id
-  - user name
-  - user email id
+  - user email for id
   - user email
+  - user name
   - role label
   - company expose id
   - company name
