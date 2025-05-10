@@ -86,6 +86,7 @@ work flowとして流れを記載するが、WEB API ENDPOINTも記載する
     - token check
 
 ### 企業作成
+#### 企業作成
 - /auth/company/create
 - request
   - name
@@ -99,6 +100,19 @@ work flowとして流れを記載するが、WEB API ENDPOINTも記載する
       - ...
 - model
   - create company
+
+#### 企業参照
+- /auth/company/<company_expose_id>
+- response
+  - company
+    - name
+    - id
+    - master user
+      - id
+      - name
+      - ...
+- model
+  - get company
 
 ### 企業アサイン
 #### ユーザ誘導
@@ -124,6 +138,18 @@ work flowとして流れを記載するが、WEB API ENDPOINTも記載する
     - token check
 
 ### ロール作成
+#### ロール一覧
+- /auth/company/企業id/role
+- response
+  - roles
+    - role
+      - id
+      - name
+      - label
+      - description
+- model
+  - get roles
+
 #### 作成
 - /auth/company/企業id/role/create
 - request
@@ -153,6 +179,17 @@ work flowとして流れを記載するが、WEB API ENDPOINTも記載する
   - role delete
 
 ### ロール付与
+
+#### ユーザ一覧
+- /auth/company/企業id/user
+- request
+- response
+  - users
+    - user
+- model
+  - get users
+
+#### ロール付与
 - /auth/company/企業id/role/assign
 - request
   - user id
@@ -164,6 +201,17 @@ work flowとして流れを記載するが、WEB API ENDPOINTも記載する
   - assign role
 
 ### ユーザ情報変更
+#### ユーザ参照
+- /auth/user/self
+- request
+- response
+  - user
+    - id
+    - name
+    - ...
+- model
+  - get user
+
 #### name
 - /auth/user/change
 - request
@@ -192,6 +240,9 @@ work flowとして流れを記載するが、WEB API ENDPOINTも記載する
     - expire old password
 
 ### メールアドレス変更
+#### ユーザ参照
+上と同様
+
 #### メールアドレス変更
 - /auth/user/change_email
 - request
