@@ -340,12 +340,6 @@ create table company (
   registered_date
 );
 
-create table user_company (
-  company_id
-  user_id
-  registered_date
-);
-
 create table company_invite (
   company_id
   token
@@ -354,7 +348,8 @@ create table company_invite (
   expire_date
 );
 
-create table user_role (
+create table user_company_role (
+  user_company_role_id
   user_id
   company_id
   role_id
@@ -368,6 +363,7 @@ create table role (
   name
   label unique
   description
+  registered_date
 );
 ```
 

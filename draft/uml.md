@@ -2,6 +2,25 @@
 # UML
 的な情報。実際にUMLを使うかはわからない。
 
+## dir
+- internal
+  - model
+  - procedure
+  - db
+   - query
+   - transfer
+     - in
+     - out
+  - http
+    - middleware
+    - router
+    - transfer
+      - in
+      - out
+  - utility
+    - db
+    - http
+
 ## model
 
 ```go
@@ -15,6 +34,7 @@ struct User {
   user_id: uint
   companyRole: *CompanyRole
   email: *string
+  registeredDate: time.Time
   UnsavedUser
 }
 func CreateUser(name: string, emailId: string, botFlag: bool): UnsavedUser
@@ -66,6 +86,7 @@ struct UnsavedCompany {
 struct Company {
   company_id: uint
   UnsavedCompany
+  registeredDate: time.Time
   roles: []Role
 }
 func CreateCompany(name: string): UnsavedCompany
@@ -81,6 +102,7 @@ struct UnsavedRole {
 struct Role {
   role_id: uint
   UnsavedRole
+  registeredDate: time.Time
 }
 func CreateRole(name: string, label: string, description: string): UnsavedRole
 func NewRole(name: string, label: string, description: string): Role
