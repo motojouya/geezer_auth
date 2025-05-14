@@ -7,29 +7,29 @@ import (
 const CompanyExposeIdPrefix = "CP-"
 
 type UnsavedCompany struct {
-	exposeId string
-	name     string
+	ExposeId string
+	Name     string
 }
 
 type Company struct {
-	companyId      uint
-	registeredDate time.Time
-	roles          []Role
+	CompanyId      uint
+	RegisteredDate time.Time
+	Roles          []Role
 	UnsavedCompany
 }
 
 func CreateCompany(exposeId string, name string) UnsavedCompany {
 	return UnsavedCompany{
-		expose_id: exposeId,
-		name:      name,
+		Expose_id: exposeId,
+		Name:      name,
 	}
 }
 
 func NewCompany(companyId uint, exposeId string, name string, registeredDate time.Time, roles []Role) Company {
 	return Company{
-		companyId:      companyId,
-		registeredDate: registeredDate,
-		roles:          roles,
+		CompanyId:      companyId,
+		RegisteredDate: registeredDate,
+		Roles:          roles,
 		UnsavedCompany: CreateCompany(exposeId, name),
 	}
 }

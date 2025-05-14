@@ -7,28 +7,48 @@ import (
 	"time"
 )
 
-func TestSum(t *testing.T) {
-	actual := sum(3, 5)
-	expected := 8
+func TestCreateUser(t *testing.T) {
+	var exposeId = "TestExposeId"
+	var emailId = 'test@gmail.com'
+	var name = "TestName"
+	var botFlag = false
 
-	assert.Equal(t, expected, actual)
+	var user = model.CreateUser(exposeId, emailId, name, botFlag)
+	if user == nil {
+		t.Errorf("failed NewUser()")
+	}
+
+	assert.Equal(t, exposeId, user.ExposeId)
+	assert.Equal(t, emailId, user.ExposeEmailId)
+	assert.Equal(t, name, user.Name)
+	assert.Equal(t, botFlag, user.BotFlag)
+
+	t.Logf("user: %p", user)
+	t.Logf("user.ExposeId: %d", user.ExposeId)
+	t.Logf("user.ExposeEmailId: %s", user.ExposeEmailId)
+	t.Logf("user.Name: %s", user.Name)
+	t.Logf("user.BotFlag: %s", user.BotFlag)
 }
 
-func CreateUser(exposeId string, emailId string, name string, botFlag bool) UnsavedUser {
-	return UnsavedUser{
-		exposeId:      exposeId,
-		exposeEmailId: emailId,
-		name:          name,
-		botFlag:       botFlag,
-	}
-}
+func TestNewUser(t *testing.T) {
+	var exposeId = "TestExposeId"
+	var emailId = 'test@gmail.com'
+	var name = "TestName"
+	var botFlag = false
 
-func NewUser(userId uint, exposeId string, name string, emailId string, email *string, botFlag bool, registeredDate time.Time, companyRole *CompanyRole) User {
-	return User{
-		userId:         userId,
-		companyRole:    companyRole,
-		email:          email,
-		registeredDate: registeredDate,
-		UnsavedUser:    CreateUser(exposeId, name, emailId, botFlag),
+	var user = model.CreateUser(exposeId, emailId, name, botFlag)
+	if user == nil {
+		t.Errorf("failed NewUser()")
 	}
+
+	assert.Equal(t, exposeId, user.ExposeId)
+	assert.Equal(t, emailId, user.ExposeEmailId)
+	assert.Equal(t, name, user.Name)
+	assert.Equal(t, botFlag, user.BotFlag)
+
+	t.Logf("user: %p", user)
+	t.Logf("user.ExposeId: %d", user.ExposeId)
+	t.Logf("user.ExposeEmailId: %s", user.ExposeEmailId)
+	t.Logf("user.Name: %s", user.Name)
+	t.Logf("user.BotFlag: %s", user.BotFlag)
 }
