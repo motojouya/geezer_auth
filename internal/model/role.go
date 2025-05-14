@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type UnsavedRole struct{
+type UnsavedRole struct {
 	name        string
 	label       string
 	description string
@@ -35,7 +35,7 @@ func NewUser(userId uint, exposeId string, name string, emailId string, email *s
 	}
 }
 
-func CreateRole(name string, label string, description string): UnsavedRole {
+func CreateRole(name string, label string, description string) UnsavedRole {
 	return UnsavedRole{
 		name:        name,
 		label:       label,
@@ -43,7 +43,7 @@ func CreateRole(name string, label string, description string): UnsavedRole {
 	}
 }
 
-func NewRole(roleId uint, name string, label string, description string, registeredDate time.Time): Role {
+func NewRole(roleId uint, name string, label string, description string, registeredDate time.Time) Role {
 	return Role{
 		roleId:         roleId,
 		registeredDate: registeredDate,

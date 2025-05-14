@@ -5,7 +5,7 @@ type CompanyRole struct {
 	role    Role
 }
 
-func NewCompanyRole(company Company, role Role): CompanyRole {
+func NewCompanyRole(company Company, role Role) CompanyRole {
 	return CompanyRole{
 		company: company,
 		role:    role,
