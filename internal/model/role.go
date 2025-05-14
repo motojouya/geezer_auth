@@ -4,21 +4,16 @@ import (
 	"time"
 )
 
-const UserExposeIdPrefix = "US-"
-
-type UnsavedUser struct {
-	exposeId      string
-	exposeEmailId string
-	name          string
-	botFlag       bool
+type UnsavedRole struct{
+	name        string
+	label       string
+	description string
 }
 
-type User struct {
-	userId         uint
-	companyRole    *CompanyRole
-	email          *string
+type Role struct {
+	roleId         uint
 	registeredDate time.Time
-	UnsavedUser
+	UnsavedRole
 }
 
 func CreateUser(exposeId string, emailId string, name string, botFlag bool) UnsavedUser {
@@ -37,5 +32,21 @@ func NewUser(userId uint, exposeId string, name string, emailId string, email *s
 		email:          email,
 		registeredDate: registeredDate,
 		UnsavedUser:    CreateUser(exposeId, name, emailId, botFlag),
+	}
+}
+
+func CreateRole(name string, label string, description string): UnsavedRole {
+	return UnsavedRole{
+		name:        name,
+		label:       label,
+		description: description,
+	}
+}
+
+func NewRole(roleId uint, name string, label string, description string, registeredDate time.Time): Role {
+	return Role{
+		roleId:         roleId,
+		registeredDate: registeredDate,
+		UnsavedRole:    CreateRole(name, label, description),
 	}
 }

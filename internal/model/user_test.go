@@ -1,17 +1,17 @@
 package model_test
 
 import (
-	"time"
-	"testing"
 	"github.com/stretchr/testify/assert"
 	"model"
+	"testing"
+	"time"
 )
 
 func TestSum(t *testing.T) {
-    actual := sum(3, 5)
-    expected := 8
+	actual := sum(3, 5)
+	expected := 8
 
-    assert.Equal(t, expected, actual)
+	assert.Equal(t, expected, actual)
 }
 
 func CreateUser(exposeId string, emailId string, name string, botFlag bool) UnsavedUser {

@@ -50,35 +50,6 @@ func NewCompanyRole(company: Company, role: Role): CompanyRole
 ```
 
 ```go
-type Password string
-func getPassword(password: string): Password
-func verifyPassword(password: Password): bool
-// サンプルコードが多く、まー安全でデファクトな感じのbcrypt hashを使う
-```
-
-```go
-type RefreshToken string
-func generateRefreshToken(): RefreshToken
-// tokenのverifyはequalityで良い
-```
-
-```go
-struct AccessToken {
-  token: string
-  expire_at: time.Time
-}
-// expireの基準日がいるので、日付が必要。オプションで期間の調整ができてもいいかもしれない
-func publishAccessToken(user: User, tokens: []AccessToken, date: Date): AccessToken
-func getUserFromAccessToken(token: string): User
-```
-
-```go
-type CompanyInviteToken string
-func generateCompanyInviteToken(): CompanyInviteToken
-// tokenのverifyはequalityで良い
-```
-
-```go
 struct UnsavedCompany {
   expose_id: string
   name: string
@@ -107,6 +78,38 @@ struct Role {
 func CreateRole(name: string, label: string, description: string): UnsavedRole
 func NewRole(name: string, label: string, description: string): Role
 ```
+
+ここまで作った
+
+```go
+type Password string
+func getPassword(password: string): Password
+func verifyPassword(password: Password): bool
+// サンプルコードが多く、まー安全でデファクトな感じのbcrypt hashを使う
+```
+
+```go
+type RefreshToken string
+func generateRefreshToken(): RefreshToken
+// tokenのverifyはequalityで良い
+```
+
+```go
+struct AccessToken {
+  token: string
+  expire_at: time.Time
+}
+// expireの基準日がいるので、日付が必要。オプションで期間の調整ができてもいいかもしれない
+func publishAccessToken(user: User, tokens: []AccessToken, date: Date): AccessToken
+func getUserFromAccessToken(token: string): User
+```
+
+```go
+type CompanyInviteToken string
+func generateCompanyInviteToken(): CompanyInviteToken
+// tokenのverifyはequalityで良い
+```
+
 
 実装順だが、ほとんどコンストラクタなので、company, role, user, credentialsの順で実装する。
 credentialsは、ライブラリ利用もあるので、後

@@ -5,14 +5,14 @@ import (
 )
 
 const (
-	digits     = 6
-	rs2Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	exposeIdDigit = 6
+	exposeIdChar  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 )
 
 func NewExposeId(prefix string) string {
-	b := make([]byte, digits)
+	b := make([]byte, exposeIdDigit)
 	for i := range b {
-		b[i] = rs2Letters[rand.Intn(len(rs2Letters))]
+		b[i] = exposeIdChar[rand.Intn(len(exposeIdChar))]
 	}
 	return prefix + string(b)
 }
