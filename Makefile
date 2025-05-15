@@ -16,3 +16,8 @@ check:
 # TODO findでファイルを探して、goimportsで整形する
 import:
 	goimports -w cmd/main.go
+
+unittest:
+	go test -v ./... -coverprofile=coverage.out
+	#go tool cover -html=coverage.out -o coverage.html
+
