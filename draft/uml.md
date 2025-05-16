@@ -91,8 +91,6 @@ func generateRefreshToken(): RefreshToken
 // tokenのverifyはequalityで良い
 ```
 
-ここまで作った
-
 ```go
 type Password string
 func getPassword(password: string): Password
