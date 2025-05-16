@@ -79,6 +79,18 @@ func CreateRole(name: string, label: string, description: string): UnsavedRole
 func NewRole(name: string, label: string, description: string): Role
 ```
 
+```go
+type CompanyInviteToken string
+func generateCompanyInviteToken(): CompanyInviteToken
+// tokenのverifyはequalityで良い
+```
+
+```go
+type RefreshToken string
+func generateRefreshToken(): RefreshToken
+// tokenのverifyはequalityで良い
+```
+
 ここまで作った
 
 ```go
@@ -89,12 +101,6 @@ func verifyPassword(password: Password): bool
 ```
 
 ```go
-type RefreshToken string
-func generateRefreshToken(): RefreshToken
-// tokenのverifyはequalityで良い
-```
-
-```go
 struct AccessToken {
   token: string
   expire_at: time.Time
@@ -102,12 +108,6 @@ struct AccessToken {
 // expireの基準日がいるので、日付が必要。オプションで期間の調整ができてもいいかもしれない
 func publishAccessToken(user: User, tokens: []AccessToken, date: Date): AccessToken
 func getUserFromAccessToken(token: string): User
-```
-
-```go
-type CompanyInviteToken string
-func generateCompanyInviteToken(): CompanyInviteToken
-// tokenのverifyはequalityで良い
 ```
 
 
