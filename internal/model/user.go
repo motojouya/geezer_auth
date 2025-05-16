@@ -36,6 +36,6 @@ func NewUser(userId uint, exposeId string, name string, emailId string, email *s
 		CompanyRole:    companyRole,
 		Email:          email,
 		RegisteredDate: registeredDate,
-		UnsavedUser:    CreateUser(exposeId, name, emailId, botFlag),
+		UnsavedUser:    CreateUser(exposeId, emailId, name, botFlag),
 	}
 }

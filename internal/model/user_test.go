@@ -57,7 +57,7 @@ func TestNewUser(t *testing.T) {
 	assert.Equal(t, userId, user.UserId)
 	assert.Equal(t, userExposeId, user.ExposeId)
 	assert.Equal(t, emailId, user.ExposeEmailId)
-	assert.Equal(t, email, user.Email)
+	assert.Equal(t, email, *user.Email)
 	assert.Equal(t, userName, user.Name)
 	assert.Equal(t, botFlag, user.BotFlag)
 	assert.Equal(t, companyId, user.CompanyRole.Company.CompanyId)
@@ -67,7 +67,7 @@ func TestNewUser(t *testing.T) {
 	t.Logf("user.UserId: %d", user.UserId)
 	t.Logf("user.ExposeId: %s", user.ExposeId)
 	t.Logf("user.ExposeEmailId: %s", user.ExposeEmailId)
-	t.Logf("user.Email: %s", user.Email)
+	t.Logf("user.Email: %s", *user.Email)
 	t.Logf("user.Name: %s", user.Name)
 	t.Logf("user.BotFlag: %t", user.BotFlag)
 
