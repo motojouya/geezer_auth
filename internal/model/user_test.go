@@ -1,10 +1,10 @@
 package model_test
 
 import (
+	"github.com/motojouya/geezer_auth/internal/model"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
-	"github.com/motojouya/geezer_auth/internal/model"
 )
 
 func TestCreateUser(t *testing.T) {

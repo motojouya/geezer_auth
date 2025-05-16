@@ -21,7 +21,7 @@ type Company struct {
 func CreateCompany(exposeId string, name string) UnsavedCompany {
 	return UnsavedCompany{
 		ExposeId: exposeId,
-		Name:      name,
+		Name:     name,
 	}
 }
 
