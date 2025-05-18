@@ -2,10 +2,10 @@ package accessToken
 
 import (
 	"github.com/golang-jwt/jwt/v5"
-	"time"
 	"os"
 )
 
+// TODO middlewareも作ってしまいたい。イメージを掴んで置く
 type JwtParser struct {
 	Issuer            string
 	Myself            string // Audienceと付き合わせるための自分自身の情報
@@ -66,8 +66,8 @@ func CreateJwtIssuerParser() (*JwtParser, error) {
 
 (jwtParser JwtParser) func CreateGeezerToken(claims GeezerClaims) (*GeezerToken, error) {
 	var company *Company = nil
-	if claims.CompanyExposeId != nil && claims.CompanyName != nil && claims.CompanyRole != nil {
-		company = NewCompany(*claims.CompanyExposeId, *claims.CompanyName, *claims.CompanyRole)
+	if claims.CompanyExposeId != nil && claims.CompanyName != nil && claims.CompanyRole != nil && claims.CompanyRoleName != nil {
+		company = NewCompany(*claims.CompanyExposeId, *claims.CompanyName, *claims.CompanyRole, *claims.CompanyRoleName)
 	} else {
 		if claims.CompanyExposeId != nil {
 			return nil, fmt.Error("CompanyExposeId is not nil")
@@ -77,6 +77,9 @@ func CreateJwtIssuerParser() (*JwtParser, error) {
 		}
 		if claims.CompanyRole != nil {
 			return nil, fmt.Error("CompanyRole is not nil")
+		}
+		if claims.CompanyRoleName != nil {
+			return nil, fmt.Error("CompanyRoleName is not nil")
 		}
 		// company = nil
 	}
@@ -134,7 +137,7 @@ func CreateJwtIssuerParser() (*JwtParser, error) {
 	}
 
 	if claims, ok := token.Claims.(GeezerClaims); !ok || !token.Valid {
-		return nil, fmt.Errorf("Invalid token")
+		return nil, fmt.Error("Invalid token")
 	}
 
 	return jwtParser.CreateGeezerToken(claims)

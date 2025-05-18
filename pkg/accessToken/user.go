@@ -1,28 +1,26 @@
 package accessToken
 
 import (
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
 	"time"
-	"os"
-	"strconv"
 )
 
-// TODO middlewareも作ってしまいたい。イメージを掴んで置く
-// TODO 本packageは、externalにするので、どこからも依存しない感じにしておく。
-// 変換としては、model.Userから、このuserへの変換が必要だが、それはmodelに生やす感じで
-
+// model/userとの変換が必要。
+// accessToken->modelは、あんまりなさそう。というか、exposeIdからdbのデータ引っ張ってくるほうが現実的
+// model->accessTokenは、accessTokenを作る際に必要なので、実装がほしい。
+// 変換ロジックとしてどこかに持つか、あるいはprocedureの中に持たせてもいい。
 type Company struct {
 	ExposeId string
-	Name string
-	Role string
+	Name     string
+	Role     string
+	RoleName string
 }
 
-func NewCompany(exposeId string, name string, role string) *Company {
+func NewCompany(exposeId string, name string, role string, roleName string) *Company {
 	return &Company{
 		ExposeId: exposeId,
 		Name: name,
 		Role: role,
+		RoleName: roleName,
 	}
 }
 

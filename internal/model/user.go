@@ -13,12 +13,12 @@ type UnsavedUser struct {
 	BotFlag       bool
 }
 
-// TODO こいつから、pkg/accessToken/userへの変換関数が必要
 type User struct {
 	UserId         uint
 	CompanyRole    *CompanyRole
 	Email          *string
 	RegisteredDate time.Time
+	UpdateDate     time.Time
 	UnsavedUser
 }
 
@@ -31,12 +31,13 @@ func CreateUser(exposeId string, emailId string, name string, botFlag bool) Unsa
 	}
 }
 
-func NewUser(userId uint, exposeId string, name string, emailId string, email *string, botFlag bool, registeredDate time.Time, companyRole *CompanyRole) User {
+func NewUser(userId uint, exposeId string, name string, emailId string, email *string, botFlag bool, registeredDate time.Time, updateDate time.Time, companyRole *CompanyRole) User {
 	return User{
 		UserId:         userId,
 		CompanyRole:    companyRole,
 		Email:          email,
 		RegisteredDate: registeredDate,
+		UpdateDate:     updateDate,
 		UnsavedUser:    CreateUser(exposeId, emailId, name, botFlag),
 	}
 }

@@ -3,6 +3,7 @@ package here
 import (
 	"math/rand"
 	"github.com/google/uuid"
+	"time"
 )
 
 const (
@@ -25,4 +26,8 @@ func GenerateUUID() (string, error) {
 	}
 
 	return token.String(), nil
+}
+
+func GetNow() time.Time {
+	return time.Now()
 }

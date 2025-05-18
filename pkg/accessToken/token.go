@@ -41,6 +41,7 @@ type GeezerClaims struct {
 	CompanyExposeId *string   `json:"github.com/motojouya/geezer_auth/company_expose_id"`
 	CompanyName     *string   `json:"github.com/motojouya/geezer_auth/company_name"`
 	CompanyRole     *string   `json:"github.com/motojouya/geezer_auth/company_role"`
+	CompanyRoleName *string   `json:"github.com/motojouya/geezer_auth/company_role_name"`
 }
 
 func CreateClaims(user User, issuer string, audience []string, expiresAt time.Time, issuedAt time.Time, id string) *GeezerClaims {
@@ -62,5 +63,6 @@ func CreateClaims(user User, issuer string, audience []string, expiresAt time.Ti
 		CompanyExposeId: user.Company.ExposeId,
 		CompanyName:     user.Company.Name,
 		CompanyRole:     user.Company.Role,
+		CompanyRoleName: user.Company.RoleName,
 	}
 }
