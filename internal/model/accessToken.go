@@ -56,7 +56,21 @@ type GeezerToken struct {
 	IssuedAt  time.Time
 	ID        string
 	User      User
-	Valid     bool
+	Valid     bool // 型としてここでは表現しないが、expire、issuer、audienceの値に対して持つ。 TODO いや、expireはもってるので計算できて、ほかはconstructorでerrorにしちゃうほうがいいかも
+}
+
+func NewGeezerToken(issuer string, subject string, audience []string, expiresAt time.Time, notBefore time.Time, issuedAt time.Time, id string, user User, valid bool) *GeezerToken {
+	return &GeezerToken{
+		Issuer:    issuer,
+		Subject:   subject,
+		Audience:  audience,
+		ExpiresAt: expiresAt,
+		NotBefore: notBefore,
+		IssuedAt:  issuedAt,
+		ID:        id,
+		User:      user,
+		Valid:     true,
+	}
 }
 
 // FIXME claimsのprivate keyが`github.com/motojouya/geezer_auth/`をprefixとしているが、本来は稼働するサーバのfqdnをprefixとして持つべき。
@@ -72,7 +86,7 @@ type GeezerClaims struct {
 	CompanyRole     *string   `json:"github.com/motojouya/geezer_auth/company_role"`
 }
 
-func CreateGeezerToken(claims GeezerClaims) (*GeezerToken, error) {
+(jwtParser JwtParser) func CreateGeezerToken(claims GeezerClaims) (*GeezerToken, error) {
 	var company *Company = nil
 	if claims.CompanyExposeId != nil && claims.CompanyName != nil && claims.CompanyRole != nil {
 		company = NewCompany(*claims.CompanyExposeId, *claims.CompanyName, *claims.CompanyRole)
@@ -96,8 +110,23 @@ func CreateGeezerToken(claims GeezerClaims) (*GeezerToken, error) {
 		claims.UserName,
 		claims.BotFlag,
 		company,
-		claims.UpdateDate, // TODO 値としてtime.Time型になってる？
+		claims.UpdateDate.Time,
 	)
+
+	// TODO ここで、issuerとaudienceのチェックを行う?それともreturn errorにしちゃうか
+	var tokenValid = true
+
+	return NewGeezerToken(
+		claims.Issuer,
+		claims.Subject,
+		claims.Audience,
+		claims.ExpiresAt.Time,
+		claims.NotBefore.Time,
+		claims.IssuedAt.Time,
+		claims.ID,
+		user,
+		tokenValid,
+	), nil
 }
 
 type JwtParser struct {
@@ -205,11 +234,10 @@ func CreateJwtHandler() (*JwtHandler, error) {
 	}
 
 	return NewJwtHandler(
-		issuer,
-		[]string{audience},
-		*jwtParser,
+		[]string{audience,jwtParser.Myself},
 		validityPeriodMinutes,
 		GetId,
+		*jwtParser,
 	), nil
 }
 
@@ -243,7 +271,7 @@ func CreateClaims(jwtHandler JwtHandler, user User, issueDate time.Time) GeezerC
 	}
 }
 
-(jwtHandler JwtHandler) func GenerateAccessToken(user User, issueDate time.Time) (string, error) {
+(jwtHandler *JwtHandler) func GenerateAccessToken(user User, issueDate time.Time) (string, error) {
 	var claims = CreateClaims(jwtSource, user, issueDate)
 
 	var token = jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -259,7 +287,7 @@ func CreateClaims(jwtHandler JwtHandler, user User, issueDate time.Time) GeezerC
 }
 
 // TODO ExpiresAtの時間を取得する issuerとかの情報とかも見たほうがいい
-(jwtParser JwtParser) func GetUserFromAccessToken(tokenString string) (*GeezerToken, error) {
+(jwtParser *JwtParser) func GetUserFromAccessToken(tokenString string) (*GeezerToken, error) {
  	token, err := jwt.ParseWithClaims(
  		tokenString,
  		&GeezerClaims{},
@@ -285,7 +313,7 @@ func CreateClaims(jwtHandler JwtHandler, user User, issueDate time.Time) GeezerC
 		return nil, fmt.Errorf("Invalid token")
 	}
 
-	return CreateGeezerToken(claims)
+	return jwtParser.CreateGeezerToken(claims)
 }
 
 // TODO middlewareも作ってしまいたい。イメージを掴んで置く
