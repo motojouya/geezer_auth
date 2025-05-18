@@ -13,6 +13,7 @@ type UnsavedUser struct {
 	BotFlag       bool
 }
 
+// TODO こいつから、pkg/accessToken/userへの変換関数が必要
 type User struct {
 	UserId         uint
 	CompanyRole    *CompanyRole
