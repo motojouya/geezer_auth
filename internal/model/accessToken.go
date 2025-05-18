@@ -42,7 +42,6 @@ type GeezerClaims struct {
 	CompanyRole     *string   `json:"company_role"` // TODO
 }
 
-// TODO GetId関数でuuid計算をDIできるようにしておく
 type JwtSource struct {
 	Issuer                string
 	Audience              []string
