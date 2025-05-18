@@ -1,7 +1,8 @@
-package utility
+package here
 
 import (
 	"math/rand"
+	"github.com/google/uuid"
 )
 
 const (
@@ -15,4 +16,13 @@ func NewExposeId(prefix string) string {
 		b[i] = exposeIdChar[rand.Intn(len(exposeIdChar))]
 	}
 	return prefix + string(b)
+}
+
+func GenerateUUID() (string, error) {
+	token, err := uuid.NewUUID()
+	if err != nil {
+		return "", err
+	}
+
+	return token.String(), nil
 }
