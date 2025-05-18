@@ -284,6 +284,7 @@ work flowとして流れを記載するが、WEB API ENDPOINTも記載する
 - model
   - publish access token
     - expire check
+      - sqlだけでチェックできて、有効なaccess tokenだけをDBから取り出せる。
     - republish access token
     - access tokenは2つまで発行でき、有効期限が切れていないものが2つある場合は、新しい方をreturn
 
@@ -300,6 +301,7 @@ create table user (
   name
   bot_flag
   registered_date
+  updated_date
 );
 
 create table user_email (
@@ -328,6 +330,7 @@ create table user_refresh_token (
 create table user_access_token (
   user_id
   access_token
+  source_updated_date -- userの情報が更新されたときに、access tokenを再発行するためのフラグ。user.updated_dateの値をコピーして入れておく
   registered_date
   expire_date
 );
