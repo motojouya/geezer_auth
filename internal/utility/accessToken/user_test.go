@@ -1,66 +1,64 @@
 package accessToken_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/utility/accessToken"
+	"github.com/motojouya/geezer_auth/pkg/accessToken"
+	"github.com/motojouya/geezer_auth/internal/model"
+	utility "github.com/motojouya/geezer_auth/internal/utility/accessToken"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
-// TODO 未実装
-
-func TestNewCompany(t *testing.T) {
-	var exposeId = "CP-TESTES"
-	var name = "TestCompany"
-	var role = "TestRole"
-	var roleName = "TestRoleName"
-
-	var company = accessToken.CreateCompany(exposeId, name, role, roleName)
-
-	assert.Equal(t, name, company.Name)
-	assert.Equal(t, exposeId, company.ExposeId)
-	assert.Equal(t, role, company.Role)
-	assert.Equal(t, roleName, company.RoleName)
-
-	t.Logf("company: %+v", company)
-	t.Logf("company.ExposeId: %s", company.ExposeId)
-	t.Logf("company.Name: %s", company.Name)
-	t.Logf("company.Role: %s", company.Role)
-	t.Logf("company.RoleName: %s", company.RoleName)
-}
-
-func TestNewUser(t *testing.T) {
-	var companyExposeId = "CP-TESTES"
-	var companyName = "TestCompany"
-	var companyRole = "TestRole"
-	var companyRoleName = "TestRoleName"
-
-	var company = accessToken.CreateCompany(exposeId, name, role, roleName)
-
+func TestModelToAccessTokenUser(t *testing.T) {
+	var userId uint = 1
 	var userExposeId = "TestExposeId"
 	var emailId = "test@gmail.com"
 	var email = "test_2@gmail.com"
 	var userName = "TestName"
 	var botFlag = false
+	var userRegisteredDate = time.Now()
 	var updateDate = time.Now()
 
-	var user = accessToken.NewUser(userExposeId, emailId, email, userName, botFlag, company, updateDate)
+	var companyId uint = 1
+	var companyExposeId = "CP-TESTES"
+	var companyName = "TestRole"
+	var companyRegisteredDate = time.Now()
+	var companyRoles = []model.Role{}
+	var company = model.NewCompany(companyId, companyExposeId, companyName, companyRegisteredDate, companyRoles)
 
-	assert.Equal(t, userExposeId, user.ExposeId)
-	assert.Equal(t, emailId, user.ExposeEmailId)
-	assert.Equal(t, email, *user.Email)
-	assert.Equal(t, userName, user.Name)
-	assert.Equal(t, botFlag, user.BotFlag)
-	assert.Equal(t, updateDate, user.UpdateDate)
-	assert.Equal(t, companyExposeId, user.Company.ExposeId)
+	var roleId uint = 1
+	var roleName = "TestRole"
+	var roleLabel = "TEST_ROLE"
+	var description = "Role for testing"
+	var roleRegisteredDate = time.Now()
+	var role = model.NewRole(roleId, roleName, roleLabel, description, roleRegisteredDate)
 
-	t.Logf("user: %+v", user)
-	t.Logf("user.ExposeId: %s", user.ExposeId)
-	t.Logf("user.ExposeEmailId: %s", user.ExposeEmailId)
-	t.Logf("user.Email: %s", *user.Email)
-	t.Logf("user.Name: %s", user.Name)
-	t.Logf("user.BotFlag: %t", user.BotFlag)
-	t.Logf("user.UpdateDate: %t", user.UpdateDate)
-	t.Logf("company: %+v", user.Company)
-	t.Logf("company.ExposeId: %s", user.Company.ExposeId)
+	var companyRole = model.NewCompanyRole(company, role)
+	var modelUser = model.NewUser(userId, userExposeId, userName, emailId, &email, botFlag, userRegisteredDate, updateDate, &companyRole)
+
+	var accessTokenUser = utility.ModelToAccessTokenUser(modelUser)
+
+	assert.Equal(t, userExposeId, accessTokenUser.ExposeId)
+	assert.Equal(t, emailId, accessTokenUser.ExposeEmailId)
+	assert.Equal(t, email, *accessTokenUser.Email)
+	assert.Equal(t, userName, accessTokenUser.Name)
+	assert.Equal(t, botFlag, accessTokenUser.BotFlag)
+	assert.Equal(t, updateDate, accessTokenUser.UpdateDate)
+	assert.Equal(t, companyExposeId, accessTokenUser.Company.ExposeId)
+	assert.Equal(t, companyName, accessTokenUser.Company.Name)
+	assert.Equal(t, roleLabel, accessTokenUser.Company.Role)
+	assert.Equal(t, roleName, accessTokenUser.Company.RoleName)
+
+	t.Logf("user: %+v", accessTokenUser)
+	t.Logf("user.ExposeId: %s", accessTokenUser.ExposeId)
+	t.Logf("user.ExposeEmailId: %s", accessTokenUser.ExposeEmailId)
+	t.Logf("user.Email: %s", *accessTokenUser.Email)
+	t.Logf("user.Name: %s", accessTokenUser.Name)
+	t.Logf("user.BotFlag: %t", accessTokenUser.BotFlag)
+	t.Logf("user.UpdateDate: %t", accessTokenUser.UpdateDate)
+	t.Logf("company: %+v", accessTokenUser.Company)
+	t.Logf("company.ExposeId: %s", accessTokenUser.Company.ExposeId)
+	t.Logf("company.Name: %s", accessTokenUser.Company.Name)
+	t.Logf("company.Role: %s", accessTokenUser.Company.Role)
+	t.Logf("company.RoleName: %s", accessTokenUser.Company.RoleName)
 }

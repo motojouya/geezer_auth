@@ -22,7 +22,6 @@ func NewJwtParser(issuer string, myself string, latestSecret string, secretMap m
 	}
 }
 
-
 func CreateJwtAudienceParser() (*JwtParser, error) {
 	if issuer, issuerExist := os.LookupEnv("JWT_ISSUER"); !issuerExist {
 		return nil, fmt.Error("JWT_ISSUER is not set on env")

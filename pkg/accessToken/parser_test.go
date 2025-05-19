@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func TestGenerateAccessToken(t *testing.T) {
+func TestCreateGeezerTokenSuccess(t *testing.T) {
 	var companyExposeId = "CP-TESTES"
 	var companyName = "TestCompany"
 	var companyRole = "TestRole"
@@ -24,28 +24,20 @@ func TestGenerateAccessToken(t *testing.T) {
 	var updateDate = time.Now()
 	var user = accessToken.NewUser(userExposeId, emailId, email, userName, botFlag, company, updateDate)
 
-	var issuedAt = time.Now()
-	var id = "TestId"
-
 	var issuer = "TestIssuer"
 	var application = "TestAudience"
 	var audience = []string{issuer, application}
+	var expiresAt = time.Now()
+	var issuedAt = time.Now()
+	var id = "TestId"
+
+	var claims = accessToken.CreateClaims(user User, issuer, audience, expiresAt, issuedAt, id)
+
 	var latestSecret = "TestSecretKeyId"
 	var secretMap = map[string]string{latestSecret:"TestSecret"}
-	var validityPeriodMinutes = 60
-	var getId = func() (string, error) {
-		return id, nil
-	}
 	var jwtParser = accessToken.NewJwtParser(issuer, application, latestSecret, secretMap)
-	var jwtHandker = accessToken.NewJwtHandler(audience, jwtParser, validityPeriodMinutes, getId)
 
-	var tokenString, err = jwtHandker.GenerateAccessToken(user, issuedAt)
-	if err != nil {
-		t.Errorf("failed to generate token: %v", err)
-		return
-	}
-
-	var token, err = jwtHandker.GetUserFromAccessToken(tokenString)
+	var token, err = jwtParser.CreateGeezerToken(claims)
 	if err != nil {
 		t.Errorf("failed to create token: %v", err)
 		return
@@ -97,9 +89,6 @@ func TestGenerateAccessToken(t *testing.T) {
 	t.Logf("company.Role: %s", token.User.Company.Role)
 	t.Logf("company.RoleName: %s", token.User.Company.RoleName)
 }
-
-// TODO working
-// CreateGeezerTokenのerrorは、issuerが違うパターンだけでいい。他のGetUserFromAccessTokenのerrorは確認する
 
 func TestCreateGeezerTokenSuccessNilCompany(t *testing.T) {
 	var companyExposeId = "CP-TESTES"
