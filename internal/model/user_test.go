@@ -35,6 +35,7 @@ func TestNewUser(t *testing.T) {
 	var userName = "TestName"
 	var botFlag = false
 	var userRegisteredDate = time.Now()
+	var updateDate = time.Now()
 
 	var companyId uint = 1
 	var companyExposeId = "CP-TESTES"
@@ -52,7 +53,7 @@ func TestNewUser(t *testing.T) {
 
 	var companyRole = model.NewCompanyRole(company, role)
 
-	var user = model.NewUser(userId, userExposeId, userName, emailId, &email, botFlag, userRegisteredDate, &companyRole)
+	var user = model.NewUser(userId, userExposeId, userName, emailId, &email, botFlag, userRegisteredDate, updateDate, &companyRole)
 
 	assert.Equal(t, userId, user.UserId)
 	assert.Equal(t, userExposeId, user.ExposeId)
@@ -60,6 +61,8 @@ func TestNewUser(t *testing.T) {
 	assert.Equal(t, email, *user.Email)
 	assert.Equal(t, userName, user.Name)
 	assert.Equal(t, botFlag, user.BotFlag)
+	assert.Equal(t, userRegisteredDate, user.RegisteredDate)
+	assert.Equal(t, updateDate, user.UpdateDate)
 	assert.Equal(t, companyId, user.CompanyRole.Company.CompanyId)
 	assert.Equal(t, roleId, user.CompanyRole.Role.RoleId)
 
@@ -70,6 +73,8 @@ func TestNewUser(t *testing.T) {
 	t.Logf("user.Email: %s", *user.Email)
 	t.Logf("user.Name: %s", user.Name)
 	t.Logf("user.BotFlag: %t", user.BotFlag)
+	t.Logf("user.RegisteredDate: %t", user.RegisteredDate)
+	t.Logf("user.UpdateDate: %t", user.UpdateDate)
 
 	t.Logf("companyRole: %+v", user.CompanyRole)
 	t.Logf("company: %+v", user.CompanyRole.Company)

@@ -4,10 +4,6 @@ import (
 	"time"
 )
 
-// model/userとの変換が必要。
-// accessToken->modelは、あんまりなさそう。というか、exposeIdからdbのデータ引っ張ってくるほうが現実的
-// model->accessTokenは、accessTokenを作る際に必要なので、実装がほしい。
-// 変換ロジックとしてどこかに持つか、あるいはprocedureの中に持たせてもいい。
 type Company struct {
 	ExposeId string
 	Name     string

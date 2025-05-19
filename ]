@@ -7,9 +7,10 @@ import (
 )
 
 // FIXME ここに実装するでいいのか
-func ModelToAccessTokenUser(user *model.User) *accessToken.User {
+func ModelToAccessTokenUser(user *model.User, company *model.Company) *accessToken.User {
 	var company *accessToken.Company = nil
 	if user.CompanyRole != nil {
+		// TODO role nameいりそう
 		company = accessToken.NewCompany(
 			user.CompanyRole.Company.ExposeId,
 			user.CompanyRole.Company.Name,
