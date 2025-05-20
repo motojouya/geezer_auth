@@ -98,10 +98,7 @@ func TestGenerateAccessToken(t *testing.T) {
 	t.Logf("company.RoleName: %s", token.User.Company.RoleName)
 }
 
-// TODO working
-// CreateGeezerTokenのerrorは、issuerが違うパターンだけでいい。他のGetUserFromAccessTokenのerrorは確認する
-
-func TestCreateGeezerTokenSuccessNilCompany(t *testing.T) {
+func TestGenerateAccessTokenFailureId(t *testing.T) {
 	var companyExposeId = "CP-TESTES"
 	var companyName = "TestCompany"
 	var companyRole = "TestRole"
@@ -116,247 +113,73 @@ func TestCreateGeezerTokenSuccessNilCompany(t *testing.T) {
 	var updateDate = time.Now()
 	var user = accessToken.NewUser(userExposeId, emailId, email, userName, botFlag, company, updateDate)
 
-	var issuer = "TestIssuer"
-	var application = "TestAudience"
-	var audience = []string{issuer, application}
-	var expiresAt = time.Now()
 	var issuedAt = time.Now()
 	var id = "TestId"
 
-	var claims = accessToken.CreateClaims(user User, issuer, audience, expiresAt, issuedAt, id)
-	claims.CompanyExposeId = nil
-	claims.CompanyName = nil
-	claims.CompanyRole = nil
-	claims.CompanyRoleName = nil
-
+	var issuer = "TestIssuer"
+	var application = "TestAudience"
+	var audience = []string{issuer, application}
 	var latestSecret = "TestSecretKeyId"
 	var secretMap = map[string]string{latestSecret:"TestSecret"}
+	var validityPeriodMinutes = 60
+	var getId = func() (string, error) {
+		return "", fmt.Error("failed to get id")
+	}
 	var jwtParser = accessToken.NewJwtParser(issuer, application, latestSecret, secretMap)
+	var jwtHandker = accessToken.NewJwtHandler(audience, jwtParser, validityPeriodMinutes, getId)
 
-	var token, err = jwtParser.CreateGeezerToken(claims)
+	var tokenString, err = jwtHandker.GenerateAccessToken(user, issuedAt)
+	if err == nil {
+		t.Errorf("failed to generate token: %v", err)
+	}
+}
+
+func TestGenerateAccessTokenFailureIssuer(t *testing.T) {
+	var companyExposeId = "CP-TESTES"
+	var companyName = "TestCompany"
+	var companyRole = "TestRole"
+	var companyRoleName = "TestRoleName"
+	var company = accessToken.CreateCompany(exposeId, name, role, roleName)
+
+	var userExposeId = "TestExposeId"
+	var emailId = "test@gmail.com"
+	var email = "test_2@gmail.com"
+	var userName = "TestName"
+	var botFlag = false
+	var updateDate = time.Now()
+	var user = accessToken.NewUser(userExposeId, emailId, email, userName, botFlag, company, updateDate)
+
+	var issuedAt = time.Now()
+	var id = "TestId"
+
+	var issuer = "TestIssuer"
+	var application = "TestAudience"
+	var audience = []string{issuer, application}
+	var latestSecret = "TestSecretKeyId"
+	var secretMap = map[string]string{latestSecret:"TestSecret"}
+	var validityPeriodMinutes = 60
+	var getId = func() (string, error) {
+		return id, nil
+	}
+	var parserServer = accessToken.NewJwtParser(issuer, application, latestSecret, secretMap)
+	var jwtHandker = accessToken.NewJwtHandler(audience, parserServer, validityPeriodMinutes, getId)
+
+	var tokenString, err = jwtHandker.GenerateAccessToken(user, issuedAt)
 	if err != nil {
-		t.Errorf("failed to create token: %v", err)
+		t.Errorf("failed to generate token: %v", err)
 		return
 	}
 
-	assert.Equal(t, issuer, token.Issuer)
-	assert.Equal(t, userExposeId, token.Subject)
-	assert.Equal(t, len(audience), len(token.Audience))
-	assert.Equal(t, issuer, token.Audience[0])
-	assert.Equal(t, application, token.Audience[1])
-	assert.Equal(t, expiresAt, token.ExpiresAt)
-	assert.Equal(t, issuedAt, token.NotBefore)
-	assert.Equal(t, issuedAt, token.IssuedAt)
-	assert.Equal(t, id, token.ID)
-
-	assert.Equal(t, userExposeId, token.User.ExposeId)
-	assert.Equal(t, emailId, token.User.ExposeEmailId)
-	assert.Equal(t, email, *token.User.Email)
-	assert.Equal(t, userName, token.User.Name)
-	assert.Equal(t, botFlag, token.User.BotFlag)
-	assert.Equal(t, updateDate, token.User.UpdateDate)
-	assert.Equal(t, nil, token.User.Company)
-
-	t.Logf("token: %+v", token)
-	t.Logf("token.Issuer: %s", token.Issuer)
-	t.Logf("token.Subject: %s", token.Subject)
-	t.Logf("token.Audience[0]: %s", token.Audience[0])
-	t.Logf("token.Audience[1]: %s", token.Audience[1])
-	t.Logf("token.ExpiresAt: %s", token.ExpiresAt)
-	t.Logf("token.NotBefore: %s", token.NotBefore)
-	t.Logf("token.IssuedAt: %s", token.IssuedAt)
-	t.Logf("token.ID: %s", token.ID)
-
-	t.Logf("user: %+v", token.User)
-	t.Logf("user.ExposeId: %s", token.User.ExposeId)
-	t.Logf("user.ExposeEmailId: %s", token.User.ExposeEmailId)
-	t.Logf("user.Email: %s", *token.User.Email)
-	t.Logf("user.Name: %s", token.User.Name)
-	t.Logf("user.BotFlag: %t", token.User.BotFlag)
-	t.Logf("user.UpdateDate: %t", token.User.UpdateDate)
-}
-
-func TestCreateGeezerTokenFailureCompanyId(t *testing.T) {
-	var companyExposeId = "CP-TESTES"
-	var companyName = "TestCompany"
-	var companyRole = "TestRole"
-	var companyRoleName = "TestRoleName"
-	var company = accessToken.CreateCompany(exposeId, name, role, roleName)
-
-	var userExposeId = "TestExposeId"
-	var emailId = "test@gmail.com"
-	var email = "test_2@gmail.com"
-	var userName = "TestName"
-	var botFlag = false
-	var updateDate = time.Now()
-	var user = accessToken.NewUser(userExposeId, emailId, email, userName, botFlag, company, updateDate)
-
-	var issuer = "TestIssuer"
-	var application = "TestAudience"
-	var audience = []string{issuer, application}
-	var expiresAt = time.Now()
-	var issuedAt = time.Now()
-	var id = "TestId"
-
-	var claims = accessToken.CreateClaims(user User, issuer, audience, expiresAt, issuedAt, id)
-	claims.CompanyExposeId = nil
-
-	var latestSecret = "TestSecretKeyId"
-	var secretMap = map[string]string{latestSecret:"TestSecret"}
-	var jwtParser = accessToken.NewJwtParser(issuer, application, latestSecret, secretMap)
-
-	var token, err = jwtParser.CreateGeezerToken(claims)
-	if err == nil {
-		// TODO error messageを確認する
-		t.Errorf("expected error, but got nil")
-	}
-}
-
-func TestCreateGeezerTokenFailureCompanyName(t *testing.T) {
-	var companyExposeId = "CP-TESTES"
-	var companyName = "TestCompany"
-	var companyRole = "TestRole"
-	var companyRoleName = "TestRoleName"
-	var company = accessToken.CreateCompany(exposeId, name, role, roleName)
-
-	var userExposeId = "TestExposeId"
-	var emailId = "test@gmail.com"
-	var email = "test_2@gmail.com"
-	var userName = "TestName"
-	var botFlag = false
-	var updateDate = time.Now()
-	var user = accessToken.NewUser(userExposeId, emailId, email, userName, botFlag, company, updateDate)
-
-	var issuer = "TestIssuer"
-	var application = "TestAudience"
-	var audience = []string{issuer, application}
-	var expiresAt = time.Now()
-	var issuedAt = time.Now()
-	var id = "TestId"
-
-	var claims = accessToken.CreateClaims(user User, issuer, audience, expiresAt, issuedAt, id)
-	claims.CompanyName = nil
-
-	var latestSecret = "TestSecretKeyId"
-	var secretMap = map[string]string{latestSecret:"TestSecret"}
-	var jwtParser = accessToken.NewJwtParser(issuer, application, latestSecret, secretMap)
-
-	var token, err = jwtParser.CreateGeezerToken(claims)
-	if err == nil {
-		// TODO error messageを確認する
-		t.Errorf("expected error, but got nil")
-	}
-}
-
-func TestCreateGeezerTokenFailureCompanyRole(t *testing.T) {
-	var companyExposeId = "CP-TESTES"
-	var companyName = "TestCompany"
-	var companyRole = "TestRole"
-	var companyRoleName = "TestRoleName"
-	var company = accessToken.CreateCompany(exposeId, name, role, roleName)
-
-	var userExposeId = "TestExposeId"
-	var emailId = "test@gmail.com"
-	var email = "test_2@gmail.com"
-	var userName = "TestName"
-	var botFlag = false
-	var updateDate = time.Now()
-	var user = accessToken.NewUser(userExposeId, emailId, email, userName, botFlag, company, updateDate)
-
-	var issuer = "TestIssuer"
-	var application = "TestAudience"
-	var audience = []string{issuer, application}
-	var expiresAt = time.Now()
-	var issuedAt = time.Now()
-	var id = "TestId"
-
-	var claims = accessToken.CreateClaims(user User, issuer, audience, expiresAt, issuedAt, id)
-	claims.CompanyRole = nil
-
-	var latestSecret = "TestSecretKeyId"
-	var secretMap = map[string]string{latestSecret:"TestSecret"}
-	var jwtParser = accessToken.NewJwtParser(issuer, application, latestSecret, secretMap)
-
-	var token, err = jwtParser.CreateGeezerToken(claims)
-	if err == nil {
-		// TODO error messageを確認する
-		t.Errorf("expected error, but got nil")
-	}
-}
-
-func TestCreateGeezerTokenFailureCompanyRoleName(t *testing.T) {
-	var companyExposeId = "CP-TESTES"
-	var companyName = "TestCompany"
-	var companyRole = "TestRole"
-	var companyRoleName = "TestRoleName"
-	var company = accessToken.CreateCompany(exposeId, name, role, roleName)
-
-	var userExposeId = "TestExposeId"
-	var emailId = "test@gmail.com"
-	var email = "test_2@gmail.com"
-	var userName = "TestName"
-	var botFlag = false
-	var updateDate = time.Now()
-	var user = accessToken.NewUser(userExposeId, emailId, email, userName, botFlag, company, updateDate)
-
-	var issuer = "TestIssuer"
-	var application = "TestAudience"
-	var audience = []string{issuer, application}
-	var expiresAt = time.Now()
-	var issuedAt = time.Now()
-	var id = "TestId"
-
-	var claims = accessToken.CreateClaims(user User, issuer, audience, expiresAt, issuedAt, id)
-	claims.CompanyRoleName = nil
-
-	var latestSecret = "TestSecretKeyId"
-	var secretMap = map[string]string{latestSecret:"TestSecret"}
-	var jwtParser = accessToken.NewJwtParser(issuer, application, latestSecret, secretMap)
-
-	var token, err = jwtParser.CreateGeezerToken(claims)
-	if err == nil {
-		// TODO error messageを確認する
-		t.Errorf("expected error, but got nil")
-	}
-}
-
-func TestCreateGeezerTokenFailureIssuer(t *testing.T) {
-	var companyExposeId = "CP-TESTES"
-	var companyName = "TestCompany"
-	var companyRole = "TestRole"
-	var companyRoleName = "TestRoleName"
-	var company = accessToken.CreateCompany(exposeId, name, role, roleName)
-
-	var userExposeId = "TestExposeId"
-	var emailId = "test@gmail.com"
-	var email = "test_2@gmail.com"
-	var userName = "TestName"
-	var botFlag = false
-	var updateDate = time.Now()
-	var user = accessToken.NewUser(userExposeId, emailId, email, userName, botFlag, company, updateDate)
-
 	var wrongIssuer = "WrongIssuer"
-	var application = "TestAudience"
-	var audience = []string{wrongIssuer, application}
-	var expiresAt = time.Now()
-	var issuedAt = time.Now()
-	var id = "TestId"
+	var parserClient = accessToken.NewJwtParser(wrongIssuer, application, latestSecret, secretMap)
 
-	var claims = accessToken.CreateClaims(user User, wrongIssuer, audience, expiresAt, issuedAt, id)
-
-	var issuer = "TestIssuer"
-	var latestSecret = "TestSecretKeyId"
-	var secretMap = map[string]string{latestSecret:"TestSecret"}
-	var jwtParser = accessToken.NewJwtParser(issuer, application, latestSecret, secretMap)
-
-	var token, err = jwtParser.CreateGeezerToken(claims)
+	var token, err = parserClient.GetUserFromAccessToken(tokenString)
 	if err == nil {
-		// TODO error messageを確認する
-		t.Errorf("expected error, but got nil")
+		t.Errorf("failed to generate token: %v", err)
 	}
 }
 
-func TestCreateGeezerTokenFailureAudience(t *testing.T) {
+func TestGenerateAccessTokenFailureSecret(t *testing.T) {
 	var companyExposeId = "CP-TESTES"
 	var companyName = "TestCompany"
 	var companyRole = "TestRole"
@@ -371,23 +194,32 @@ func TestCreateGeezerTokenFailureAudience(t *testing.T) {
 	var updateDate = time.Now()
 	var user = accessToken.NewUser(userExposeId, emailId, email, userName, botFlag, company, updateDate)
 
-	var issuer = "TestIssuer"
-	var application = "TestAudience"
-	var audience = []string{issuer, application}
-	var expiresAt = time.Now()
 	var issuedAt = time.Now()
 	var id = "TestId"
 
-	var claims = accessToken.CreateClaims(user User, issuer, audience, expiresAt, issuedAt, id)
-
-	var wrongAudience = "WrongAudience"
+	var issuer = "TestIssuer"
+	var application = "TestAudience"
+	var audience = []string{issuer, application}
 	var latestSecret = "TestSecretKeyId"
 	var secretMap = map[string]string{latestSecret:"TestSecret"}
-	var jwtParser = accessToken.NewJwtParser(issuer, wrongAudience, latestSecret, secretMap)
+	var validityPeriodMinutes = 60
+	var getId = func() (string, error) {
+		return id, nil
+	}
+	var parserServer = accessToken.NewJwtParser(issuer, application, latestSecret, secretMap)
+	var jwtHandker = accessToken.NewJwtHandler(audience, parserServer, validityPeriodMinutes, getId)
 
-	var token, err = jwtParser.CreateGeezerToken(claims)
+	var tokenString, err = jwtHandker.GenerateAccessToken(user, issuedAt)
+	if err != nil {
+		t.Errorf("failed to generate token: %v", err)
+		return
+	}
+
+	var wrongSecretMap = map[string]string{"wrongKey":"TestSecret"}
+	var parserClient = accessToken.NewJwtParser(issuer, application, latestSecret, wrongSecretMap)
+
+	var token, err = parserClient.GetUserFromAccessToken(tokenString)
 	if err == nil {
-		// TODO error messageを確認する
-		t.Errorf("expected error, but got nil")
+		t.Errorf("failed to generate token: %v", err)
 	}
 }
