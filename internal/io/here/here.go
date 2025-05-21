@@ -6,26 +6,21 @@ import (
 	"time"
 )
 
-const (
-	exposeIdDigit = 6
-	exposeIdChar  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-)
-
-func NewExposeId(prefix string) string {
-	b := make([]byte, exposeIdDigit)
+func GenerateLargeCharactorString(length int, source string) string {
+	b := make([]byte, length)
 	for i := range b {
-		b[i] = exposeIdChar[rand.Intn(len(exposeIdChar))]
+		b[i] = source[rand.Intn(len(source))]
 	}
-	return prefix + string(b)
+	return string(b)
 }
 
-func GenerateUUID() (string, error) {
-	token, err := uuid.NewUUID()
+func GenerateUUID() (UUID, error) {
+	uuid, err := uuid.NewUUID()
 	if err != nil {
-		return "", err
+		return UUID(""), err
 	}
 
-	return token.String(), nil
+	return uuid, nil
 }
 
 func GetNow() time.Time {

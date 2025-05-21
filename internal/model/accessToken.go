@@ -4,16 +4,11 @@ import (
 	"time"
 )
 
-type AccessToken struct {
-	Token string
-	ExpireDate time.Time
-}
+type AccessToken string
 
-func NewAccessToken(token string, expireDate time.Time) AccessToken {
-	return AccessToken{
-		Token: token,
-		ExpireDate: expireDate,
-	}
+// DBから来た値のみを想定。Generateする際はpkg/accessTokenに任せる
+func NewAccessToken(token string) AccessToken {
+	return AccessToken(token)
 }
 
 // TODO これそもそもuser_updated_atが、DBに入ってたら、それと照合してDBだけで条件検索できる。ので、単純にgenerateだけで良い気がしてきた。

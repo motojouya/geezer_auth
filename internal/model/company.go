@@ -7,8 +7,8 @@ import (
 const CompanyExposeIdPrefix = "CP-"
 
 type UnsavedCompany struct {
-	ExposeId string
-	Name     string
+	ExposeId ExposeId
+	Name     Name
 }
 
 type Company struct {
@@ -18,18 +18,33 @@ type Company struct {
 	UnsavedCompany
 }
 
-func CreateCompany(exposeId string, name string) UnsavedCompany {
+type CompanyWithRole struct {
+	Company
+	Roles          []Role
+}
+
+func NewCompanyExposeId(random string) (ExposeId, error) {
+	return NewExposeId(CompanyExposeIdPrefix, random)
+}
+
+func CreateCompany(exposeId ExposeId, name Name) UnsavedCompany {
 	return UnsavedCompany{
 		ExposeId: exposeId,
 		Name:     name,
 	}
 }
 
-func NewCompany(companyId uint, exposeId string, name string, registeredDate time.Time, roles []Role) Company {
+func NewCompany(companyId uint, exposeId ExposeId, name Name, registeredDate time.Time, roles []Role) Company {
 	return Company{
 		CompanyId:      companyId,
 		RegisteredDate: registeredDate,
-		Roles:          roles,
 		UnsavedCompany: CreateCompany(exposeId, name),
+	}
+}
+
+func NewCompanyWithRole(companyId uint, exposeId ExposeId, name Name, registeredDate time.Time, roles []Role) CompanyWithRole {
+	return CompanyWithRole{
+		Company: NewCompany(companyId, exposeId, name, registeredDate),
+		Roles:   roles,
 	}
 }

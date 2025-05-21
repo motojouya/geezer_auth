@@ -305,8 +305,8 @@ create table user (
 );
 
 create table user_email (
-  user_id
   user_email_id
+  user_id
   email
   verified
   registered_date
@@ -314,6 +314,7 @@ create table user_email (
 );
 
 create table user_password (
+  user_password_id
   user_id
   password
   registered_date
@@ -321,6 +322,7 @@ create table user_password (
 );
 
 create table user_refresh_token (
+  user_refresh_token_id
   user_id
   refresh_token
   registered_date
@@ -328,6 +330,7 @@ create table user_refresh_token (
 );
 
 create table user_access_token (
+  user_access_token_id
   user_id
   access_token
   source_updated_date -- userの情報が更新されたときに、access tokenを再発行するためのフラグ。user.updated_dateの値をコピーして入れておく

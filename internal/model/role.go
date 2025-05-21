@@ -5,8 +5,8 @@ import (
 )
 
 type UnsavedRole struct {
-	Name        string
-	Label       string
+	Name        Name
+	Label       Label
 	Description string
 }
 
@@ -16,7 +16,7 @@ type Role struct {
 	UnsavedRole
 }
 
-func CreateRole(name string, label string, description string) UnsavedRole {
+func CreateRole(name Name, label Label, description string) UnsavedRole {
 	return UnsavedRole{
 		Name:        name,
 		Label:       label,
@@ -24,7 +24,7 @@ func CreateRole(name string, label string, description string) UnsavedRole {
 	}
 }
 
-func NewRole(roleId uint, name string, label string, description string, registeredDate time.Time) Role {
+func NewRole(roleId uint, name Name, label Label, description string, registeredDate time.Time) Role {
 	return Role{
 		RoleId:         roleId,
 		RegisteredDate: registeredDate,

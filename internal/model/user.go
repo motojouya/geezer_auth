@@ -7,22 +7,26 @@ import (
 const UserExposeIdPrefix = "US-"
 
 type UnsavedUser struct {
-	ExposeId      string
-	ExposeEmailId string
-	Name          string
+	ExposeId      ExposeId
+	ExposeEmailId Email
+	Name          Name
 	BotFlag       bool
 }
 
 type User struct {
 	UserId         uint
 	CompanyRole    *CompanyRole
-	Email          *string
+	Email          *Email
 	RegisteredDate time.Time
 	UpdateDate     time.Time
 	UnsavedUser
 }
 
-func CreateUser(exposeId string, emailId string, name string, botFlag bool) UnsavedUser {
+func NewUserExposeId(random string) (ExposeId, error) {
+	return NewExposeId(UserExposeIdPrefix, random)
+}
+
+func CreateUser(exposeId ExposeId, emailId Email, name Name, botFlag bool) UnsavedUser {
 	return UnsavedUser{
 		ExposeId:      exposeId,
 		ExposeEmailId: emailId,
@@ -31,7 +35,7 @@ func CreateUser(exposeId string, emailId string, name string, botFlag bool) Unsa
 	}
 }
 
-func NewUser(userId uint, exposeId string, name string, emailId string, email *string, botFlag bool, registeredDate time.Time, updateDate time.Time, companyRole *CompanyRole) User {
+func NewUser(userId uint, exposeId ExposeId, name Name, emailId Email, email *Email, botFlag bool, registeredDate time.Time, updateDate time.Time, companyRole *CompanyRole) User {
 	return User{
 		UserId:         userId,
 		CompanyRole:    companyRole,
