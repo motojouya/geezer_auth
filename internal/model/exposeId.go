@@ -12,13 +12,31 @@ const (
 
 type ExposeId string
 
-func NewExposeId(prefix string, randoms string) (ExposeId, error) {
-	var length = len([]rune(randoms))
-	if length != 6 {
-		return ExposeId(""), fmt.Errorf("randoms must be 6 characters")
+func CreateExposeId(prefix string, randoms string) (ExposeId, error) {
+	return NewExposeId(prefix + randoms)
+}
+
+func NewExposeId(exposeId string) (ExposeId, error) {
+	if exposeId == "" {
+		return ExposeId(""), fmt.Error("exposeId cannot be empty")
 	}
 
-	// TODO 本当はExposeIdCharのみであることを保証したい
+	var length = len([]rune(exposeId))
+	if length != 9 {
+		return ExposeId(""), fmt.Errorf("randoms must be 9 characters")
+	}
 
-	return ExposeId(prefix + randoms), nil
+	// TODO 正規表現あってる？
+	re, err := regexp.Compile(`^[A-Z_]{2}-[A-Z_]{6}$`)
+	if err != nil {
+		// 固定値なのでエラーにはならないはず
+		panic(err)
+	}
+
+	var result = re.MatchString(text, -1)
+	if !result {
+		return ExposeId(""), fmt.Errorf("exposeId must contain only uppercase letters and underscores")
+	}
+
+	return ExposeId(exposeId), nil
 }

@@ -13,12 +13,12 @@ func NewLabel(label string) (Label, error) {
 	}
 
 	var length = len([]rune(label))
-	if length < 1 || length > 255 {
+	if length < 2 || length > 255 {
 		return Label(""), fmt.Errorf("label must be between 1 and 255 characters")
 	}
 
 	// TODO 正規表現あってる？
-	re, err := regexp.Compile(`^[A-Z_]+$`)
+	re, err := regexp.Compile(`^[A-Z]{1}[A-Z_]*[A-Z]{1}$`)
 	if err != nil {
 		// 固定値なのでエラーにはならないはず
 		panic(err)

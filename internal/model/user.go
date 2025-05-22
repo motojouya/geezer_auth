@@ -23,7 +23,7 @@ type User struct {
 }
 
 func NewUserExposeId(random string) (ExposeId, error) {
-	return NewExposeId(UserExposeIdPrefix, random)
+	return CreateExposeId(UserExposeIdPrefix, random)
 }
 
 func CreateUser(exposeId ExposeId, emailId Email, name Name, botFlag bool) UnsavedUser {

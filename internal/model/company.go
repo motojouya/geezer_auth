@@ -24,7 +24,7 @@ type CompanyWithRole struct {
 }
 
 func NewCompanyExposeId(random string) (ExposeId, error) {
-	return NewExposeId(CompanyExposeIdPrefix, random)
+	return CreateExposeId(CompanyExposeIdPrefix, random)
 }
 
 func CreateCompany(exposeId ExposeId, name Name) UnsavedCompany {
