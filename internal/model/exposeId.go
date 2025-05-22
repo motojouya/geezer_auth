@@ -10,6 +10,12 @@ const (
 	ExposeIdLength = 6
 )
 
+/*
+ * ExposeIdはlarge alphabet2文字と、large alphabet6文字をハイフンで繋いだもの。以下が例
+ * `AB-ABCDEF`
+ * 前2文字は、なんのExposeIdかを識別するための接頭語で、例としてCompanyならCP、UserならUSなど
+ * 後ろ6文字はランダムな値
+ */
 type ExposeId string
 
 func CreateExposeId(prefix string, randoms string) (ExposeId, error) {

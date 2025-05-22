@@ -18,7 +18,7 @@ func NewLabel(label string) (Label, error) {
 	}
 
 	// TODO 正規表現あってる？
-	re, err := regexp.Compile(`^[A-Z]{1}[A-Z_]*[A-Z]{1}$`)
+	re, err := regexp.Compile(`^[A-Z]{1}[A-Z_]{0,253}[A-Z]{1}$`)
 	if err != nil {
 		// 固定値なのでエラーにはならないはず
 		panic(err)

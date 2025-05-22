@@ -6,7 +6,7 @@ import (
 
 type UnsavedUserPassword struct {
 	User           User
-	Password       Password
+	Password       HashedPassword
 	RegisteredDate time.Time
 	ExpireDate     *time.Time
 }
@@ -16,7 +16,7 @@ type UserPassword struct {
 	UnsavedUserPassword
 }
 
-func CreateUserPassword(user User, password Password, registeredDate time.Time) UnsavedUserPassword {
+func CreateUserPassword(user User, password HashedPassword, registeredDate time.Time) UnsavedUserPassword {
 	return UnsavedUserPassword{
 		User:           user,
 		Password:       password,
@@ -25,7 +25,7 @@ func CreateUserPassword(user User, password Password, registeredDate time.Time) 
 	}
 }
 
-func NewUserPassword(userPasswordID uint, user User, password Password, registeredDate time.Time, expireDate time.Time) UserPassword {
+func NewUserPassword(userPasswordID uint, user User, password HashedPassword, registeredDate time.Time, expireDate time.Time) UserPassword {
 	return UserPassword{
 		UserPasswordID userPasswordID
 		UnsavedUserPassword: UnsavedUserPassword{
