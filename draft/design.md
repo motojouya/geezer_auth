@@ -365,7 +365,6 @@ create table user_company_role (
 );
 
 create table role (
-  company_id
   role_id
   name
   label unique

@@ -72,16 +72,16 @@ func CreateJwtHandler() (*JwtHandler, error) {
 		return JwtToken(""), err
 	}
 
-	var expireDate = issueDate.Add(jwtHandler.ValidityPeriodMinutes * time.Minute)
-
-	var claims = CreateClaims(
-		user,
+	var authentic = model.CreateAuthentic(
 		jwtHandler.Issuer,
 		jwtHandler.Audience,
-		expireDate,
 		issueDate,
+		jwtHandler.ValidityPeriodMinutes,
 		id,
+		user,
 	)
+
+	var claims = FromAuthentic(authentic)
 
 	var token = jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	token.Header["kid"] = jwtHandler.LatestSecretKeyId

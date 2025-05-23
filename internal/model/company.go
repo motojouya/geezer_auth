@@ -17,11 +17,6 @@ type Company struct {
 	UnsavedCompany
 }
 
-type CompanyWithRole struct {
-	Company
-	Roles []RoleWithoutCompany
-}
-
 func CreateCompanyExposeId(random string) (pkg.ExposeId, error) {
 	return pkg.CreateExposeId(CompanyExposeIdPrefix, random)
 }
@@ -38,12 +33,5 @@ func NewCompany(companyId uint, exposeId pkg.ExposeId, name pkg.Name, registered
 	return Company{
 		CompanyId:      companyId,
 		pkg.Company: CreateCompany(exposeId, name, registeredDate),
-	}
-}
-
-func NewCompanyWithRole(companyId uint, exposeId pkg.ExposeId, name pkg.Name, registeredDate time.Time, roles []RoleWithoutCompany) CompanyWithRole {
-	return CompanyWithRole{
-		Company: NewCompany(companyId, exposeId, name, registeredDate),
-		Roles:   roles,
 	}
 }

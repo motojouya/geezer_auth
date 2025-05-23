@@ -8,7 +8,7 @@ type JwtToken string
 
 // DBから来た値のみを想定。Generateする際はpkg/accessTokenに任せる
 func NewJwtToken(token string) JwtToken {
-	return AccessToken(token)
+	return JwtToken(token)
 }
 
 // TODO これそもそもuser_updated_atが、DBに入ってたら、それと照合してDBだけで条件検索できる。ので、単純にgenerateだけで良い気がしてきた。

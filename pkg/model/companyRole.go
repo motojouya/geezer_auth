@@ -2,13 +2,12 @@ package model
 
 type CompanyRole struct {
 	Company Company
-	Role    Role
+	Roles   []Role
 }
 
-func NewCompanyRole(company Company, role Role) CompanyRole {
+func NewCompanyRole(company Company, roles []Role) CompanyRole {
 	return CompanyRole{
 		Company: company,
-		Role:    role,
+		Roles:   roles,
 	}
 }
-

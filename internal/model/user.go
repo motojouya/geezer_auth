@@ -52,12 +52,16 @@ func NewUser(userId uint, exposeId pkg.ExposeId, name pkg.Name, emailId pkg.Emai
  * internal.modelがpkg.modelに依存する形なので、internal.modelに変換関数をもたせる形
  */
 (user *User) func ToJwtUser() *pkg.User {
-
 	var companyRole *pkg.CompanyRole = nil
 	if user.CompanyRole != nil {
 		var company = pkg.NewCompany(user.CompanyRole.Company.ExposeId, user.CompanyRole.Company.Name)
-		var role = pkg.NewRole(user.CompanyRole.Role.Label, user.CompanyRole.Role.Name)
-		companyRole = pkg.NewCompanyRole(company, role)
+
+		var roles = make([]*pkg.Role, len(sourceRoles))
+		for i, source := range user.CompanyRole.Roles {
+			roles[i] = pkg.NewRole(source.Label, source.Name)
+		}
+
+		companyRole = pkg.NewCompanyRole(company, roles)
 	}
 
 	return pkg.NewUser(

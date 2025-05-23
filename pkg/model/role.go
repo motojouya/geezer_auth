@@ -7,7 +7,7 @@ type Role {
 
 func NewRole(label Label, name Name) Role {
 	return Role{
-		label: Label,
-		Name: name,
+		label:   label,
+		Name:    name,
 	}
 }

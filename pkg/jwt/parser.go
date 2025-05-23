@@ -3,6 +3,7 @@ package jwt
 import (
 	"github.com/golang-jwt/jwt/v5"
 	"os"
+	"github.com/motojouya/geezer_auth/pkg/model"
 )
 
 // TODO middlewareも作ってしまいたい。イメージを掴んで置く
@@ -63,58 +64,8 @@ func CreateJwtIssuerParser() (*JwtParser, error) {
 	), nil
 }
 
-(jwtParser JwtParser) func CreateGeezerToken(claims GeezerClaims) (*GeezerToken, error) {
-	var company *Company = nil
-	if claims.CompanyExposeId != nil && claims.CompanyName != nil && claims.CompanyRole != nil && claims.CompanyRoleName != nil {
-		company = NewCompany(*claims.CompanyExposeId, *claims.CompanyName, *claims.CompanyRole, *claims.CompanyRoleName)
-	} else {
-		if claims.CompanyExposeId != nil {
-			return nil, fmt.Error("CompanyExposeId is not nil")
-		}
-		if claims.CompanyName != nil {
-			return nil, fmt.Error("CompanyName is not nil")
-		}
-		if claims.CompanyRole != nil {
-			return nil, fmt.Error("CompanyRole is not nil")
-		}
-		if claims.CompanyRoleName != nil {
-			return nil, fmt.Error("CompanyRoleName is not nil")
-		}
-		// company = nil
-	}
-
-	var user = NewUser(
-		claims.Subject,
-		claims.UserEmailId,
-		claims.UserEmail,
-		claims.UserName,
-		claims.BotFlag,
-		company,
-		claims.UpdateDate.Time,
-	)
-
-	// issuerチェックでerrorとしているが、Tokenの中にvalidというflagを入れる方法もある。audienceも同様。
-	if jwtParser.Issuer == claims.Issuer {
-		return nil, fmt.Error("Issuer is not valid")
-	}
-	if claims.Audience.Contains(jwtParser.Myself) {
-		return nil, fmt.Error("Audience is not valid")
-	}
-
-	return NewGeezerToken(
-		claims.Issuer,
-		claims.Subject,
-		claims.Audience,
-		claims.ExpiresAt.Time,
-		claims.NotBefore.Time,
-		claims.IssuedAt.Time,
-		claims.ID,
-		user,
-	), nil
-}
-
 // 引数のtokenStringはJwtToken型としてもいいが、いずれにしろこの関数で制約がかかるので、事前にチェックされた値ではなくstringを受けるほうが自然
-(jwtParser *JwtParser) func GetUserFromAccessToken(tokenString string) (*GeezerToken, error) {
+(jwtParser *JwtParser) func GetUserFromAccessToken(tokenString string) (*model.Authentic, error) {
  	token, err := jwt.ParseWithClaims(
  		tokenString,
  		&GeezerClaims{},
@@ -140,5 +91,5 @@ func CreateJwtIssuerParser() (*JwtParser, error) {
 		return nil, fmt.Error("Invalid token")
 	}
 
-	return jwtParser.CreateGeezerToken(claims)
+	return claims.ToAuthentic(jwtParser.Issuer, jwtParser.Myself)
 }
