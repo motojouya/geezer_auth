@@ -2,47 +2,46 @@ package model
 
 import (
 	"time"
+	pkg "github.com/motojouya/geezer_auth/pkg/model"
 )
 
 const CompanyExposeIdPrefix = "CP-"
 
 type UnsavedCompany struct {
-	ExposeId ExposeId
-	Name     Name
+	pkg.Company
+	RegisteredDate time.Time
 }
 
 type Company struct {
-	CompanyId      uint
-	RegisteredDate time.Time
-	Roles          []Role
+	CompanyId uint
 	UnsavedCompany
 }
 
 type CompanyWithRole struct {
 	Company
-	Roles          []Role
+	Roles []RoleWithoutCompany
 }
 
-func NewCompanyExposeId(random string) (ExposeId, error) {
-	return CreateExposeId(CompanyExposeIdPrefix, random)
+func CreateCompanyExposeId(random string) (pkg.ExposeId, error) {
+	return pkg.CreateExposeId(CompanyExposeIdPrefix, random)
 }
 
-func CreateCompany(exposeId ExposeId, name Name) UnsavedCompany {
+func CreateCompany(exposeId ExposeId, name Name, registeredDate time.Time) UnsavedCompany {
 	return UnsavedCompany{
-		ExposeId: exposeId,
-		Name:     name,
+		ExposeId:       exposeId,
+		Name:           name,
+		RegisteredDate: registeredDate,
 	}
 }
 
-func NewCompany(companyId uint, exposeId ExposeId, name Name, registeredDate time.Time, roles []Role) Company {
+func NewCompany(companyId uint, exposeId pkg.ExposeId, name pkg.Name, registeredDate time.Time, roles []RoleWithoutCompany) Company {
 	return Company{
 		CompanyId:      companyId,
-		RegisteredDate: registeredDate,
-		UnsavedCompany: CreateCompany(exposeId, name),
+		pkg.Company: CreateCompany(exposeId, name, registeredDate),
 	}
 }
 
-func NewCompanyWithRole(companyId uint, exposeId ExposeId, name Name, registeredDate time.Time, roles []Role) CompanyWithRole {
+func NewCompanyWithRole(companyId uint, exposeId pkg.ExposeId, name pkg.Name, registeredDate time.Time, roles []RoleWithoutCompany) CompanyWithRole {
 	return CompanyWithRole{
 		Company: NewCompany(companyId, exposeId, name, registeredDate),
 		Roles:   roles,

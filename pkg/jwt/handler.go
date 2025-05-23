@@ -1,4 +1,4 @@
-package accessToken
+package jwt
 
 import (
 	"github.com/golang-jwt/jwt/v5"
@@ -26,12 +26,16 @@ func NewJwtHandler(audience []string, jwtParser JwtParser, validityPeriodMinutes
 }
 
 func CreateJwtHandler() (*JwtHandler, error) {
-	if audience, audienceExist := os.LookupEnv("JWT_AUDIENCE"); !audienceExist {
+	var audience, audienceExist = os.LookupEnv("JWT_AUDIENCE");
+	if !audienceExist {
 		return nil, fmt.Error("JWT_AUDIENCE is not set on env")
 	}
-	if validityPeriodMinutesStr, validityPeriodMinutesExist := os.LookupEnv("JWT_VALIDITY_PERIOD_MINUTES"); !validityPeriodMinutesExist {
+
+	var validityPeriodMinutesStr, validityPeriodMinutesExist = os.LookupEnv("JWT_VALIDITY_PERIOD_MINUTES");
+	if !validityPeriodMinutesExist {
 		return nil, fmt.Error("JWT_VALIDITY_PERIOD_MINUTES is not set on env")
 	}
+
 	var validityPeriodMinutes, err = strconv.Atoi(validityPeriodMinutesStr)
 	if err != nil {
 		return nil, err
@@ -62,10 +66,10 @@ func CreateJwtHandler() (*JwtHandler, error) {
 	), nil
 }
 
-(jwtHandler *JwtHandler) func GenerateAccessToken(user User, issueDate time.Time) (string, error) {
+(jwtHandler *JwtHandler) func GenerateAccessToken(user User, issueDate time.Time) (JwtToken, error) {
 	var id, err = jwtHandler.GetId()
 	if err != nil {
-		return "", err
+		return JwtToken(""), err
 	}
 
 	var expireDate = issueDate.Add(jwtHandler.ValidityPeriodMinutes * time.Minute)
@@ -85,8 +89,8 @@ func CreateJwtHandler() (*JwtHandler, error) {
 	var secret = jwtHandler.SecretMap[jwtHandler.LatestSecretKeyId]
 	tokenString, err := token.SignedString(secret)
 	if err != nil {
-        	return "", err
+        	return JwtToken(""), err
 	}
 
-	return tokenString, nil
+	return NewJwtToken(tokenString), nil
 }

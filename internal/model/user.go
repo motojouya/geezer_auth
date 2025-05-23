@@ -2,46 +2,71 @@ package model
 
 import (
 	"time"
+	pkg "github.com/motojouya/geezer_auth/pkg/model"
 )
 
 const UserExposeIdPrefix = "US-"
 
 type UnsavedUser struct {
-	ExposeId      ExposeId
-	ExposeEmailId Email
-	Name          Name
-	BotFlag       bool
+	ExposeId       pkg.ExposeId
+	ExposeEmailId  pkg.Email
+	Name           pkg.Name
+	BotFlag        bool
+	RegisteredDate time.Time
+	UpdateDate     time.Time
 }
 
 type User struct {
 	UserId         uint
 	CompanyRole    *CompanyRole
-	Email          *Email
-	RegisteredDate time.Time
-	UpdateDate     time.Time
+	Email          *pkg.Email
 	UnsavedUser
 }
 
-func NewUserExposeId(random string) (ExposeId, error) {
-	return CreateExposeId(UserExposeIdPrefix, random)
+func CreateUserExposeId(random string) (pkg.ExposeId, error) {
+	return pkg.CreateExposeId(UserExposeIdPrefix, random)
 }
 
-func CreateUser(exposeId ExposeId, emailId Email, name Name, botFlag bool) UnsavedUser {
+func CreateUser(exposeId pkg.ExposeId, emailId pkg.Email, name pkg.Name, botFlag bool, registeredDate time.Time, updateDate time.Time) UnsavedUser {
 	return UnsavedUser{
-		ExposeId:      exposeId,
-		ExposeEmailId: emailId,
-		Name:          name,
-		BotFlag:       botFlag,
+		ExposeId:       exposeId,
+		ExposeEmailId:  emailId,
+		Name:           name,
+		BotFlag:        botFlag,
+		RegisteredDate: registeredDate,
+		UpdateDate:     updateDate,
 	}
 }
 
-func NewUser(userId uint, exposeId ExposeId, name Name, emailId Email, email *Email, botFlag bool, registeredDate time.Time, updateDate time.Time, companyRole *CompanyRole) User {
+func NewUser(userId uint, exposeId pkg.ExposeId, name pkg.Name, emailId pkg.Email, email *pkg.Email, botFlag bool, registeredDate time.Time, updateDate time.Time, companyRole *CompanyRole) User {
 	return User{
 		UserId:         userId,
 		CompanyRole:    companyRole,
 		Email:          email,
-		RegisteredDate: registeredDate,
-		UpdateDate:     updateDate,
-		UnsavedUser:    CreateUser(exposeId, emailId, name, botFlag),
+		UnsavedUser:    CreateUser(exposeId, emailId, name, botFlag, registeredDate, updateDate),
 	}
+}
+
+/*
+ * CompanyやRoleはpkgをembedして依存関係が明確だが、Userの場合はもうちょいややこしいのとhandlingのtop levelになるのでで変換メソッドがある
+ * internal.modelがpkg.modelに依存する形なので、internal.modelに変換関数をもたせる形
+ */
+(user *User) func ToJwtUser() *pkg.User {
+
+	var companyRole *pkg.CompanyRole = nil
+	if user.CompanyRole != nil {
+		var company = pkg.NewCompany(user.CompanyRole.Company.ExposeId, user.CompanyRole.Company.Name)
+		var role = pkg.NewRole(user.CompanyRole.Role.Label, user.CompanyRole.Role.Name)
+		companyRole = pkg.NewCompanyRole(company, role)
+	}
+
+	return pkg.NewUser(
+		user.ExposeId,
+		user.ExposeEmailId,
+		user.Email,
+		user.Name,
+		user.BotFlag,
+		companyRole,
+		user.UpdateDate,
+	)
 }

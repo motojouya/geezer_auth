@@ -2,32 +2,51 @@ package model
 
 import (
 	"time"
+	pkg "github.com/motojouya/geezer_auth/pkg/model"
 )
 
+// TODO CompanyがRoleを持つ際には、propertyのCompanyは不要だし、UserがCompanyRoleを持つ際にも不要。
+// 再利用性高く、かつそういうデータ型がほしい場合に何を定義すべきかな
+
+type RoleWithoutCompany struct {
+	pkg.Role
+	Description    Text
+	RegisteredDate time.Time
+}
+
 type UnsavedRole struct {
-	Name        Name
-	Label       Label
-	Description string
+	RoleWithoutCompany
+	Company Company
 }
 
 type Role struct {
-	RoleId         uint
-	RegisteredDate time.Time
+	RoleId uint
 	UnsavedRole
 }
 
-func CreateRole(name Name, label Label, description string) UnsavedRole {
-	return UnsavedRole{
-		Name:        name,
-		Label:       label,
-		Description: description,
+func NewRoleWithoutCompany(name pkg.Name, label pkg.Label, description Text, registeredDate time.Time) RoleWithoutCompany {
+	return RoleWithoutCompany{
+		Role:           pkg.NewRole(label, name),
+		Description:    description,
+		RegisteredDate: registeredDate,
 	}
 }
 
-func NewRole(roleId uint, name Name, label Label, description string, registeredDate time.Time) Role {
+func CreateRole(company Company, name pkg.Name, label pkg.Label, description Text, registeredDate time.Time) UnsavedRole {
+	return UnsavedRole{
+		Company:     company,
+		RoleWithoutCompany: NewRoleWithoutCompany(
+			Name:        name,
+			Label:       label,
+			Description: description,
+			RegisteredDate: registeredDate,
+		)
+	}
+}
+
+func NewRole(roleId uint, name pkg.Name, label pkg.Label, description Text, registeredDate time.Time) Role {
 	return Role{
 		RoleId:         roleId,
-		RegisteredDate: registeredDate,
-		UnsavedRole:    CreateRole(name, label, description),
+		UnsavedRole:    CreateRole(name, label, description, registeredDate),
 	}
 }

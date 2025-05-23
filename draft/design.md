@@ -350,6 +350,7 @@ create table company_invite (
   company_id
   token
   user_id nullable
+  role_id nullable
   registered_date
   expire_date
 );

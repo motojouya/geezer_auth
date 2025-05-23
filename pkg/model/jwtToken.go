@@ -4,10 +4,10 @@ import (
 	"time"
 )
 
-type AccessToken string
+type JwtToken string
 
 // DBから来た値のみを想定。Generateする際はpkg/accessTokenに任せる
-func NewAccessToken(token string) AccessToken {
+func NewJwtToken(token string) JwtToken {
 	return AccessToken(token)
 }
 

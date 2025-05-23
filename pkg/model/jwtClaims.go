@@ -1,4 +1,4 @@
-package accessToken
+package model
 
 import (
 	"github.com/golang-jwt/jwt/v5"
@@ -44,25 +44,25 @@ type GeezerClaims struct {
 	CompanyRoleName *string   `json:"github.com/motojouya/geezer_auth/company_role_name"`
 }
 
-func CreateClaims(user User, issuer string, audience []string, expiresAt time.Time, issuedAt time.Time, id string) *GeezerClaims {
+func CreateClaims(user User, issuer string, audience []string, expiresAt time.Time, issuedAt time.Time, id UUID) *GeezerClaims {
 	return GeezerClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    issuer,                         // iss
-			Subject:   user.ExposeId,                  // sub
+			Subject:   string(user.ExposeId),          // sub
 			Audience:  audience,                       // aud
 			ExpiresAt: jwt.NewNumericDate(expireDate), // exp
 			NotBefore: jwt.NewNumericDate(issueDate),  // nbf
 			IssuedAt:  jwt.NewNumericDate(issueDate),  // iat
-			ID:        id                              // jti
+			ID:        id.String()                     // jti
 		},
-		UserEmail:       user.Email,
-		UserName:        user.Name,
+		UserEmail:       string(user.Email),
+		UserName:        string(user.Name),
 		UpdateDate:      jwt.NewNumericDate(user.UpdateDate),
-		UserEmailId:     user.EmailId,
+		UserEmailId:     string(user.EmailId),
 		BotFlag:         user.BotFlag,
-		CompanyExposeId: user.Company.ExposeId,
-		CompanyName:     user.Company.Name,
-		CompanyRole:     user.Company.Role,
-		CompanyRoleName: user.Company.RoleName,
+		CompanyExposeId: string(user.Company.ExposeId),
+		CompanyName:     string(user.Company.Name),
+		CompanyRole:     string(user.Company.Role),
+		CompanyRoleName: string(user.Company.RoleName),
 	}
 }

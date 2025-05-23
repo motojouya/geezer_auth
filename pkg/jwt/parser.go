@@ -1,4 +1,4 @@
-package accessToken
+package jwt
 
 import (
 	"github.com/golang-jwt/jwt/v5"
@@ -113,6 +113,7 @@ func CreateJwtIssuerParser() (*JwtParser, error) {
 	), nil
 }
 
+// 引数のtokenStringはJwtToken型としてもいいが、いずれにしろこの関数で制約がかかるので、事前にチェックされた値ではなくstringを受けるほうが自然
 (jwtParser *JwtParser) func GetUserFromAccessToken(tokenString string) (*GeezerToken, error) {
  	token, err := jwt.ParseWithClaims(
  		tokenString,
