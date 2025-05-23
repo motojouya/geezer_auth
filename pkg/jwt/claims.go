@@ -42,38 +42,7 @@ func FromAuthentic(authentic *Authentic) *GeezerClaims {
 	}
 }
 
-func CreateClaims(user User, issuer string, audience []string, expiresAt time.Time, issuedAt time.Time, id UUID) *GeezerClaims {
-
-	roleNames := make([]string, len(user.CompanyRole.Roles))
-	roleLabels := make([]string, len(user.CompanyRole.Roles))
-	for i, role := range user.CompanyRole.Roles {
-		roleNames[i] = string(role.Name)
-		roleLabels[i] = string(role.Label)
-	}
-
-	return GeezerClaims{
-		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    issuer,                         // iss
-			Subject:   string(user.ExposeId),          // sub
-			Audience:  audience,                       // aud
-			ExpiresAt: jwt.NewNumericDate(expireDate), // exp
-			NotBefore: jwt.NewNumericDate(issueDate),  // nbf
-			IssuedAt:  jwt.NewNumericDate(issueDate),  // iat
-			ID:        id.String()                     // jti
-		},
-		UserEmail:        string(user.Email),
-		UserName:         string(user.Name),
-		UpdateDate:       jwt.NewNumericDate(user.UpdateDate),
-		UserEmailId:      string(user.EmailId),
-		BotFlag:          user.BotFlag,
-		CompanyExposeId:  string(user.CompanyRole.Company.ExposeId),
-		CompanyName:      string(user.CompanyRole.Company.Name),
-		CompanyRoles:     roleLabels,
-		CompanyRoleNames: roleNames,
-	}
-}
-
-(claims *GeezerClaims) func ToAuthentic(validIssuer string, validAudience string) (*Authentic, error) {
+(claims *GeezerClaims) func ToAuthentic() (*Authentic, error) {
 	var companyRole *CompanyRole = nil
 	if claims.CompanyExposeId != nil && claims.CompanyName != nil && claims.CompanyRoles != nil && claims.CompanyRoleNames != nil {
 		if len(claims.CompanyRoles) != len(claims.CompanyRoleNames) {
@@ -154,13 +123,6 @@ func CreateClaims(user User, issuer string, audience []string, expiresAt time.Ti
 		companyRole,
 		claims.UpdateDate.Time,
 	)
-
-	if validIssuer == claims.Issuer {
-		return nil, fmt.Error("Issuer is not valid")
-	}
-	if claims.Audience.Contains(validAudience) {
-		return nil, fmt.Error("Audience is not valid")
-	}
 
 	return NewAuthentic(
 		claims.Issuer,

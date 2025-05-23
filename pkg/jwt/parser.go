@@ -64,6 +64,16 @@ func CreateJwtIssuerParser() (*JwtParser, error) {
 	), nil
 }
 
+(jwtParser *JwtParser) func Validate(claims *GeezerClaims) (error) {
+	if jwtParser.Issuer == claims.Issuer {
+		return fmt.Error("Issuer is not valid")
+	}
+	if claims.Audience.Contains(jwtParser.Myself) {
+		return fmt.Error("Audience is not valid")
+	}
+	return nil
+}
+
 // 引数のtokenStringはJwtToken型としてもいいが、いずれにしろこの関数で制約がかかるので、事前にチェックされた値ではなくstringを受けるほうが自然
 (jwtParser *JwtParser) func GetUserFromAccessToken(tokenString string) (*model.Authentic, error) {
  	token, err := jwt.ParseWithClaims(
@@ -91,5 +101,9 @@ func CreateJwtIssuerParser() (*JwtParser, error) {
 		return nil, fmt.Error("Invalid token")
 	}
 
-	return claims.ToAuthentic(jwtParser.Issuer, jwtParser.Myself)
+	if err := jwtParser.Validate(claims); err != nil {
+		return nil, err
+	}
+
+	return claims.ToAuthentic()
 }
