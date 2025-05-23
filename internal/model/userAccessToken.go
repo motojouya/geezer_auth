@@ -18,13 +18,13 @@ type UserAccessToken struct {
 	UnsavedUserAccessToken
 }
 
-func CreateUserAccessToken(user User, accessToken pkg.JwtToken, registerDate time.Time) UnsavedUserAccessToken {
+func CreateUserAccessToken(user User, accessToken pkg.JwtToken, registerDate time.Time, expireDate time.Time) UnsavedUserAccessToken {
 	return UnsavedUserAccessToken{
 		User:            user,
 		AccessToken:     accessToken,
 		SourceUpdateDate user.UpdateDate,
 		RegisterDate:    registerDate,
-		ExpireDate:      nil,
+		ExpireDate:      expireDate,
 	}
 }
 

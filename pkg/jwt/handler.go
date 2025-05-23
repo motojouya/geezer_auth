@@ -66,7 +66,7 @@ func CreateJwtHandler() (*JwtHandler, error) {
 	), nil
 }
 
-(jwtHandler *JwtHandler) func GenerateAccessToken(user User, issueDate time.Time) (JwtToken, error) {
+(jwtHandler *JwtHandler) func GenerateAccessToken(user User, issueDate time.Time) (*Authentic, JwtToken, error) {
 	var id, err = jwtHandler.GetId()
 	if err != nil {
 		return JwtToken(""), err
@@ -92,5 +92,5 @@ func CreateJwtHandler() (*JwtHandler, error) {
         	return JwtToken(""), err
 	}
 
-	return NewJwtToken(tokenString), nil
+	return authentic, NewJwtToken(tokenString), nil
 }

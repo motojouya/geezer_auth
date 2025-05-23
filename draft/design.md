@@ -308,8 +308,9 @@ create table user_email (
   user_email_id
   user_id
   email
-  verified
-  registered_date
+  verify_token
+  register_date
+  verify_date
   expire_date
 );
 
@@ -350,7 +351,7 @@ create table company_invite (
   company_id
   token
   user_id nullable
-  role_id nullable
+  role_id
   registered_date
   expire_date
 );

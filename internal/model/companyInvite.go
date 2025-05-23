@@ -7,11 +7,11 @@ import (
 
 type UnsavedCompanyInvite struct {
 	Company        Company
-	User           *User
-	Role           *Role
 	Token          uuid.UUID
+	Role           Role
+	User           *User
 	RegisteredDate time.Time
-	ExpireDate     *time.Time
+	ExpireDate     time.Time
 }
 
 type CompanyInvite struct {
@@ -19,24 +19,29 @@ type CompanyInvite struct {
 	UnsavedCompanyInvite
 }
 
-func CreateCompanyInvite(company Company, token uuid.UUID, user *User, role *Role, registerDate time.Time) UnsavedCompanyInvite {
+const TokenValidityPeriodHours = 50
+
+func CreateCompanyInvite(company Company, token uuid.UUID, role Role, user *User, registerDate time.Time) UnsavedCompanyInvite {
+	var expireDate = registerDate.Add(TokenValidityPeriodHours * time.Hour)
+
 	return UnsavedCompanyInvite{
 		Company:      company,
-		User:         user,
+		Token:        token,
 		Role:         role,
+		User:         user,
 		RegisterDate: registerDate,
-		ExpireDate:   nil,
+		ExpireDate:   expireDate,
 	}
 }
 
-func NewUserRefreshToken(companyInviteId uint, company Company, token uuid.UUID, user *User, role *Role, registerDate time.Time, expireDate *time.Time) CompanyInvite {
+func NewUserRefreshToken(companyInviteId uint, company Company, token uuid.UUID, role Role, user *User, registerDate time.Time, expireDate time.Time) CompanyInvite {
 	return CompanyInvite{
 		CompanyInviteId: companyInviteId,
 		UnsavedCompanyInvite: UnsavedCompanyInvite{
 			Company:      company,
 			Token:        token,
-			User:         user,
 			Role:         role,
+			User:         user,
 			RegisterDate: registerDate,
 			ExpireDate:   expireDate,
 		},

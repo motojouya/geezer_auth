@@ -9,7 +9,7 @@ type UnsavedUserRefreshToken struct {
 	User               User
 	RefreshToken       uuid.UUID
 	RegisteredDate     time.Time
-	ExpireDate         *time.Time
+	ExpireDate         time.Time
 }
 
 type UserRefreshToken struct {
@@ -17,16 +17,20 @@ type UserRefreshToken struct {
 	UnsavedUserRefreshToken
 }
 
+const TokenValidityPeriodDays = 50
+
 func CreateUserRefreshToken(user User, refreshToken uuid.UUID, registerDate time.Time) UnsavedUserRefreshToken {
+	var expireDate = registerDate.Add(TokenValidityPeriodDays * time.Day)
+
 	return UnsavedUserRefreshToken{
 		User:         user,
 		RefreshToken: refreshToken,
 		RegisterDate: registerDate,
-		ExpireDate:   nil,
+		ExpireDate:   expireDate,
 	}
 }
 
-func NewUserRefreshToken(userRefreshTokenId uint, user User, refreshToken uuid.UUID,registerDate time.Time, expireDate *time.Time) UserRefreshToken {
+func NewUserRefreshToken(userRefreshTokenId uint, user User, refreshToken uuid.UUID,registerDate time.Time, expireDate time.Time) UserRefreshToken {
 	return UserRefreshToken{
 		UserRefreshTokenId: userRefreshTokenId,
 		UnsavedUserRefreshToken: UnsavedUserRefreshToken{
