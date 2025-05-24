@@ -17,6 +17,7 @@ type UserRefreshToken struct {
 	UnsavedUserRefreshToken
 }
 
+// FIXME 外から環境変数で設定できてもいいかも
 const TokenValidityPeriodDays = 50
 
 func CreateUserRefreshToken(user User, refreshToken uuid.UUID, registerDate time.Time) UnsavedUserRefreshToken {

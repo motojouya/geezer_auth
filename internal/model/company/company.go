@@ -23,15 +23,17 @@ func CreateCompanyExposeId(random string) (pkg.ExposeId, error) {
 
 func CreateCompany(exposeId ExposeId, name Name, registeredDate time.Time) UnsavedCompany {
 	return UnsavedCompany{
-		ExposeId:       exposeId,
-		Name:           name,
+		pkg.Company:    pkg.NewCompany(exposeId, name)
 		RegisteredDate: registeredDate,
 	}
 }
 
-func NewCompany(companyId uint, exposeId pkg.ExposeId, name pkg.Name, registeredDate time.Time, roles []RoleWithoutCompany) Company {
+func NewCompany(companyId uint, exposeId pkg.ExposeId, name pkg.Name, registeredDate time.Time) Company {
 	return Company{
 		CompanyId:      companyId,
-		pkg.Company: CreateCompany(exposeId, name, registeredDate),
+		UnsavedCompany: UnsavedCompany{
+			pkg.Company:    pkg.NewCompany(exposeId, name)
+			RegisteredDate: registeredDate,
+		},
 	}
 }

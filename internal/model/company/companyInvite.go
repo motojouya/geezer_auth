@@ -19,6 +19,7 @@ type CompanyInvite struct {
 	UnsavedCompanyInvite
 }
 
+// FIXME 外から環境変数で設定できてもいいかも
 const TokenValidityPeriodHours = 50
 
 func CreateCompanyInvite(company Company, token uuid.UUID, role Role, user *User, registerDate time.Time) UnsavedCompanyInvite {

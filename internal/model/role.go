@@ -5,9 +5,9 @@ import (
 	pkg "github.com/motojouya/geezer_auth/pkg/model"
 )
 
-// TODO CompanyがRoleを持つ際には、propertyのCompanyは不要だし、UserがCompanyRoleを持つ際にも不要。
-// 再利用性高く、かつそういうデータ型がほしい場合に何を定義すべきかな
-
+/*
+ * Roleは管理者が登録する想定なので、基本的には削除されない
+ */
 type UnsavedRole struct {
 	pkg.Role
 	Description    Text
@@ -29,7 +29,11 @@ func CreateRole(name pkg.Name, label pkg.Label, description Text, registeredDate
 
 func NewRole(roleId uint, name pkg.Name, label pkg.Label, description Text, registeredDate time.Time) Role {
 	return Role{
-		RoleId:         roleId,
-		UnsavedRole:    CreateRole(name, label, description, registeredDate),
+		RoleId:      roleId,
+		UnsavedRole: UnsavedRole{
+			Role:           pkg.NewRole(label, name),
+			Description:    description,
+			RegisteredDate: registeredDate,
+		},
 	}
 }
