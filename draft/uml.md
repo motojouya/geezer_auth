@@ -112,6 +112,113 @@ func getUserFromAccessToken(token: string): User
 実装順だが、ほとんどコンストラクタなので、company, role, user, credentialsの順で実装する。
 credentialsは、ライブラリ利用もあるので、後
 
+いま、refresh tokenはuuid型にしてるけど、これはtoken型にしたほうがいいね。
+access tokenもtoken型のほうがいいかも。中身はわからないけど、なにかしらのルールをもって生成された文字列。みたいな定義で。
+access tokenは、Authenticに変換されるので、まーそこはそういうもんという感じで。
+
+uuid型だと、ユーザ入力を結局stringで扱わないといけなくて、DBからきたuuid型の値と照合できない。
+token型も、textと同様に一万文字までという制約だけはつけておこう。現実的にはもっと短いほうがいいが、jwtにいれる文字列の長さが予想できるかな。nameが255文字までのなのでbase64するとどんぐらいの長さか
+
+## 認可
+roleは用意してて、それに対して、どんなactionができるかは、auth自体で持たないといけない。
+roleは共通なので、自由に作れるが、それ自体は権限と直接関連がなく、アプリケーション内で設定しないと行けないという方針。
+
+主に、以下の操作かな
+- 自分の情報の参照、操作
+- company内の他人の情報の参照
+- companyの参照
+- companyの操作
+- company invite
+  これあれだな。事前にuserの情報みれちゃだめだから、userの参照は事前にできない。inviteテーブルからuser_idは取り去ろう
+
+以下かなー
+- none
+  これは自分の操作のみで、そもそもcompanyに属して無い人ができること。特に値はないが、仮想的に書いとく
+- employee
+  company内で情報の参照ができる
+- manager
+  invite、companyの操作
+
+上記の権限としては、以下の3つかな。
+- company access
+- company invite
+- company edit
+
+roleとしてはこんな付与の仕方
+- none
+- employee
+  - company access
+- manager
+  - company access
+  - company invite
+  - company edit
+
+role_id不要だね。他のアプリケーションでもrole labelで参照できるようにするのでauthも同様であるべき
+
+role_permissionをすべてロードした状態のモデルを構築する感じにするか。
+そいつが権限を判定するような感じのイメージ。それなら、role_labelとrole_permissionのrelationが不要なので、他のサービスでも実現が簡単
+こいつは、事前にロードしておいたほうがいいので、これはioを伴うサービスにしたほうがいいか。
+シングルトンで、最初にロードしたら、あとはそれを使う感じ。sql自体はそっちで参照する感じにはなるな。
+goでシングルトンどうなるのかのイメージはつかないが。まーそれはキャッシュ機構を自分で用意するんかな。
+
+jwtのやつもシングルトンにしないとだな。あとは矯正リロードフラグとか用意しとくか。いや、コンテナ入ってリロードはだるくて、バイナリに対してコマンドもうてないので不要かな
+
+## error
+エラー設計どうするか。
+設定のエラーで立ち上がらないとかも、トップレベルに返したうえでpanicさせたいね。
+panicはとにかくありえない状況でのハンドリングという感じで
+
+大きくは
+- 入力エラー
+- 設定エラー
+
+- model argument error
+- user parameter error
+
+どう違うとかまで表現したほうがいいかな。
+結局型が合わないとか、そういう話ではあるが
+stringなら、その値+message
+構造体の場合は、原因になったpropertyを列挙する必要はあるわな
+
+numberならrangeがあり、stringなら、長さやregexになるな。
+関連なら、その関連というエラーを表現してもいいが、2つの関連ではなく、3つとかで絡んで来るとややこしいかもな。
+変数の型もまちまちなので、そこの問題もある
+
+型はわかってたほうがいいんだよな。
+modelレベルでは、エラーは気軽に作るイメージでいいか。string自体はけっこうあるので、textの名前空間でtext errorみたいなの作る感じ。
+
+で、modelを出たら、transfer/inの世界になるので、そこはユーザに優しいmessageを持つエラーにwrapする感じのイメージ
+validation errorという命名でもいい。
+ただ、これは結局は、modelのエラーを解釈して返すwrapperでしかないので、model errorみたいにしてmessageを親切にするだけの役割でよさそう
+
+json unmarshal errorとかは、たぶん組み込みのやつが使えるんじゃないかな。わからんが
+
+あとは、db系か
+- record exist error
+  - table name
+  - key
+- record not found error
+  - table name
+  - key
+keyはstringにならしちゃっていいかな。サロゲートキーはreturnできないので、入力の値になるはず。
+keyは、map[string]stringみたいな感じで、keyの名前と値を持つ感じにしておくと、どのkeyでエラーになったかがわかりやすい。
+
+認証認可もあるな
+- authentication error
+  -> これはいわゆるログインエラーかな。password modelで使う
+     passwordの文脈では、passwordが一致しないというエラーになるので、string errorが妥当なんだよな。
+     まーでも認証エラー自体は実装して、どちらかというとprocedureで使う感じかな
+- authorization error
+- token expired error
+  これは認可切れなので、認可エラー何だけど、はじめたsessionであれば、特定時間内ならexpiredなtokenでも使えるようにしておきたい。でないと1時間入力にかかるとかのときに使いづらくなる。
+- authentication not exist error
+  anonymousなuserができることは？みたいなことなので、これは認可エラーに含めていいんじゃないかな
+  authenticがnilであっても引数に入れられる形にしておいて、nilだったら、anonymousなuserとして扱う感じでいいかも
+  その状態で認可チェックに投げれば、必要な場面で認可エラーとできるはず。
+
+- token invalid error
+  これは、jwt名前空間でのエラーなので、jwt errorみたいな感じのほうがいいかも。項目+messageな感じかな
+
 ## query
 特定tableの1レコードについての主キーでの操作は便利関数を用意して行う。
 できれば、unique keyでの操作も用意したいが、gorpの機能的に、unique keyの扱いを調べてから判断という感じ。

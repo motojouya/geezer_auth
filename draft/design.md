@@ -350,7 +350,6 @@ create table company (
 create table company_invite (
   company_id
   token
-  user_id nullable
   role_id
   registered_date
   expire_date
@@ -366,12 +365,29 @@ create table user_company_role (
 );
 
 create table role (
-  role_id
-  name
   label unique
+  name
   description
   registered_date
 );
+insert into role (label     ,name    ,description,registered_date)
+          values ('employee','作業者','作業者'   ,now()          )
+               , ('manager' ,'管理者','管理者'   ,now()          )
+               ;
+
+create table role_permission (
+  role_label
+  self_edit bool
+  company_access bool
+  company_invite bool
+  company_edit bool
+  registered_date
+);
+insert into role (label     ,self_edit,company_access,company_invite,company_edit,registered_date)
+          values ('employee',true     ,true          ,false         ,false       ,now()          )
+               , ('manager' ,true     ,true          ,true          ,true        ,now()          )
+               ;
+-- defaultの値は、modelが知っているので、ここでは設定しない。
 ```
 
 ## Application Modeling
