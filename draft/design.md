@@ -381,11 +381,11 @@ create table role_permission (
   company_access bool
   company_invite bool
   company_edit bool
-  registered_date
+  primary uint
 );
-insert into role (label     ,self_edit,company_access,company_invite,company_edit,registered_date)
-          values ('employee',true     ,true          ,false         ,false       ,now()          )
-               , ('manager' ,true     ,true          ,true          ,true        ,now()          )
+insert into role (label     ,self_edit,company_access,company_invite,company_edit,registered_date,primary)
+          values ('employee',true     ,true          ,false         ,false       ,now()          ,5      )
+               , ('manager' ,true     ,true          ,true          ,true        ,now()          ,9      )
                ;
 -- defaultの値は、modelが知っているので、ここでは設定しない。
 ```
