@@ -42,8 +42,7 @@ func FromAuthentic(authentic *Authentic) *GeezerClaims {
 	}
 }
 
-(claims *GeezerClaims) func ToAuthentic() (*Authentic, error) {
-	var companyRole *CompanyRole = nil
+func getCompanyRole(claims GeezerClaims) (*CompanyRole, error) {
 	if claims.CompanyExposeId != nil && claims.CompanyName != nil && claims.CompanyRoles != nil && claims.CompanyRoleNames != nil {
 		if len(claims.CompanyRoles) != len(claims.CompanyRoleNames) {
 			return nil, fmt.Error("CompanyRoles and CompanyRoleNames length is not equal")
@@ -74,7 +73,7 @@ func FromAuthentic(authentic *Authentic) *GeezerClaims {
 			return nil, fmt.Error("CompanyName is not valid")
 		}
 
-		companyRole = NewCompany(companyExposeId, companyName, roles)
+		return NewCompany(companyExposeId, companyName, roles), nil
 	} else {
 		if claims.CompanyExposeId != nil {
 			return nil, fmt.Error("CompanyExposeId is not nil")
@@ -89,6 +88,14 @@ func FromAuthentic(authentic *Authentic) *GeezerClaims {
 			return nil, fmt.Error("CompanyRoleName is not nil")
 		}
 		// company = nil
+		return nil, nil
+	}
+}
+
+func (claims *GeezerClaims) ToAuthentic() (*Authentic, error) {
+	var companyRole, err = getCompanyRole(claims)
+	if err != nil {
+		return nil, err
 	}
 
 	var userExposeId, err = NewUserExposeId(claims.Subject)
