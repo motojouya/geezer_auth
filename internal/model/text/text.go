@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"strings"
 )
 
 /*
@@ -13,10 +14,16 @@ import (
 type Text string
 
 func NewText(text *string) (*Text, error) {
-	var length = len(*[]rune(name))
-	if length > 10000 {
-		return Name(""), fmt.Errorf("name must be less then 10000 characters")
+	if text == nil {
+		return nil, fmt.Errorf("text cannot be nil")
 	}
 
-	return &Text(text), nil
+	var trimmed = strings.TrimSpace(*text)
+
+	var length = len(*[]rune(&trimmed))
+	if length > 10000 {
+		return Name(""), fmt.Errorf("text must be less then 10000 characters")
+	}
+
+	return &Text(trimmed), nil
 }

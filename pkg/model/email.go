@@ -3,6 +3,8 @@ package model
 import (
 	"time"
 	"fmt"
+	"strings"
+	"regexp"
 )
 
 type Email string
@@ -12,7 +14,9 @@ func NewEmail(email string) (Email, error) {
 		return Email(""), fmt.Error("email cannot be empty")
 	}
 
-	var length = len([]rune(email))
+	var trimmed = strings.TrimSpace(email)
+
+	var length = len([]rune(trimmed))
 	if length < 3 || length > 320 {
 		return Email(""), fmt.Errorf("email must be between 3 and 320 characters")
 	}
@@ -29,5 +33,5 @@ func NewEmail(email string) (Email, error) {
 		return Email(""), fmt.Errorf("email must contain only uppercase letters and underscores")
 	}
 
-	return Email(email), nil
+	return Email(trimmed), nil
 }

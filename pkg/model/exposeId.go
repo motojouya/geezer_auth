@@ -3,6 +3,8 @@ package model
 import (
 	"time"
 	"fmt"
+	"strings"
+	"regexp"
 )
 
 const (
@@ -15,6 +17,8 @@ const (
  * `AB-ABCDEF`
  * 前2文字は、なんのExposeIdかを識別するための接頭語で、例としてCompanyならCP、UserならUSなど
  * 後ろ6文字はランダムな値
+ *
+ * 単に、ハイフンを付けずにprefixをつけてもよかったが、ランダム文字列が6文字でたりなくなって拡張する際に区別がつかなくなるのでハイフンを入れている
  */
 type ExposeId string
 
@@ -27,7 +31,9 @@ func NewExposeId(exposeId string) (ExposeId, error) {
 		return ExposeId(""), fmt.Error("exposeId cannot be empty")
 	}
 
-	var length = len([]rune(exposeId))
+	var trimmed = strings.TrimSpace(exposeId)
+
+	var length = len([]rune(trimmed))
 	if length != 9 {
 		return ExposeId(""), fmt.Errorf("randoms must be 9 characters")
 	}
@@ -44,5 +50,5 @@ func NewExposeId(exposeId string) (ExposeId, error) {
 		return ExposeId(""), fmt.Errorf("exposeId must contain only uppercase letters and underscores")
 	}
 
-	return ExposeId(exposeId), nil
+	return ExposeId(trimmed), nil
 }

@@ -3,6 +3,8 @@ package model
 import (
 	"time"
 	"fmt"
+	"strings"
+	"regexp"
 )
 
 type Label string
@@ -12,7 +14,9 @@ func NewLabel(label string) (Label, error) {
 		return Label(""), fmt.Error("label cannot be empty")
 	}
 
-	var length = len([]rune(label))
+	var trimmed = strings.TrimSpace(label)
+
+	var length = len([]rune(trimmed))
 	if length < 2 || length > 255 {
 		return Label(""), fmt.Errorf("label must be between 1 and 255 characters")
 	}
@@ -29,5 +33,5 @@ func NewLabel(label string) (Label, error) {
 		return Label(""), fmt.Errorf("label must contain only uppercase letters and underscores")
 	}
 
-	return Label(label), nil
+	return Label(trimmed), nil
 }
