@@ -1,9 +1,9 @@
-package model
+package user
 
 import (
 	"time"
-	"github.com/google/uuid"
-	pkg "github.com/motojouya/geezer_auth/pkg/model"
+	pkg "github.com/motojouya/geezer_auth/pkg/model/text"
+	text "github.com/motojouya/geezer_auth/internal/model/text"
 )
 
 /*
@@ -13,7 +13,7 @@ import (
 type UnsavedUserEmail struct {
 	User         User
 	Email        pkg.Email
-	VerifyToken  uuid.UUID
+	VerifyToken  text.Token
 	RegisterDate time.Time
 	VerifyDate   *time.Time
 	ExpireDate   *time.Time
@@ -24,7 +24,7 @@ type UserEmail struct {
 	UnsavedUserEmail
 }
 
-func CreateUserEmail(user User, email pkg.Email, verifyToken uuid.UUID, registerDate time.Time) UnsavedUserEmail {
+func CreateUserEmail(user User, email pkg.Email, verifyToken text.Token, registerDate time.Time) UnsavedUserEmail {
 	return UnsavedUserEmail{
 		User:         user,
 		Email:        email,
@@ -35,7 +35,7 @@ func CreateUserEmail(user User, email pkg.Email, verifyToken uuid.UUID, register
 	}
 }
 
-func NewUserEmail(userEmailId uint, user User, email pkg.Email, verifyToken uuid.UUID, registerDate time.Time, verifyDate time.Time, expireDate *time.Time) UserEmail {
+func NewUserEmail(userEmailId uint, user User, email pkg.Email, verifyToken text.Token, registerDate time.Time, verifyDate time.Time, expireDate *time.Time) UserEmail {
 	return UserEmail{
 		UserEmailID: userEmailId,
 		UnsavedUserEmail: UnsavedUserEmail{

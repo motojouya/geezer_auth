@@ -1,8 +1,9 @@
-package model
+package role
 
 import (
 	"time"
-	pkg "github.com/motojouya/geezer_auth/pkg/model"
+	text "github.com/motojouya/geezer_auth/pkg/model/text"
+	user "github.com/motojouya/geezer_auth/pkg/model/user"
 )
 
 /*
@@ -11,14 +12,14 @@ import (
  * 他のサービスからも参照されるので、内部に閉じるRoleIdは意味がないため
  */
 type Role struct {
-	pkg.Role
+	user.Role
 	Description    Text
 	RegisteredDate time.Time
 }
 
-func NewRole(name pkg.Name, label pkg.Label, description Text, registeredDate time.Time) Role {
+func NewRole(name text.Name, label text.Label, description Text, registeredDate time.Time) Role {
 	return Role{
-		Role:           pkg.NewRole(label, name),
+		Role:           user.NewRole(label, name),
 		Description:    description,
 		RegisteredDate: registeredDate,
 	}

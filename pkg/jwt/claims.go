@@ -1,7 +1,9 @@
-package model
+package jwt
 
 import (
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/motojouya/geezer_auth/pkg/model/text"
+	"github.com/motojouya/geezer_auth/pkg/model/user"
 	"time"
 )
 
@@ -19,7 +21,7 @@ type GeezerClaims struct {
 	CompanyRoleNames *[]string `json:"github.com/motojouya/geezer_auth/company_role_names"`
 }
 
-func FromAuthentic(authentic *Authentic) *GeezerClaims {
+func FromAuthentic(authentic *user.Authentic) *GeezerClaims {
 
 	roleNames := make([]string, len(authentic.User.CompanyRole.Roles))
 	roleLabels := make([]string, len(authentic.User.CompanyRole.Roles))
@@ -51,20 +53,20 @@ func getCompanyRole(claims GeezerClaims) (*CompanyRole, error) {
 		var roles []Role = make([]Role, len(claims.CompanyRoles))
 		for i := 0; i < len(claims.CompanyRoles); i++ {
 
-			var label, err = NewLabel(claims.CompanyRoles[i])
+			var label, err = text.NewLabel(claims.CompanyRoles[i])
 			if err != nil {
 				return nil, fmt.Error("CompanyRoles is not valid")
 			}
 
-			var name, err = NewName(claims.CompanyRoleNames[i])
+			var name, err = text.NewName(claims.CompanyRoleNames[i])
 			if err != nil {
 				return nil, fmt.Error("CompanyRoleName is not valid")
 			}
 
-			var roles[i] = NewRole(label, name)
+			var roles[i] = user.NewRole(label, name)
 		}
 
-		var companyExposeId, err = NewCompanyExposeId(*claims.CompanyExposeId)
+		var companyExposeId, err = text.NewCompanyExposeId(*claims.CompanyExposeId)
 		if err != nil {
 			return nil, fmt.Error("CompanyExposeId is not valid")
 		}
@@ -73,7 +75,7 @@ func getCompanyRole(claims GeezerClaims) (*CompanyRole, error) {
 			return nil, fmt.Error("CompanyName is not valid")
 		}
 
-		return NewCompany(companyExposeId, companyName, roles), nil
+		return user.NewCompany(companyExposeId, companyName, roles), nil
 	} else {
 		if claims.CompanyExposeId != nil {
 			return nil, fmt.Error("CompanyExposeId is not nil")
@@ -87,41 +89,40 @@ func getCompanyRole(claims GeezerClaims) (*CompanyRole, error) {
 		if claims.CompanyRoleNames != nil {
 			return nil, fmt.Error("CompanyRoleName is not nil")
 		}
-		// company = nil
 		return nil, nil
 	}
 }
 
-func (claims *GeezerClaims) ToAuthentic() (*Authentic, error) {
+func (claims *GeezerClaims) ToAuthentic() (*user.Authentic, error) {
 	var companyRole, err = getCompanyRole(claims)
 	if err != nil {
 		return nil, err
 	}
 
-	var userExposeId, err = NewUserExposeId(claims.Subject)
+	var userExposeId, err = text.NewUserExposeId(claims.Subject)
 	if err != nil {
 		return nil, fmt.Error("UserExposeId is not valid")
 	}
 
-	var userEmailId, err = NewEmail(claims.UserEmailId)
+	var userEmailId, err = text.NewEmail(claims.UserEmailId)
 	if err != nil {
 		return nil, fmt.Error("UserEmailId is not valid")
 	}
 
 	var userEmail = nil
 	if claims.UserEmail != nil {
-		var userEmail, err = NewEmail(claims.UserEmail)
+		var userEmail, err = text.NewEmail(claims.UserEmail)
 		if err != nil {
 			return nil, fmt.Error("UserEmail is not valid")
 		}
 	}
 
-	var userName, err = NewName(claims.UserName)
+	var userName, err = text.NewName(claims.UserName)
 	if err != nil {
 		return nil, fmt.Error("UserName is not valid")
 	}
 
-	var user = NewUser(
+	var user = user.NewUser(
 		userExposeId,
 		userEmailId,
 		userEmail,
@@ -131,7 +132,7 @@ func (claims *GeezerClaims) ToAuthentic() (*Authentic, error) {
 		claims.UpdateDate.Time,
 	)
 
-	return NewAuthentic(
+	return user.NewAuthentic(
 		claims.Issuer,
 		claims.Subject,
 		claims.Audience,

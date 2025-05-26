@@ -1,4 +1,4 @@
-package model
+package user
 
 type Company struct {
 	ExposeId ExposeId

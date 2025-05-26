@@ -1,4 +1,4 @@
-package model_test
+package text_test
 
 import (
 	"github.com/motojouya/geezer_auth/internal/model"

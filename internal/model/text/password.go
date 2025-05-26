@@ -1,7 +1,8 @@
-package model
+package text
 
 import (
 	"golang.org/x/crypto/bcrypt"
+	pkg "github.com/motojouya/geezer_auth/pkg/model/text"
 )
 
 type Password string
@@ -9,12 +10,12 @@ type HashedPassword string
 
 func NewPassword(password string) (Password, error) {
 	if password == "" {
-		return Password(""), fmt.Error("password cannot be empty")
+		return Password(""), pkg.NewLengthError("password", &password, 1, 255, "password should not be empty")
 	}
 
 	var length = len([]rune(password))
 	if length < 1 || length > 255 {
-		return Password(""), fmt.Errorf("password must be between 1 and 255 characters")
+		return Password(""), pkg.NewLengthError("password", &password, 1, 255, "password must be between 1 and 255 characters")
 	}
 
 	// TODO 正規表現あってる？
@@ -26,7 +27,7 @@ func NewPassword(password string) (Password, error) {
 
 	var result = re.MatchString(text, -1)
 	if !result {
-		return Password(""), fmt.Errorf("password must contain only uppercase letters and underscores")
+		return Password(""), pkg.NewFormatError("password", "password", &password, "password must be a valid password")
 	}
 
 	return Password(password), nil
@@ -39,7 +40,7 @@ func NewHashedPassword(password string) HashedPassword {
 
 // 参照透過な関数ではないが、そもそもhashedPasswordはVerifyPassword関数を使わないと検証できず、VerifyPasswordと合わせると予測可能な動きとなるので、特にDIなどは必要ない
 func HashPassword(password Password) (HashedPassword, error) {
-	hashed, err := bcrypt.GenerateFromPassword([]byte(password.String()), 9)
+	hashed, err := bcrypt.GenerateFromPassword([]byte(password), 9)
 	if err != nil {
 		return "", err
 	}
@@ -48,5 +49,5 @@ func HashPassword(password Password) (HashedPassword, error) {
 }
 
 func VerifyPassword(hashed HashedPassword, password Password) error {
-	return bcrypt.CompareHashAndPassword([]byte(hashed.String()), []byte(parameterPassword.String()))
+	return bcrypt.CompareHashAndPassword([]byte(hashed), []byte(parameterPassword))
 }

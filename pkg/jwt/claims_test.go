@@ -1,4 +1,4 @@
-package model_test
+package jwt_test
 
 import (
 	"github.com/motojouya/geezer_auth/pkg/accessToken"

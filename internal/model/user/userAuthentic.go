@@ -1,29 +1,32 @@
-package model
+package user
 
 import (
 	"time"
-	pkg "github.com/motojouya/geezer_auth/pkg/model"
+	text "github.com/motojouya/geezer_auth/pkg/model/text"
+	pkg "github.com/motojouya/geezer_auth/pkg/model/user"
+	"github.com/motojouya/geezer_auth/internal/model/company"
+	"github.com/motojouya/geezer_auth/internal/model/role"
 )
 
 type CompanyRole struct {
-	Company Company
-	Roles   []Role
+	Company company.Company
+	Roles   []role.Role
 }
 
 type UserAuthentic struc {
 	User
 	CompanyRole *CompanyRole
-	Email       *pkg.Email
+	Email       *text.Email
 }
 
-func NewCompanyRole(company Company, roles []Role) CompanyRole {
+func NewCompanyRole(company company.Company, roles []role.Role) CompanyRole {
 	return CompanyRole{
 		Company: company,
 		Roles:   roles,
 	}
 }
 
-func NewUserAuthentic(userId uint, exposeId pkg.ExposeId, name pkg.Name, emailId pkg.Email, email *pkg.Email, botFlag bool, registeredDate time.Time, updateDate time.Time, companyRole *CompanyRole) User {
+func NewUserAuthentic(userId uint, exposeId text.ExposeId, name text.Name, emailId text.Email, email *text.Email, botFlag bool, registeredDate time.Time, updateDate time.Time, companyRole *CompanyRole) User {
 	return UserAuthentic{
 		User: NewUser(userId, exposeId, name, emailId, botFlag, registeredDate, updateDate),
 		CompanyRole:    companyRole,

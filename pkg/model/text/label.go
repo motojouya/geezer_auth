@@ -1,8 +1,7 @@
-package model
+package text
 
 import (
 	"time"
-	"fmt"
 	"strings"
 	"regexp"
 )
@@ -11,14 +10,14 @@ type Label string
 
 func NewLabel(label string) (Label, error) {
 	if label == "" {
-		return Label(""), fmt.Error("label cannot be empty")
+		return Label(""), NewLengthError("label", &label, 2, 255, "label should not be empty")
 	}
 
 	var trimmed = strings.TrimSpace(label)
 
 	var length = len([]rune(trimmed))
 	if length < 2 || length > 255 {
-		return Label(""), fmt.Errorf("label must be between 1 and 255 characters")
+		return Label(""), NewLengthError("label", &label, 2, 255, "label must be between 2 and 255 characters")
 	}
 
 	// TODO 正規表現あってる？
@@ -30,7 +29,7 @@ func NewLabel(label string) (Label, error) {
 
 	var result = re.MatchString(text, -1)
 	if !result {
-		return Label(""), fmt.Errorf("label must contain only uppercase letters and underscores")
+		return Label(""), NewFormatError("label", "label", &label, "label must start and end with an uppercase letter and can contain underscores in between")
 	}
 
 	return Label(trimmed), nil

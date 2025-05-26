@@ -1,14 +1,15 @@
-package model
+package company
 
 import (
 	"time"
-	pkg "github.com/motojouya/geezer_auth/pkg/model"
+	text "github.com/motojouya/geezer_auth/pkg/model/text"
+	user "github.com/motojouya/geezer_auth/pkg/model/user"
 )
 
 const CompanyExposeIdPrefix = "CP-"
 
 type UnsavedCompany struct {
-	pkg.Company
+	user.Company
 	RegisteredDate time.Time
 }
 
@@ -17,22 +18,22 @@ type Company struct {
 	UnsavedCompany
 }
 
-func CreateCompanyExposeId(random string) (pkg.ExposeId, error) {
-	return pkg.CreateExposeId(CompanyExposeIdPrefix, random)
+func CreateCompanyExposeId(random string) (text.ExposeId, error) {
+	return text.CreateExposeId(CompanyExposeIdPrefix, random)
 }
 
 func CreateCompany(exposeId ExposeId, name Name, registeredDate time.Time) UnsavedCompany {
 	return UnsavedCompany{
-		pkg.Company:    pkg.NewCompany(exposeId, name)
+		user.Company:    user.NewCompany(exposeId, name)
 		RegisteredDate: registeredDate,
 	}
 }
 
-func NewCompany(companyId uint, exposeId pkg.ExposeId, name pkg.Name, registeredDate time.Time) Company {
+func NewCompany(companyId uint, exposeId text.ExposeId, name text.Name, registeredDate time.Time) Company {
 	return Company{
 		CompanyId:      companyId,
 		UnsavedCompany: UnsavedCompany{
-			pkg.Company:    pkg.NewCompany(exposeId, name)
+			user.Company:    user.NewCompany(exposeId, name)
 			RegisteredDate: registeredDate,
 		},
 	}

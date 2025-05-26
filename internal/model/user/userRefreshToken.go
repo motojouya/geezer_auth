@@ -1,13 +1,13 @@
-package model
+package user
 
 import (
 	"time"
-	"github.com/google/uuid"
+	"github.com/motojouya/geezer_auth/internal/model/text"
 )
 
 type UnsavedUserRefreshToken struct {
 	User               User
-	RefreshToken       uuid.UUID
+	RefreshToken       text.Token
 	RegisteredDate     time.Time
 	ExpireDate         time.Time
 }
@@ -20,7 +20,7 @@ type UserRefreshToken struct {
 // FIXME 外から環境変数で設定できてもいいかも
 const TokenValidityPeriodDays = 50
 
-func CreateUserRefreshToken(user User, refreshToken uuid.UUID, registerDate time.Time) UnsavedUserRefreshToken {
+func CreateUserRefreshToken(user User, refreshToken text.Token, registerDate time.Time) UnsavedUserRefreshToken {
 	var expireDate = registerDate.Add(TokenValidityPeriodDays * time.Day)
 
 	return UnsavedUserRefreshToken{
@@ -31,7 +31,7 @@ func CreateUserRefreshToken(user User, refreshToken uuid.UUID, registerDate time
 	}
 }
 
-func NewUserRefreshToken(userRefreshTokenId uint, user User, refreshToken uuid.UUID,registerDate time.Time, expireDate time.Time) UserRefreshToken {
+func NewUserRefreshToken(userRefreshTokenId uint, user User, refreshToken text.Token, registerDate time.Time, expireDate time.Time) UserRefreshToken {
 	return UserRefreshToken{
 		UserRefreshTokenId: userRefreshTokenId,
 		UnsavedUserRefreshToken: UnsavedUserRefreshToken{

@@ -1,16 +1,16 @@
-package model
+package user
 
 import (
 	"time"
-	pkg "github.com/motojouya/geezer_auth/pkg/model"
+	text "github.com/motojouya/geezer_auth/pkg/model/text"
 )
 
 const UserExposeIdPrefix = "US-"
 
 type UnsavedUser struct {
-	ExposeId       pkg.ExposeId
-	ExposeEmailId  pkg.Email
-	Name           pkg.Name
+	ExposeId       text.ExposeId
+	ExposeEmailId  text.Email
+	Name           text.Name
 	BotFlag        bool
 	RegisteredDate time.Time
 	UpdateDate     time.Time
@@ -21,11 +21,11 @@ type User struct {
 	UnsavedUser
 }
 
-func CreateUserExposeId(random string) (pkg.ExposeId, error) {
-	return pkg.CreateExposeId(UserExposeIdPrefix, random)
+func CreateUserExposeId(random string) (text.ExposeId, error) {
+	return text.CreateExposeId(UserExposeIdPrefix, random)
 }
 
-func CreateUser(exposeId pkg.ExposeId, emailId pkg.Email, name pkg.Name, botFlag bool, registeredDate time.Time) UnsavedUser {
+func CreateUser(exposeId text.ExposeId, emailId text.Email, name text.Name, botFlag bool, registeredDate time.Time) UnsavedUser {
 	return UnsavedUser{
 		ExposeId:       exposeId,
 		ExposeEmailId:  emailId,
@@ -36,7 +36,7 @@ func CreateUser(exposeId pkg.ExposeId, emailId pkg.Email, name pkg.Name, botFlag
 	}
 }
 
-func NewUser(userId uint, exposeId pkg.ExposeId, name pkg.Name, emailId pkg.Email, botFlag bool, registeredDate time.Time, updateDate time.Time) User {
+func NewUser(userId uint, exposeId text.ExposeId, name text.Name, emailId text.Email, botFlag bool, registeredDate time.Time, updateDate time.Time) User {
 	return User{
 		UserId:         userId,
 		UnsavedUser: UnsavedUser{
@@ -50,6 +50,6 @@ func NewUser(userId uint, exposeId pkg.ExposeId, name pkg.Name, emailId pkg.Emai
 	}
 }
 
-(user *User) func SetName(name pkg.Name) {
+(user *User) func SetName(name text.Name) {
 	user.Name = name
 }

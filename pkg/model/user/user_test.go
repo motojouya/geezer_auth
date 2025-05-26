@@ -1,4 +1,4 @@
-package accessToken_test
+package user_test
 
 import (
 	"github.com/motojouya/geezer_auth/pkg/accessToken"

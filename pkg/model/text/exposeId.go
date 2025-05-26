@@ -1,8 +1,7 @@
-package model
+package text
 
 import (
 	"time"
-	"fmt"
 	"strings"
 	"regexp"
 )
@@ -28,14 +27,14 @@ func CreateExposeId(prefix string, randoms string) (ExposeId, error) {
 
 func NewExposeId(exposeId string) (ExposeId, error) {
 	if exposeId == "" {
-		return ExposeId(""), fmt.Error("exposeId cannot be empty")
+		return ExposeId(""), NewLengthError("exposeId", &exposeId, 9, 9, "exposeId should not be empty")
 	}
 
 	var trimmed = strings.TrimSpace(exposeId)
 
 	var length = len([]rune(trimmed))
 	if length != 9 {
-		return ExposeId(""), fmt.Errorf("randoms must be 9 characters")
+		return ExposeId(""), NewLengthError("exposeId", &exposeId, 9, 9, "exposeId must be exactly 9 characters")
 	}
 
 	// TODO 正規表現あってる？
@@ -47,7 +46,7 @@ func NewExposeId(exposeId string) (ExposeId, error) {
 
 	var result = re.MatchString(text, -1)
 	if !result {
-		return ExposeId(""), fmt.Errorf("exposeId must contain only uppercase letters and underscores")
+		return ExposeId(""), NewFormatError("exposeId", "exposeId", &exposeId, "exposeId must be in the format of XX-XXXXXX where X is an uppercase letter")
 	}
 
 	return ExposeId(trimmed), nil

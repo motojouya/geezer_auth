@@ -1,7 +1,9 @@
-package model
+package text
 
 import (
-	"fmt"
+	"github.com/google/uuid"
+	pkg "github.com/motojouya/geezer_auth/pkg/model/text"
+	"github.com/motojouya/geezer_auth/pkg/utility"
 )
 
 /*
@@ -12,13 +14,18 @@ type Token string
 
 func NewToken(token *string) (*Token, error) {
 	if token == nil {
-		return nil, fmt.Errorf("token cannot be nil")
+		return nil, utility.NewNilError("token", "token should not be nil")
 	}
 
 	var length = len(*[]rune(token))
 	if length > 10000 {
-		return Token(""), fmt.Errorf("token must be less then 10000 characters")
+		return Token(""), pkg.NewLengthError("token", token, 1, 10000, "token must be between 1 and 10000 characters")
 	}
 
 	return &Token(token), nil
+}
+
+func CreateToken(token uuid.UUID) (*Token, error) {
+	var tokenStr = token.String()
+	return NewToken(&token)
 }

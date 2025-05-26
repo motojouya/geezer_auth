@@ -2,7 +2,9 @@ package authorization
 
 import (
 	"github.com/motojouya/geezer_auth/internal/model/role"
-	pkg "github.com/motojouya/geezer_auth/pkg/model"
+	"github.com/motojouya/geezer_auth/pkg/utility"
+	text "github.com/motojouya/geezer_auth/pkg/model/text"
+	user "github.com/motojouya/geezer_auth/pkg/model/user"
 )
 
 type Authorization struct {
@@ -31,12 +33,12 @@ func NewRequirePermission(selfEdit bool, companyAccess bool, companyInvite bool,
 	}
 }
 
-// TODO DBアクセスしてロードする
+// TODO DBアクセスしてロードするが、まだDB実装していない
 func CreateAuthorization() *Authorization {
-	var EmployeeLabel = pkg.NewLabel("EMPLOYEE")
+	var EmployeeLabel = text.NewLabel("EMPLOYEE")
 	var EmployeePermission = role.NewRolePermission(EmployeeLabel, true, true, false, false, 5)
 
-	var ManagerLabel = pkg.NewLabel("MANAGER")
+	var ManagerLabel = text.NewLabel("MANAGER")
 	var ManagerPermission = role.NewRolePermission(ManagerLabel, true, true, true, true, 9)
 
 	var permissions = []role.RolePermission{
@@ -57,7 +59,7 @@ func GetPermissionMap(permissions []role.RolePermission) map[string]role.RolePer
 	return permissionMap
 }
 
-func GetPriorityRolePermission(permissions []role.RolePermission, authentic *pkg.Authentic) (role.RolePermission, error) {
+func GetPriorityRolePermission(permissions []role.RolePermission, authentic *user.Authentic) (role.RolePermission, error) {
 
 	if authentic == nil {
 		return role.AnonymousPermission, nil
@@ -71,10 +73,10 @@ func GetPriorityRolePermission(permissions []role.RolePermission, authentic *pkg
 
 	var permission role.RolePermission = nil
 	for _, r := range roles {
-		var p = permissionMap[string(r.Label)]
+		var roleLabel = string(r.Label)
+		var p = permissionMap[roleLabel]
 		if p == nil {
-			// TODO System Config Errorみたいな感じのを定義したい
-			return nil, error.Errorf("RolePermission not found: %s", r.Label)
+			return nil, utility.NewNilError("role_permission." + roleLabel, "RolePermission not found")
 		}
 		if permission == nil || p.Priority > permission.Priority {
 			permission = p
@@ -84,32 +86,26 @@ func GetPriorityRolePermission(permissions []role.RolePermission, authentic *pkg
 	return permission, nil
 }
 
-// 分かりづらいが、認可エラーと、設定エラーが出るので、呼び出し側で判断すること
-func (auth *Authorization) Authorize(require RequirePermission, authentic *pkg.Authentic) error {
+func (auth *Authorization) Authorize(require RequirePermission, authentic *user.Authentic) error {
 	var permission, err = GetPriorityRolePermission(auth.Permissions, authentic)
 	if err != nil {
-		// ここでのエラーは設定エラーのため、呼び出し側でのハンドリングが違うはず
 		return err
 	}
 
 	if require.SelfEdit && !permission.SelfEdit {
-		// TODO error type
-		return ErrPermissionDenied
+		return NewAuthorizationError(permission.RoleLabel, "SelfEdit", "Permission denied for self edit")
 	}
 
 	if require.CompanyAccess && !permission.CompanyAccess {
-		// TODO error type
-		return ErrPermissionDenied
+		return NewAuthorizationError(permission.RoleLabel, "CompanyAccess", "Permission denied for company access")
 	}
 
 	if require.CompanyInvite && !permission.CompanyInvite {
-		// TODO error type
-		return ErrPermissionDenied
+		return NewAuthorizationError(permission.RoleLabel, "CompanyInvite", "Permission denied for company invite")
 	}
 
 	if require.CompanyEdit && !permission.CompanyEdit {
-		// TODO error type
-		return ErrPermissionDenied
+		return NewAuthorizationError(permission.RoleLabel, "CompanyEdit", "Permission denied for company edit")
 	}
 
 	return nil

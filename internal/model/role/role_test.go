@@ -1,4 +1,4 @@
-package model_test
+package role_test
 
 import (
 	"github.com/motojouya/geezer_auth/internal/model"
