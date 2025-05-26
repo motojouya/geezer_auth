@@ -15,7 +15,23 @@ func NewAuthorization(permissions []role.RolePermission) *Authorization {
 	}
 }
 
-// TODO  DBアクセスしてロードする
+type RequirePermission struct {
+	SelfEdit      bool
+	CompanyAccess bool
+	CompanyInvite bool
+	CompanyEdit   bool
+}
+
+func NewRequirePermission(selfEdit bool, companyAccess bool, companyInvite bool, companyEdit bool) RequirePermission {
+	return RequirePermission{
+		SelfEdit:      selfEdit,
+		CompanyAccess: companyAccess,
+		CompanyInvite: companyInvite,
+		CompanyEdit:   companyEdit,
+	}
+}
+
+// TODO DBアクセスしてロードする
 func CreateAuthorization() *Authorization {
 	var EmployeeLabel = pkg.NewLabel("EMPLOYEE")
 	var EmployeePermission = role.NewRolePermission(EmployeeLabel, true, true, false, false, 5)
@@ -33,43 +49,68 @@ func CreateAuthorization() *Authorization {
 	return NewAuthorization(permissions)
 }
 
-// TODO working
-func (auth *Authorization) getPriorityRolePermission(roles []role.Role) role.RolePermission {
-	if len(roles) == 0 {
-		return role.RoleLessPermission
+func GetPermissionMap(permissions []role.RolePermission) map[string]role.RolePermission {
+	permissionMap := make(map[string]role.RolePermission)
+	for _, permission := range permissions {
+		permissionMap[string(permission.Label)] = permission
+	}
+	return permissionMap
+}
+
+func GetPriorityRolePermission(permissions []role.RolePermission, authentic *pkg.Authentic) (role.RolePermission, error) {
+
+	if authentic == nil {
+		return role.AnonymousPermission, nil
 	}
 
-	priorityRole := roles[0]
+	if authentic.Roles == nil || len(authentic.Roles) == 0 {
+		return role.RoleLessPermission, nil
+	}
+
+	permissionMap := GetPermissionMap(permisions)
+
+	var permission role.RolePermission = nil
 	for _, r := range roles {
-		if r.Priority > priorityRole.Priority {
-			priorityRole = r
+		var p = permissionMap[string(r.Label)]
+		if p == nil {
+			// TODO System Config Errorみたいな感じのを定義したい
+			return nil, error.Errorf("RolePermission not found: %s", r.Label)
+		}
+		if permission == nil || p.Priority > permission.Priority {
+			permission = p
 		}
 	}
 
-	return priorityRole
+	return permission, nil
 }
 
-func (auth *Authorization) Authorize(authentic *pkg.Authentic) error {
-
-}
-
-func GenerateLargeCharactorString(length int, source string) string {
-	b := make([]byte, length)
-	for i := range b {
-		b[i] = source[rand.Intn(len(source))]
-	}
-	return string(b)
-}
-
-func GenerateUUID() (UUID, error) {
-	uuid, err := uuid.NewUUID()
+// 分かりづらいが、認可エラーと、設定エラーが出るので、呼び出し側で判断すること
+func (auth *Authorization) Authorize(require RequirePermission, authentic *pkg.Authentic) error {
+	var permission, err = GetPriorityRolePermission(auth.Permissions, authentic)
 	if err != nil {
-		return UUID(""), err
+		// ここでのエラーは設定エラーのため、呼び出し側でのハンドリングが違うはず
+		return err
 	}
 
-	return uuid, nil
-}
+	if require.SelfEdit && !permission.SelfEdit {
+		// TODO error type
+		return ErrPermissionDenied
+	}
 
-func GetNow() time.Time {
-	return time.Now()
+	if require.CompanyAccess && !permission.CompanyAccess {
+		// TODO error type
+		return ErrPermissionDenied
+	}
+
+	if require.CompanyInvite && !permission.CompanyInvite {
+		// TODO error type
+		return ErrPermissionDenied
+	}
+
+	if require.CompanyEdit && !permission.CompanyEdit {
+		// TODO error type
+		return ErrPermissionDenied
+	}
+
+	return nil
 }

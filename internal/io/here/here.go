@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func GenerateLargeCharactorString(length int, source string) string {
+func GenerateRamdomString(length int, source string) string {
 	b := make([]byte, length)
 	for i := range b {
 		b[i] = source[rand.Intn(len(source))]
