@@ -35,6 +35,14 @@ const RoleLessPermission = NewRolePermission(RoleLessLabel, true, false, false, 
 const AnonymousLabel = text.NewLabel("ANONYMOUS")
 const AnonymousPermission = NewRolePermission(AnonymousLabel, false, false, false, false, 0)
 
+// ToMap関数とか、Mapに渡すイメージ
 func PermissionKey(permission RolePermission) string {
 	return string(permission.RoleLabel)
+}
+
+// Find関数に渡すイメージ
+func PermissionWhen(label text.Label) func (permission RolePermission) bool {
+	return func (permission RolePermission) bool {
+		return string(permission.RoleLabel) == string(label)
+	}
 }

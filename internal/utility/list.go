@@ -41,6 +41,25 @@ func Some[T any](slice []T, predicate func(T) bool) bool {
 	return false
 }
 
+// 使い方は、`internal/authorization/authorization#GetPriorityRolePermission`を参照。叙述関数は高階関数になる
+func Find[T any](slice []T, predicate func(T) bool) *T {
+	for _, item := range slice {
+		if predicate(item) {
+			return &item
+		}
+	}
+	return nil
+}
+
+func FindLast[T any](slice []T, predicate func(T) bool) *T {
+	for i := len(slice) - 1; i >= 0; i-- {
+		if predicate(slice[i]) {
+			return &slice[i]
+		}
+	}
+	return nil
+}
+
 func Keys[T comparable, V any](m map[T]V) []T {
 	var keys []T
 	for key := range m {
@@ -57,6 +76,7 @@ func Values[T any, V any](m map[T]V) []V {
 	return values
 }
 
+// TODO Findあるから不要な気がしてきた。ただ長いlistを繰り返し探索するときにはmapに変換しておくと高速化できる
 func ToMap[T any, K comparable](slice []T, getKey func(T) K) map[K]T {
 	result := make(map[K]T)
 	for _, item := range slice {
