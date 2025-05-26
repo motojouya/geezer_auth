@@ -12,11 +12,11 @@ import (
 type Name string
 
 func NewName(name string) (Name, error) {
-	if name == "" {
+	var trimmed = strings.TrimSpace(name)
+
+	if trimmed == "" {
 		return Name(""), NewLengthError("name", &name, 1, 255, "name should not be empty")
 	}
-
-	var trimmed = strings.TrimSpace(name)
 
 	var length = len([]rune(trimmed))
 	if length < 1 || length > 255 {

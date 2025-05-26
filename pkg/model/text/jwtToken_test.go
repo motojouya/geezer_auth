@@ -1,7 +1,7 @@
 package text_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/model"
+	"github.com/motojouya/geezer_auth/internal/model/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -9,7 +9,7 @@ import (
 func TestNewJwtToken(t *testing.T) {
 	var token = "test_token"
 
-	var jwtToken = model.NewJwtToken(token)
+	var jwtToken = text.NewJwtToken(token)
 
 	assert.Equal(t, token, string(jwtToken))
 

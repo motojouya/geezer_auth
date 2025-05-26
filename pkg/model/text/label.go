@@ -9,11 +9,11 @@ import (
 type Label string
 
 func NewLabel(label string) (Label, error) {
-	if label == "" {
+	var trimmed = strings.TrimSpace(label)
+
+	if trimmed == "" {
 		return Label(""), NewLengthError("label", &label, 2, 255, "label should not be empty")
 	}
-
-	var trimmed = strings.TrimSpace(label)
 
 	var length = len([]rune(trimmed))
 	if length < 2 || length > 255 {

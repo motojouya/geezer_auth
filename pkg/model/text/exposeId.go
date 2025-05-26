@@ -26,11 +26,11 @@ func CreateExposeId(prefix string, randoms string) (ExposeId, error) {
 }
 
 func NewExposeId(exposeId string) (ExposeId, error) {
-	if exposeId == "" {
+	var trimmed = strings.TrimSpace(exposeId)
+
+	if trimmed == "" {
 		return ExposeId(""), NewLengthError("exposeId", &exposeId, 9, 9, "exposeId should not be empty")
 	}
-
-	var trimmed = strings.TrimSpace(exposeId)
 
 	var length = len([]rune(trimmed))
 	if length != 9 {
