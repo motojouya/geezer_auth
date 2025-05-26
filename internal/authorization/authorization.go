@@ -2,7 +2,8 @@ package authorization
 
 import (
 	"github.com/motojouya/geezer_auth/internal/model/role"
-	"github.com/motojouya/geezer_auth/pkg/utility"
+	pkgUtility "github.com/motojouya/geezer_auth/pkg/utility"
+	utility "github.com/motojouya/geezer_auth/internal/utility"
 	text "github.com/motojouya/geezer_auth/pkg/model/text"
 	user "github.com/motojouya/geezer_auth/pkg/model/user"
 )
@@ -51,14 +52,6 @@ func CreateAuthorization() *Authorization {
 	return NewAuthorization(permissions)
 }
 
-func GetPermissionMap(permissions []role.RolePermission) map[string]role.RolePermission {
-	permissionMap := make(map[string]role.RolePermission)
-	for _, permission := range permissions {
-		permissionMap[string(permission.Label)] = permission
-	}
-	return permissionMap
-}
-
 func GetPriorityRolePermission(permissions []role.RolePermission, authentic *user.Authentic) (role.RolePermission, error) {
 
 	if authentic == nil {
@@ -69,14 +62,14 @@ func GetPriorityRolePermission(permissions []role.RolePermission, authentic *use
 		return role.RoleLessPermission, nil
 	}
 
-	permissionMap := GetPermissionMap(permisions)
+	var permissionMap = utility.ToMap(permisions, role.PermissionKey)
 
 	var permission role.RolePermission = nil
 	for _, r := range roles {
 		var roleLabel = string(r.Label)
 		var p = permissionMap[roleLabel]
 		if p == nil {
-			return nil, utility.NewNilError("role_permission." + roleLabel, "RolePermission not found")
+			return nil, pkgUtility.NewNilError("role_permission." + roleLabel, "RolePermission not found")
 		}
 		if permission == nil || p.Priority > permission.Priority {
 			permission = p

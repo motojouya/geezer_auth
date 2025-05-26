@@ -34,3 +34,7 @@ const RoleLessPermission = NewRolePermission(RoleLessLabel, true, false, false, 
 // そもそも認証がない利用者ができることを定義する
 const AnonymousLabel = text.NewLabel("ANONYMOUS")
 const AnonymousPermission = NewRolePermission(AnonymousLabel, false, false, false, false, 0)
+
+func PermissionKey(permission RolePermission) string {
+	return string(permission.RoleLabel)
+}
