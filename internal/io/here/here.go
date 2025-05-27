@@ -6,7 +6,19 @@ import (
 	"time"
 )
 
-func GenerateRamdomString(length int, source string) string {
+type Here interface {
+	GenerateRamdomString(length int, source string) string
+	GenerateUUID() (UUID, error)
+	GetNow() time.Time
+}
+
+type here interface {}
+
+func CreateHere() Here {
+	return &here(interface{})
+}
+
+func (h here) GenerateRamdomString(length int, source string) string {
 	b := make([]byte, length)
 	for i := range b {
 		b[i] = source[rand.Intn(len(source))]
@@ -14,7 +26,7 @@ func GenerateRamdomString(length int, source string) string {
 	return string(b)
 }
 
-func GenerateUUID() (UUID, error) {
+func (h here) GenerateUUID() (UUID, error) {
 	uuid, err := uuid.NewUUID()
 	if err != nil {
 		return UUID(""), err
@@ -23,6 +35,6 @@ func GenerateUUID() (UUID, error) {
 	return uuid, nil
 }
 
-func GetNow() time.Time {
+func (h here) GetNow() time.Time {
 	return time.Now()
 }

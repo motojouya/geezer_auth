@@ -8,12 +8,16 @@ import (
 	user "github.com/motojouya/geezer_auth/pkg/model/user"
 )
 
-type Authorization struct {
+type Authorization interface {
+	Authorize(require RequirePermission, authentic *user.Authentic) error
+}
+
+type authorizationConfig struct {
 	Permisions []role.RolePermission
 }
 
-func NewAuthorization(permissions []role.RolePermission) *Authorization {
-	return &Authorization{
+func NewAuthorization(permissions []role.RolePermission) Authorization {
+	return &authorizationConfig{
 		Permisions: permissions,
 	}
 }
@@ -35,7 +39,7 @@ func NewRequirePermission(selfEdit bool, companyAccess bool, companyInvite bool,
 }
 
 // TODO DBアクセスしてロードするが、まだDB実装していない
-func CreateAuthorization() *Authorization {
+func CreateAuthorization() Authorization {
 	var EmployeeLabel = text.NewLabel("EMPLOYEE")
 	var EmployeePermission = role.NewRolePermission(EmployeeLabel, true, true, false, false, 5)
 
@@ -68,7 +72,7 @@ func GetPriorityRolePermission(permissions []role.RolePermission, authentic *use
 	for _, r := range roles {
 		var roleLabel = string(r.Label)
 		var p = permissionMap[roleLabel]
-		// var p = utility.Find(permissions, role.PermissionWhen(r.Label)) // こうも書けるが、パフォーマンス的に悪い
+		// var p, ok = utility.Find(permissions, role.PermissionWhen(r.Label)) // こうも書けるが、パフォーマンス的に悪い
 		if p == nil {
 			return nil, pkgUtility.NewNilError("role_permission." + roleLabel, "RolePermission not found")
 		}
@@ -80,7 +84,7 @@ func GetPriorityRolePermission(permissions []role.RolePermission, authentic *use
 	return permission, nil
 }
 
-func (auth *Authorization) Authorize(require RequirePermission, authentic *user.Authentic) error {
+func (auth *authorizationConfig) Authorize(require RequirePermission, authentic *user.Authentic) error {
 	var permission, err = GetPriorityRolePermission(auth.Permissions, authentic)
 	if err != nil {
 		return err

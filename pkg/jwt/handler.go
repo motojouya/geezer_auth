@@ -11,15 +11,19 @@ import (
 	"github.com/motojouya/geezer_auth/pkg/utility"
 )
 
-type JwtHandler struct {
+type JwtHandler interface {
+	GenerateAccessToken(user *user.User, issueDate time.Time) (*user.Authentic, text.JwtToken, error)
+}
+
+type jwtHandlerConfig struct {
 	Audience              []string
 	ValidityPeriodMinutes uint
 	GetId                 func () (string, error)
 	JwtParser
 }
 
-func NewJwtHandler(audience []string, jwtParser JwtParser, validityPeriodMinutes uint, getId (func() (string, error))) *JwtHandler {
-	return &JwtHandler{
+func NewJwtHandler(audience []string, jwtParser JwtParser, validityPeriodMinutes uint, getId (func() (string, error))) JwtHandler {
+	return &jwtHandlerConfig{
 		Issuer:                issuer,
 		Audience:              audience,
 		ValidityPeriodMinutes: validityPeriodMinutes,
@@ -28,7 +32,7 @@ func NewJwtHandler(audience []string, jwtParser JwtParser, validityPeriodMinutes
 	}
 }
 
-func CreateJwtHandler() (*JwtHandler, error) {
+func CreateJwtHandler() (JwtHandler, error) {
 	var audience, audienceExist = os.LookupEnv("JWT_AUDIENCE");
 	if !audienceExist {
 		return nil, utility.NewSystemConfigError("JWT_AUDIENCE", "JWT_AUDIENCE is not set on env")
@@ -57,7 +61,7 @@ func CreateJwtHandler() (*JwtHandler, error) {
 	if err != nil {
 		return nil, err
 	}
-	if jwtParser == nil {
+	if jwtParserConfig, ok := jwtParser.(jwtParserConfig); !ok {
 		return nil, utility.NewNilError("jwtParser", "JwtParser is nil")
 	}
 
@@ -65,11 +69,11 @@ func CreateJwtHandler() (*JwtHandler, error) {
 		[]string{audience,jwtParser.Myself},
 		validityPeriodMinutes,
 		GetId,
-		*jwtParser,
+		jwtParserConfig,
 	), nil
 }
 
-(jwtHandler *JwtHandler) func GenerateAccessToken(user user.User, issueDate time.Time) (*user.Authentic, text.JwtToken, error) {
+(jwtHandler *jwtHandlerConfig) func GenerateAccessToken(user *user.User, issueDate time.Time) (*user.Authentic, text.JwtToken, error) {
 	var id, err = jwtHandler.GetId()
 	if err != nil {
 		return JwtToken(""), err

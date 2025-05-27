@@ -15,6 +15,7 @@ func TestNewNilError(t *testing.T) {
 	assert.Equal(t, name, err.Name)
 	assert.Equal(t, message, err.Unwrap().Error())
 	assert.Equal(t, message + " (name: " + name + ")", err.Error())
+	assert.Equal(t, 400, err.HttpStatus())
 
 	t.Logf("error: %s", err.Error())
 	t.Logf("error.Name: %s", err.Name)
@@ -29,6 +30,7 @@ func TestNewSystemConfigError(t *testing.T) {
 	assert.Equal(t, name, err.Name)
 	assert.Equal(t, message, err.Unwrap().Error())
 	assert.Equal(t, message + " (name: " + name + ")", err.Error())
+	assert.Equal(t, 500, err.HttpStatus())
 
 	t.Logf("error: %s", err.Error())
 	t.Logf("error.Name: %s", err.Name)

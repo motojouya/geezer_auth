@@ -12,12 +12,12 @@ func NewEmail(email string) (Email, error) {
 	var trimmed = strings.TrimSpace(email)
 
 	if trimmed == "" {
-		return Email(""), NewLengthError("email", &email, 3, 320, "email should not be empty")
+		return Email(""), NewLengthError("email", email, 3, 320, "email should not be empty")
 	}
 
 	var length = len([]rune(trimmed))
 	if length < 3 || length > 320 {
-		return Email(""), NewLengthError("email", &email, 3, 320, "email must be between 3 and 320 characters")
+		return Email(""), NewLengthError("email", email, 3, 320, "email must be between 3 and 320 characters")
 	}
 
 	// TODO 正規表現あってる？どっかからコピペしたやつなので、まじわからん
@@ -29,7 +29,7 @@ func NewEmail(email string) (Email, error) {
 
 	var result = re.MatchString(text, -1)
 	if !result {
-		return Email(""), NewFormatError("email", "email", &email, "email must be a valid email address")
+		return Email(""), NewFormatError("email", "email", email, "email must be a valid email address")
 	}
 
 	return Email(trimmed), nil

@@ -29,12 +29,12 @@ func NewExposeId(exposeId string) (ExposeId, error) {
 	var trimmed = strings.TrimSpace(exposeId)
 
 	if trimmed == "" {
-		return ExposeId(""), NewLengthError("exposeId", &exposeId, 9, 9, "exposeId should not be empty")
+		return ExposeId(""), NewLengthError("exposeId", exposeId, 9, 9, "exposeId should not be empty")
 	}
 
 	var length = len([]rune(trimmed))
 	if length != 9 {
-		return ExposeId(""), NewLengthError("exposeId", &exposeId, 9, 9, "exposeId must be exactly 9 characters")
+		return ExposeId(""), NewLengthError("exposeId", exposeId, 9, 9, "exposeId must be exactly 9 characters")
 	}
 
 	// TODO 正規表現あってる？
@@ -46,7 +46,7 @@ func NewExposeId(exposeId string) (ExposeId, error) {
 
 	var result = re.MatchString(text, -1)
 	if !result {
-		return ExposeId(""), NewFormatError("exposeId", "exposeId", &exposeId, "exposeId must be in the format of XX-XXXXXX where X is an uppercase letter")
+		return ExposeId(""), NewFormatError("exposeId", "exposeId", exposeId, "exposeId must be in the format of XX-XXXXXX where X is an uppercase letter")
 	}
 
 	return ExposeId(trimmed), nil

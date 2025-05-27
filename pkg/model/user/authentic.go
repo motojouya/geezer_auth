@@ -11,7 +11,7 @@ type Authentic struct {
 	User User
 }
 
-func CreateAuthentic(issuer string, audience []string, issuedAt time.Time, validityPeriodMinutes uint, id UUID, user User) *Authentic {
+func CreateAuthentic(issuer string, audience []string, issuedAt time.Time, validityPeriodMinutes uint, id UUID, user *User) *Authentic {
 	var expireDate = issueDate.Add(jwtHandler.ValidityPeriodMinutes * time.Minute)
 
 	return NewAuthentic(
@@ -26,7 +26,7 @@ func CreateAuthentic(issuer string, audience []string, issuedAt time.Time, valid
 	)
 }
 
-func NewAuthentic(issuer string, subject string, audience []string, expiresAt time.Time, notBefore time.Time, issuedAt time.Time, id UUID, user User) *Authentic {
+func NewAuthentic(issuer string, subject string, audience []string, expiresAt time.Time, notBefore time.Time, issuedAt time.Time, id UUID, user *User) *Authentic {
 	return &Authentic{
 		jwt.RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    issuer,      // iss

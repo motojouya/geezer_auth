@@ -9,13 +9,13 @@ import (
  */
 type LengthError struct {
 	Name string
-	Value *string
-	min *uint
-	max *uint
+	Value string
+	min uint
+	max uint
 	error
 }
 
-func NewLengthError(name string, value *string, min *uint, max *uint, message string) *LengthError {
+func NewLengthError(name string, value string, min uint, max uint, message string) *LengthError {
 	return &LengthError{
 		Name:   name,
 		Value:  value,
@@ -25,12 +25,16 @@ func NewLengthError(name string, value *string, min *uint, max *uint, message st
 	}
 }
 
-func (e *LengthError) Error() string {
+func (e LengthError) Error() string {
 	return e.error.Error() + " (name: " + e.Name + ", value: " + e.Value + ", min: " + string(e.min) + ", max: " + string(e.max) + ")"
 }
 
-func (e *LengthError) Unwrap() error {
+func (e LengthError) Unwrap() error {
 	return e.error
+}
+
+func (e LengthError) HttpStatus() uint {
+	return 400
 }
 
 /*
@@ -39,11 +43,11 @@ func (e *LengthError) Unwrap() error {
 type CharacterError struct {
 	Name  string
 	Chars string
-	Value *string
+	Value string
 	error
 }
 
-func NewCharacterError(name string, chars string, value *string, message string) *CharacterError {
+func NewCharacterError(name string, chars string, value string, message string) *CharacterError {
 	return &CharacterError{
 		Name:  name,
 		Chars:  chars,
@@ -52,12 +56,16 @@ func NewCharacterError(name string, chars string, value *string, message string)
 	}
 }
 
-func (e *CharacterError) Error() string {
+func (e CharacterError) Error() string {
 	return e.error.Error() + " (name: " + e.Name + ", chars: " + e.Chars + ", value: " + *e.Value + ")"
 }
 
-func (e *CharacterError) Unwrap() error {
+func (e CharacterError) Unwrap() error {
 	return e.error
+}
+
+func (e CharacterError) HttpStatus() uint {
+	return 400
 }
 
 /*
@@ -66,11 +74,11 @@ func (e *CharacterError) Unwrap() error {
 type FormatError struct {
 	Name  string
 	Format string
-	Value *string
+	Value string
 	error
 }
 
-func NewFormatError(name string, format string, value *string, message string) *FormatError {
+func NewFormatError(name string, format string, value string, message string) *FormatError {
 	return &FormatError{
 		Name:   name,
 		Format: format,
@@ -79,10 +87,14 @@ func NewFormatError(name string, format string, value *string, message string) *
 	}
 }
 
-func (e *FormatError) Error() string {
+func (e FormatError) Error() string {
 	return e.error.Error() + " (name: " + e.Name + ", format: " + e.Format + ", value: " + *e.Value + ")"
 }
 
-func (e *FormatError) Unwrap() error {
+func (e FormatError) Unwrap() error {
 	return e.error
+}
+
+func (e FormatError) HttpStatus() uint {
+	return 400
 }

@@ -15,12 +15,12 @@ func NewName(name string) (Name, error) {
 	var trimmed = strings.TrimSpace(name)
 
 	if trimmed == "" {
-		return Name(""), NewLengthError("name", &name, 1, 255, "name should not be empty")
+		return Name(""), NewLengthError("name", name, 1, 255, "name should not be empty")
 	}
 
 	var length = len([]rune(trimmed))
 	if length < 1 || length > 255 {
-		return Name(""), NewLengthError("name", &name, 1, 255, "name must be between 1 and 255 characters")
+		return Name(""), NewLengthError("name", name, 1, 255, "name must be between 1 and 255 characters")
 	}
 
 	return Name(trimmed), nil

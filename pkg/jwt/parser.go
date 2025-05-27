@@ -8,16 +8,20 @@ import (
 	"github.com/motojouya/geezer_auth/pkg/utility"
 )
 
+type JwtParser interface {
+	GetUserFromAccessToken(tokenString string) (*user.Authentic, error)
+}
+
 // TODO middlewareも作ってしまいたい。イメージを掴んで置く
-type JwtParser struct {
+type jwtParserConfig struct {
 	Issuer            string
 	Myself            string // Audienceと付き合わせるための自分自身の情報
 	LatestSecretKeyId string
 	SecretMap         map[string]string
 }
 
-func NewJwtParser(issuer string, myself string, latestSecret string, secretMap map[string]string) *JwtParser {
-	return &JwtParser{
+func NewJwtParser(issuer string, myself string, latestSecret string, secretMap map[string]string) JwtParser {
+	return &JwtParserConfig{
 		Issuer:       issuer,
 		Myself:       myself,
 		LatestSecret: latestSecret,
@@ -25,7 +29,7 @@ func NewJwtParser(issuer string, myself string, latestSecret string, secretMap m
 	}
 }
 
-func CreateJwtAudienceParser() (*JwtParser, error) {
+func CreateJwtAudienceParser() (JwtParser, error) {
 	if issuer, issuerExist := os.LookupEnv("JWT_ISSUER"); !issuerExist {
 		return nil, utility.NewSystemConfigError("JWT_ISSUER", "JWT_ISSUER is not set on env")
 	}
@@ -47,7 +51,7 @@ func CreateJwtAudienceParser() (*JwtParser, error) {
 	), nil
 }
 
-func CreateJwtIssuerParser() (*JwtParser, error) {
+func CreateJwtIssuerParser() (JwtParser, error) {
 	if issuer, issuerExist := os.LookupEnv("JWT_ISSUER"); !issuerExist {
 		return nil, utility.NewSystemConfigError("JWT_ISSUER", "JWT_ISSUER is not set on env")
 	}
@@ -66,7 +70,7 @@ func CreateJwtIssuerParser() (*JwtParser, error) {
 	), nil
 }
 
-(jwtParser *JwtParser) func Validate(claims *GeezerClaims) (error) {
+(jwtParser *jwtParserConfig) func Validate(claims *GeezerClaims) (error) {
 	if jwtParser.Issuer != claims.Issuer {
 		return NewJwtError("Issuer", claims.Issuer, "Issuer is not valid")
 	}

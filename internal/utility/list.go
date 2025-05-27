@@ -3,6 +3,7 @@ package utility
 import (
 	"reflect"
 	"errors"
+	"slices"
 )
 
 func Filter[T any](slice []T, predicate func(T) bool) []T {
@@ -42,13 +43,15 @@ func Some[T any](slice []T, predicate func(T) bool) bool {
 }
 
 // 使い方は、`internal/authorization/authorization#GetPriorityRolePermission`を参照。叙述関数は高階関数になる
-func Find[T any](slice []T, predicate func(T) bool) *T {
+func Find[T any](slice []T, predicate func(T) bool) (T, bool) {
 	for _, item := range slice {
 		if predicate(item) {
-			return &item
+			return item, true
 		}
 	}
-	return nil
+
+	var zero T
+	return zero, false
 }
 
 func FindLast[T any](slice []T, predicate func(T) bool) *T {
@@ -110,15 +113,18 @@ func Entries[T comparable, V any](m map[T]V) []struct {
  * branchは、[]leavesの要素を持っているが、DBでqueryを投げる際には、branch,leafで別々に投げたい。
  * 別々に投げた後に紐づけを行うための関数
  */
-func Relate[B any, L any](property string, branches []*P, leaves []*L, predicate func(B, L) bool) []P {
+func Relate[B any, L any](property string, branches []B, leaves []L, predicate func(B, L) bool) []B {
 
 	if len(branches) == 0 {
 		return branches
 	}
 
-	var workings = make([]*L, 0, len(leaves))
+	var related = make([]B, 0, len(branches))
 
-	for _, branch := range branches {
+	var rest = slices.Clone(leaves)
+	var matchedIndexes []uint = []uint{}
+
+	for bIndex, branch := range branches {
 
 		var e = reflect.ValueOf(&branch).Elem()
 		var list = e.FieldByName(property)
@@ -126,15 +132,54 @@ func Relate[B any, L any](property string, branches []*P, leaves []*L, predicate
 			panic("property must be a valid slice field")
 		}
 
-		for i, leaf := range workings {
+		for lIndex, leaf := range rest {
 			if relate(branch, leaf) {
 				var item = []L{leaf}
-				list.Set(reflect.AppendSlice(list, reflect.ValueOf(item)))
+				list.Set(reflect.AppendSlice(list, reflect.ValueOf(&item)))
 
-				workings = append(workings[:i], workings[i+1:]...)
+				matchedIndexes = append(matchedIndexes, uint(lIndex))
 			}
 		}
+
+		// indexの削除は、後ろから行うことで、削除によるindexのずれを防ぐ
+		for i := len(matchedIndexes) - 1; i >= 0; i-- {
+			var index = matchedIndexes[i]
+			rest = slices.Delete(rest, int(index), int(index+1))
+		}
+
+		related = append(related, branch)
 	}
 
-	return branches
+	return related
+}
+
+// TODO たぶん動く気がするが不安
+func Intersect[V any, H any](verticals []V, horizontals []H, predicate func(V, H) bool) ([]V, []H, []V, []H) {
+
+	var verticalMatched []V = []V{}
+	var horizontalMatched []H = []H{}
+
+	var verticalUnmatched []V = slices.Clone(verticals)
+	var horizontalUnmatched []H = slices.Clone(horizontals)
+
+	var total = len(verticalUnmatched)
+	var vIndex = total
+	for ;; {
+		var vertical = verticalUnmatched[vIndex]
+		for hIndex, horizontal := range horizontalUnmatched {
+			if predicate(vertical, horizontal) {
+				verticalMatched = append(verticalMatched, vertical)
+				horizontalMatched = append(horizontalMatched, horizontal)
+				verticalUnmatched = slices.Delete(verticalUnmatched, vIndex, vIndex+1)
+				horizontalUnmatched = slices.Delete(horizontalUnmatched, hIndex, hIndex+1)
+				break
+			}
+		}
+
+		vIndex -= 1
+		if vIndex == 0 {
+			break
+		}
+	}
+	return verticalMatched, horizontalMatched, verticalUnmatched, horizontalUnmatched
 }
