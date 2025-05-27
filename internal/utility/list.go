@@ -153,7 +153,6 @@ func Relate[B any, L any](property string, branches []B, leaves []L, predicate f
 	return related
 }
 
-// TODO たぶん動く気がするが不安
 func Intersect[V any, H any](verticals []V, horizontals []H, predicate func(V, H) bool) ([]V, []H, []V, []H) {
 
 	var verticalMatched []V = []V{}
@@ -162,9 +161,8 @@ func Intersect[V any, H any](verticals []V, horizontals []H, predicate func(V, H
 	var verticalUnmatched []V = slices.Clone(verticals)
 	var horizontalUnmatched []H = slices.Clone(horizontals)
 
-	var total = len(verticalUnmatched)
-	var vIndex = total
-	for ;; {
+	var vIndex = len(verticalUnmatched)
+	for {
 		var vertical = verticalUnmatched[vIndex]
 		for hIndex, horizontal := range horizontalUnmatched {
 			if predicate(vertical, horizontal) {
@@ -177,9 +175,38 @@ func Intersect[V any, H any](verticals []V, horizontals []H, predicate func(V, H
 		}
 
 		vIndex -= 1
-		if vIndex == 0 {
+		if vIndex < 0 {
 			break
 		}
 	}
 	return verticalMatched, horizontalMatched, verticalUnmatched, horizontalUnmatched
+}
+
+func DuplicatedKeys[K comparable, V any](slice []V, predicate func(V) K) []K {
+	if len(slice) == 0 {
+		return make([]K, 0)
+	}
+
+	var duplicates = make([]K, 0)
+	var keys = make([]K, 0, len(slice))
+	seen := make(map[T]bool)
+
+	for _, item := range slice {
+		var key = predicate(item)
+		var isDuplicate bool = false
+
+		for _, existingKey := range keys {
+			if existingKey == key {
+				duplicates = append(duplicates, key)
+				isDuplicate = true
+				break
+			}
+		}
+
+		if !isDuplicate {
+			keys = append(keys, key)
+		}
+	}
+
+	return duplicates
 }
