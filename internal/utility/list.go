@@ -182,31 +182,48 @@ func Intersect[V any, H any](verticals []V, horizontals []H, predicate func(V, H
 	return verticalMatched, horizontalMatched, verticalUnmatched, horizontalUnmatched
 }
 
-func DuplicatedKeys[K comparable, V any](slice []V, predicate func(V) K) []K {
-	if len(slice) == 0 {
-		return make([]K, 0)
-	}
+func Group[T any](slice []T, predicate func(T, T) bool) [][]T {
+	grouped := make([][]T, 0)
 
-	var duplicates = make([]K, 0)
-	var keys = make([]K, 0, len(slice))
-	seen := make(map[T]bool)
+	var workings = slices.Clone(slice)
+	var index = len(workings)
+	for {
+		if index == 0 {
+			break
+		}
 
-	for _, item := range slice {
-		var key = predicate(item)
-		var isDuplicate bool = false
+		var item = workings[index]
+		workings = slices.Delete(working, index, index+1)
+		var groupedItems = []T{item}
 
-		for _, existingKey := range keys {
-			if existingKey == key {
-				duplicates = append(duplicates, key)
-				isDuplicate = true
-				break
+		for i := len(workings) - 1; i >= 0; i-- {
+			var compare = workings[i]
+			if predicate(item, compare) {
+				matchdIndexs = append(matchdIndexs, uint(i))
+				groupedItems = append(groupedItems, compare)
+				workings = slices.Delete(workings, i, i+1)
 			}
 		}
 
-		if !isDuplicate {
-			keys = append(keys, key)
-		}
+		grouped = append(grouped, groupedItems)
+		index = len(workings)
 	}
 
-	return duplicates
+	return grouped
+}
+
+func Flatten[T any](slice [][]T) []T {
+	var result []T
+	for _, subSlice := range slice {
+		result = append(result, subSlice...)
+	}
+	return result
+}
+
+func Duplicated[T any](slice []T, predicate func(T, T) bool) []T {
+	var groupd = Group(slice, predicate)
+	var duplicates = Filter(groupd, func(group []T) bool {
+		return len(group) > 1
+	})
+	return Flatten(duplicates)
 }
