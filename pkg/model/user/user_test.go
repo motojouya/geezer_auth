@@ -1,56 +1,50 @@
 package user_test
 
 import (
-	"github.com/motojouya/geezer_auth/pkg/accessToken"
+	"github.com/motojouya/geezer_auth/pkg/model/text"
+	"github.com/motojouya/geezer_auth/pkg/model/user"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
-func TestNewCompany(t *testing.T) {
-	var exposeId = "CP-TESTES"
-	var name = "TestCompany"
-	var role = "TestRole"
-	var roleName = "TestRoleName"
+func getCompanyRole(companyExposeIdStr string, roleLabelStr string) user.CompanyRole {
+	var companyExposeId, _ = text.NewExposeId(companyExposeIdStr)
+	var companyName, _ = text.NewName("TestCompany")
+	var company = user.NewCompany(companyExposeId, companyName)
 
-	var company = accessToken.CreateCompany(exposeId, name, role, roleName)
+	var roleLabel, _ = text.NewLabel(roleLabelStr)
+	var roleName, _ = text.NewName("TestRoleName")
+	var role = user.NewRole(roleLabel, roleName)
+	var roles = []user.Roles{role}
 
-	assert.Equal(t, name, company.Name)
-	assert.Equal(t, exposeId, company.ExposeId)
-	assert.Equal(t, role, company.Role)
-	assert.Equal(t, roleName, company.RoleName)
-
-	t.Logf("company: %+v", company)
-	t.Logf("company.ExposeId: %s", company.ExposeId)
-	t.Logf("company.Name: %s", company.Name)
-	t.Logf("company.Role: %s", company.Role)
-	t.Logf("company.RoleName: %s", company.RoleName)
+	return user.NewCompanyRole(company, roles)
 }
 
 func TestNewUser(t *testing.T) {
 	var companyExposeId = "CP-TESTES"
-	var companyName = "TestCompany"
-	var companyRole = "TestRole"
-	var companyRoleName = "TestRoleName"
+	var roleLabel = "TestRole"
+	var companyRole = getCompanyRole(companyExposeId, roleLabel)
 
-	var company = accessToken.CreateCompany(exposeId, name, role, roleName)
-
-	var userExposeId = "TestExposeId"
-	var emailId = "test@gmail.com"
-	var email = "test_2@gmail.com"
-	var userName = "TestName"
+	var userExposeId = text.NewExposeId("TestExposeId")
+	var emailId = text.NewEmail("test@gmail.com")
+	var email = text.NewEmail("test_2@gmail.com")
+	var userName = text.NewName("TestName")
 	var botFlag = false
 	var updateDate = time.Now()
 
-	var user = accessToken.NewUser(userExposeId, emailId, email, userName, botFlag, company, updateDate)
+	var user = user.NewUser(userExposeId, emailId, email, userName, botFlag, companyRole, updateDate)
 
-	assert.Equal(t, userExposeId, user.ExposeId)
-	assert.Equal(t, emailId, user.ExposeEmailId)
-	assert.Equal(t, email, *user.Email)
-	assert.Equal(t, userName, user.Name)
+	assert.Equal(t, string(userExposeId), string(user.ExposeId))
+	assert.Equal(t, string(emailId), string(user.ExposeEmailId))
+	assert.Equal(t, string(email), string(*user.Email))
+	assert.Equal(t, string(userName), string(user.Name))
 	assert.Equal(t, botFlag, user.BotFlag)
 	assert.Equal(t, updateDate, user.UpdateDate)
-	assert.Equal(t, companyExposeId, user.Company.ExposeId)
+
+	assert.Equal(t, companyExposeId, string(companyRole.Company.ExposeId))
+	assert.Equal(t, len(roles), len(companyRole.Roles))
+	assert.Equal(t, roleLabel, string(companyRole.Roles[0].Label))
 
 	t.Logf("user: %+v", user)
 	t.Logf("user.ExposeId: %s", user.ExposeId)
@@ -59,6 +53,8 @@ func TestNewUser(t *testing.T) {
 	t.Logf("user.Name: %s", user.Name)
 	t.Logf("user.BotFlag: %t", user.BotFlag)
 	t.Logf("user.UpdateDate: %t", user.UpdateDate)
-	t.Logf("company: %+v", user.Company)
-	t.Logf("company.ExposeId: %s", user.Company.ExposeId)
+
+	t.Logf("user.CompanyRole: %+v", user.CompanyRole)
+	t.Logf("user.CompanyRole.Company.ExposeId: %s", string(user.CompanyRole.Company.ExposeId))
+	t.Logf("user.CompanyRole.Role[0].Label: %s", string(user.CompanyRole.Roles[0].Label))
 }

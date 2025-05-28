@@ -14,7 +14,15 @@ type User struct {
 	UpdateDate  time.Time
 }
 
-func NewUser(exposeId ExposeId, emailId Email, email *Email, name Name, botFlag bool, companyRole *CompanyRole, updateDate time.Time) *User {
+func NewUser(
+	exposeId    ExposeId,
+	emailId     Email,
+	email       *Email,
+	name        Name,
+	botFlag     bool,
+	companyRole *CompanyRole,
+	updateDate  time.Time
+) *User {
 	return &User{
 		ExposeId: exposeId,
 		EmailId: emailId,

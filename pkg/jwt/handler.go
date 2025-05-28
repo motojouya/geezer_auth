@@ -19,10 +19,10 @@ type jwtHandlerConfig struct {
 	Audience              []string
 	ValidityPeriodMinutes uint
 	GetId                 func () (string, error)
-	JwtParser
+	jwtParserConfig
 }
 
-func NewJwtHandler(audience []string, jwtParser JwtParser, validityPeriodMinutes uint, getId (func() (string, error))) JwtHandler {
+func NewJwtHandler(audience []string, jwtParser jwtParserConfig, validityPeriodMinutes uint, getId (func() (string, error))) JwtHandler {
 	return &jwtHandlerConfig{
 		Issuer:                issuer,
 		Audience:              audience,

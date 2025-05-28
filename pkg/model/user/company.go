@@ -5,9 +5,9 @@ type Company struct {
 	Name     Name
 }
 
-func NewCompany(exposeId string, name string) Company {
+func NewCompany(exposeId ExposeId, name Name) Company {
 	return Company{
 		ExposeId: exposeId,
-		Name: name,
+		Name:     name,
 	}
 }
