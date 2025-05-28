@@ -24,6 +24,50 @@ func Map[T any, U any](slice []T, mapper func(T) U) []U {
 	return result
 }
 
+/*
+ * たとえば、Order(注文)に商品(Item)を追加する処理とかを想定する
+ *
+ * こんな感じ
+ * func OrderAddItem(order Order, item Item) (Order, error) { ... }
+ * var order, _ = Fold(items, order, OrderAddItem)
+ */
+func Fold[T any, U any](slice []T, initial U, folder func(U, T) (U, error)) (U, error) {
+	if len(slice) == 0 {
+		return initial, nil
+	}
+
+	result := initial
+	for _, item := range slice {
+		result, err = folder(result, item)
+		if err != nil {
+			return result, err
+		}
+	}
+	return result, nil
+}
+
+/*
+ * Foldと違って、初期値はゼロ値であることを前提としている。より単純な型に対して使うことを想定している
+ *
+ * たとえばこんなかんじ
+ * var itemSubTotals = []int{100, 200, 300}
+ * func Sum(a, b int) int { return a + b }
+ * var total = Reduce(itemSubTotals, Sum)
+ */
+func Reduce[T any](slice []T, reducer func(T, T) T) T {
+	var initial T
+
+	if len(slice) == 0 {
+		return initial
+	}
+
+	result := initial
+	for _, item := range slice {
+		result = reducer(result, item)
+	}
+	return result
+}
+
 func Every[T any](slice []T, predicate func(T) bool) bool {
 	for _, item := range slice {
 		if !predicate(item) {
@@ -79,7 +123,6 @@ func Values[T any, V any](m map[T]V) []V {
 	return values
 }
 
-// TODO Findあるから不要な気がしてきた。ただ長いlistを繰り返し探索するときにはmapに変換しておくと高速化できる
 func ToMap[T any, K comparable](slice []T, getKey func(T) K) map[K]T {
 	result := make(map[K]T)
 	for _, item := range slice {
@@ -163,21 +206,22 @@ func Intersect[V any, H any](verticals []V, horizontals []H, predicate func(V, H
 
 	var vIndex = len(verticalUnmatched)
 	for {
-		var vertical = verticalUnmatched[vIndex]
+		if vIndex == 0 {
+			break
+		}
+
+		var vertical = verticalUnmatched[vIndex - 1]
 		for hIndex, horizontal := range horizontalUnmatched {
 			if predicate(vertical, horizontal) {
 				verticalMatched = append(verticalMatched, vertical)
 				horizontalMatched = append(horizontalMatched, horizontal)
-				verticalUnmatched = slices.Delete(verticalUnmatched, vIndex, vIndex+1)
-				horizontalUnmatched = slices.Delete(horizontalUnmatched, hIndex, hIndex+1)
+				verticalUnmatched = slices.Delete(verticalUnmatched, vIndex - 1, vIndex)
+				horizontalUnmatched = slices.Delete(horizontalUnmatched, hIndex, hIndex + 1)
 				break
 			}
 		}
 
 		vIndex -= 1
-		if vIndex < 0 {
-			break
-		}
 	}
 	return verticalMatched, horizontalMatched, verticalUnmatched, horizontalUnmatched
 }
