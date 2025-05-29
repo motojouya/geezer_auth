@@ -187,169 +187,6 @@ func TestFromAuthenticNil(t *testing.T) {
 	t.Logf("claims.CompanyRoleNames: %s", claims.CompanyRoleNames)
 }
 
-func TestCreateAuthentic(t *testing.T) {
-	var userExposeId = "TestExposeId"
-	var user = getUser(userExposeId)
-
-	var issuer = "issuer_id"
-	var aud01 = "aud1"
-	var aud02 = "aud2"
-	var audience = []string{aud01, aud02}
-	var issuedAt = time.Now()
-	var id, _ := uuid.NewUUID()
-	var validityPeriodMinutes = 60
-
-	var authentic = user.CreateAuthentic(issuer, audience, issuedAt, validityPeriodMinutes, id, user)
-
-	var expiresAt = issuedAt.Add(validityPeriodMinutes * time.Minute)
-
-	assert.Equal(t, issuer, authentic.Issuer)
-	assert.Equal(t, userExposeId, authentic.Subject)
-	assert.Equal(t, len(audience), len(authentic.Audience))
-	assert.Equal(t, aud01, authentic.Audience[0])
-	assert.Equal(t, aud02, authentic.Audience[1])
-	assert.Equal(t, expiresAt, authentic.ExpiresAt)
-	assert.Equal(t, issuedAt, authentic.NotBefore)
-	assert.Equal(t, issuedAt, authentic.IssuedAt)
-	assert.Equal(t, id.String(), authentic.ID)
-	assert.Equal(t, userExposeId, string(authentic.User.ExposeId))
-
-	t.Logf("authentic: %+v", authentic)
-	t.Logf("authentic.Issuer: %s", authentic.Issuer)
-	t.Logf("authentic.Audience[0]: %s", authentic.Audience[0])
-	t.Logf("authentic.Audience[1]: %s", authentic.Audience[1])
-	t.Logf("authentic.ExpiresAt: %t", authentic.ExpiresAt)
-	t.Logf("authentic.NotBefore: %t", authentic.NotBefore)
-	t.Logf("authentic.IssuedAt: %t", authentic.IssuedAt)
-	t.Logf("authentic.ID: %s", authentic.ID)
-
-	t.Logf("authentic.User: %+v", authentic.User)
-	t.Logf("authentic.User.ExposeId: %s", authentic.User.ExposeId)
-}
-
-
-func TestNewGeezerToken(t *testing.T) {
-	var companyExposeId = "CP-TESTES"
-	var companyName = "TestCompany"
-	var companyRole = "TestRole"
-	var companyRoleName = "TestRoleName"
-
-	var company = accessToken.CreateCompany(exposeId, name, role, roleName)
-
-	var userExposeId = "TestExposeId"
-	var emailId = "test@gmail.com"
-	var email = "test_2@gmail.com"
-	var userName = "TestName"
-	var botFlag = false
-	var updateDate = time.Now()
-
-	var user = accessToken.NewUser(userExposeId, emailId, email, userName, botFlag, company, updateDate)
-
-	var issuer = "TestIssuer"
-	var subject = "TestSubject"
-	var audience = []string{"TestAudience1", "TestAudience2"}
-	var expiresAt = time.Now()
-	var notBefore = time.Now()
-	var issuedAt = time.Now()
-	var id = "TestId"
-
-	var token = accessToken.NewGeezerToken(issuer, subject, audience, expiresAt, notBefore, issuedAt, id, user)
-
-	assert.Equal(t, issuer, token.Issuer)
-	assert.Equal(t, subject, token.Subject)
-	assert.Equal(t, len(audience), len(token.Audience))
-	assert.Equal(t, audience[0], token.Audience[0])
-	assert.Equal(t, audience[1], token.Audience[1])
-	assert.Equal(t, expiresAt, token.ExpiresAt)
-	assert.Equal(t, notBefore, token.NotBefore)
-	assert.Equal(t, issuedAt, token.IssuedAt)
-	assert.Equal(t, id, token.ID)
-
-	assert.Equal(t, userExposeId, token.User.ExposeId)
-	assert.Equal(t, companyExposeId, token.User.Company.ExposeId)
-
-	t.Logf("token: %+v", token)
-	t.Logf("token.Issuer: %s", token.Issuer)
-	t.Logf("token.Subject: %s", token.Subject)
-	t.Logf("token.Audience[0]: %s", token.Audience[0])
-	t.Logf("token.Audience[1]: %s", token.Audience[1])
-	t.Logf("token.ExpiresAt: %s", token.ExpiresAt)
-	t.Logf("token.NotBefore: %s", token.NotBefore)
-	t.Logf("token.IssuedAt: %s", token.IssuedAt)
-	t.Logf("token.ID: %s", token.ID)
-	t.Logf("user: %+v", token.User)
-	t.Logf("user.ExposeId: %s", token.User.ExposeId)
-	t.Logf("company: %+v", token.User.Company)
-	t.Logf("company.ExposeId: %s", token.User.Company.ExposeId)
-}
-
-func TestCreateClaims(t *testing.T) {
-	var companyExposeId = "CP-TESTES"
-	var companyName = "TestCompany"
-	var companyRole = "TestRole"
-	var companyRoleName = "TestRoleName"
-
-	var company = accessToken.CreateCompany(exposeId, name, role, roleName)
-
-	var userExposeId = "TestExposeId"
-	var emailId = "test@gmail.com"
-	var email = "test_2@gmail.com"
-	var userName = "TestName"
-	var botFlag = false
-	var updateDate = time.Now()
-
-	var user = accessToken.NewUser(userExposeId, emailId, email, userName, botFlag, company, updateDate)
-
-	var issuer = "TestIssuer"
-	var audience = []string{"TestAudience1", "TestAudience2"}
-	var expiresAt = time.Now()
-	var issuedAt = time.Now()
-	var id = "TestId"
-
-	var claims = accessToken.CreateClaims(user User, issuer, audience, expiresAt, issuedAt, id)
-
-	assert.Equal(t, issuer, claims.Issuer)
-	assert.Equal(t, userExposeId, claims.Subject)
-	assert.Equal(t, len(audience), len(claims.Audience))
-	assert.Equal(t, audience[0], claims.Audience[0])
-	assert.Equal(t, audience[1], claims.Audience[1])
-	assert.Equal(t, expiresAt, claims.ExpiresAt) // TODO numericDateに変換する必要がある?
-	assert.Equal(t, issuedAt, claims.NotBefore) // TODO numericDateに変換する必要がある?
-	assert.Equal(t, issuedAt, claims.IssuedAt) // TODO numericDateに変換する必要がある?
-	assert.Equal(t, id, claims.ID)
-
-	assert.Equal(t, email, claims.UserEmail)
-	assert.Equal(t, userName, claims.UserName)
-	assert.Equal(t, updateDate, claims.UpdateDate) // TODO numericDateに変換する必要がある?
-	assert.Equal(t, emailId, claims.UserEmailId)
-	assert.Equal(t, botFlag, claims.BotFlag)
-	assert.Equal(t, companyExposeId, claims.CompanyExposeId)
-	assert.Equal(t, companyName, claims.CompanyName)
-	assert.Equal(t, companyRole, claims.CompanyRole)
-	assert.Equal(t, companyRoleName, claims.CompanyRoleName)
-
-	t.Logf("claims: %+v", claims)
-	t.Logf("claims.Issuer: %s", claims.Issuer)
-	t.Logf("claims.Subject: %s", claims.Subject)
-	t.Logf("claims.Audience.length: %d", len(claims.Audience))
-	t.Logf("claims.Audience[0]: %s", claims.Audience[0])
-	t.Logf("claims.Audience[1]: %s", claims.Audience[1])
-	t.Logf("claims.ExpiresAt: %s", claims.ExpiresAt)
-	t.Logf("claims.NotBefore: %s", claims.NotBefore)
-	t.Logf("claims.IssuedAt: %s", claims.IssuedAt)
-	t.Logf("claims.ID: %s", claims.ID)
-
-	t.Logf("claims.UserEmail: %s", claims.UserEmail)
-	t.Logf("claims.UserName: %s", claims.UserName)
-	t.Logf("claims.UpdateDate: %s", claims.UpdateDate)
-	t.Logf("claims.UserEmailId: %s", claims.UserEmailId)
-	t.Logf("claims.BotFlag: %t", claims.BotFlag)
-	t.Logf("claims.CompanyExposeId: %t", claims.CompanyExposeId)
-	t.Logf("claims.CompanyName: %t", claims.CompanyName)
-	t.Logf("claims.CompanyRole: %t", claims.CompanyRole)
-	t.Logf("claims.CompanyRoleName: %t", claims.CompanyRoleName)
-}
-
 func TestToAuthentic(t *testing.T) {
 	var companyExposeId, _ = text.NewExposeId("CP-TESTES")
 	var companyName, _ = text.NewName("TestCompany")
@@ -513,4 +350,159 @@ func TestToAuthenticNil(t *testing.T) {
 	t.Logf("authentic.User.EmailId: %s", string(authentic.User.EmailId))
 	t.Logf("authentic.User.BotFlag: %t", authentic.User.BotFlag)
 	t.Logf("authentic.User.UpdateDate: %t", authentic.User.UpdateDate)
+}
+
+func getClaims() *jwt.GeezerClaims {
+	var companyExposeId, _ = text.NewExposeId("CP-TESTES")
+	var companyName, _ = text.NewName("TestCompany")
+	var roleLabel, _ = text.NewLabel("TestRole")
+	var roleName, _ = text.NewName("TestRoleName")
+
+	var userExposeId, _ = text.NewExposeId("TestExposeId")
+	var emailId, _ = text.NewEmail("test@gmail.com")
+	var email, _ = text.NewEmail("test_2@gmail.com")
+	var userName, _ = text.NewName("TestName")
+	var botFlag = false
+	var updateDate = time.Now()
+
+	var issuer = "issuer_id"
+	var aud01 = "aud1"
+	var aud02 = "aud2"
+	var audience = []string{aud01, aud02}
+	var issuedAt = time.Now()
+	var expiresAt = issuedAt.Add(validityPeriodMinutes * time.Minute)
+	var id, _ := uuid.NewUUID()
+	var validityPeriodMinutes = 60
+
+	var registeredClaims = gojwt.RegisteredClaims{
+		Issuer:    issuer,
+		Subject:   string(userExposeId),
+		Audience:  audience,
+		ExpiresAt: jwt.NewNumericDate(expiresAt),
+		NotBefore: jwt.NewNumericDate(issuedAt),
+		IssuedAt:  jwt.NewNumericDate(issuedAt),
+		ID:        id.String(),
+	}
+
+	var claims = &jwt.GeezerClaims{
+		RegisteredClaims: registeredClaims
+		UserEmail:        email,
+		UserName:         userName,
+		BotFlag:          botFlag,
+		UpdateDate:       jwt.NewNumericDate(updateDate),
+		UserEmailId:      string(emailId),
+		CompanyExposeId:  string(companyExposeId),
+		CompanyName:      string(companyName),
+		CompanyRoles:     []string{string(roleLabel)},
+		CompanyRoleNames: []string{string(roleName)},
+	}
+}
+
+func TestToAuthenticError(t *testing.T) {
+	var testTable = []struct {
+		name   string
+		change func (*jwt.GeezerClaims)
+	}{
+		{
+			name: "Subject",
+			change: func(claims *jwt.GeezerClaims) {
+				claims.Subject = "WrongSubject"
+			}
+		},
+		{
+			name: "UserEmail",
+			change: func(claims *jwt.GeezerClaims) {
+				claims.UserEmail = "WrongUserEmail"
+			}
+		},
+		{
+			name: "UserName",
+			change: func(claims *jwt.GeezerClaims) {
+				claims.UserName = ""
+			}
+		},
+		{
+			name: "UserEmailId",
+			change: func(claims *jwt.GeezerClaims) {
+				claims.UserEmailId = "WrongUserEmailId"
+			}
+		},
+		{
+			name: "CompanyExposeId",
+			change: func(claims *jwt.GeezerClaims) {
+				claims.CompanyExposeId = "WrongCompanyExposeId"
+			}
+		},
+		{
+			name: "CompanyName",
+			change: func(claims *jwt.GeezerClaims) {
+				claims.CompanyName = ""
+			}
+		},
+		{
+			name: "CompanyRoles",
+			change: func(claims *jwt.GeezerClaims) {
+				claims.CompanyRoles = []string{""}
+			}
+		},
+		{
+			name: "CompanyRoleNames",
+			change: func(claims *jwt.GeezerClaims) {
+				claims.CompanyRoleNames = []string{""}
+			}
+		},
+		{
+			name: "CompanyExposeId-Nil",
+			change: func(claims *jwt.GeezerClaims) {
+				claims.CompanyExposeId = nil
+			}
+		},
+		{
+			name: "CompanyName-Nil",
+			change: func(claims *jwt.GeezerClaims) {
+				claims.CompanyName = nil
+			}
+		},
+		{
+			name: "CompanyRoles-Nil",
+			change: func(claims *jwt.GeezerClaims) {
+				claims.CompanyRoles = nil
+			}
+		},
+		{
+			name: "CompanyRoleNames-Nil",
+			change: func(claims *jwt.GeezerClaims) {
+				claims.CompanyRoleNames = nil
+			}
+		},
+		{
+			name: "CompanyRoles-len",
+			change: func(claims *jwt.GeezerClaims) {
+				claims.CompanyRoles = []string{"Role1", "Role2"}
+			}
+		},
+		{
+			name: "CompanyRoleNames-len",
+			change: func(claims *jwt.GeezerClaims) {
+				claims.CompanyRoleNames = []string{"RoleName1", "RoleName2"}
+			}
+		},
+	}
+
+	for _, tt := range testTable {
+		t.Run(tt.name, func(t *testing.T) {
+
+			var claims = getClaims()
+			tt.change(claims)
+
+			var authentic, err = claims.ToAuthentic()
+
+			assert.NotNil(t, err, "Expected error for %s", tt.name)
+			if err != nil {
+				t.Logf("Error for %s: %v", tt.name, err)
+			} else {
+				t.Errorf("Expected error for %s but got nil", tt.name)
+			}
+		})
+	}
 }

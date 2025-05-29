@@ -72,12 +72,12 @@ func getCompanyRole(claims *GeezerClaims) (*CompanyRole, error) {
 
 			var label, err = text.NewLabel(claims.CompanyRoles[i])
 			if err != nil {
-				return nil, utility.CreatePropertyError("Company.Role[" + string(i) + "]", err)
+				return nil, utility.AddPropertyError("Company.Role[" + string(i) + "]", err)
 			}
 
 			var name, err = text.NewName(claims.CompanyRoleNames[i])
 			if err != nil {
-				return nil, utility.CreatePropertyError("Company.Role[" + string(i) + "]", err)
+				return nil, utility.AddPropertyError("Company.Role[" + string(i) + "]", err)
 			}
 
 			var roles[i] = user.NewRole(label, name)
@@ -85,11 +85,11 @@ func getCompanyRole(claims *GeezerClaims) (*CompanyRole, error) {
 
 		var companyExposeId, err = text.NewCompanyExposeId(*claims.CompanyExposeId)
 		if err != nil {
-			return nil, utility.CreatePropertyError("company", err)
+			return nil, utility.AddPropertyError("company", err)
 		}
 		var companyName, err = NewCompanyName(*claims.CompanyName)
 		if err != nil {
-			return nil, utility.CreatePropertyError("company", err)
+			return nil, utility.AddPropertyError("company", err)
 		}
 
 		return user.NewCompany(companyExposeId, companyName, roles), nil
@@ -114,30 +114,30 @@ func (claims *GeezerClaims) ToAuthentic() (*user.Authentic, error) {
 
 	var userExposeId, err = text.NewUserExposeId(claims.Subject)
 	if err != nil {
-		return nil, utility.CreatePropertyError("claims", err)
+		return nil, utility.AddPropertyError("claims", err)
 	}
 
 	var userEmailId, err = text.NewEmail(claims.UserEmailId)
 	if err != nil {
-		return nil, utility.CreatePropertyError("claims", err)
+		return nil, utility.AddPropertyError("claims", err)
 	}
 
 	var userEmail = nil
 	if claims.UserEmail != nil {
 		var userEmail, err = text.NewEmail(claims.UserEmail)
 		if err != nil {
-			return nil, utility.CreatePropertyError("claims", err)
+			return nil, utility.AddPropertyError("claims", err)
 		}
 	}
 
 	var userName, err = text.NewName(claims.UserName)
 	if err != nil {
-		return nil, utility.CreatePropertyError("claims", err)
+		return nil, utility.AddPropertyError("claims", err)
 	}
 
 	var companyRole, err = getCompanyRole(claims)
 	if err != nil {
-		return nil, utility.CreatePropertyError("claims", err)
+		return nil, utility.AddPropertyError("claims", err)
 	}
 
 	var user = user.NewUser(

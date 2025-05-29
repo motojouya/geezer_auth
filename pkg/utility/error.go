@@ -72,7 +72,7 @@ type PropertyError struct {
 }
 
 func CreatePropertyError(property string, source error) *PropertyError {
-	return NewPropertyError(property, 0, source)
+	return NewPropertyError(property, source.HttpStatus(), source)
 }
 
 func NewPropertyError(property string, httpStatus uint, source error) *PropertyError {
@@ -116,7 +116,7 @@ func (e PropertyError) Change(path string, httpStatus uint) *PropertyError {
 
 const propertyError *PropertyError = nil
 
-func CreatePropertyError(path string, source error) *PropertyError {
+func AddPropertyError(path string, source error) *PropertyError {
 	if source == nil {
 		return panic("source error cannot be nil")
 	}

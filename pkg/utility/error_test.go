@@ -35,3 +35,42 @@ func TestNewSystemConfigError(t *testing.T) {
 	t.Logf("error: %s", err.Error())
 	t.Logf("error.Name: %s", err.Name)
 }
+
+//TODO working
+
+func TestNewPropertyError(t *testing.T) {
+	var name = "TestNilError"
+	var message = "This is a test nil error"
+	var err = utility.NewNilError(name, message)
+
+	var prop = "TestPath"
+	var httpStatus = 210
+
+	var propertyError = utility.NewPropertyError(prop, httpStatus, err)
+
+	assert.Equal(t, prop, propertyError.Property)
+	assert.Equal(t, httpStatus, propertyError.HttpStatus)
+	assert.Equal(t, message, propertyError.Unwrap().Error())
+	assert.Equal(t, message + " (property: " + prop + ", httpStatus: " + httpStatus + ")", propertyError.Error())
+
+	t.Logf("error: %s", propertyError.Error())
+	t.Logf("error.Name: %s", propertyError.Name)
+}
+
+func TestCreatePropertyError(t *testing.T) {
+	var name = "TestNilError"
+	var message = "This is a test nil error"
+	var err = utility.NewNilError(name, message)
+
+	var prop = "TestPath"
+
+	var propertyError = utility.CreatePropertyError(prop, err)
+
+	assert.Equal(t, prop, propertyError.Property)
+	assert.Equal(t, 400, propertyError.HttpStatus)
+	assert.Equal(t, message, propertyError.Unwrap().Error())
+	assert.Equal(t, message + " (property: " + prop + ", httpStatus: " + httpStatus + ")", propertyError.Error())
+
+	t.Logf("error: %s", propertyError.Error())
+	t.Logf("error.Name: %s", propertyError.Name)
+}
