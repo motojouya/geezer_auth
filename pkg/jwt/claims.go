@@ -112,11 +112,6 @@ func getCompanyRole(claims *GeezerClaims) (*CompanyRole, error) {
 
 func (claims *GeezerClaims) ToAuthentic() (*user.Authentic, error) {
 
-	var companyRole, err = getCompanyRole(claims)
-	if err != nil {
-		return nil, utility.CreatePropertyError("claims", err)
-	}
-
 	var userExposeId, err = text.NewUserExposeId(claims.Subject)
 	if err != nil {
 		return nil, utility.CreatePropertyError("claims", err)
@@ -136,6 +131,11 @@ func (claims *GeezerClaims) ToAuthentic() (*user.Authentic, error) {
 	}
 
 	var userName, err = text.NewName(claims.UserName)
+	if err != nil {
+		return nil, utility.CreatePropertyError("claims", err)
+	}
+
+	var companyRole, err = getCompanyRole(claims)
 	if err != nil {
 		return nil, utility.CreatePropertyError("claims", err)
 	}
