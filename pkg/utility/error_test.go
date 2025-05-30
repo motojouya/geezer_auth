@@ -36,8 +36,6 @@ func TestNewSystemConfigError(t *testing.T) {
 	t.Logf("error.Name: %s", err.Name)
 }
 
-//TODO working
-
 func TestNewPropertyError(t *testing.T) {
 	var name = "TestNilError"
 	var message = "This is a test nil error"

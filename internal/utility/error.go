@@ -2,7 +2,6 @@ package utility
 
 import (
 	"errors"
-	pkg "github.com/motojouya/geezer_auth/pkg/model"
 )
 
 /*
@@ -11,8 +10,8 @@ import (
 type RangeError struct {
 	Name string
 	Value uint
-	min uint
-	max uint
+	Min uint
+	Max uint
 	error
 }
 
@@ -20,14 +19,14 @@ func NewRangeError(name string, value uint, min uint, max uint, message string) 
 	return &LengthError{
 		Name:   name,
 		Value:  value,
-		min:    min,
-		max:    max,
+		Min:    min,
+		Max:    max,
 		error:  errors.New(message),
 	}
 }
 
 func (e RangeError) Error() string {
-	return e.error.Error() + " (name: " + e.Name + ", value: " + string(e.Value) + ", min: " + string(e.min) + ", max: " + string(e.max) + ")"
+	return e.error.Error() + " (name: " + e.Name + ", value: " + string(e.Value) + ", min: " + string(e.Min) + ", max: " + string(e.Max) + ")"
 }
 
 func (e RangeError) Unwrap() error {
@@ -42,11 +41,11 @@ func (e RangeError) HttpStatus() uint {
  * AuthenticationError
  */
 type AuthenticationError struct {
-	UserExposeId pkg.ExposeId
+	UserExposeId string
 	error
 }
 
-func NewAuthenticationError(userExposeId pkg.ExposeId, message string) *AuthenticationError {
+func NewAuthenticationError(userExposeId string, message string) *AuthenticationError {
 	return &AuthenticationError{
 		UserExposeId: userExposeId,
 		error:        errors.New(message),
@@ -54,7 +53,7 @@ func NewAuthenticationError(userExposeId pkg.ExposeId, message string) *Authenti
 }
 
 func (e AuthenticationError) Error() string {
-	return e.error.Error() + " (userExposeId: " + e.UserExposeId.String() + ")"
+	return e.error.Error() + " (userExposeId: " + e.UserExposeId + ")"
 }
 
 func (e AuthenticationError) Unwrap() error {
