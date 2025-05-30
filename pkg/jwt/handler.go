@@ -73,7 +73,7 @@ func CreateJwtHandler() (JwtHandler, error) {
 	), nil
 }
 
-(jwtHandler *jwtHandlerConfig) func GenerateAccessToken(user *user.User, issueDate time.Time) (*user.Authentic, text.JwtToken, error) {
+func (jwtHandler *jwtHandlerConfig) Generate(user *user.User, issueDate time.Time) (*user.Authentic, text.JwtToken, error) {
 	var id, err = jwtHandler.GetId()
 	if err != nil {
 		return JwtToken(""), err
