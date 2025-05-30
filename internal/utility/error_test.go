@@ -6,8 +6,6 @@ import (
 	"testing"
 )
 
-// TODO working
-
 func TestNewRangeError(t *testing.T) {
 	var name = "TestRangeError"
 	var value = "TestValue"
@@ -18,8 +16,11 @@ func TestNewRangeError(t *testing.T) {
 	var err = utility.NewRangeError(name, value, min, max, message)
 
 	assert.Equal(t, name, err.Name)
+	assert.Equal(t, value, err.Value)
+	assert.Equal(t, min, err.Min)
+	assert.Equal(t, max, err.Max)
 	assert.Equal(t, message, err.Unwrap().Error())
-	assert.Equal(t, message + " (name: " + name + ")", err.Error())
+	assert.Equal(t, message + " (name: " + name + ", value: " + valu + ", min: " + min + ", max: " + max + ")", err.Error())
 	assert.Equal(t, 400, err.HttpStatus())
 
 	t.Logf("error: %s", err.Error())
@@ -27,16 +28,16 @@ func TestNewRangeError(t *testing.T) {
 }
 
 func TestNewAuthenticationError(t *testing.T) {
-	var name = "TestSystemConfigError"
+	var userExposeId = "TestUserExposeId"
 	var message = "This is a test system config error"
 
-	var err = utility.NewSystemConfigError(name, message)
+	var err = utility.NewAuthenticationError(userExposeId, message)
 
-	assert.Equal(t, name, err.Name)
+	assert.Equal(t, userExposeId, err.UserExposeId)
 	assert.Equal(t, message, err.Unwrap().Error())
 	assert.Equal(t, message + " (name: " + name + ")", err.Error())
 	assert.Equal(t, 500, err.HttpStatus())
 
 	t.Logf("error: %s", err.Error())
-	t.Logf("error.Name: %s", err.Name)
+	t.Logf("error.Name: %s", err.UserExposeId)
 }

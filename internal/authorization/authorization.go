@@ -72,7 +72,7 @@ func GetPriorityRolePermission(permissions []role.RolePermission, authentic *use
 	for _, r := range roles {
 		var roleLabel = string(r.Label)
 		var p = permissionMap[roleLabel]
-		// var p, ok = utility.Find(permissions, role.PermissionWhen(r.Label)) // こうも書けるが、パフォーマンス的に悪い
+		// var p, ok = utility.Find(permissions, role.PermissionIs(r.Label)) // こうも書けるが、パフォーマンス的に悪い
 		if p == nil {
 			return nil, pkgUtility.NewNilError("role_permission." + roleLabel, "RolePermission not found")
 		}
@@ -84,7 +84,7 @@ func GetPriorityRolePermission(permissions []role.RolePermission, authentic *use
 	return permission, nil
 }
 
-func (auth *authorizationConfig) Authorize(require RequirePermission, authentic *user.Authentic) error {
+func (auth authorizationConfig) Authorize(require RequirePermission, authentic *user.Authentic) error {
 	var permission, err = GetPriorityRolePermission(auth.Permissions, authentic)
 	if err != nil {
 		return err

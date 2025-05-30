@@ -32,12 +32,16 @@ func NewNotFoundError(table string, keys map[string]string, message string) *Not
 	}
 }
 
-func (e *NotFoundError) Error() string {
+func (e NotFoundError) Error() string {
 	return e.error.Error() + " (table: " + e.Table + ", keys: " + formatKeys(e.keys) + ")"
 }
 
-func (e *NotFoundError) Unwrap() error {
+func (e NotFoundError) Unwrap() error {
 	return e.error
+}
+
+func (e NotFoundError) HttpStatus() uint {
+	return 400
 }
 
 /*
@@ -57,10 +61,14 @@ func NewDuplicateError(table string, keys map[string]string, message string) *Du
 	}
 }
 
-func (e *DuplicateError) Error() string {
+func (e DuplicateError) Error() string {
 	return e.error.Error() + " (table: " + e.Table + ", keys: " + formatKeys(e.keys) + ")"
 }
 
-func (e *DuplicateError) Unwrap() error {
+func (e DuplicateError) Unwrap() error {
 	return e.error
+}
+
+func (e DuplicateError) HttpStatus() uint {
+	return 400
 }

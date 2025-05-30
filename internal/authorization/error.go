@@ -22,12 +22,16 @@ func NewAuthorizationError(role, action, message string) *AuthorizationError {
 	}
 }
 
-func (e *AuthorizationError) Error() string {
+func (e AuthorizationError) Error() string {
 	return e.error.Error() + " (role: " + e.Role + ", action: " + e.Action + ")"
 }
 
-func (e *AuthorizationError) Unwrap() error {
+func (e AuthorizationError) Unwrap() error {
 	return e.error
+}
+
+func (e AuthorizationError) HttpStatus() uint {
+	return 403
 }
 
 /*
@@ -49,11 +53,15 @@ func NewTokenExpiredError(expiresAt time.Time, message string) *TokenExpiredErro
 	}
 }
 
-func (e *TokenExpiredError) Error() string {
+func (e TokenExpiredError) Error() string {
 	// TODO time.RFC3339 ?
 	return e.error.Error() + " (expires at: " + e.ExpiresAt.Format(time.RFC3339) + ")"
 }
 
-func (e *TokenExpiredError) Unwrap() error {
+func (e TokenExpiredError) Unwrap() error {
 	return e.error
+}
+
+func (e TokenExpiredError) HttpStatus() uint {
+	return 403
 }
