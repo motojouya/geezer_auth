@@ -4,6 +4,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/core/authorization"
 	"github.com/motojouya/geezer_auth/internal/core/role"
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
+	user "github.com/motojouya/geezer_auth/pkg/core/user"
 )
 
 type Authorizer interface {

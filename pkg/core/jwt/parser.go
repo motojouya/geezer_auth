@@ -1,91 +1,62 @@
 package jwt
 
 import (
-	"github.com/golang-jwt/jwt/v5"
-	"os"
+	gojwt "github.com/golang-jwt/jwt/v5"
 	"strings"
-	"github.com/motojouya/geezer_auth/pkg/model/user"
-	"github.com/motojouya/geezer_auth/pkg/utility"
+	"github.com/motojouya/geezer_auth/pkg/core/user"
 )
 
-type JwtParser interface {
-	GetUserFromAccessToken(tokenString string) (*user.Authentic, error)
-}
-
 // TODO middlewareも作ってしまいたい。イメージを掴んで置く
-type jwtParserConfig struct {
-	Issuer            string
-	Myself            string // Audienceと付き合わせるための自分自身の情報
-	LatestSecretKeyId string
-	SecretMap         map[string]string
+/*
+ * MyselfはAudienceと照合する自サーバの識別情報
+ */
+type JwtParsering struct {
+	Issuer       string  `env:"JWT_ISSUER,notEmpty"`
+	Myself       string  `env:"JWT_MYSELF,notEmpty"`
+	LatestKeyId  string  `env:"JWT_LATEST_KEY_ID,notEmpty"`
+	LatestSecret string  `env:"JWT_LATEST_SECRET,notEmpty"`
+	OldKeyId     string `env:"JWT_OLD_KEY_ID"`
+	OldSecret    string `env:"JWT_OLD_SECRET"`
 }
 
-func NewJwtParser(issuer string, myself string, latestSecret string, secretMap map[string]string) JwtParser {
-	return &JwtParserConfig{
+func NewJwtParsing(
+	issuer       string,
+	myself       string,
+	latestKeyId  string,
+	latestSecret string,
+	oldKeyId     string,
+	oldSecret    string,
+) JwtParsing {
+	return &JwtParsering{
 		Issuer:       issuer,
 		Myself:       myself,
+		LatestKeyId:  latestKeyId,
 		LatestSecret: latestSecret,
-		SecretMap:    secretMap,
+		OldKeyId:     oldKeyId,
+		OldSecret:    oldSecret,
 	}
-}
-
-func CreateJwtAudienceParser() (JwtParser, error) {
-	if issuer, issuerExist := os.LookupEnv("JWT_ISSUER"); !issuerExist {
-		return nil, utility.NewSystemConfigError("JWT_ISSUER", "JWT_ISSUER is not set on env")
-	}
-	if secretKeyId, secretKeyIdExist := os.LookupEnv("JWT_SECRET_KEY_ID"); !secretKeyIdExist {
-		return nil, utility.NewSystemConfigError("JWT_SECRET_KEY_ID", "JWT_SECRET_KEY_ID is not set on env")
-	}
-	if secret, secretExist := os.LookupEnv("JWT_SECRET"); !secretExist {
-		return nil, utility.NewSystemConfigError("JWT_SECRET", "JWT_SECRET is not set on env")
-	}
-	if myself, myselfExist := os.LookupEnv("JWT_MYSELF"); !myselfExist {
-		return nil, utility.NewSystemConfigError("JWT_ISSUER", "JWT_ISSUER is not set on env")
-	}
-
-	return NewJwtParser(
-		issuer,
-		myself,
-		secretKeyId,
-		map[string]string{secretKeyId:secret},
-	), nil
-}
-
-func CreateJwtIssuerParser() (JwtParser, error) {
-	if issuer, issuerExist := os.LookupEnv("JWT_ISSUER"); !issuerExist {
-		return nil, utility.NewSystemConfigError("JWT_ISSUER", "JWT_ISSUER is not set on env")
-	}
-	if secretKeyId, secretKeyIdExist := os.LookupEnv("JWT_SECRET_KEY_ID"); !secretKeyIdExist {
-		return nil, utility.NewSystemConfigError("JWT_SECRET_KEY_ID", "JWT_SECRET_KEY_ID is not set on env")
-	}
-	if secret, secretExist := os.LookupEnv("JWT_SECRET"); !secretExist {
-		return nil, utility.NewSystemConfigError("JWT_SECRET", "JWT_SECRET is not set on env")
-	}
-
-	return NewJwtParser(
-		issuer,
-		issuer,
-		secretKeyId,
-		map[string]string{secretKeyId:secret},
-	), nil
 }
 
 // 引数のtokenStringはJwtToken型としてもいいが、いずれにしろこの関数で制約がかかるので、事前にチェックされた値ではなくstringを受けるほうが自然
-func (jwtParser *JwtParser) Parse(tokenString string) (*user.Authentic, error) {
- 	token, err := jwt.ParseWithClaims(
+func (jwtParsering *JwtParsering) Parse(tokenString string) (*user.Authentic, error) {
+ 	token, err := gojwt.ParseWithClaims(
  		tokenString,
  		&GeezerClaims{},
- 		func(token *jwt.Token) (interface{}, error) {
-			// jwt.SigningMethodHMAC?
- 			if _, ok := token.Method.(*jwt.SigningMethodHS256); !ok {
+ 		func(token *gojwt.Token) (interface{}, error) {
+			// gojwt.SigningMethodHMAC?
+ 			if _, ok := token.Method.(*gojwt.SigningMethodHS256); !ok {
  				return nil, NewJwtError("header.alg", token.Header["alg"], "Unexpected signing method")
  			}
 
-			var secret, exist = jwtParser.SecretMap[token.Header["kid"]]
-			if !exist {
-				return nil, NewJwtError("header.kid", token.Header["kid"], "Secret not found for key")
+			if token.Header["kid"] == jwtParsering.LatestKeyId {
+				return []byte(jwtParsering.LatestSecret), nil
 			}
-			return secret, nil
+
+			if token.Header["kid"] == jwtParsering.OldKeyId {
+				return []byte(jwtParsering.OldSecret), nil
+			}
+
+			return nil, NewJwtError("header.kid", token.Header["kid"], "Secret not found for key")
  		},
  	)
 
@@ -97,11 +68,11 @@ func (jwtParser *JwtParser) Parse(tokenString string) (*user.Authentic, error) {
 		return nil, NewJwtError("hole token", tokenString, "Invalid token")
 	}
 
-	if jwtParser.Issuer != claims.Issuer {
+	if jwtParsering.Issuer != claims.Issuer {
 		return NewJwtError("Issuer", claims.Issuer, "Issuer is not valid")
 	}
 
-	if claims.Audience.Contains(jwtParser.Myself) {
+	if claims.Audience.Contains(jwtParsering.Myself) {
 		return NewJwtError("Audience", strings.Join(claims.Audience, ","), "Audience is not valid")
 	}
 

@@ -2,29 +2,25 @@ package jwt
 
 import (
 	gojwt "github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
 	"time"
-	"os"
-	"strconv"
-	"github.com/motojouya/geezer_auth/pkg/model/text"
-	"github.com/motojouya/geezer_auth/pkg/model/user"
-	"github.com/motojouya/geezer_auth/pkg/utility"
+	"github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/motojouya/geezer_auth/pkg/core/user"
 )
 
-type JwtHandler interface {
-	GenerateAccessToken(user *user.User, issueDate time.Time) (*user.Authentic, text.JwtToken, error)
-}
-
-type jwtHandlerConfig struct {
-	Audience              []string
-	ValidityPeriodMinutes uint
+type JwtHandling struct {
+	Audience              []string `env:"JWT_AUDIENCE,notEmpty"`
+	ValidityPeriodMinutes uint     `env:"JWT_VALIDITY_PERIOD_MINUTES,notEmpty"`
 	GetId                 func () (string, error)
 	jwtParserConfig
 }
 
-func NewJwtHandler(audience []string, jwtParser jwtParserConfig, validityPeriodMinutes uint, getId (func() (string, error))) JwtHandler {
-	return &jwtHandlerConfig{
-		Issuer:                issuer,
+func NewJwtHandling(
+	audience []string,
+	jwtParser jwtParserConfig,
+	validityPeriodMinutes uint,
+	getId (func() (string, error)),
+) JwtHandling {
+	return &JwtHandling{
 		Audience:              audience,
 		ValidityPeriodMinutes: validityPeriodMinutes,
 		GetId:                 getId,
@@ -32,58 +28,17 @@ func NewJwtHandler(audience []string, jwtParser jwtParserConfig, validityPeriodM
 	}
 }
 
-func CreateJwtHandler() (JwtHandler, error) {
-	var audience, audienceExist = os.LookupEnv("JWT_AUDIENCE");
-	if !audienceExist {
-		return nil, utility.NewSystemConfigError("JWT_AUDIENCE", "JWT_AUDIENCE is not set on env")
-	}
-
-	var validityPeriodMinutesStr, validityPeriodMinutesExist = os.LookupEnv("JWT_VALIDITY_PERIOD_MINUTES");
-	if !validityPeriodMinutesExist {
-		return nil, utility.NewSystemConfigError("JWT_VALIDITY_PERIOD_MINUTES", "JWT_VALIDITY_PERIOD_MINUTES is not set on env")
-	}
-
-	var validityPeriodMinutes, err = strconv.Atoi(validityPeriodMinutesStr)
-	if err != nil {
-		return nil, err
-	}
-
-	var GetId = func () (string, error) {
-		token, err := uuid.NewUUID()
-		if err != nil {
-			return "", err
-		}
-
-		return token.String(), nil
-	}
-
-	var jwtParser, err = CreateJwtIssuerParser()
-	if err != nil {
-		return nil, err
-	}
-	if jwtParserConfig, ok := jwtParser.(jwtParserConfig); !ok {
-		return nil, utility.NewNilError("jwtParser", "JwtParser is nil")
-	}
-
-	return NewJwtHandler(
-		[]string{audience,jwtParser.Myself},
-		validityPeriodMinutes,
-		GetId,
-		jwtParserConfig,
-	), nil
-}
-
-func (jwtHandler *jwtHandlerConfig) Generate(user *user.User, issueDate time.Time) (*user.Authentic, text.JwtToken, error) {
-	var id, err = jwtHandler.GetId()
+func (jwtHandling *JwtHandling) Generate(user *user.User, issueDate time.Time) (*user.Authentic, text.JwtToken, error) {
+	var id, err = jwtHandling.GetId()
 	if err != nil {
 		return JwtToken(""), err
 	}
 
 	var authentic = user.CreateAuthentic(
-		jwtHandler.Issuer,
-		jwtHandler.Audience,
+		jwtHandling.Issuer,
+		jwtHandling.Audience,
 		issueDate,
-		jwtHandler.ValidityPeriodMinutes,
+		jwtHandling.ValidityPeriodMinutes,
 		id,
 		user,
 	)
@@ -91,10 +46,9 @@ func (jwtHandler *jwtHandlerConfig) Generate(user *user.User, issueDate time.Tim
 	var claims = FromAuthentic(authentic)
 
 	var token = gojwt.NewWithClaims(gojwt.SigningMethodHS256, claims)
-	token.Header["kid"] = jwtHandler.LatestSecretKeyId
+	token.Header["kid"] = jwtHandling.LatestKeyId
 
-	var secret = jwtHandler.SecretMap[jwtHandler.LatestSecretKeyId]
-	tokenString, err := token.SignedString(secret)
+	tokenString, err := token.SignedString(jwtHandling.LatestSecret)
 	if err != nil {
         	return JwtToken(""), err
 	}
