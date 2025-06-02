@@ -1,16 +1,16 @@
 package jwt
 
 import (
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/motojouya/geezer_auth/pkg/model/text"
-	"github.com/motojouya/geezer_auth/pkg/model/user"
+	gojwt "github.com/golang-jwt/jwt/v5"
+	"github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/motojouya/geezer_auth/pkg/core/user"
 	"github.com/motojouya/geezer_auth/pkg/utility"
 	"time"
 )
 
 // FIXME claimsのprivate keyが`github.com/motojouya/geezer_auth/`をprefixとしているが、本来は稼働するサーバのfqdnをprefixとして持つべき。
 type GeezerClaims struct {
-	jwt.RegisteredClaims
+	gojwt.RegisteredClaims
 	UserEmail        *string   `json:"email"`
 	UserName         string    `json:"name"`
 	UpdateDate       time.Time `json:"update_at"`

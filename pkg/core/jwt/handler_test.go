@@ -1,13 +1,11 @@
 package jwt_test
 
 import (
-	"github.com/motojouya/geezer_auth/pkg/model/text"
-	"github.com/motojouya/geezer_auth/pkg/model/user"
+	"github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/motojouya/geezer_auth/pkg/core/user"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
-	"github.com/golang-jwt/jwt/v5"
-	"os"
 )
 
 func getUser() *user.User {

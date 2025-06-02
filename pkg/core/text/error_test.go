@@ -1,7 +1,7 @@
-package utility_test
+package text_test
 
 import (
-	"github.com/motojouya/geezer_auth/pkg/utility"
+	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -13,7 +13,7 @@ func TestNewLengthError(t *testing.T) {
 	var max = uint(10)
 	var message = "This is a test length error"
 
-	var err = utility.NewLengthError(name, &value, &min, &max, message)
+	var err = text.NewLengthError(name, &value, &min, &max, message)
 
 	assert.Equal(t, name, err.Name)
 	assert.Equal(t, value, *err.Value)
@@ -35,7 +35,7 @@ func TestNewCharacterError(t *testing.T) {
 	var value = "xyz"
 	var message = "This is a test character error"
 
-	var err = utility.NewCharacterError(name, chars, &value, message)
+	var err = text.NewCharacterError(name, chars, &value, message)
 
 	assert.Equal(t, name, err.Name)
 	assert.Equal(t, chars, err.Chars)
@@ -55,7 +55,7 @@ func TestNewFormatError(t *testing.T) {
 	var format = "expected_format"
 	var message = "This is a test format error"
 
-	var err = utility.NewFormatError(name, value, format, message)
+	var err = text.NewFormatError(name, value, format, message)
 
 	assert.Equal(t, name, err.Name)
 	assert.Equal(t, value, *err.Value)

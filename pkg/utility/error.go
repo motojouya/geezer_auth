@@ -2,7 +2,6 @@ package utility
 
 import (
 	"errors"
-	pkg "github.com/motojouya/geezer_auth/pkg/model"
 )
 
 /*
