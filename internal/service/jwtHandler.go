@@ -9,24 +9,16 @@ import (
 )
 
 type JwtHandler interface {
-	Generate(user *user.User, issueDate time.Time) (*user.Authentic, text.JwtToken, error)
+	Generate(user *user.User, issueDate time.Time, id string) (*user.Authentic, text.JwtToken, error)
 }
 
 func LoadJwtHandler(local io.Local) (JwtHandler, error) {
 	var jwtHandling, err = local.GetEnv[jwt.JwtHandling]()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	jwtHandling.GetId = func () (string, error) {
-		uuid, err := local.GenerateUUID()
-		if err != nil {
-			return "", err
-		}
-		return uuid.String(), nil
-	}
-
-	return jwtHandling, nil
+	return &jwtHandling, nil
 }
 
 // !old code!
