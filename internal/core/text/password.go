@@ -2,7 +2,7 @@ package text
 
 import (
 	"golang.org/x/crypto/bcrypt"
-	pkg "github.com/motojouya/geezer_auth/pkg/model/text"
+	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
 )
 
 type Password string

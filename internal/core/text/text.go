@@ -2,8 +2,7 @@ package text
 
 import (
 	"strings"
-	pkg "github.com/motojouya/geezer_auth/pkg/model/text"
-	"github.com/motojouya/geezer_auth/pkg/utility"
+	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
 )
 
 /*
@@ -14,17 +13,13 @@ import (
  */
 type Text string
 
-func NewText(text *string) (*Text, error) {
-	if text == nil {
-		return nil, utility.NewNilError("text", "text must not be nil")
-	}
+func NewText(text string) (Text, error) {
+	var trimmed = strings.TrimSpace(text)
 
-	var trimmed = &strings.TrimSpace(*text)
-
-	var length = len(*[]rune(trimmed))
+	var length = len([]rune(trimmed))
 	if length > 10000 {
 		return Name(""), pkg.NewLengthError("text", text, 0, 10000, "text must be between 0 and 10000 characters")
 	}
 
-	return &Text(trimmed), nil
+	return Text(trimmed), nil
 }

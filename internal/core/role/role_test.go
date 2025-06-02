@@ -1,7 +1,7 @@
 package role_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/model"
+	"github.com/motojouya/geezer_auth/internal/core/role"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -12,7 +12,7 @@ func TestCreateRole(t *testing.T) {
 	var label = "TEST_ROLE"
 	var description = "Role for testing"
 
-	var role = model.CreateRole(name, label, description)
+	var role = role.CreateRole(name, label, description)
 
 	assert.Equal(t, name, role.Name)
 	assert.Equal(t, label, role.Label)
@@ -31,7 +31,7 @@ func TestNewRole(t *testing.T) {
 	var description = "Role for testing"
 	var registeredDate = time.Now()
 
-	var role = model.NewRole(roleId, name, label, description, registeredDate)
+	var role = role.NewRole(roleId, name, label, description, registeredDate)
 
 	assert.Equal(t, roleId, role.RoleId)
 	assert.Equal(t, name, role.Name)

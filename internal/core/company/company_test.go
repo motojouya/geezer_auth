@@ -1,7 +1,8 @@
 package company_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/model"
+	"github.com/motojouya/geezer_auth/internal/core/company"
+	"github.com/motojouya/geezer_auth/internal/core/role"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -11,7 +12,7 @@ func TestCreateCompany(t *testing.T) {
 	var exposeId = "CP-TESTES"
 	var name = "TestRole"
 
-	var company = model.CreateCompany(exposeId, name)
+	var company = company.CreateCompany(exposeId, name)
 
 	assert.Equal(t, name, company.Name)
 	assert.Equal(t, exposeId, company.ExposeId)
@@ -28,10 +29,10 @@ func TestNewCompany(t *testing.T) {
 	var registeredDate = time.Now()
 
 	var roleId uint = 1
-	var role = model.NewRole(roleId, "TestRole", "TEST_ROLE", "Role for testing", registeredDate)
-	var roles = []model.Role{role}
+	var role = role.NewRole(roleId, "TestRole", "TEST_ROLE", "Role for testing", registeredDate)
+	var roles = []role.Role{role}
 
-	var company = model.NewCompany(companyId, exposeId, name, registeredDate, roles)
+	var company = company.NewCompany(companyId, exposeId, name, registeredDate, roles)
 
 	assert.Equal(t, companyId, company.CompanyId)
 	assert.Equal(t, name, company.Name)

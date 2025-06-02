@@ -2,8 +2,8 @@ package company
 
 import (
 	"time"
-	text "github.com/motojouya/geezer_auth/pkg/model/text"
-	user "github.com/motojouya/geezer_auth/pkg/model/user"
+	text "github.com/motojouya/geezer_auth/pkg/core/text"
+	user "github.com/motojouya/geezer_auth/pkg/core/user"
 )
 
 const CompanyExposeIdPrefix = "CP-"

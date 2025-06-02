@@ -1,7 +1,7 @@
 package db_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/utility"
+	"github.com/motojouya/geezer_auth/internal/db"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -13,7 +13,7 @@ func TestNewNotFoundError(t *testing.T) {
 	var keys = map[string]string{key: value}
 	var message = "This is a test range error"
 
-	var err = utility.NewNotFoundError(table, keys, message)
+	var err = db.NewNotFoundError(table, keys, message)
 
 	assert.Equal(t, name, err.Name)
 	var val, exist = err.keys[key]
@@ -34,7 +34,7 @@ func TestNewDuplicateError(t *testing.T) {
 	var keys = map[string]string{key: value}
 	var message = "This is a test range error"
 
-	var err = utility.NewDuplicateError(table, keys, message)
+	var err = db.NewDuplicateError(table, keys, message)
 
 	assert.Equal(t, name, err.Name)
 	var val, exist = err.keys[key]
