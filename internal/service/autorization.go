@@ -7,12 +7,18 @@ import (
 	user "github.com/motojouya/geezer_auth/pkg/core/user"
 )
 
+type AuthorizationLoader interface {
+	func LoadJwtHandler(local io.Local) (JwtHandler, error)
+}
+
+type authorizationLoaderImpl interface {}
+
 type Authorizer interface {
 	Authorize(require RequirePermission, authentic *user.Authentic) error
 }
 
 // TODO DBアクセスしてロードするが、まだDB実装していない
-func LoadAuthorization() Authorizer {
+func (imple authorizationLoaderImpl) LoadAuthorization() Authorizer {
 	var EmployeeLabel = text.NewLabel("EMPLOYEE")
 	var EmployeePermission = role.NewRolePermission(EmployeeLabel, true, true, false, false, 5)
 

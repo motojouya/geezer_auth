@@ -8,11 +8,17 @@ import (
 	"github.com/motojouya/geezer_auth/internal/io"
 )
 
+type JwtHandlerLoader interface {
+	func LoadJwtHandler(local io.Local) (JwtHandler, error)
+}
+
+type jwtHandlerLoaderImpl interface {}
+
 type JwtHandler interface {
 	Generate(user *user.User, issueDate time.Time, id string) (*user.Authentic, text.JwtToken, error)
 }
 
-func LoadJwtHandler(local io.Local) (JwtHandler, error) {
+func (imple jwtHandlerLoaderImpl) LoadJwtHandler(local io.Local) (JwtHandler, error) {
 	var jwtHandling, err = local.GetEnv[jwt.JwtHandling]()
 	if err != nil {
 		return nil, err

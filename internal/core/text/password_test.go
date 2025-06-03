@@ -6,8 +6,12 @@ import (
 )
 
 func TestPasswordSuccess(t *testing.T) {
-	var password = "password"
-	var hashed, err = text.GetPassword(password)
+	var passwordStr = "password"
+	var password, err = text.NewPassword(passwordStr)
+	if err != nil {
+		t.Error("Failed to hash password")
+	}
+	var hashed, err = text.HashPassword(password)
 	if err != nil {
 		t.Error("Failed to hash password")
 	}
@@ -21,7 +25,11 @@ func TestPasswordSuccess(t *testing.T) {
 }
 
 func TestPasswordFailure(t *testing.T) {
-	var hashed, err = text.GetPassword("password")
+	var password, err = text.NewPassword("password")
+	if err != nil {
+		t.Error("Failed to hash password")
+	}
+	var hashed, err = text.HashPassword(password)
 	if err != nil {
 		t.Error("Failed to hash password")
 	}

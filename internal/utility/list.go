@@ -24,6 +24,53 @@ func Map[T any, U any](slice []T, mapper func(T) U) []U {
 	return result
 }
 
+func Flatten[T any](slice [][]T) []T {
+	var result []T
+	for _, subSlice := range slice {
+		result = append(result, subSlice...)
+	}
+	return result
+}
+
+func Every[T any](slice []T, predicate func(T) bool) bool {
+	for _, item := range slice {
+		if !predicate(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func Some[T any](slice []T, predicate func(T) bool) bool {
+	for _, item := range slice {
+		if predicate(item) {
+			return true
+		}
+	}
+	return false
+}
+
+// 使い方は、`internal/authorization/authorization#GetPriorityRolePermission`を参照。叙述関数は高階関数になる
+func Find[T any](slice []T, predicate func(T) bool) (T, bool) {
+	for _, item := range slice {
+		if predicate(item) {
+			return item, true
+		}
+	}
+
+	var zero T
+	return zero, false
+}
+
+func FindLast[T any](slice []T, predicate func(T) bool) *T {
+	for i := len(slice) - 1; i >= 0; i-- {
+		if predicate(slice[i]) {
+			return &slice[i]
+		}
+	}
+	return nil
+}
+
 /*
  * たとえば、Order(注文)に商品(Item)を追加する処理とかを想定する
  *
@@ -66,45 +113,6 @@ func Reduce[T any](slice []T, reducer func(T, T) T) T {
 		result = reducer(result, item)
 	}
 	return result
-}
-
-func Every[T any](slice []T, predicate func(T) bool) bool {
-	for _, item := range slice {
-		if !predicate(item) {
-			return false
-		}
-	}
-	return true
-}
-
-func Some[T any](slice []T, predicate func(T) bool) bool {
-	for _, item := range slice {
-		if predicate(item) {
-			return true
-		}
-	}
-	return false
-}
-
-// 使い方は、`internal/authorization/authorization#GetPriorityRolePermission`を参照。叙述関数は高階関数になる
-func Find[T any](slice []T, predicate func(T) bool) (T, bool) {
-	for _, item := range slice {
-		if predicate(item) {
-			return item, true
-		}
-	}
-
-	var zero T
-	return zero, false
-}
-
-func FindLast[T any](slice []T, predicate func(T) bool) *T {
-	for i := len(slice) - 1; i >= 0; i-- {
-		if predicate(slice[i]) {
-			return &slice[i]
-		}
-	}
-	return nil
 }
 
 func Keys[T comparable, V any](m map[T]V) []T {
@@ -254,14 +262,6 @@ func Group[T any](slice []T, predicate func(T, T) bool) [][]T {
 	}
 
 	return grouped
-}
-
-func Flatten[T any](slice [][]T) []T {
-	var result []T
-	for _, subSlice := range slice {
-		result = append(result, subSlice...)
-	}
-	return result
 }
 
 func Duplicated[T any](slice []T, predicate func(T, T) bool) []T {

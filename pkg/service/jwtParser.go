@@ -7,13 +7,19 @@ import (
 	"github.com/motojouya/geezer_auth/pkg/core/jwt"
 )
 
+type JwtParserLoader interface {
+	func LoadJwtHandler(local io.Local) (JwtHandler, error)
+}
+
+type jwtParserLoaderImpl interface {}
+
 type JwtParser interface {
 	Parse(tokenString string) (*user.Authentic, error)
 }
 
 // FIXME 本来はinternal/io/localのGetEnvを使って環境変数を取得すべきだが、ioパッケージを共通部品として使うのは不自然なので、ここではosパッケージを直接使う形
 // また、osパッケージ自体がローカルマシンに依存したものではあるので、引数で受け取ってコントローラブルにすべき
-func LoadJwtParser() (JwtParser, error) {
+func (impl jwtParserLoaderImpl) LoadJwtParser() (JwtParser, error) {
 	if issuer, issuerExist := os.LookupEnv("JWT_ISSUER"); !issuerExist {
 		return nil, utility.NewSystemConfigError("JWT_ISSUER", "JWT_ISSUER is not set on env")
 	}
