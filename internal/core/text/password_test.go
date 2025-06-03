@@ -2,6 +2,7 @@ package text_test
 
 import (
 	"github.com/motojouya/geezer_auth/internal/core/text"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 

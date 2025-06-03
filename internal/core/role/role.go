@@ -19,7 +19,7 @@ type Role struct {
 
 func NewRole(name text.Name, label text.Label, description Text, registeredDate time.Time) Role {
 	return Role{
-		Role:           user.NewRole(label, name),
+		user.Role:      user.NewRole(label, name),
 		Description:    description,
 		RegisteredDate: registeredDate,
 	}
