@@ -24,7 +24,7 @@ func CreateCompanyExposeId(random string) (text.ExposeId, error) {
 
 func CreateCompany(exposeId ExposeId, name Name, registeredDate time.Time) UnsavedCompany {
 	return UnsavedCompany{
-		user.Company:    user.NewCompany(exposeId, name)
+		user.Company:   user.NewCompany(exposeId, name)
 		RegisteredDate: registeredDate,
 	}
 }

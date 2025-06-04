@@ -2,7 +2,7 @@ package user
 
 import (
 	"time"
-	text "github.com/motojouya/geezer_auth/pkg/model/text"
+	text "github.com/motojouya/geezer_auth/pkg/core/text"
 )
 
 const UserExposeIdPrefix = "US-"
@@ -48,8 +48,4 @@ func NewUser(userId uint, exposeId text.ExposeId, name text.Name, emailId text.E
 			UpdateDate:     updateDate,
 		}
 	}
-}
-
-(user *User) func SetName(name text.Name) {
-	user.Name = name
 }

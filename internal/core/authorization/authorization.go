@@ -54,7 +54,7 @@ func GetPriorityRolePermission(permissions []role.RolePermission, authentic *use
 	return permission, nil
 }
 
-func (auth Authorization) Authorize(require RequirePermission, authentic *user.Authentic) error {
+func (auth Authorization) Authorize(require role.RequirePermission, authentic *user.Authentic) error {
 	var permission, err = GetPriorityRolePermission(auth.Permissions, authentic)
 	if err != nil {
 		return err

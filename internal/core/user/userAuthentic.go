@@ -19,15 +19,25 @@ type UserAuthentic struc {
 	Email       *text.Email
 }
 
-func NewCompanyRole(company company.Company, roles []role.Role) CompanyRole {
-	return CompanyRole{
+func NewCompanyRole(company company.Company, roles []role.Role) *CompanyRole {
+	return &CompanyRole{
 		Company: company,
 		Roles:   roles,
 	}
 }
 
-func NewUserAuthentic(userId uint, exposeId text.ExposeId, name text.Name, emailId text.Email, email *text.Email, botFlag bool, registeredDate time.Time, updateDate time.Time, companyRole *CompanyRole) User {
-	return UserAuthentic{
+func NewUserAuthentic(
+	userId uint,
+	exposeId text.ExposeId,
+	name text.Name,
+	emailId text.Email,
+	email *text.Email,
+	botFlag bool,
+	registeredDate time.Time,
+	updateDate time.Time,
+	companyRole *CompanyRole
+) *UserAuthentic {
+	return &UserAuthentic{
 		User: NewUser(userId, exposeId, name, emailId, botFlag, registeredDate, updateDate),
 		CompanyRole:    companyRole,
 		Email:          email,

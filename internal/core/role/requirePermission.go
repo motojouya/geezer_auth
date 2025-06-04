@@ -1,4 +1,4 @@
-package authorization
+package role
 
 type RequirePermission struct {
 	SelfEdit      bool

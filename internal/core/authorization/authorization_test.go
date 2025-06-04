@@ -1,15 +1,16 @@
 package authorization_test
 
 import (
-	"github.com/motojouya/geezer_auth/pkg/model/text"
-	"github.com/motojouya/geezer_auth/pkg/model/user"
-	"github.com/motojouya/geezer_auth/internal/authorization"
+	"github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/motojouya/geezer_auth/pkg/core/user"
+	"github.com/motojouya/geezer_auth/internal/core/authorization"
+	"github.com/motojouya/geezer_auth/internal/core/role"
 	"github.com/motojouya/geezer_auth/pkg/utility"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func getAuthentic(role user.Role) *authorization.Authentic {
+func getAuthentic(role user.Role) *user.Authentic {
 	var companyExposeId, _ = text.NewExposeId("CP-TESTES")
 	var companyName, _ = text.NewName("TestCompany")
 	var company = user.NewCompany(companyExposeId, companyName)
@@ -40,7 +41,7 @@ func getAuthentic(role user.Role) *authorization.Authentic {
 	return user.NewAuthentic(issuer, subject, audience, expiresAt, notBefore, issuedAt, id, user)
 }
 
-func getAuthenticRoleLess() *authorization.Authentic {
+func getAuthenticRoleLess() *user.Authentic {
 	var userExposeId = text.NewExposeId("TestExposeId")
 	var emailId = text.NewEmail("test@gmail.com")
 	var email = text.NewEmail("test_2@gmail.com")
@@ -65,13 +66,13 @@ func getAuthenticRoleLess() *authorization.Authentic {
 
 func TestAuthorizeSuccess(t *testing.T) {
 	var auth = authorization.NewAuthorization([]authorization.RolePermission{
-		authorization.AnonymousPermission,
-		authorization.RoleLessPermission,
-		authorization.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
-		authorization.NewRolePermission("MANAGER", true, true, true, true, 9),
+		role.AnonymousPermission,
+		role.RoleLessPermission,
+		role.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
+		role.NewRolePermission("MANAGER", true, true, true, true, 9),
 	})
 
-	var requirePermission = authorization.NewRequirePermission(true, true, false, false)
+	var requirePermission = role.NewRequirePermission(true, true, false, false)
 
 	var roleLabel, _ = text.NewLabel("EMPLOYEE")
 	var roleName, _ = text.NewName("作業者")
@@ -87,13 +88,13 @@ func TestAuthorizeSuccess(t *testing.T) {
 
 func TestAuthorizeFailure(t *testing.T) {
 	var auth = authorization.NewAuthorization([]authorization.RolePermission{
-		authorization.AnonymousPermission,
-		authorization.RoleLessPermission,
-		authorization.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
-		authorization.NewRolePermission("MANAGER", true, true, true, true, 9),
+		role.AnonymousPermission,
+		role.RoleLessPermission,
+		role.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
+		role.NewRolePermission("MANAGER", true, true, true, true, 9),
 	})
 
-	var requirePermission = authorization.NewRequirePermission(true, true, true, false)
+	var requirePermission = role.NewRequirePermission(true, true, true, false)
 
 	var roleLabel, _ = text.NewLabel("EMPLOYEE")
 	var roleName, _ = text.NewName("作業者")
@@ -113,13 +114,13 @@ func TestAuthorizeFailure(t *testing.T) {
 
 func TestAuthorizeError(t *testing.T) {
 	var auth = authorization.NewAuthorization([]authorization.RolePermission{
-		authorization.AnonymousPermission,
-		authorization.RoleLessPermission,
-		authorization.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
-		authorization.NewRolePermission("MANAGER", true, true, true, true, 9),
+		role.AnonymousPermission,
+		role.RoleLessPermission,
+		role.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
+		role.NewRolePermission("MANAGER", true, true, true, true, 9),
 	})
 
-	var requirePermission = authorization.NewRequirePermission(true, true, true, false)
+	var requirePermission = role.NewRequirePermission(true, true, true, false)
 
 	var roleLabel, _ = text.NewLabel("SUSPICIOUS_PERSON")
 	var roleName, _ = text.NewName("不審者")
