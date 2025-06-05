@@ -37,8 +37,7 @@ func NewJwtParsing(
 	}
 }
 
-// 引数のtokenStringはJwtToken型としてもいいが、いずれにしろこの関数で制約がかかるので、事前にチェックされた値ではなくstringを受けるほうが自然
-func (jwtParsering *JwtParsering) Parse(tokenString string) (*user.Authentic, error) {
+func (jwtParsering *JwtParsering) getClaims(tokenString string) (*GeezerClaims, error) {
  	token, err := gojwt.ParseWithClaims(
  		tokenString,
  		&GeezerClaims{},
@@ -74,6 +73,17 @@ func (jwtParsering *JwtParsering) Parse(tokenString string) (*user.Authentic, er
 
 	if claims.Audience.Contains(jwtParsering.Myself) {
 		return NewJwtError("Audience", strings.Join(claims.Audience, ","), "Audience is not valid")
+	}
+
+	return &claims, nil
+}
+
+// 引数のtokenStringはJwtToken型としてもいいが、いずれにしろこの関数で制約がかかるので、事前にチェックされた値ではなくstringを受けるほうが自然
+func (jwtParsering *JwtParsering) Parse(tokenString string) (*user.Authentic, error) {
+
+	var claims, err = jwtParsering.getClaims(tokenString)
+	if err != nil {
+		return nil, err
 	}
 
 	return claims.ToAuthentic()

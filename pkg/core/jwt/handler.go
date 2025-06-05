@@ -25,6 +25,19 @@ func NewJwtHandling(
 	}
 }
 
+func (jwtHandling *JwtHandling) getToken(claims *GeezerClaims) (text.JwtToken, error) {
+
+	var token = gojwt.NewWithClaims(gojwt.SigningMethodHS256, claims)
+	token.Header["kid"] = jwtHandling.LatestKeyId
+
+	tokenString, err := token.SignedString(jwtHandling.LatestSecret)
+	if err != nil {
+        	return JwtToken(""), err
+	}
+
+	return text.NewJwtToken(tokenString), nil
+}
+
 // idはuuidを想定
 func (jwtHandling *JwtHandling) Generate(user *user.User, issueDate time.Time, id string) (*user.Authentic, text.JwtToken, error) {
 	var authentic = user.CreateAuthentic(
@@ -38,13 +51,10 @@ func (jwtHandling *JwtHandling) Generate(user *user.User, issueDate time.Time, i
 
 	var claims = FromAuthentic(authentic)
 
-	var token = gojwt.NewWithClaims(gojwt.SigningMethodHS256, claims)
-	token.Header["kid"] = jwtHandling.LatestKeyId
-
-	tokenString, err := token.SignedString(jwtHandling.LatestSecret)
+	var token, err = jwtHandling.getClaims(claims)
 	if err != nil {
-        	return JwtToken(""), err
+		return nil, text.JwtToken(""), err
 	}
 
-	return authentic, text.NewJwtToken(tokenString), nil
+	return authentic, token, nil
 }
