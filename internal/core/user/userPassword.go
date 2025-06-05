@@ -2,7 +2,7 @@ package user
 
 import (
 	"time"
-	"github.com/motojouya/geezer_auth/internal/model/text"
+	"github.com/motojouya/geezer_auth/internal/core/text"
 )
 
 type UnsavedUserPassword struct {
@@ -17,8 +17,12 @@ type UserPassword struct {
 	UnsavedUserPassword
 }
 
-func CreateUserPassword(user User, password text.HashedPassword, registeredDate time.Time) UnsavedUserPassword {
-	return UnsavedUserPassword{
+func CreateUserPassword(
+	user User,
+	password text.HashedPassword,
+	registeredDate time.Time
+) *UnsavedUserPassword {
+	return &UnsavedUserPassword{
 		User:           user,
 		Password:       password,
 		RegisteredDate: registeredDate,
@@ -26,8 +30,14 @@ func CreateUserPassword(user User, password text.HashedPassword, registeredDate 
 	}
 }
 
-func NewUserPassword(userPasswordID uint, user User, password text.HashedPassword, registeredDate time.Time, expireDate time.Time) UserPassword {
-	return UserPassword{
+func NewUserPassword(
+	userPasswordID uint,
+	user User,
+	password text.HashedPassword,
+	registeredDate time.Time,
+	expireDate time.Time
+) *UserPassword {
+	return &UserPassword{
 		UserPasswordID userPasswordID
 		UnsavedUserPassword: UnsavedUserPassword{
 			User:           user,

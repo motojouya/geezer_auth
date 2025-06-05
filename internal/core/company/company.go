@@ -22,14 +22,23 @@ func CreateCompanyExposeId(random string) (text.ExposeId, error) {
 	return text.CreateExposeId(CompanyExposeIdPrefix, random)
 }
 
-func CreateCompany(exposeId ExposeId, name Name, registeredDate time.Time) UnsavedCompany {
+func CreateCompany(
+	exposeId text.ExposeId,
+	name text.Name,
+	registeredDate time.Time
+) UnsavedCompany {
 	return UnsavedCompany{
 		user.Company:   user.NewCompany(exposeId, name)
 		RegisteredDate: registeredDate,
 	}
 }
 
-func NewCompany(companyId uint, exposeId text.ExposeId, name text.Name, registeredDate time.Time) Company {
+func NewCompany(
+	companyId uint,
+	exposeId text.ExposeId,
+	name text.Name,
+	registeredDate time.Time
+) Company {
 	return Company{
 		CompanyId:      companyId,
 		UnsavedCompany: UnsavedCompany{

@@ -25,7 +25,13 @@ func CreateUserExposeId(random string) (text.ExposeId, error) {
 	return text.CreateExposeId(UserExposeIdPrefix, random)
 }
 
-func CreateUser(exposeId text.ExposeId, emailId text.Email, name text.Name, botFlag bool, registeredDate time.Time) UnsavedUser {
+func CreateUser(
+	exposeId text.ExposeId,
+	emailId text.Email,
+	name text.Name,
+	botFlag bool,
+	registeredDate time.Time
+) UnsavedUser {
 	return UnsavedUser{
 		ExposeId:       exposeId,
 		ExposeEmailId:  emailId,
@@ -36,7 +42,15 @@ func CreateUser(exposeId text.ExposeId, emailId text.Email, name text.Name, botF
 	}
 }
 
-func NewUser(userId uint, exposeId text.ExposeId, name text.Name, emailId text.Email, botFlag bool, registeredDate time.Time, updateDate time.Time) User {
+func NewUser(
+	userId uint,
+	exposeId text.ExposeId,
+	name text.Name,
+	emailId text.Email,
+	botFlag bool,
+	registeredDate time.Time,
+	updateDate time.Time
+) User {
 	return User{
 		UserId:         userId,
 		UnsavedUser: UnsavedUser{

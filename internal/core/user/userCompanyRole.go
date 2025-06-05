@@ -2,9 +2,8 @@ package user
 
 import (
 	"time"
-	"github.com/google/uuid"
-	"github.com/motojouya/geezer_auth/internal/model/company"
-	"github.com/motojouya/geezer_auth/internal/model/role"
+	"github.com/motojouya/geezer_auth/internal/core/company"
+	"github.com/motojouya/geezer_auth/internal/core/role"
 )
 
 type UnsavedUserCompanyRole struct {
@@ -20,8 +19,13 @@ type UserCompanyRole struct {
 	UnsavedUserCompanyRole
 }
 
-func CreateUserCompanyRole(user User, company company.Company, role role.Role, registerDate time.Time) UnsavedUserCompanyRole {
-	return UnsavedUserEmail{
+func CreateUserCompanyRole(
+	user User,
+	company company.Company,
+	role role.Role,
+	registerDate time.Time
+) *UnsavedUserCompanyRole {
+	return &UnsavedUserEmail{
 		User:         user,
 		Company:      company,
 		Role:         role,
@@ -30,8 +34,15 @@ func CreateUserCompanyRole(user User, company company.Company, role role.Role, r
 	}
 }
 
-func NewUserEmail(userCompanyRoleID uint, user User, company company.Company, role role.Role, registerDate time.Time, expireDate *time.Time) UserEmail {
-	return UserEmail{
+func NewUserEmail(
+	userCompanyRoleID uint,
+	user User,
+	company company.Company,
+	role role.Role,
+	registerDate time.Time,
+	expireDate *time.Time
+) *UserEmail {
+	return &UserEmail{
 		UserCompanyRoleID: userCompanyRoleID,
 		UnsavedUserEmail{
 			User:         user,

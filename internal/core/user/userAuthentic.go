@@ -38,9 +38,9 @@ func NewUserAuthentic(
 	companyRole *CompanyRole
 ) *UserAuthentic {
 	return &UserAuthentic{
-		User: NewUser(userId, exposeId, name, emailId, botFlag, registeredDate, updateDate),
-		CompanyRole:    companyRole,
-		Email:          email,
+		User:        NewUser(userId, exposeId, name, emailId, botFlag, registeredDate, updateDate),
+		CompanyRole: companyRole,
+		Email:       email,
 	}
 }
 
@@ -61,7 +61,7 @@ func NewUserAuthentic(
 		companyRole = pkg.NewCompanyRole(company, roles)
 	}
 
-	return pkg.NewUser(
+	return &pkg.NewUser(
 		user.ExposeId,
 		user.ExposeEmailId,
 		user.Email,

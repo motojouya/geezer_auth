@@ -1,8 +1,8 @@
-package model
+package user
 
 import (
 	"time"
-	text "github.com/motojouya/geezer_auth/pkg/model/text"
+	text "github.com/motojouya/geezer_auth/pkg/core/text"
 )
 
 type UnsavedUserAccessToken struct {
@@ -18,8 +18,13 @@ type UserAccessToken struct {
 	UnsavedUserAccessToken
 }
 
-func CreateUserAccessToken(user User, accessToken text.JwtToken, registerDate time.Time, expireDate time.Time) UnsavedUserAccessToken {
-	return UnsavedUserAccessToken{
+func CreateUserAccessToken(
+	user User,
+	accessToken text.JwtToken,
+	registerDate time.Time,
+	expireDate time.Time
+) *UnsavedUserAccessToken {
+	return &UnsavedUserAccessToken{
 		User:            user,
 		AccessToken:     accessToken,
 		SourceUpdateDate user.UpdateDate,
@@ -28,8 +33,15 @@ func CreateUserAccessToken(user User, accessToken text.JwtToken, registerDate ti
 	}
 }
 
-func NewUserAccessToken(userAccessTokenId uint, user User, accessToken text.JwtToken, sourceUpdateDate time.Time, registerDate time.Time, expireDate *time.Time) UserRefreshToken {
-	return UserRefreshToken{
+func NewUserAccessToken(
+	userAccessTokenId uint,
+	user User,
+	accessToken text.JwtToken,
+	sourceUpdateDate time.Time,
+	registerDate time.Time,
+	expireDate *time.Time
+) *UserRefreshToken {
+	return &UserRefreshToken{
 		UserAccessTokenId: userAccessTokenId,
 		UnsavedUserAccessToken: UnsavedUserAccessToken{
 			User:            user,

@@ -17,7 +17,12 @@ type Role struct {
 	RegisteredDate time.Time
 }
 
-func NewRole(name text.Name, label text.Label, description Text, registeredDate time.Time) Role {
+func NewRole(
+	name text.Name,
+	label text.Label,
+	description Text,
+	registeredDate time.Time
+) Role {
 	return Role{
 		user.Role:      user.NewRole(label, name),
 		Description:    description,
