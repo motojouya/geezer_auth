@@ -14,7 +14,7 @@ type UnsavedUserAccessToken struct {
 }
 
 type UserAccessToken struct {
-	UserAccessTokenId uint
+	PersistKey uint
 	UnsavedUserAccessToken
 }
 
@@ -34,7 +34,7 @@ func CreateUserAccessToken(
 }
 
 func NewUserAccessToken(
-	userAccessTokenId uint,
+	persistKey uint
 	user User,
 	accessToken text.JwtToken,
 	sourceUpdateDate time.Time,
@@ -42,7 +42,7 @@ func NewUserAccessToken(
 	expireDate *time.Time
 ) *UserRefreshToken {
 	return &UserRefreshToken{
-		UserAccessTokenId: userAccessTokenId,
+		PersistKey:             persistKey,
 		UnsavedUserAccessToken: UnsavedUserAccessToken{
 			User:            user,
 			AccessToken:     accessToken,

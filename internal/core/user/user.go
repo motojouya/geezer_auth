@@ -17,7 +17,7 @@ type UnsavedUser struct {
 }
 
 type User struct {
-	UserId uint
+	PersistKey uint
 	UnsavedUser
 }
 
@@ -43,7 +43,7 @@ func CreateUser(
 }
 
 func NewUser(
-	userId uint,
+	persistKey uint
 	exposeId text.ExposeId,
 	name text.Name,
 	emailId text.Email,
@@ -52,7 +52,7 @@ func NewUser(
 	updateDate time.Time
 ) User {
 	return User{
-		UserId:         userId,
+		PersistKey:  persistKey,
 		UnsavedUser: UnsavedUser{
 			ExposeId:       exposeId,
 			ExposeEmailId:  emailId,

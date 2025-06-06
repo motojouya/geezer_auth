@@ -14,7 +14,7 @@ type UnsavedCompanyInvite struct {
 }
 
 type CompanyInvite struct {
-	CompanyInviteId uint
+	PersistKey uint
 	UnsavedCompanyInvite
 }
 
@@ -33,9 +33,16 @@ func CreateCompanyInvite(company Company, token uuid.UUID, role Role, registerDa
 	}
 }
 
-func NewUserRefreshToken(companyInviteId uint, company Company, token uuid.UUID, role Role, registerDate time.Time, expireDate time.Time) CompanyInvite {
+func NewUserRefreshToken(
+	persistKey uint,
+	company Company,
+	token uuid.UUID,
+	role Role,
+	registerDate time.Time,
+	expireDate time.Time
+) CompanyInvite {
 	return CompanyInvite{
-		CompanyInviteId: companyInviteId,
+		PersistKey: persistKey,
 		UnsavedCompanyInvite: UnsavedCompanyInvite{
 			Company:      company,
 			Token:        token,

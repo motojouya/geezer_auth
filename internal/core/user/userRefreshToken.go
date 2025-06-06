@@ -13,7 +13,7 @@ type UnsavedUserRefreshToken struct {
 }
 
 type UserRefreshToken struct {
-	UserRefreshTokenId uint
+	PersistKey uint
 	UnsavedUserRefreshToken
 }
 
@@ -36,14 +36,14 @@ func CreateUserRefreshToken(
 }
 
 func NewUserRefreshToken(
-	userRefreshTokenId uint,
+	persistKey uint
 	user User,
 	refreshToken text.Token,
 	registerDate time.Time,
 	expireDate time.Time
 ) UserRefreshToken {
 	return UserRefreshToken{
-		UserRefreshTokenId: userRefreshTokenId,
+		PersistKey:              persistKey,
 		UnsavedUserRefreshToken: UnsavedUserRefreshToken{
 			User:         user,
 			RefreshToken: refreshToken,

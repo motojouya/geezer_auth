@@ -20,7 +20,7 @@ type UnsavedUserEmail struct {
 }
 
 type UserEmail struct {
-	UserEmailID    uint
+	PersistKey uint
 	UnsavedUserEmail
 }
 
@@ -41,7 +41,7 @@ func CreateUserEmail(
 }
 
 func NewUserEmail(
-	userEmailId uint,
+	persistKey uint
 	user User,
 	email pkg.Email,
 	verifyToken text.Token,
@@ -50,7 +50,7 @@ func NewUserEmail(
 	expireDate *time.Time
 ) *UserEmail {
 	return &UserEmail{
-		UserEmailID: userEmailId,
+		PersistKey:       persistKey,
 		UnsavedUserEmail: UnsavedUserEmail{
 			User:         user,
 			Email:        email,

@@ -15,7 +15,7 @@ type UnsavedUserCompanyRole struct {
 }
 
 type UserCompanyRole struct {
-	UserCompanyRoleID  uint
+	PersistKey uint
 	UnsavedUserCompanyRole
 }
 
@@ -35,7 +35,7 @@ func CreateUserCompanyRole(
 }
 
 func NewUserEmail(
-	userCompanyRoleID uint,
+	persistKey uint
 	user User,
 	company company.Company,
 	role role.Role,
@@ -43,8 +43,8 @@ func NewUserEmail(
 	expireDate *time.Time
 ) *UserEmail {
 	return &UserEmail{
-		UserCompanyRoleID: userCompanyRoleID,
-		UnsavedUserEmail{
+		PersistKey:       persistKey,
+		UnsavedUserEmail: UnsavedUserEmail{
 			User:         user,
 			Company:      company,
 			Role:         role,

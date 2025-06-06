@@ -13,7 +13,7 @@ type UnsavedUserPassword struct {
 }
 
 type UserPassword struct {
-	UserPasswordID uint
+	PersistKey uint
 	UnsavedUserPassword
 }
 
@@ -31,14 +31,14 @@ func CreateUserPassword(
 }
 
 func NewUserPassword(
-	userPasswordID uint,
+	persistKey uint
 	user User,
 	password text.HashedPassword,
 	registeredDate time.Time,
 	expireDate time.Time
 ) *UserPassword {
 	return &UserPassword{
-		UserPasswordID userPasswordID
+		PersistKey:          persistKey
 		UnsavedUserPassword: UnsavedUserPassword{
 			User:           user,
 			Password:       password,

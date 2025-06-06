@@ -14,7 +14,7 @@ type UnsavedCompany struct {
 }
 
 type Company struct {
-	CompanyId uint
+	PersistKey uint
 	UnsavedCompany
 }
 
@@ -34,13 +34,13 @@ func CreateCompany(
 }
 
 func NewCompany(
-	companyId uint,
+	persistKey uint,
 	exposeId text.ExposeId,
 	name text.Name,
 	registeredDate time.Time
 ) Company {
 	return Company{
-		CompanyId:      companyId,
+		PersistKey:     persistKey,
 		UnsavedCompany: UnsavedCompany{
 			user.Company:    user.NewCompany(exposeId, name)
 			RegisteredDate: registeredDate,
