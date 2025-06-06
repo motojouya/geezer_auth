@@ -16,7 +16,7 @@ type GeezerClaims struct {
 	UpdateDate       time.Time `json:"update_at"`
 	UserEmailId      string    `json:"github.com/motojouya/geezer_auth/email_id"`
 	BotFlag          bool      `json:"github.com/motojouya/geezer_auth/bot_flag"`
-	CompanyExposeId  *string   `json:"github.com/motojouya/geezer_auth/company_expose_id"`
+	CompanyIdentifier  *string   `json:"github.com/motojouya/geezer_auth/company_expose_id"`
 	CompanyName      *string   `json:"github.com/motojouya/geezer_auth/company_name"`
 	CompanyRoles     []string `json:"github.com/motojouya/geezer_auth/company_roles"`
 	CompanyRoleNames []string `json:"github.com/motojouya/geezer_auth/company_role_names"`
@@ -24,13 +24,13 @@ type GeezerClaims struct {
 
 func FromAuthentic(authentic *user.Authentic) *GeezerClaims {
 
-	var companyExposeId *string = nil
+	var companyIdentifier *string = nil
 	var companyName *string = nil
 	var companyRoles []string = nil
 	var companyRoleNames []string = nil
 
 	if authentic.User.CompanyRole != nil {
-		companyExposeId = &string(authentic.User.CompanyRole.Company.ExposeId)
+		companyIdentifier = &string(authentic.User.CompanyRole.Company.Identifier)
 		companyName = &string(authentic.User.CompanyRole.Company.Name)
 		companyRoles = make([]string, 0, len(authentic.User.CompanyRole.Roles))
 		companyRoleNames = make([]string, 0, len(authentic.User.CompanyRole.Roles))
@@ -53,7 +53,7 @@ func FromAuthentic(authentic *user.Authentic) *GeezerClaims {
 		UpdateDate:       authentic.User.UpdateDate.Time,
 		UserEmailId:      string(authentic.User.EmailId),
 		BotFlag:          authentic.User.BotFlag,
-		CompanyExposeId:  companyExposeId,
+		CompanyIdentifier:  companyIdentifier,
 		CompanyName:      companyName,
 		CompanyRoles:     companyRoles,
 		CompanyRoleNames: companyRoleNames,
@@ -62,7 +62,7 @@ func FromAuthentic(authentic *user.Authentic) *GeezerClaims {
 
 func getCompanyRole(claims *GeezerClaims) (*CompanyRole, error) {
 
-	if claims.CompanyExposeId != nil && claims.CompanyName != nil && claims.CompanyRoles != nil && claims.CompanyRoleNames != nil {
+	if claims.CompanyIdentifier != nil && claims.CompanyName != nil && claims.CompanyRoles != nil && claims.CompanyRoleNames != nil {
 		if len(claims.CompanyRoles) != len(claims.CompanyRoleNames) {
 			return nil, NewJwtError("len(CompanyRoles)", "len(CompanyRoleNames)", "CompanyRoles and CompanyRoleNames length is not equal")
 		}
@@ -83,7 +83,7 @@ func getCompanyRole(claims *GeezerClaims) (*CompanyRole, error) {
 			var roles[i] = user.NewRole(label, name)
 		}
 
-		var companyExposeId, err = text.NewCompanyExposeId(*claims.CompanyExposeId)
+		var companyIdentifier, err = text.NewCompanyIdentifier(*claims.CompanyIdentifier)
 		if err != nil {
 			return nil, utility.AddPropertyError("company", err)
 		}
@@ -92,19 +92,19 @@ func getCompanyRole(claims *GeezerClaims) (*CompanyRole, error) {
 			return nil, utility.AddPropertyError("company", err)
 		}
 
-		return user.NewCompany(companyExposeId, companyName, roles), nil
+		return user.NewCompany(companyIdentifier, companyName, roles), nil
 	} else {
-		if claims.CompanyExposeId != nil {
-			return nil, NewJwtError("CompanyExposeId", claims.CompanyExposeId, "CompanyExposeId is not nil")
+		if claims.CompanyIdentifier != nil {
+			return nil, NewJwtError("CompanyIdentifier", claims.CompanyIdentifier, "CompanyIdentifier is not nil")
 		}
 		if claims.CompanyName != nil {
-			return nil, NewJwtError("CompanyName", claims.CompanyName, "CompanyExposeId is not nil")
+			return nil, NewJwtError("CompanyName", claims.CompanyName, "CompanyIdentifier is not nil")
 		}
 		if claims.CompanyRoles != nil {
-			return nil, NewJwtError("CompanyRoles", claims.CompanyRoles, "CompanyExposeId is not nil")
+			return nil, NewJwtError("CompanyRoles", claims.CompanyRoles, "CompanyIdentifier is not nil")
 		}
 		if claims.CompanyRoleNames != nil {
-			return nil, NewJwtError("CompanyRoleNames", claims.CompanyRoleNames, "CompanyExposeId is not nil")
+			return nil, NewJwtError("CompanyRoleNames", claims.CompanyRoleNames, "CompanyIdentifier is not nil")
 		}
 		return nil, nil
 	}
@@ -112,7 +112,7 @@ func getCompanyRole(claims *GeezerClaims) (*CompanyRole, error) {
 
 func (claims *GeezerClaims) ToAuthentic() (*user.Authentic, error) {
 
-	var userExposeId, err = text.NewUserExposeId(claims.Subject)
+	var userIdentifier, err = text.NewUserIdentifier(claims.Subject)
 	if err != nil {
 		return nil, utility.AddPropertyError("claims", err)
 	}
@@ -141,7 +141,7 @@ func (claims *GeezerClaims) ToAuthentic() (*user.Authentic, error) {
 	}
 
 	var user = user.NewUser(
-		userExposeId,
+		userIdentifier,
 		userEmailId,
 		userEmail,
 		userName,

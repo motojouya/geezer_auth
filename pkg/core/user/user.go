@@ -5,7 +5,7 @@ import (
 )
 
 type User struct {
-	ExposeId    ExposeId
+	Identifier    Identifier
 	EmailId     Email
 	Email       *Email
 	Name        Name
@@ -15,7 +15,7 @@ type User struct {
 }
 
 func NewUser(
-	exposeId    ExposeId,
+	identifier    Identifier,
 	emailId     Email,
 	email       *Email,
 	name        Name,
@@ -24,7 +24,7 @@ func NewUser(
 	updateDate  time.Time
 ) *User {
 	return &User{
-		ExposeId: exposeId,
+		Identifier: identifier,
 		EmailId: emailId,
 		Email: email,
 		Name: name,

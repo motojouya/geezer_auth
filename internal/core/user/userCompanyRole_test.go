@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func getUser(exposeId pkgText.ExposeId) user.User {
+func getUser(identifier pkgText.Identifier) user.User {
 	var userId = 1
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
 	var name, _ = pkgText.NewName("TestName")
@@ -16,15 +16,15 @@ func getUser(exposeId pkgText.ExposeId) user.User {
 	var registeredDate = time.Now()
 	var updateDate = time.Now()
 
-	return user.NewUser(userId, exposeId, emailId, name, botFlag, registeredDate, updateDate)
+	return user.NewUser(userId, identifier, emailId, name, botFlag, registeredDate, updateDate)
 }
 
-func getCompany(exposeId pkgText.ExposeId) company.Company {
+func getCompany(identifier pkgText.Identifier) company.Company {
 	var companyId = 1
 	var name, _ = pkgText.NewName("TestCompany")
 	var registeredDate = time.Now()
 
-	return company.NewCompany(companyId, exposeId, name, registeredDate)
+	return company.NewCompany(companyId, identifier, name, registeredDate)
 }
 
 func getRole(label pkgText.Label) user.Role {
@@ -32,15 +32,15 @@ func getRole(label pkgText.Label) user.Role {
 	var description, _ = text.NewText("TestRoleDescription")
 	var registeredDate = time.Now()
 
-	return user.NewRole(roleId, exposeId, name, registeredDate)
+	return user.NewRole(roleId, identifier, name, registeredDate)
 }
 
 func TestCreateUserCompanyRole(t *testing.T) {
-	var userExposeId, _ = pkgText.NewExposeId("TestExposeId")
-	var user = getUser(userExposeId)
+	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
+	var user = getUser(userIdentifier)
 
-	var companyExposeId, _ = pkgText.NewExposeId("TestCompanyExposeId")
-	var company = getCompany(companyExposeId)
+	var companyIdentifier, _ = pkgText.NewIdentifier("TestCompanyIdentifier")
+	var company = getCompany(companyIdentifier)
 
 	var label, _ = pkgText.NewLabel("TEST_ROLE_LABEL")
 	var role = user.NewRole(label)
@@ -49,26 +49,26 @@ func TestCreateUserCompanyRole(t *testing.T) {
 
 	var userCompanyRole = user.CreateUserCompanyRole(user, company, role, registerDate)
 
-	assert.Equal(t, string(exposeId), string(userCompanyRole.User.ExposeId))
-	assert.Equal(t, string(companyExposeId), string(userCompanyRole.Company.ExposeId))
+	assert.Equal(t, string(identifier), string(userCompanyRole.User.Identifier))
+	assert.Equal(t, string(companyIdentifier), string(userCompanyRole.Company.Identifier))
 	assert.Equal(t, string(label), string(userCompanyRole.Role.Label))
 	assert.Equal(t, registerDate, userCompanyRole.RegisteredDate)
 	assert.Nil(t, *userCompanyRole.ExpireDate)
 
 	t.Logf("userCompanyRole: %+v", userCompanyRole)
-	t.Logf("userCompanyRole.User.ExposeId: %s", userCompanyRole.User.ExposeId)
-	t.Logf("userCompanyRole.Company.ExposeId: %s", userCompanyRole.Company.ExposeId)
+	t.Logf("userCompanyRole.User.Identifier: %s", userCompanyRole.User.Identifier)
+	t.Logf("userCompanyRole.Company.Identifier: %s", userCompanyRole.Company.Identifier)
 	t.Logf("userCompanyRole.Role.Label: %s", userCompanyRole.Role.Label)
 	t.Logf("userCompanyRole.RegisteredDate: %s", userCompanyRole.RegisteredDate)
 	t.Logf("userCompanyRole.ExpireDate: %s", *userCompanyRole.ExpireDate)
 }
 
 func TestNewUserCompanyRole(t *testing.T) {
-	var userExposeId, _ = pkgText.NewExposeId("TestExposeId")
-	var user = getUser(userExposeId)
+	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
+	var user = getUser(userIdentifier)
 
-	var companyExposeId, _ = pkgText.NewExposeId("TestCompanyExposeId")
-	var company = getCompany(companyExposeId)
+	var companyIdentifier, _ = pkgText.NewIdentifier("TestCompanyIdentifier")
+	var company = getCompany(companyIdentifier)
 
 	var label, _ = pkgText.NewLabel("TEST_ROLE_LABEL")
 	var role = user.NewRole(label)
@@ -79,16 +79,16 @@ func TestNewUserCompanyRole(t *testing.T) {
 	var userCompanyRole = user.NewUserCompanyRole(1, user, company, role, registerDate, &expireDate)
 
 	assert.Equal(t, 1, userCompanyRole.UserCompanyRoleID)
-	assert.Equal(t, string(userExposeId), string(userCompanyRole.User.ExposeId))
-	assert.Equal(t, string(companyExposeId), string(userCompanyRole.Company.ExposeId))
+	assert.Equal(t, string(userIdentifier), string(userCompanyRole.User.Identifier))
+	assert.Equal(t, string(companyIdentifier), string(userCompanyRole.Company.Identifier))
 	assert.Equal(t, string(label), string(userCompanyRole.Role.Label))
 	assert.Equal(t, registerDate, userCompanyRole.RegisteredDate)
 	assert.Equal(t, expireDate, *userCompanyRole.ExpireDate)
 
 	t.Logf("userCompanyRole: %+v", userCompanyRole)
 	t.Logf("userCompanyRole.UserCompanyRoleID: %d", userCompanyRole.UserCompanyRoleID)
-	t.Logf("userCompanyRole.User.ExposeId: %s", userCompanyRole.User.ExposeId)
-	t.Logf("userCompanyRole.Company.ExposeId: %s", userCompanyRole.Company.ExposeId)
+	t.Logf("userCompanyRole.User.Identifier: %s", userCompanyRole.User.Identifier)
+	t.Logf("userCompanyRole.Company.Identifier: %s", userCompanyRole.Company.Identifier)
 	t.Logf("userCompanyRole.Role.Label: %s", userCompanyRole.Role.Label)
 	t.Logf("userCompanyRole.RegisteredDate: %s", userCompanyRole.RegisteredDate)
 	t.Logf("userCompanyRole.ExpireDate: %s", *userCompanyRole.ExpireDate)

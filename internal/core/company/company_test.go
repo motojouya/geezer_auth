@@ -9,49 +9,49 @@ import (
 	"time"
 )
 
-func TestCreateCompanyExposeId(t *testing.T) {
-	var exposeId, err = company.CreateCompanyExposeId("TESTES")
+func TestCreateCompanyIdentifier(t *testing.T) {
+	var identifier, err = company.CreateCompanyIdentifier("TESTES")
 
 	assert.Nil(t, err)
-	assert.NotEmpty(t, exposeId)
-	assert.Equal(t, "CP-TESTES", string(exposeId))
+	assert.NotEmpty(t, identifier)
+	assert.Equal(t, "CP-TESTES", string(identifier))
 
-	t.Logf("exposeId: %s", exposeId)
+	t.Logf("identifier: %s", identifier)
 }
 
 func TestCreateCompany(t *testing.T) {
-	var exposeId, _ = text.NewExposeId("CP-TESTES")
-	var name, _ = text.NewExposeId("TestRole")
+	var identifier, _ = text.NewIdentifier("CP-TESTES")
+	var name, _ = text.NewIdentifier("TestRole")
 	var registeredDate = time.Now()
 
-	var company = company.CreateCompany(exposeId, name, registeredDate)
+	var company = company.CreateCompany(identifier, name, registeredDate)
 
 	assert.Equal(t, string(name), string(company.Name))
-	assert.Equal(t, string(exposeId), string(company.ExposeId))
+	assert.Equal(t, string(identifier), string(company.Identifier))
 	assert.Equal(t, registeredDate, company.RegisteredDate)
 
 	t.Logf("company: %+v", company)
-	t.Logf("company.ExposeId: %s", company.ExposeId)
+	t.Logf("company.Identifier: %s", company.Identifier)
 	t.Logf("company.Name: %s", company.Name)
 	t.Logf("company.RegisteredDate: %s", company.RegisteredDate)
 }
 
 func TestNewCompany(t *testing.T) {
 	var companyId uint = 1
-	var exposeId, _ = text.NewExposeId("CP-TESTES")
+	var identifier, _ = text.NewIdentifier("CP-TESTES")
 	var name, _ = text.NewName("TestRole")
 	var registeredDate = time.Now()
 
-	var company = company.NewCompany(companyId, exposeId, name, registeredDate)
+	var company = company.NewCompany(companyId, identifier, name, registeredDate)
 
 	assert.Equal(t, companyId, company.CompanyId)
 	assert.Equal(t, string(name), string(company.Name))
-	assert.Equal(t, string(exposeId), string(company.ExposeId))
+	assert.Equal(t, string(identifier), string(company.Identifier))
 	assert.Equal(t, registeredDate, company.RegisteredDate)
 
 	t.Logf("company: %+v", company)
 	t.Logf("company.CompanyId: %d", company.CompanyId)
-	t.Logf("company.ExposeId: %s", company.ExposeId)
+	t.Logf("company.Identifier: %s", company.Identifier)
 	t.Logf("company.Name: %s", company.Name)
 	t.Logf("company.RegisteredDate: %s", company.RegisteredDate)
 }

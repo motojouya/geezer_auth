@@ -45,7 +45,7 @@ func NewUserAuthentic(
 (user *UserAuthentic) func ToJwtUser() *pkg.User {
 	var companyRole *pkg.CompanyRole = nil
 	if user.CompanyRole != nil {
-		var company = pkg.NewCompany(user.CompanyRole.Company.ExposeId, user.CompanyRole.Company.Name)
+		var company = pkg.NewCompany(user.CompanyRole.Company.Identifier, user.CompanyRole.Company.Name)
 
 		var roles = make([]*pkg.Role, len(sourceRoles))
 		for i, source := range user.CompanyRole.Roles {
@@ -56,7 +56,7 @@ func NewUserAuthentic(
 	}
 
 	return &pkg.NewUser(
-		user.ExposeId,
+		user.Identifier,
 		user.ExposeEmailId,
 		user.Email,
 		user.Name,

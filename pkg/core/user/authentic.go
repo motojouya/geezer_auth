@@ -23,7 +23,7 @@ func CreateAuthentic(
 
 	return NewAuthentic(
 		issuer,
-		string(user.ExposeId),
+		string(user.Identifier),
 		audience,
 		expiresAt,
 		issuedAt,

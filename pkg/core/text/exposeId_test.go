@@ -7,23 +7,23 @@ import (
 	"errors"
 )
 
-func TestNewExposeId(t *testing.T) {
-	var exposeIdString = "US-ABCDEF"
+func TestNewIdentifier(t *testing.T) {
+	var identifierString = "US-ABCDEF"
 
-	var exposeId, err = text.NewEmail(" " + exposeIdString + " ")
+	var identifier, err = text.NewEmail(" " + identifierString + " ")
 	if err != nil {
-		t.Fatalf("failed to create exposeId: %v", err)
+		t.Fatalf("failed to create identifier: %v", err)
 	}
 
-	assert.Equal(t, exposeIdString, string(exposeId))
+	assert.Equal(t, identifierString, string(identifier))
 
-	t.Logf("exposeId: %s", string(exposeId))
+	t.Logf("identifier: %s", string(identifier))
 }
 
-func TestNewExposeIdEmptyError(t *testing.T) {
-	var exposeIdString = ""
+func TestNewIdentifierEmptyError(t *testing.T) {
+	var identifierString = ""
 
-	var exposeId, err = text.NewEmail(exposeIdString)
+	var identifier, err = text.NewEmail(identifierString)
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
@@ -33,11 +33,11 @@ func TestNewExposeIdEmptyError(t *testing.T) {
 	}
 }
 
-func TestNewExposeIdLengthError(t *testing.T) {
-	var exposeIdSources = []string{"US-ABCDE", "US-ABCDEFG"}
+func TestNewIdentifierLengthError(t *testing.T) {
+	var identifierSources = []string{"US-ABCDE", "US-ABCDEFG"}
 
-	for _, exposeIdString := range exposeIdSources {
-		var exposeId, err = text.NewEmail(exposeIdString)
+	for _, identifierString := range identifierSources {
+		var identifier, err = text.NewEmail(identifierString)
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}
@@ -48,11 +48,11 @@ func TestNewExposeIdLengthError(t *testing.T) {
 	}
 }
 
-func TestNewExposeIdFormatError(t *testing.T) {
-	var exposeIdSources = []string{"USABCDEFG", "US.ABCDEF", "US_ABCDEF", "USA-BCDEF", "US-ABCDE1", "U1-ABCDEF"}
+func TestNewIdentifierFormatError(t *testing.T) {
+	var identifierSources = []string{"USABCDEFG", "US.ABCDEF", "US_ABCDEF", "USA-BCDEF", "US-ABCDE1", "U1-ABCDEF"}
 
-	for _, exposeIdString := range exposeIdSources {
-		var exposeId, err = text.NewEmail(exposeIdString)
+	for _, identifierString := range identifierSources {
+		var identifier, err = text.NewEmail(identifierString)
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}

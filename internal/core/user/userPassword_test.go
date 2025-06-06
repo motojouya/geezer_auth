@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func getUser(exposeId pkgText.ExposeId) user.User {
+func getUser(identifier pkgText.Identifier) user.User {
 	var userId = 1
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
 	var name, _ = pkgText.NewName("TestName")
@@ -18,33 +18,33 @@ func getUser(exposeId pkgText.ExposeId) user.User {
 	var registeredDate = time.Now()
 	var updateDate = time.Now()
 
-	return user.NewUser(userId, exposeId, emailId, name, botFlag, registeredDate, updateDate)
+	return user.NewUser(userId, identifier, emailId, name, botFlag, registeredDate, updateDate)
 }
 
 func TestCreateUserPassword(t *testing.T) {
-	var userExposeId, _ = pkgText.NewExposeId("TestExposeId")
-	var user = getUser(userExposeId)
+	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
+	var user = getUser(userIdentifier)
 
 	var password, _ = text.NewHashedPassword("TestPassword")
 	var registerDate = time.Now()
 
 	var userPassword = user.CreateUserPassword(user, password, registerDate)
 
-	assert.Equal(t, string(userExposeId), string(userPassword.User.ExposeId))
+	assert.Equal(t, string(userIdentifier), string(userPassword.User.Identifier))
 	assert.Equal(t, string(password), string(userPassword.Password))
 	assert.Equal(t, registerDate, userPassword.RegisteredDate)
 	assert.Nil(t, *userPassword.ExpireDate)
 
 	t.Logf("userPassword: %+v", userPassword)
-	t.Logf("userPassword.User.ExposeId: %s", userPassword.User.ExposeId)
+	t.Logf("userPassword.User.Identifier: %s", userPassword.User.Identifier)
 	t.Logf("userPassword.Password: %s", userPassword.Password)
 	t.Logf("userPassword.RegisteredDate: %s", userPassword.RegisteredDate)
 	t.Logf("userPassword.ExpireDate: %s", *userPassword.ExpireDate)
 }
 
 func TestNewUserPassword(t *testing.T) {
-	var userExposeId, _ = pkgText.NewExposeId("TestExposeId")
-	var user = getUser(userExposeId)
+	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
+	var user = getUser(userIdentifier)
 
 	var password, _ = text.NewHashedPassword("TestPassword")
 	var registerDate = time.Now()
@@ -53,13 +53,13 @@ func TestNewUserPassword(t *testing.T) {
 	var userPassword = user.NewUserPassword(1, user, password, registerDate, expireDate)
 
 	assert.Equal(t, 1, userPassword.UserPasswordID)
-	assert.Equal(t, string(userExposeId), string(userPassword.User.ExposeId))
+	assert.Equal(t, string(userIdentifier), string(userPassword.User.Identifier))
 	assert.Equal(t, string(password), string(userPassword.Password))
 	assert.Equal(t, registerDate, userPassword.RegisteredDate)
 	assert.Equal(t, expireDate, *userPassword.ExpireDate)
 
 	t.Logf("userPassword: %+v", userPassword)
-	t.Logf("userPassword.User.ExposeId: %s", userPassword.User.ExposeId)
+	t.Logf("userPassword.User.Identifier: %s", userPassword.User.Identifier)
 	t.Logf("userPassword.Password: %s", userPassword.Password)
 	t.Logf("userPassword.RegisteredDate: %s", userPassword.RegisteredDate)
 	t.Logf("userPassword.ExpireDate: %s", *userPassword.ExpireDate)

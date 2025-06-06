@@ -5,10 +5,10 @@ import (
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
 )
 
-const UserExposeIdPrefix = "US-"
+const UserIdentifierPrefix = "US-"
 
 type UnsavedUser struct {
-	ExposeId       text.ExposeId
+	Identifier       text.Identifier
 	ExposeEmailId  text.Email
 	Name           text.Name
 	BotFlag        bool
@@ -21,19 +21,19 @@ type User struct {
 	UnsavedUser
 }
 
-func CreateUserExposeId(random string) (text.ExposeId, error) {
-	return text.CreateExposeId(UserExposeIdPrefix, random)
+func CreateUserIdentifier(random string) (text.Identifier, error) {
+	return text.CreateIdentifier(UserIdentifierPrefix, random)
 }
 
 func CreateUser(
-	exposeId text.ExposeId,
+	identifier text.Identifier,
 	emailId text.Email,
 	name text.Name,
 	botFlag bool,
 	registeredDate time.Time
 ) UnsavedUser {
 	return UnsavedUser{
-		ExposeId:       exposeId,
+		Identifier:       identifier,
 		ExposeEmailId:  emailId,
 		Name:           name,
 		BotFlag:        botFlag,
@@ -44,7 +44,7 @@ func CreateUser(
 
 func NewUser(
 	persistKey uint
-	exposeId text.ExposeId,
+	identifier text.Identifier,
 	name text.Name,
 	emailId text.Email,
 	botFlag bool,
@@ -54,7 +54,7 @@ func NewUser(
 	return User{
 		PersistKey:  persistKey,
 		UnsavedUser: UnsavedUser{
-			ExposeId:       exposeId,
+			Identifier:       identifier,
 			ExposeEmailId:  emailId,
 			Name:           name,
 			BotFlag:        botFlag,

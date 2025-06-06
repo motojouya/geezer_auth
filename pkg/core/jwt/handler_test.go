@@ -14,20 +14,20 @@ func getUser() *user.User {
 	var role = user.NewRole(companyRole, companyRoleName)
 	var roles = []user.Role{role}
 
-	var companyExposeId, _ = text.NewExposeId("CP-TESTES")
+	var companyIdentifier, _ = text.NewIdentifier("CP-TESTES")
 	var companyName, _ = text.NewName("TestCompany")
-	var company = user.CreateCompany(exposeId, name, role, roleName)
+	var company = user.CreateCompany(identifier, name, role, roleName)
 
 	var companyRole = user.NewCompanyRole(company, roles)
 
-	var userExposeId, _ = text.NewExposeId("TestExposeId")
+	var userIdentifier, _ = text.NewIdentifier("TestIdentifier")
 	var emailId, _ = text.NewEmail("test@gmail.com")
 	var email, _ = text.NewEmail("test_2@gmail.com")
 	var userName, _ = text.NewName("TestName")
 	var botFlag = false
 	var updateDate = time.Now()
 
-	return user.NewUser(userExposeId, emailId, email, userName, botFlag, company, updateDate)
+	return user.NewUser(userIdentifier, emailId, email, userName, botFlag, company, updateDate)
 }
 
 func TestHandleJwt(t *testing.T) {
@@ -61,7 +61,7 @@ func TestHandleJwt(t *testing.T) {
 	}
 
 	assert.Equal(t, issuer, authentic.Issuer)
-	assert.Equal(t, userExposeId, authentic.Subject)
+	assert.Equal(t, userIdentifier, authentic.Subject)
 	assert.Equal(t, len(audience), len(authentic.Audience))
 	assert.Equal(t, issuer, authentic.Audience[0])
 	assert.Equal(t, application, authentic.Audience[1])
@@ -70,14 +70,14 @@ func TestHandleJwt(t *testing.T) {
 	assert.Equal(t, issuedAt, authentic.IssuedAt)
 	assert.Equal(t, id, authentic.ID)
 
-	assert.Equal(t, string(userExposeId), authentic.User.ExposeId)
+	assert.Equal(t, string(userIdentifier), authentic.User.Identifier)
 	assert.Equal(t, string(emailId), authentic.User.ExposeEmailId)
 	assert.Equal(t, string(email), *authentic.User.Email)
 	assert.Equal(t, string(userName), authentic.User.Name)
 	assert.Equal(t, botFlag, authentic.User.BotFlag)
 	assert.Equal(t, updateDate, authentic.User.UpdateDate)
 
-	assert.Equal(t, string(companyExposeId), authentic.User.CompanyRole.Company.ExposeId)
+	assert.Equal(t, string(companyIdentifier), authentic.User.CompanyRole.Company.Identifier)
 	assert.Equal(t, string(companyName), authentic.User.CompanyRole.Company.Name)
 	assert.Equal(t, string(companyRole), authentic.User.CompanyRole.Roles[0].Label)
 	assert.Equal(t, string(companyRoleName), authentic.User.CompanyRole.Roles[0].Name)
@@ -93,7 +93,7 @@ func TestHandleJwt(t *testing.T) {
 	t.Logf("authentic.ID: %s", authentic.ID)
 
 	t.Logf("authentic.User: %+v", authentic.User)
-	t.Logf("authentic.User.ExposeId: %s", authentic.User.ExposeId)
+	t.Logf("authentic.User.Identifier: %s", authentic.User.Identifier)
 	t.Logf("authentic.User.ExposeEmailId: %s", authentic.User.ExposeEmailId)
 	t.Logf("authentic.User.Email: %s", *authentic.User.Email)
 	t.Logf("authentic.User.Name: %s", authentic.User.Name)
@@ -101,7 +101,7 @@ func TestHandleJwt(t *testing.T) {
 	t.Logf("authentic.User.UpdateDate: %t", authentic.User.UpdateDate)
 
 	t.Logf("authentic.User.CompanyRole.Company: %+v", authentic.User.CompanyRole)
-	t.Logf("authentic.User.CompanyRole.Company.ExposeId: %s", authentic.User.CompanyRole.Company.ExposeId)
+	t.Logf("authentic.User.CompanyRole.Company.Identifier: %s", authentic.User.CompanyRole.Company.Identifier)
 	t.Logf("authentic.User.CompanyRole.Company.Name: %s", authentic.User.CompanyRole.Company.Name)
 	t.Logf("authentic.User.CompanyRole.Roles[0].Label: %s", authentic.User.CompanyRole.Roles[0].Label)
 	t.Logf("authentic.User.CompanyRole.Roles[0].Name: %s", authentic.User.CompanyRole.Roles[0].Name)

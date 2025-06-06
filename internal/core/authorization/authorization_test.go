@@ -11,22 +11,22 @@ import (
 )
 
 func getAuthentic(role user.Role) *user.Authentic {
-	var companyExposeId, _ = text.NewExposeId("CP-TESTES")
+	var companyIdentifier, _ = text.NewIdentifier("CP-TESTES")
 	var companyName, _ = text.NewName("TestCompany")
-	var company = user.NewCompany(companyExposeId, companyName)
+	var company = user.NewCompany(companyIdentifier, companyName)
 
 	var roles = []user.Roles{role}
 
 	var companyRole = user.NewCompanyRole(company, roles)
 
-	var userExposeId = text.NewExposeId("TestExposeId")
+	var userIdentifier = text.NewIdentifier("TestIdentifier")
 	var emailId = text.NewEmail("test@gmail.com")
 	var email = text.NewEmail("test_2@gmail.com")
 	var userName = text.NewName("TestName")
 	var botFlag = false
 	var updateDate = time.Now()
 
-	var user = user.NewUser(userExposeId, emailId, email, userName, botFlag, companyRole, updateDate)
+	var user = user.NewUser(userIdentifier, emailId, email, userName, botFlag, companyRole, updateDate)
 
 	var issuer = "issuer_id"
 	var subject = "subject_id"
@@ -42,14 +42,14 @@ func getAuthentic(role user.Role) *user.Authentic {
 }
 
 func getAuthenticRoleLess() *user.Authentic {
-	var userExposeId = text.NewExposeId("TestExposeId")
+	var userIdentifier = text.NewIdentifier("TestIdentifier")
 	var emailId = text.NewEmail("test@gmail.com")
 	var email = text.NewEmail("test_2@gmail.com")
 	var userName = text.NewName("TestName")
 	var botFlag = false
 	var updateDate = time.Now()
 
-	var user = user.NewUser(userExposeId, emailId, email, userName, botFlag, nil, updateDate)
+	var user = user.NewUser(userIdentifier, emailId, email, userName, botFlag, nil, updateDate)
 
 	var issuer = "issuer_id"
 	var subject = "subject_id"
@@ -83,7 +83,7 @@ func TestAuthorizeSuccess(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	t.Logf("Authorization successful for user: %s", authentic.User.ExposeId)
+	t.Logf("Authorization successful for user: %s", authentic.User.Identifier)
 }
 
 func TestAuthorizeFailure(t *testing.T) {
@@ -109,7 +109,7 @@ func TestAuthorizeFailure(t *testing.T) {
 		return
 	}
 
-	t.Logf("Authorization failed for user: %s, error: %s", authentic.User.ExposeId, err.Error())
+	t.Logf("Authorization failed for user: %s, error: %s", authentic.User.Identifier, err.Error())
 }
 
 func TestAuthorizeError(t *testing.T) {
@@ -135,7 +135,7 @@ func TestAuthorizeError(t *testing.T) {
 		return
 	}
 
-	t.Logf("Authorization failed for user: %s, error: %s", authentic.User.ExposeId, err.Error())
+	t.Logf("Authorization failed for user: %s, error: %s", authentic.User.Identifier, err.Error())
 }
 
 func TestGetPriorityRolePermission(t *testing.T) {
@@ -156,7 +156,7 @@ func TestGetPriorityRolePermission(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "MANAGER", string(permission.Label))
 
-	t.Logf("Priority role permission for user: %s is: %s", authentic.User.ExposeId, permission.Label.Value)
+	t.Logf("Priority role permission for user: %s is: %s", authentic.User.Identifier, permission.Label.Value)
 }
 
 func TestGetPriorityRolePermissionAnonymous(t *testing.T) {
@@ -172,7 +172,7 @@ func TestGetPriorityRolePermissionAnonymous(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "ANONYMOUS", string(permission.Label))
 
-	t.Logf("Priority role permission for user: %s is: %s", authentic.User.ExposeId, permission.Label.Value)
+	t.Logf("Priority role permission for user: %s is: %s", authentic.User.Identifier, permission.Label.Value)
 }
 
 func TestGetPriorityRolePermissionRoleLess(t *testing.T) {
@@ -190,7 +190,7 @@ func TestGetPriorityRolePermissionRoleLess(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "ROLE_LESS", string(permission.Label))
 
-	t.Logf("Priority role permission for user: %s is: %s", authentic.User.ExposeId, permission.Label.Value)
+	t.Logf("Priority role permission for user: %s is: %s", authentic.User.Identifier, permission.Label.Value)
 }
 
 func TestGetPriorityRolePermissionNil(t *testing.T) {
@@ -214,5 +214,5 @@ func TestGetPriorityRolePermissionNil(t *testing.T) {
 		return
 	}
 
-	t.Logf("Authorization failed for user: %s, error: %s", authentic.User.ExposeId, err.Error())
+	t.Logf("Authorization failed for user: %s, error: %s", authentic.User.Identifier, err.Error())
 }

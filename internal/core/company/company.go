@@ -6,7 +6,7 @@ import (
 	user "github.com/motojouya/geezer_auth/pkg/core/user"
 )
 
-const CompanyExposeIdPrefix = "CP-"
+const CompanyIdentifierPrefix = "CP-"
 
 type UnsavedCompany struct {
 	user.Company
@@ -18,31 +18,31 @@ type Company struct {
 	UnsavedCompany
 }
 
-func CreateCompanyExposeId(random string) (text.ExposeId, error) {
-	return text.CreateExposeId(CompanyExposeIdPrefix, random)
+func CreateCompanyIdentifier(random string) (text.Identifier, error) {
+	return text.CreateIdentifier(CompanyIdentifierPrefix, random)
 }
 
 func CreateCompany(
-	exposeId text.ExposeId,
+	identifier text.Identifier,
 	name text.Name,
 	registeredDate time.Time
 ) UnsavedCompany {
 	return UnsavedCompany{
-		user.Company:   user.NewCompany(exposeId, name)
+		user.Company:   user.NewCompany(identifier, name)
 		RegisteredDate: registeredDate,
 	}
 }
 
 func NewCompany(
 	persistKey uint,
-	exposeId text.ExposeId,
+	identifier text.Identifier,
 	name text.Name,
 	registeredDate time.Time
 ) Company {
 	return Company{
 		PersistKey:     persistKey,
 		UnsavedCompany: UnsavedCompany{
-			user.Company:    user.NewCompany(exposeId, name)
+			user.Company:    user.NewCompany(identifier, name)
 			RegisteredDate: registeredDate,
 		},
 	}

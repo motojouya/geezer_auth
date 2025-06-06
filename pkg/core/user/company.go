@@ -5,13 +5,13 @@ import (
 )
 
 type Company struct {
-	ExposeId text.ExposeId
+	Identifier text.Identifier
 	Name     text.Name
 }
 
-func NewCompany(exposeId text.ExposeId, name text.Name) Company {
+func NewCompany(identifier text.Identifier, name text.Name) Company {
 	return Company{
-		ExposeId: exposeId,
+		Identifier: identifier,
 		Name:     name,
 	}
 }

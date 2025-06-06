@@ -10,20 +10,20 @@ import (
 	"time"
 )
 
-func getUser(exposeId text.ExposeId, updateDate time.Time) user.User {
+func getUser(identifier text.Identifier, updateDate time.Time) user.User {
 	var userId = 1
 	var emailId, _ = text.NewEmail("test@gmail.com")
 	var name, _ = text.NewName("TestName")
 	var botFlag = false
 	var registeredDate = time.Now()
 
-	return user.NewUser(userId, exposeId, emailId, name, botFlag, registeredDate, updateDate)
+	return user.NewUser(userId, identifier, emailId, name, botFlag, registeredDate, updateDate)
 }
 
 func TestCreateUserAccessToken(t *testing.T) {
-	var exposeId, _ = text.NewExposeId("TestExposeId")
+	var identifier, _ = text.NewIdentifier("TestIdentifier")
 	var updateDate = time.Now()
-	var user = getUser(exposeId, updateDate)
+	var user = getUser(identifier, updateDate)
 
 	var accessToken, _ = text.NewJwtToken("test.jwt.token")
 	var registeredDate = time.Now()
@@ -31,14 +31,14 @@ func TestCreateUserAccessToken(t *testing.T) {
 
 	var userAccessToken = user.CreateUserAccessToken(user, accessToken, registeredDate, &expireDate)
 
-	assert.Equal(t, string(exposeId), string(userAccessToken.User.ExposeId))
+	assert.Equal(t, string(identifier), string(userAccessToken.User.Identifier))
 	assert.Equal(t, string(accessToken), userAccessToken.User.BotFlag)
 	assert.Equal(t, updateDate, userAccessToken.sourceUpdateDate)
 	assert.Equal(t, registeredDate, userAccessToken.RegisteredDate)
 	assert.Equal(t, expireDate, userAccessToken.ExpireDate)
 
 	t.Logf("userAccessToken: %+v", userAccessToken)
-	t.Logf("userAccessToken.User.ExposeId: %s", userAccessToken.User.ExposeId)
+	t.Logf("userAccessToken.User.Identifier: %s", userAccessToken.User.Identifier)
 	t.Logf("userAccessToken.AccessToken: %s", userAccessToken.AccessToken)
 	t.Logf("userAccessToken.SourceUpdateDate: %s", userAccessToken.SourceUpdateDate)
 	t.Logf("userAccessToken.RegisteredDate: %s", userAccessToken.RegisteredDate)
@@ -46,9 +46,9 @@ func TestCreateUserAccessToken(t *testing.T) {
 }
 
 func TestNewUserAccessToken(t *testing.T) {
-	var exposeId, _ = text.NewExposeId("TestExposeId")
+	var identifier, _ = text.NewIdentifier("TestIdentifier")
 	var updateDate = time.Now()
-	var user = getUser(exposeId, updateDate)
+	var user = getUser(identifier, updateDate)
 
 	var accessToken, _ = text.NewJwtToken("test.jwt.token")
 	var sourceUpdateDate = time.Now()
@@ -58,7 +58,7 @@ func TestNewUserAccessToken(t *testing.T) {
 	var userAccessToken = user.NewUserAccessToken(1, user, accessToken, sourceUpdateDate, registeredDate, &expireDate)
 
 	assert.Equal(t, 1, userAccessToken.UserAccessTokenId)
-	assert.Equal(t, string(exposeId), string(userAccessToken.User.ExposeId))
+	assert.Equal(t, string(identifier), string(userAccessToken.User.Identifier))
 	assert.Equal(t, string(accessToken), string(userAccessToken.AccessToken))
 	assert.Equal(t, sourceUpdateDate, userAccessToken.SourceUpdateDate)
 	assert.Equal(t, registeredDate, userAccessToken.RegisteredDate)
@@ -66,7 +66,7 @@ func TestNewUserAccessToken(t *testing.T) {
 
 	t.Logf("userAccessToken: %+v", userAccessToken)
 	t.Logf("userAccessToken.UserAccessTokenId: %d", userAccessToken.UserAccessTokenId)
-	t.Logf("userAccessToken.User.ExposeId: %s", userAccessToken.User.ExposeId)
+	t.Logf("userAccessToken.User.Identifier: %s", userAccessToken.User.Identifier)
 	t.Logf("userAccessToken.AccessToken: %s", userAccessToken.AccessToken)
 	t.Logf("userAccessToken.SourceUpdateDate: %s", userAccessToken.SourceUpdateDate)
 	t.Logf("userAccessToken.RegisteredDate: %s", userAccessToken.RegisteredDate)

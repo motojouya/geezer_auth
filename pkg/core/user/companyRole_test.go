@@ -9,9 +9,9 @@ import (
 )
 
 func TestNewCompanyRole(t *testing.T) {
-	var companyExposeId, _ = text.NewExposeId("CP-TESTES")
+	var companyIdentifier, _ = text.NewIdentifier("CP-TESTES")
 	var companyName, _ = text.NewName("TestCompany")
-	var company = user.NewCompany(companyExposeId, companyName)
+	var company = user.NewCompany(companyIdentifier, companyName)
 
 	var roleLabel, _ = text.NewLabel("TestRole")
 	var roleName, _ = text.NewName("TestRoleName")
@@ -20,11 +20,11 @@ func TestNewCompanyRole(t *testing.T) {
 
 	var companyRole = user.NewCompanyRole(company, roles)
 
-	assert.Equal(t, string(companyExposeId), string(companyRole.Company.ExposeId))
+	assert.Equal(t, string(companyIdentifier), string(companyRole.Company.Identifier))
 	assert.Equal(t, len(roles), len(companyRole.Roles))
 	assert.Equal(t, string(roleLabel), string(companyRole.Roles[0].Label))
 
 	t.Logf("companyRole: %+v", companyRole)
-	t.Logf("companyRole.Company.ExposeId: %s", string(companyRole.Company.ExposeId))
+	t.Logf("companyRole.Company.Identifier: %s", string(companyRole.Company.Identifier))
 	t.Logf("companyRole.Role[0].Label: %s", string(companyRole.Roles[0].Label))
 }

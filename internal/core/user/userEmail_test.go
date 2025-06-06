@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func getUser(exposeId pkgText.ExposeId) user.User {
+func getUser(identifier pkgText.Identifier) user.User {
 	var userId = 1
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
 	var name, _ = pkgText.NewName("TestName")
@@ -18,12 +18,12 @@ func getUser(exposeId pkgText.ExposeId) user.User {
 	var registeredDate = time.Now()
 	var updateDate = time.Now()
 
-	return user.NewUser(userId, exposeId, emailId, name, botFlag, registeredDate, updateDate)
+	return user.NewUser(userId, identifier, emailId, name, botFlag, registeredDate, updateDate)
 }
 
 func TestCreateUserEmail(t *testing.T) {
-	var userExposeId, _ = pkgText.NewExposeId("TestExposeId")
-	var user = getUser(userExposeId)
+	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
+	var user = getUser(userIdentifier)
 
 	var email = pkgText.NewEmail("test@google.com")
 	var verifyToken, _ = text.NewToken("TestVerifyToken")
@@ -31,7 +31,7 @@ func TestCreateUserEmail(t *testing.T) {
 
 	var userEmail = user.CreateUserEmail(user, email, verifyToken, registerDate)
 
-	assert.Equal(t, string(userExposeId), string(userEmail.User.ExposeId))
+	assert.Equal(t, string(userIdentifier), string(userEmail.User.Identifier))
 	assert.Equal(t, string(email), string(userEmail.Email))
 	assert.Equal(t, string(verifyToken), string(userEmail.VerifyToken))
 	assert.Equal(t, registerDate, userEmail.RegisteredDate)
@@ -39,7 +39,7 @@ func TestCreateUserEmail(t *testing.T) {
 	assert.Nil(t, *userEmail.ExpireDate)
 
 	t.Logf("userEmail: %+v", userEmail)
-	t.Logf("userEmail.User.ExposeId: %s", userEmail.User.ExposeId)
+	t.Logf("userEmail.User.Identifier: %s", userEmail.User.Identifier)
 	t.Logf("userEmail.Email: %s", userEmail.Email)
 	t.Logf("userEmail.VerifyToken: %s", userEmail.VerifyToken)
 	t.Logf("userEmail.RegisteredDate: %s", userEmail.RegisteredDate)
@@ -48,8 +48,8 @@ func TestCreateUserEmail(t *testing.T) {
 }
 
 func TestNewUserEmail(t *testing.T) {
-	var userExposeId, _ = pkgText.NewExposeId("TestExposeId")
-	var user = getUser(userExposeId)
+	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
+	var user = getUser(userIdentifier)
 
 	var email = pkgText.NewEmail("test@google.com")
 	var verifyToken, _ = text.NewToken("TestVerifyToken")
@@ -60,7 +60,7 @@ func TestNewUserEmail(t *testing.T) {
 	var userEmail = user.NewUserEmail(1, user, email, verifyToken, registerDate, &verifyDate, &expireDate)
 
 	assert.Equal(t, 1, userEmail.UserEmailID)
-	assert.Equal(t, string(userExposeId), string(userEmail.User.ExposeId))
+	assert.Equal(t, string(userIdentifier), string(userEmail.User.Identifier))
 	assert.Equal(t, string(email), string(userEmail.Email))
 	assert.Equal(t, string(verifyToken), string(userEmail.VerifyToken))
 	assert.Equal(t, registerDate, userEmail.RegisteredDate)
@@ -68,7 +68,7 @@ func TestNewUserEmail(t *testing.T) {
 	assert.Equal(t, expireDate, *userEmail.ExpireDate)
 
 	t.Logf("userEmail: %+v", userEmail)
-	t.Logf("userEmail.User.ExposeId: %s", userEmail.User.ExposeId)
+	t.Logf("userEmail.User.Identifier: %s", userEmail.User.Identifier)
 	t.Logf("userEmail.Email: %s", userEmail.Email)
 	t.Logf("userEmail.VerifyToken: %s", userEmail.VerifyToken)
 	t.Logf("userEmail.RegisteredDate: %s", userEmail.RegisteredDate)

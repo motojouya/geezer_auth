@@ -8,26 +8,26 @@ import (
 	"time"
 )
 
-func TestCreateUserExposeId(t *testing.T) {
-	var exposeId, err = company.CreateUserExposeId("TESTES")
+func TestCreateUserIdentifier(t *testing.T) {
+	var identifier, err = company.CreateUserIdentifier("TESTES")
 
 	assert.Nil(t, err)
-	assert.NotEmpty(t, exposeId)
-	assert.Equal(t, "US-TESTES", string(exposeId))
+	assert.NotEmpty(t, identifier)
+	assert.Equal(t, "US-TESTES", string(identifier))
 
-	t.Logf("exposeId: %s", exposeId)
+	t.Logf("identifier: %s", identifier)
 }
 
 func TestCreateUser(t *testing.T) {
-	var exposeId, _ = text.NewExposeId("TestExposeId")
+	var identifier, _ = text.NewIdentifier("TestIdentifier")
 	var emailId, _ = text.NewEmail("test@gmail.com")
 	var name, _ = text.NewName("TestName")
 	var botFlag = false
 	var registeredDate = time.Now()
 
-	var userObj = user.CreateUser(exposeId, emailId, name, botFlag, registeredDate)
+	var userObj = user.CreateUser(identifier, emailId, name, botFlag, registeredDate)
 
-	assert.Equal(t, string(exposeId), string(userObj.ExposeId))
+	assert.Equal(t, string(identifier), string(userObj.Identifier))
 	assert.Equal(t, string(emailId), string(userObj.ExposeEmailId))
 	assert.Equal(t, string(name), string(userObj.Name))
 	assert.Equal(t, botFlag, userObj.BotFlag)
@@ -35,7 +35,7 @@ func TestCreateUser(t *testing.T) {
 	assert.Equal(t, registeredDate, userObj.UpdateDate)
 
 	t.Logf("user: %+v", userObj)
-	t.Logf("user.ExposeId: %s", userObj.ExposeId)
+	t.Logf("user.Identifier: %s", userObj.Identifier)
 	t.Logf("user.ExposeEmailId: %s", userObj.ExposeEmailId)
 	t.Logf("user.Name: %s", userObj.Name)
 	t.Logf("user.BotFlag: %t", userObj.BotFlag)
@@ -45,17 +45,17 @@ func TestCreateUser(t *testing.T) {
 
 func TestNewUser(t *testing.T) {
 	var userId = 1
-	var exposeId, _ = text.NewExposeId("TestExposeId")
+	var identifier, _ = text.NewIdentifier("TestIdentifier")
 	var emailId, _ = text.NewEmail("test@gmail.com")
 	var name, _ = text.NewName("TestName")
 	var botFlag = false
 	var registeredDate = time.Now()
 	var updateDate = time.Now()
 
-	var userObj = user.NewUser(userId, exposeId, emailId, name, botFlag, registeredDate, updateDate)
+	var userObj = user.NewUser(userId, identifier, emailId, name, botFlag, registeredDate, updateDate)
 
 	assert.Equal(t, userId, userObj.UserId)
-	assert.Equal(t, string(exposeId), string(userObj.ExposeId))
+	assert.Equal(t, string(identifier), string(userObj.Identifier))
 	assert.Equal(t, string(emailId), string(userObj.ExposeEmailId))
 	assert.Equal(t, string(name), string(userObj.Name))
 	assert.Equal(t, botFlag, userObj.BotFlag)
@@ -64,7 +64,7 @@ func TestNewUser(t *testing.T) {
 
 	t.Logf("user: %+v", userObj)
 	t.Logf("user.UserId: %d", userObj.UserId)
-	t.Logf("user.ExposeId: %s", userObj.ExposeId)
+	t.Logf("user.Identifier: %s", userObj.Identifier)
 	t.Logf("user.ExposeEmailId: %s", userObj.ExposeEmailId)
 	t.Logf("user.Name: %s", userObj.Name)
 	t.Logf("user.BotFlag: %t", userObj.BotFlag)

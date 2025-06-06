@@ -9,15 +9,15 @@ import (
 )
 
 func TestNewCompany(t *testing.T) {
-	var exposeId, _ = text.NewExposeId("CP-TESTES")
-	var name, _ = text.NewExposeId("TestCompany")
+	var identifier, _ = text.NewIdentifier("CP-TESTES")
+	var name, _ = text.NewIdentifier("TestCompany")
 
-	var company = user.NewCompany(exposeId, name, role, roleName)
+	var company = user.NewCompany(identifier, name, role, roleName)
 
 	assert.Equal(t, string(name), string(company.Name))
-	assert.Equal(t, string(exposeId), string(company.ExposeId))
+	assert.Equal(t, string(identifier), string(company.Identifier))
 
 	t.Logf("company: %+v", company)
-	t.Logf("company.ExposeId: %s", string(company.ExposeId))
+	t.Logf("company.Identifier: %s", string(company.Identifier))
 	t.Logf("company.Name: %s", string(company.Name))
 }

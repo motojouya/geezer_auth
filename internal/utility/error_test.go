@@ -28,16 +28,16 @@ func TestNewRangeError(t *testing.T) {
 }
 
 func TestNewAuthenticationError(t *testing.T) {
-	var userExposeId = "TestUserExposeId"
+	var userIdentifier = "TestUserIdentifier"
 	var message = "This is a test system config error"
 
-	var err = utility.NewAuthenticationError(userExposeId, message)
+	var err = utility.NewAuthenticationError(userIdentifier, message)
 
-	assert.Equal(t, userExposeId, err.UserExposeId)
+	assert.Equal(t, userIdentifier, err.UserIdentifier)
 	assert.Equal(t, message, err.Unwrap().Error())
 	assert.Equal(t, message + " (name: " + name + ")", err.Error())
 	assert.Equal(t, 500, err.HttpStatus())
 
 	t.Logf("error: %s", err.Error())
-	t.Logf("error.Name: %s", err.UserExposeId)
+	t.Logf("error.Name: %s", err.UserIdentifier)
 }

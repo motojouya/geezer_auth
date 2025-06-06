@@ -41,19 +41,19 @@ func (e RangeError) HttpStatus() uint {
  * AuthenticationError
  */
 type AuthenticationError struct {
-	UserExposeId string
+	UserIdentifier string
 	error
 }
 
-func NewAuthenticationError(userExposeId string, message string) *AuthenticationError {
+func NewAuthenticationError(userIdentifier string, message string) *AuthenticationError {
 	return &AuthenticationError{
-		UserExposeId: userExposeId,
+		UserIdentifier: userIdentifier,
 		error:        errors.New(message),
 	}
 }
 
 func (e AuthenticationError) Error() string {
-	return e.error.Error() + " (userExposeId: " + e.UserExposeId + ")"
+	return e.error.Error() + " (userIdentifier: " + e.UserIdentifier + ")"
 }
 
 func (e AuthenticationError) Unwrap() error {

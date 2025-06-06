@@ -9,10 +9,10 @@ import (
 	"github.com/google/uuid"
 )
 
-func getUser(userExposeIdStr string) *user.User {
-	var companyExposeId, _ = text.NewExposeId("CP-TESTES")
+func getUser(userIdentifierStr string) *user.User {
+	var companyIdentifier, _ = text.NewIdentifier("CP-TESTES")
 	var companyName, _ = text.NewName("TestCompany")
-	var company = user.NewCompany(companyExposeId, companyName)
+	var company = user.NewCompany(companyIdentifier, companyName)
 
 	var roleLabel, _ = text.NewLabel("TestRole")
 	var roleName, _ = text.NewName("TestRoleName")
@@ -21,19 +21,19 @@ func getUser(userExposeIdStr string) *user.User {
 
 	var companyRole = user.NewCompanyRole(company, roles)
 
-	var userExposeId = text.NewExposeId(userExposeIdStr)
+	var userIdentifier = text.NewIdentifier(userIdentifierStr)
 	var emailId = text.NewEmail("test@gmail.com")
 	var email = text.NewEmail("test_2@gmail.com")
 	var userName = text.NewName("TestName")
 	var botFlag = false
 	var updateDate = time.Now()
 
-	return user.NewUser(userExposeId, emailId, email, userName, botFlag, companyRole, updateDate)
+	return user.NewUser(userIdentifier, emailId, email, userName, botFlag, companyRole, updateDate)
 }
 
 func TestNewAuthentic(t *testing.T) {
-	var userExposeId = "TestExposeId"
-	var user = getUser(userExposeId)
+	var userIdentifier = "TestIdentifier"
+	var user = getUser(userIdentifier)
 
 	var issuer = "issuer_id"
 	var subject = "subject_id"
@@ -56,7 +56,7 @@ func TestNewAuthentic(t *testing.T) {
 	assert.Equal(t, notBefore, authentic.NotBefore)
 	assert.Equal(t, issuedAt, authentic.IssuedAt)
 	assert.Equal(t, id.String(), authentic.ID)
-	assert.Equal(t, userExposeId, string(authentic.User.ExposeId))
+	assert.Equal(t, userIdentifier, string(authentic.User.Identifier))
 
 	t.Logf("authentic: %+v", authentic)
 	t.Logf("authentic.Issuer: %s", authentic.Issuer)
@@ -68,12 +68,12 @@ func TestNewAuthentic(t *testing.T) {
 	t.Logf("authentic.ID: %s", authentic.ID)
 
 	t.Logf("authentic.User: %+v", authentic.User)
-	t.Logf("authentic.User.ExposeId: %s", authentic.User.ExposeId)
+	t.Logf("authentic.User.Identifier: %s", authentic.User.Identifier)
 }
 
 func TestCreateAuthentic(t *testing.T) {
-	var userExposeId = "TestExposeId"
-	var user = getUser(userExposeId)
+	var userIdentifier = "TestIdentifier"
+	var user = getUser(userIdentifier)
 
 	var issuer = "issuer_id"
 	var aud01 = "aud1"
@@ -88,7 +88,7 @@ func TestCreateAuthentic(t *testing.T) {
 	var expiresAt = issuedAt.Add(validityPeriodMinutes * time.Minute)
 
 	assert.Equal(t, issuer, authentic.Issuer)
-	assert.Equal(t, userExposeId, authentic.Subject)
+	assert.Equal(t, userIdentifier, authentic.Subject)
 	assert.Equal(t, len(audience), len(authentic.Audience))
 	assert.Equal(t, aud01, authentic.Audience[0])
 	assert.Equal(t, aud02, authentic.Audience[1])
@@ -96,7 +96,7 @@ func TestCreateAuthentic(t *testing.T) {
 	assert.Equal(t, issuedAt, authentic.NotBefore)
 	assert.Equal(t, issuedAt, authentic.IssuedAt)
 	assert.Equal(t, id.String(), authentic.ID)
-	assert.Equal(t, userExposeId, string(authentic.User.ExposeId))
+	assert.Equal(t, userIdentifier, string(authentic.User.Identifier))
 
 	t.Logf("authentic: %+v", authentic)
 	t.Logf("authentic.Issuer: %s", authentic.Issuer)
@@ -108,5 +108,5 @@ func TestCreateAuthentic(t *testing.T) {
 	t.Logf("authentic.ID: %s", authentic.ID)
 
 	t.Logf("authentic.User: %+v", authentic.User)
-	t.Logf("authentic.User.ExposeId: %s", authentic.User.ExposeId)
+	t.Logf("authentic.User.Identifier: %s", authentic.User.Identifier)
 }
