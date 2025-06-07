@@ -6,12 +6,12 @@ import (
 
 type Company struct {
 	Identifier text.Identifier
-	Name     text.Name
+	Name       text.Name
 }
 
 func NewCompany(identifier text.Identifier, name text.Name) Company {
 	return Company{
 		Identifier: identifier,
-		Name:     name,
+		Name:       name,
 	}
 }

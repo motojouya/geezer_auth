@@ -1,9 +1,9 @@
 package text
 
 import (
-	"time"
-	"strings"
 	"regexp"
+	"strings"
+	"time"
 )
 
 type Email string

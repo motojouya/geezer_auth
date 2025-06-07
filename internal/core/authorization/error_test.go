@@ -17,7 +17,7 @@ func TestNewAuthorizationError(t *testing.T) {
 	assert.Equal(t, role, err.Role)
 	assert.Equal(t, action, err.Action)
 	assert.Equal(t, message, err.Unwrap().Error())
-	assert.Equal(t, message + " (role: " + role + ", action: " + action + ")", err.Error())
+	assert.Equal(t, message+" (role: "+role+", action: "+action+")", err.Error())
 	assert.Equal(t, 403, err.HttpStatus())
 
 	t.Logf("error: %s", err.Error())
@@ -33,7 +33,7 @@ func TestNewTokenExpiredError(t *testing.T) {
 
 	assert.Equal(t, expiresAt, err.ExpiresAt)
 	assert.Equal(t, message, err.Unwrap().Error())
-	assert.Equal(t, message + " (expires at: " + expiresAt + ")", err.Error())
+	assert.Equal(t, message+" (expires at: "+expiresAt+")", err.Error())
 	assert.Equal(t, 403, err.HttpStatus())
 
 	t.Logf("error: %s", err.Error())

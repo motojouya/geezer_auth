@@ -2,10 +2,10 @@ package authorization
 
 import (
 	"github.com/motojouya/geezer_auth/internal/model/role"
-	pkgUtility "github.com/motojouya/geezer_auth/pkg/utility"
 	utility "github.com/motojouya/geezer_auth/internal/utility"
 	text "github.com/motojouya/geezer_auth/pkg/model/text"
 	user "github.com/motojouya/geezer_auth/pkg/model/user"
+	pkgUtility "github.com/motojouya/geezer_auth/pkg/utility"
 	"slices"
 )
 
@@ -44,7 +44,7 @@ func GetPriorityRolePermission(permissions []role.RolePermission, authentic *use
 		var p = permissionMap[roleLabel]
 		// var p, ok = utility.Find(permissions, role.PermissionIs(r.Label)) // こうも書けるが、パフォーマンス的に悪い
 		if p == nil {
-			return nil, pkgUtility.NewNilError("role_permission." + roleLabel, "RolePermission not found")
+			return nil, pkgUtility.NewNilError("role_permission."+roleLabel, "RolePermission not found")
 		}
 		if permission == nil || p.Priority > permission.Priority {
 			permission = p

@@ -10,6 +10,6 @@ type serviceLoaderImpl struct {
 
 func GetLoader() ServiceLoader {
 	return &ServiceLoaderImpl{
-		jwtParserLoaderImpl:    &jwtParserLoaderImpl{},
+		jwtParserLoaderImpl: &jwtParserLoaderImpl{},
 	}
 }

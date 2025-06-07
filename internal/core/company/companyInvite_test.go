@@ -1,11 +1,11 @@
 package company_test
 
 import (
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/google/uuid"
 	"github.com/motojouya/geezer_auth/internal/core/company"
 	"github.com/motojouya/geezer_auth/internal/core/role"
 	"github.com/motojouya/geezer_auth/internal/core/text"
-	"github.com/google/uuid"
+	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"

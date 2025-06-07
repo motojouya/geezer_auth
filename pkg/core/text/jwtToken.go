@@ -15,14 +15,14 @@ func NewJwtToken(token string) JwtToken {
 // // expireの基準日がいるので、日付が必要。オプションで期間の調整ができてもいいかもしれない
 // func PublishAccessToken(jwtHandler JwtHandler, user User, tokens []AccessToken, currentTime time.Time) (AccessToken, error) {
 // 	tokenString, err := jwtSource.GenerateAccessToken(user, currentTime)
-// 
+//
 // 	// TODO
 // 	// 1. tokensをparseして、user.UpdateDateを取得する
 // 	// 2. UpdateDateがuser.UpdateDateと違う場合は、GenerateAccessTokenを実行する。一致を見るのに、誤差は許容したほうがいいかもしれない
 // 	// 3. 同じ場合でも、expireDateが過ぎている場合は、GenerateAccessTokenを実行する
 // 	// 4. expireDateが過ぎていない場合でも、同一のUpdateDateのtokenでexpireDateがきれていないものが1つだけならば、GenerateAccessTokenを実行する
 // 	// 5. そうでない場合は、tokensの中で最も新しいものをreturn
-// 
+//
 // 	return AccessToken{
 // 		token: tokenString,
 // 		expireDate: expireDate,

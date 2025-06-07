@@ -20,7 +20,7 @@ func TestNewLengthError(t *testing.T) {
 	assert.Equal(t, min, *err.min)
 	assert.Equal(t, max, *err.max)
 	assert.Equal(t, message, err.Unwrap().Error())
-	assert.Equal(t, message + " (name: " + name + ", value: " + value + ", min: 5, max: 10)", err.Error())
+	assert.Equal(t, message+" (name: "+name+", value: "+value+", min: 5, max: 10)", err.Error())
 
 	t.Logf("error: %s", err.Error())
 	t.Logf("error.Name: %s", err.Name)
@@ -41,7 +41,7 @@ func TestNewCharacterError(t *testing.T) {
 	assert.Equal(t, chars, err.Chars)
 	assert.Equal(t, value, *err.Value)
 	assert.Equal(t, message, err.Unwrap().Error())
-	assert.Equal(t, message + " (name: " + name + ", chars: " + chars + ", value: " + value + ")", err.Error())
+	assert.Equal(t, message+" (name: "+name+", chars: "+chars+", value: "+value+")", err.Error())
 
 	t.Logf("error: %s", err.Error())
 	t.Logf("error.Name: %s", err.Name)
@@ -61,7 +61,7 @@ func TestNewFormatError(t *testing.T) {
 	assert.Equal(t, value, *err.Value)
 	assert.Equal(t, format, err.Format)
 	assert.Equal(t, message, err.Unwrap().Error())
-	assert.Equal(t, message + " (name: " + name + ", value: " + value + ", format: " + format + ")", err.Error())
+	assert.Equal(t, message+" (name: "+name+", value: "+value+", format: "+format+")", err.Error())
 
 	t.Logf("error: %s", err.Error())
 	t.Logf("error.Name: %s", err.Name)

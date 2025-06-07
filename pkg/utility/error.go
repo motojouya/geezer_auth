@@ -8,7 +8,7 @@ import (
  * NilError
  */
 type NilError struct {
-	Name  string
+	Name string
 	error
 }
 
@@ -60,12 +60,12 @@ func (e SystemConfigError) HttpStatus() uint {
 
 /*
  * PropertyError
- * 
+ *
  * なんらかの不整合で生じたエラーは、特定の名前空間で処理されるため、その名前空間にたどりつくための経路を知ることができない
  * したがってその経路は呼び出し側で補填する必要があり、その機能を備えたエラー型
  */
 type PropertyError struct {
-	Property string
+	Property   string
 	HttpStatus uint
 	error
 }

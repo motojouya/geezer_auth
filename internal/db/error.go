@@ -19,8 +19,8 @@ func formatKeys(keys map[string]string) string {
  * NotFoundError
  */
 type NotFoundError struct {
-	Table  string
-	keys map[string]string
+	Table string
+	keys  map[string]string
 	error
 }
 
@@ -49,7 +49,7 @@ func (e NotFoundError) HttpStatus() uint {
  */
 type DuplicateError struct {
 	Table string
-	keys map[string]string
+	keys  map[string]string
 	error
 }
 

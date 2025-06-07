@@ -1,8 +1,8 @@
 package text
 
 import (
-	"strings"
 	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
+	"strings"
 )
 
 /*

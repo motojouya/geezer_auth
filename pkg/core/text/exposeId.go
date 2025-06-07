@@ -1,13 +1,13 @@
 package text
 
 import (
-	"time"
-	"strings"
 	"regexp"
+	"strings"
+	"time"
 )
 
 const (
-	IdentifierChar = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	IdentifierChar   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	IdentifierLength = 6
 )
 

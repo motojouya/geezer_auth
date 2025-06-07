@@ -20,7 +20,7 @@ func TestNewRangeError(t *testing.T) {
 	assert.Equal(t, min, err.Min)
 	assert.Equal(t, max, err.Max)
 	assert.Equal(t, message, err.Unwrap().Error())
-	assert.Equal(t, message + " (name: " + name + ", value: " + valu + ", min: " + min + ", max: " + max + ")", err.Error())
+	assert.Equal(t, message+" (name: "+name+", value: "+valu+", min: "+min+", max: "+max+")", err.Error())
 	assert.Equal(t, 400, err.HttpStatus())
 
 	t.Logf("error: %s", err.Error())
@@ -35,7 +35,7 @@ func TestNewAuthenticationError(t *testing.T) {
 
 	assert.Equal(t, userIdentifier, err.UserIdentifier)
 	assert.Equal(t, message, err.Unwrap().Error())
-	assert.Equal(t, message + " (name: " + name + ")", err.Error())
+	assert.Equal(t, message+" (name: "+name+")", err.Error())
 	assert.Equal(t, 500, err.HttpStatus())
 
 	t.Logf("error: %s", err.Error())

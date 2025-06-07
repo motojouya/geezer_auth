@@ -8,20 +8,20 @@ import (
  * RangeError
  */
 type RangeError struct {
-	Name string
+	Name  string
 	Value uint
-	Min uint
-	Max uint
+	Min   uint
+	Max   uint
 	error
 }
 
 func NewRangeError(name string, value uint, min uint, max uint, message string) *LengthError {
 	return &LengthError{
-		Name:   name,
-		Value:  value,
-		Min:    min,
-		Max:    max,
-		error:  errors.New(message),
+		Name:  name,
+		Value: value,
+		Min:   min,
+		Max:   max,
+		error: errors.New(message),
 	}
 }
 
@@ -48,7 +48,7 @@ type AuthenticationError struct {
 func NewAuthenticationError(userIdentifier string, message string) *AuthenticationError {
 	return &AuthenticationError{
 		UserIdentifier: userIdentifier,
-		error:        errors.New(message),
+		error:          errors.New(message),
 	}
 }
 

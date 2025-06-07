@@ -40,7 +40,7 @@ func TestHandleJwt(t *testing.T) {
 	var application = "TestAudience"
 	var audience = []string{issuer, application}
 	var latestSecret = "TestSecretKeyId"
-	var secretMap = map[string]string{latestSecret:"TestSecret"}
+	var secretMap = map[string]string{latestSecret: "TestSecret"}
 	var validityPeriodMinutes = 60
 	var getId = func() (string, error) {
 		return id, nil
@@ -117,7 +117,7 @@ func TestHandleJwtFailureId(t *testing.T) {
 	var application = "TestAudience"
 	var audience = []string{issuer, application}
 	var latestSecret = "TestSecretKeyId"
-	var secretMap = map[string]string{latestSecret:"TestSecret"}
+	var secretMap = map[string]string{latestSecret: "TestSecret"}
 	var validityPeriodMinutes = 60
 	var getId = func() (string, error) {
 		return "", fmt.Error("failed to get id")
@@ -141,7 +141,7 @@ func TestHandleJwtFailureIssuer(t *testing.T) {
 	var application = "TestAudience"
 	var audience = []string{issuer, application}
 	var latestSecret = "TestSecretKeyId"
-	var secretMap = map[string]string{latestSecret:"TestSecret"}
+	var secretMap = map[string]string{latestSecret: "TestSecret"}
 	var validityPeriodMinutes = 60
 	var getId = func() (string, error) {
 		return id, nil
@@ -174,7 +174,7 @@ func TestHandleJwtFailureAudience(t *testing.T) {
 	var application = "TestAudience"
 	var audience = []string{issuer, application}
 	var latestSecret = "TestSecretKeyId"
-	var secretMap = map[string]string{latestSecret:"TestSecret"}
+	var secretMap = map[string]string{latestSecret: "TestSecret"}
 	var validityPeriodMinutes = 60
 	var getId = func() (string, error) {
 		return id, nil
@@ -207,7 +207,7 @@ func TestHandleJwtFailureSecret(t *testing.T) {
 	var application = "TestAudience"
 	var audience = []string{issuer, application}
 	var latestSecret = "TestSecretKeyId"
-	var secretMap = map[string]string{latestSecret:"TestSecret"}
+	var secretMap = map[string]string{latestSecret: "TestSecret"}
 	var validityPeriodMinutes = 60
 	var getId = func() (string, error) {
 		return id, nil
@@ -221,7 +221,7 @@ func TestHandleJwtFailureSecret(t *testing.T) {
 		return
 	}
 
-	var wrongSecretMap = map[string]string{"wrongKey":"TestSecret"}
+	var wrongSecretMap = map[string]string{"wrongKey": "TestSecret"}
 	var parserClient = user.NewJwtParser(issuer, application, latestSecret, wrongSecretMap)
 
 	var token, err = parserClient.Parse(tokenString)

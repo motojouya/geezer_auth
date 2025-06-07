@@ -8,20 +8,20 @@ import (
  * LengthError
  */
 type LengthError struct {
-	Name string
+	Name  string
 	Value string
-	min uint
-	max uint
+	min   uint
+	max   uint
 	error
 }
 
 func NewLengthError(name string, value string, min uint, max uint, message string) *LengthError {
 	return &LengthError{
-		Name:   name,
-		Value:  value,
-		min:    min,
-		max:    max,
-		error:  errors.New(message),
+		Name:  name,
+		Value: value,
+		min:   min,
+		max:   max,
+		error: errors.New(message),
 	}
 }
 
@@ -50,7 +50,7 @@ type CharacterError struct {
 func NewCharacterError(name string, chars string, value string, message string) *CharacterError {
 	return &CharacterError{
 		Name:  name,
-		Chars:  chars,
+		Chars: chars,
 		Value: value,
 		error: errors.New(message),
 	}
@@ -72,9 +72,9 @@ func (e CharacterError) HttpStatus() uint {
  * FormatError
  */
 type FormatError struct {
-	Name  string
+	Name   string
 	Format string
-	Value string
+	Value  string
 	error
 }
 

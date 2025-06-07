@@ -1,8 +1,8 @@
 package authorization
 
 import (
-	"time"
 	"errors"
+	"time"
 )
 
 /*
@@ -16,9 +16,9 @@ type AuthorizationError struct {
 
 func NewAuthorizationError(role, action, message string) *AuthorizationError {
 	return &AuthorizationError{
-		Role:    role,
-		Action:  action,
-		error:   errors.New(message),
+		Role:   role,
+		Action: action,
+		error:  errors.New(message),
 	}
 }
 

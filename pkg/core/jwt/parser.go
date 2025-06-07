@@ -2,8 +2,8 @@ package jwt
 
 import (
 	gojwt "github.com/golang-jwt/jwt/v5"
-	"strings"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
+	"strings"
 )
 
 // TODO middlewareも作ってしまいたい。イメージを掴んで置く
@@ -11,21 +11,21 @@ import (
  * MyselfはAudienceと照合する自サーバの識別情報
  */
 type JwtParsering struct {
-	Issuer       string  `env:"JWT_ISSUER,notEmpty"`
-	Myself       string  `env:"JWT_MYSELF,notEmpty"`
-	LatestKeyId  string  `env:"JWT_LATEST_KEY_ID,notEmpty"`
-	LatestSecret string  `env:"JWT_LATEST_SECRET,notEmpty"`
+	Issuer       string `env:"JWT_ISSUER,notEmpty"`
+	Myself       string `env:"JWT_MYSELF,notEmpty"`
+	LatestKeyId  string `env:"JWT_LATEST_KEY_ID,notEmpty"`
+	LatestSecret string `env:"JWT_LATEST_SECRET,notEmpty"`
 	OldKeyId     string `env:"JWT_OLD_KEY_ID"`
 	OldSecret    string `env:"JWT_OLD_SECRET"`
 }
 
 func NewJwtParsing(
-	issuer       string,
-	myself       string,
-	latestKeyId  string,
+	issuer string,
+	myself string,
+	latestKeyId string,
 	latestSecret string,
-	oldKeyId     string,
-	oldSecret    string,
+	oldKeyId string,
+	oldSecret string,
 ) JwtParsing {
 	return &JwtParsering{
 		Issuer:       issuer,
@@ -38,14 +38,14 @@ func NewJwtParsing(
 }
 
 func (jwtParsering *JwtParsering) getClaims(tokenString string) (*GeezerClaims, error) {
- 	token, err := gojwt.ParseWithClaims(
- 		tokenString,
- 		&GeezerClaims{},
- 		func(token *gojwt.Token) (interface{}, error) {
+	token, err := gojwt.ParseWithClaims(
+		tokenString,
+		&GeezerClaims{},
+		func(token *gojwt.Token) (interface{}, error) {
 			// gojwt.SigningMethodHMAC?
- 			if _, ok := token.Method.(*gojwt.SigningMethodHS256); !ok {
- 				return nil, NewJwtError("header.alg", token.Header["alg"], "Unexpected signing method")
- 			}
+			if _, ok := token.Method.(*gojwt.SigningMethodHS256); !ok {
+				return nil, NewJwtError("header.alg", token.Header["alg"], "Unexpected signing method")
+			}
 
 			if token.Header["kid"] == jwtParsering.LatestKeyId {
 				return []byte(jwtParsering.LatestSecret), nil
@@ -56,8 +56,8 @@ func (jwtParsering *JwtParsering) getClaims(tokenString string) (*GeezerClaims, 
 			}
 
 			return nil, NewJwtError("header.kid", token.Header["kid"], "Secret not found for key")
- 		},
- 	)
+		},
+	)
 
 	if err != nil {
 		return nil, err

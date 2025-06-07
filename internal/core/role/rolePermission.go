@@ -1,8 +1,8 @@
 package role
 
 import (
-	"time"
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
+	"time"
 )
 
 // SelfEditがないと、自身の情報を編集するのがだれでもできるとか、権限で管理ができなくなるので
@@ -39,8 +39,8 @@ func PermissionKey(permission RolePermission) string {
 	return string(permission.RoleLabel)
 }
 
-func PermissionIs(label text.Label) func (permission RolePermission) bool {
-	return func (permission RolePermission) bool {
+func PermissionIs(label text.Label) func(permission RolePermission) bool {
+	return func(permission RolePermission) bool {
 		return string(permission.RoleLabel) == string(label)
 	}
 }

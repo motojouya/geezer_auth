@@ -1,10 +1,10 @@
 package text_test
 
 import (
+	"errors"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"errors"
 )
 
 func TestNewIdentifier(t *testing.T) {

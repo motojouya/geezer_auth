@@ -1,8 +1,8 @@
 package text
 
 import (
-	"time"
 	"strings"
+	"time"
 )
 
 /*

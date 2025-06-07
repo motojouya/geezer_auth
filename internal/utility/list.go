@@ -1,8 +1,8 @@
 package utility
 
 import (
-	"reflect"
 	"errors"
+	"reflect"
 	"slices"
 )
 
@@ -159,7 +159,7 @@ func Entries[T comparable, V any](m map[T]V) []struct {
 
 /*
  * branch側のリストの要素に対して、leaves側の要素のリストを紐づける
- * 
+ *
  * ORMapperで用いられるRelationの機能の代替するためのもの
  * branchは、[]leavesの要素を持っているが、DBでqueryを投げる際には、branch,leafで別々に投げたい。
  * 別々に投げた後に紐づけを行うための関数
@@ -218,13 +218,13 @@ func Intersect[V any, H any](verticals []V, horizontals []H, predicate func(V, H
 			break
 		}
 
-		var vertical = verticalUnmatched[vIndex - 1]
+		var vertical = verticalUnmatched[vIndex-1]
 		for hIndex, horizontal := range horizontalUnmatched {
 			if predicate(vertical, horizontal) {
 				verticalMatched = append(verticalMatched, vertical)
 				horizontalMatched = append(horizontalMatched, horizontal)
-				verticalUnmatched = slices.Delete(verticalUnmatched, vIndex - 1, vIndex)
-				horizontalUnmatched = slices.Delete(horizontalUnmatched, hIndex, hIndex + 1)
+				verticalUnmatched = slices.Delete(verticalUnmatched, vIndex-1, vIndex)
+				horizontalUnmatched = slices.Delete(horizontalUnmatched, hIndex, hIndex+1)
 				break
 			}
 		}

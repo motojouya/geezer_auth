@@ -16,7 +16,7 @@ func TestNewJwtError(t *testing.T) {
 	assert.Equal(t, claims, err.Claims)
 	assert.Equal(t, value, err.Value)
 	assert.Equal(t, message, err.Unwrap().Error())
-	assert.Equal(t, message + " (claims: " + claims + ", value: " + value + ")", err.Error())
+	assert.Equal(t, message+" (claims: "+claims+", value: "+value+")", err.Error())
 	assert.Equal(t, 400, err.HttpStatus())
 
 	t.Logf("error: %s", err.Error())
