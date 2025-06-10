@@ -57,7 +57,7 @@ func NewCharacterError(name string, chars string, value string, message string) 
 }
 
 func (e CharacterError) Error() string {
-	return e.error.Error() + " (name: " + e.Name + ", chars: " + e.Chars + ", value: " + *e.Value + ")"
+	return e.error.Error() + " (name: " + e.Name + ", chars: " + e.Chars + ", value: " + e.Value + ")"
 }
 
 func (e CharacterError) Unwrap() error {
@@ -88,7 +88,7 @@ func NewFormatError(name string, format string, value string, message string) *F
 }
 
 func (e FormatError) Error() string {
-	return e.error.Error() + " (name: " + e.Name + ", format: " + e.Format + ", value: " + *e.Value + ")"
+	return e.error.Error() + " (name: " + e.Name + ", format: " + e.Format + ", value: " + e.Value + ")"
 }
 
 func (e FormatError) Unwrap() error {

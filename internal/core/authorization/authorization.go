@@ -1,10 +1,10 @@
 package authorization
 
 import (
-	"github.com/motojouya/geezer_auth/internal/model/role"
+	"github.com/motojouya/geezer_auth/internal/core/role"
 	utility "github.com/motojouya/geezer_auth/internal/utility"
-	text "github.com/motojouya/geezer_auth/pkg/model/text"
-	user "github.com/motojouya/geezer_auth/pkg/model/user"
+	text "github.com/motojouya/geezer_auth/pkg/core/text"
+	user "github.com/motojouya/geezer_auth/pkg/core/user"
 	pkgUtility "github.com/motojouya/geezer_auth/pkg/utility"
 	"slices"
 )

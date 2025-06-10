@@ -3,7 +3,6 @@ package text
 import (
 	"regexp"
 	"strings"
-	"time"
 )
 
 type Label string
@@ -27,7 +26,7 @@ func NewLabel(label string) (Label, error) {
 		panic(err)
 	}
 
-	var result = re.MatchString(text, -1)
+	var result = re.MatchString(trimmed)
 	if !result {
 		return Label(""), NewFormatError("label", "label", label, "label must start and end with an uppercase letter and can contain underscores in between")
 	}

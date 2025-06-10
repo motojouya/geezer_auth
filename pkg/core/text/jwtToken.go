@@ -1,9 +1,5 @@
 package text
 
-import (
-	"time"
-)
-
 type JwtToken string
 
 // DBから来た値のみを想定。Generateする際はpkg/accessTokenに任せる

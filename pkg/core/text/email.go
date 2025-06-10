@@ -3,7 +3,6 @@ package text
 import (
 	"regexp"
 	"strings"
-	"time"
 )
 
 type Email string
@@ -27,7 +26,7 @@ func NewEmail(email string) (Email, error) {
 		panic(err)
 	}
 
-	var result = re.MatchString(text, -1)
+	var result = re.MatchString(trimmed)
 	if !result {
 		return Email(""), NewFormatError("email", "email", email, "email must be a valid email address")
 	}

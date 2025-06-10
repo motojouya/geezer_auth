@@ -3,7 +3,6 @@ package text
 import (
 	"regexp"
 	"strings"
-	"time"
 )
 
 const (
@@ -29,12 +28,12 @@ func NewIdentifier(identifier string) (Identifier, error) {
 	var trimmed = strings.TrimSpace(identifier)
 
 	if trimmed == "" {
-		return Identifier(""), NewLengthError("identifier", identifier, 9, 9, "exposeId should not be empty")
+		return Identifier(""), NewLengthError("identifier", identifier, 9, 9, "identifier should not be empty")
 	}
 
 	var length = len([]rune(trimmed))
 	if length != 9 {
-		return Identifier(""), NewLengthError("identifier", identifier, 9, 9, "exposeId must be exactly 9 characters")
+		return Identifier(""), NewLengthError("identifier", identifier, 9, 9, "identifier must be exactly 9 characters")
 	}
 
 	// TODO 正規表現あってる？
@@ -44,9 +43,9 @@ func NewIdentifier(identifier string) (Identifier, error) {
 		panic(err)
 	}
 
-	var result = re.MatchString(text, -1)
+	var result = re.MatchString(trimmed)
 	if !result {
-		return Identifier(""), NewFormatError("identifier", "identifier", exposeId, "exposeId must be in the format of XX-XXXXXX where X is an uppercase letter")
+		return Identifier(""), NewFormatError("identifier", "identifier", identifier, "identifier must be in the format of XX-XXXXXX where X is an uppercase letter")
 	}
 
 	return Identifier(trimmed), nil

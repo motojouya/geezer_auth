@@ -2,7 +2,6 @@ package text
 
 import (
 	"strings"
-	"time"
 )
 
 /*

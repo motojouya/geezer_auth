@@ -1,10 +1,10 @@
 package user
 
 import (
-	"github.com/motojouya/geezer_auth/internal/model/company"
-	"github.com/motojouya/geezer_auth/internal/model/role"
-	text "github.com/motojouya/geezer_auth/pkg/model/text"
-	pkg "github.com/motojouya/geezer_auth/pkg/model/user"
+	"github.com/motojouya/geezer_auth/internal/core/company"
+	"github.com/motojouya/geezer_auth/internal/core/role"
+	text "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkg "github.com/motojouya/geezer_auth/pkg/core/user"
 	"time"
 )
 
