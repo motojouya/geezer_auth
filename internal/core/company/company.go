@@ -1,9 +1,9 @@
 package company
 
 import (
-	"time"
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
 	user "github.com/motojouya/geezer_auth/pkg/core/user"
+	"time"
 )
 
 const CompanyIdentifierPrefix = "CP-"
@@ -25,10 +25,10 @@ func CreateCompanyIdentifier(random string) (text.Identifier, error) {
 func CreateCompany(
 	identifier text.Identifier,
 	name text.Name,
-	registeredDate time.Time
+	registeredDate time.Time,
 ) UnsavedCompany {
 	return UnsavedCompany{
-		user.Company:   user.NewCompany(identifier, name)
+		user.Company:   user.NewCompany(identifier, name),
 		RegisteredDate: registeredDate,
 	}
 }
@@ -37,12 +37,12 @@ func NewCompany(
 	persistKey uint,
 	identifier text.Identifier,
 	name text.Name,
-	registeredDate time.Time
+	registeredDate time.Time,
 ) Company {
 	return Company{
-		PersistKey:     persistKey,
+		PersistKey: persistKey,
 		UnsavedCompany: UnsavedCompany{
-			user.Company:    user.NewCompany(identifier, name)
+			user.Company:   user.NewCompany(identifier, name),
 			RegisteredDate: registeredDate,
 		},
 	}

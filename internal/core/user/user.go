@@ -1,14 +1,14 @@
 package user
 
 import (
-	"time"
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
+	"time"
 )
 
 const UserIdentifierPrefix = "US-"
 
 type UnsavedUser struct {
-	Identifier       text.Identifier
+	Identifier     text.Identifier
 	ExposeEmailId  text.Email
 	Name           text.Name
 	BotFlag        bool
@@ -30,10 +30,10 @@ func CreateUser(
 	emailId text.Email,
 	name text.Name,
 	botFlag bool,
-	registeredDate time.Time
+	registeredDate time.Time,
 ) UnsavedUser {
 	return UnsavedUser{
-		Identifier:       identifier,
+		Identifier:     identifier,
 		ExposeEmailId:  emailId,
 		Name:           name,
 		BotFlag:        botFlag,
@@ -43,23 +43,23 @@ func CreateUser(
 }
 
 func NewUser(
-	persistKey uint
+	persistKey uint,
 	identifier text.Identifier,
 	name text.Name,
 	emailId text.Email,
 	botFlag bool,
 	registeredDate time.Time,
-	updateDate time.Time
+	updateDate time.Time,
 ) User {
 	return User{
-		PersistKey:  persistKey,
+		PersistKey: persistKey,
 		UnsavedUser: UnsavedUser{
-			Identifier:       identifier,
+			Identifier:     identifier,
 			ExposeEmailId:  emailId,
 			Name:           name,
 			BotFlag:        botFlag,
 			RegisteredDate: registeredDate,
 			UpdateDate:     updateDate,
-		}
+		},
 	}
 }

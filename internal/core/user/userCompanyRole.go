@@ -1,9 +1,9 @@
 package user
 
 import (
-	"time"
 	"github.com/motojouya/geezer_auth/internal/core/company"
 	"github.com/motojouya/geezer_auth/internal/core/role"
+	"time"
 )
 
 type UnsavedUserCompanyRole struct {
@@ -23,7 +23,7 @@ func CreateUserCompanyRole(
 	user User,
 	company company.Company,
 	role role.Role,
-	registerDate time.Time
+	registerDate time.Time,
 ) *UnsavedUserCompanyRole {
 	return &UnsavedUserEmail{
 		User:         user,
@@ -35,21 +35,21 @@ func CreateUserCompanyRole(
 }
 
 func NewUserEmail(
-	persistKey uint
+	persistKey uint,
 	user User,
 	company company.Company,
 	role role.Role,
 	registerDate time.Time,
-	expireDate *time.Time
+	expireDate *time.Time,
 ) *UserEmail {
 	return &UserEmail{
-		PersistKey:       persistKey,
+		PersistKey: persistKey,
 		UnsavedUserEmail: UnsavedUserEmail{
 			User:         user,
 			Company:      company,
 			Role:         role,
 			RegisterDate: registerDate,
 			ExpireDate:   expireDate,
-		}
+		},
 	}
 }

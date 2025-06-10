@@ -1,8 +1,8 @@
 package company
 
 import (
-	"time"
 	"github.com/google/uuid"
+	"time"
 )
 
 type UnsavedCompanyInvite struct {
@@ -39,7 +39,7 @@ func NewUserRefreshToken(
 	token uuid.UUID,
 	role Role,
 	registerDate time.Time,
-	expireDate time.Time
+	expireDate time.Time,
 ) CompanyInvite {
 	return CompanyInvite{
 		PersistKey: persistKey,

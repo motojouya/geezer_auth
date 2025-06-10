@@ -1,15 +1,15 @@
 package user
 
 import (
-	"time"
 	"github.com/motojouya/geezer_auth/internal/core/text"
+	"time"
 )
 
 type UnsavedUserRefreshToken struct {
-	User               User
-	RefreshToken       text.Token
-	RegisteredDate     time.Time
-	ExpireDate         time.Time
+	User           User
+	RefreshToken   text.Token
+	RegisteredDate time.Time
+	ExpireDate     time.Time
 }
 
 type UserRefreshToken struct {
@@ -23,7 +23,7 @@ const TokenValidityPeriodDays = 50
 func CreateUserRefreshToken(
 	user User,
 	refreshToken text.Token,
-	registerDate time.Time
+	registerDate time.Time,
 ) UnsavedUserRefreshToken {
 	var expireDate = registerDate.Add(TokenValidityPeriodDays * time.Day)
 
@@ -36,14 +36,14 @@ func CreateUserRefreshToken(
 }
 
 func NewUserRefreshToken(
-	persistKey uint
+	persistKey uint,
 	user User,
 	refreshToken text.Token,
 	registerDate time.Time,
-	expireDate time.Time
+	expireDate time.Time,
 ) UserRefreshToken {
 	return UserRefreshToken{
-		PersistKey:              persistKey,
+		PersistKey: persistKey,
 		UnsavedUserRefreshToken: UnsavedUserRefreshToken{
 			User:         user,
 			RefreshToken: refreshToken,

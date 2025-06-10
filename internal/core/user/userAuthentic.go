@@ -1,11 +1,11 @@
 package user
 
 import (
-	"time"
-	text "github.com/motojouya/geezer_auth/pkg/model/text"
-	pkg "github.com/motojouya/geezer_auth/pkg/model/user"
 	"github.com/motojouya/geezer_auth/internal/model/company"
 	"github.com/motojouya/geezer_auth/internal/model/role"
+	text "github.com/motojouya/geezer_auth/pkg/model/text"
+	pkg "github.com/motojouya/geezer_auth/pkg/model/user"
+	"time"
 )
 
 type CompanyRole struct {
@@ -13,7 +13,7 @@ type CompanyRole struct {
 	Roles   []role.Role
 }
 
-type UserAuthentic struc {
+type UserAuthentic struct {
 	User
 	CompanyRole *CompanyRole
 	Email       *text.Email
@@ -28,7 +28,7 @@ func NewCompanyRole(company company.Company, roles []role.Role) *CompanyRole {
 
 func NewUserAuthentic(
 	user User,
-	companyRole *CompanyRole
+	companyRole *CompanyRole,
 	email *text.Email,
 ) *UserAuthentic {
 	return &UserAuthentic{
@@ -42,7 +42,7 @@ func NewUserAuthentic(
  * CompanyやRoleはpkgをembedして依存関係が明確だが、Userの場合はもうちょいややこしいのとhandlingのtop levelになるのでで変換メソッドがある
  * internal.modelがpkg.modelに依存する形なので、internal.modelに変換関数をもたせる形
  */
-(user *UserAuthentic) func ToJwtUser() *pkg.User {
+func (user *UserAuthentic) ToJwtUser() *pkg.User {
 	var companyRole *pkg.CompanyRole = nil
 	if user.CompanyRole != nil {
 		var company = pkg.NewCompany(user.CompanyRole.Company.Identifier, user.CompanyRole.Company.Name)

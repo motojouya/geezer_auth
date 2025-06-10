@@ -1,9 +1,9 @@
 package role
 
 import (
-	"time"
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
 	user "github.com/motojouya/geezer_auth/pkg/core/user"
+	"time"
 )
 
 /*
@@ -21,7 +21,7 @@ func NewRole(
 	name text.Name,
 	label text.Label,
 	description Text,
-	registeredDate time.Time
+	registeredDate time.Time,
 ) Role {
 	return Role{
 		user.Role:      user.NewRole(label, name),

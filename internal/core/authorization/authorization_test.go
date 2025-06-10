@@ -1,10 +1,10 @@
 package authorization_test
 
 import (
-	"github.com/motojouya/geezer_auth/pkg/core/text"
-	"github.com/motojouya/geezer_auth/pkg/core/user"
 	"github.com/motojouya/geezer_auth/internal/core/authorization"
 	"github.com/motojouya/geezer_auth/internal/core/role"
+	"github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/motojouya/geezer_auth/pkg/core/user"
 	"github.com/motojouya/geezer_auth/pkg/utility"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -36,7 +36,7 @@ func getAuthentic(role user.Role) *user.Authentic {
 	var expiresAt = time.Now()
 	var notBefore = time.Now()
 	var issuedAt = time.Now()
-	var id, _ := uuid.NewUUID()
+	var id, _ = uuid.NewUUID()
 
 	return user.NewAuthentic(issuer, subject, audience, expiresAt, notBefore, issuedAt, id, user)
 }
@@ -59,7 +59,7 @@ func getAuthenticRoleLess() *user.Authentic {
 	var expiresAt = time.Now()
 	var notBefore = time.Now()
 	var issuedAt = time.Now()
-	var id, _ := uuid.NewUUID()
+	var id, _ = uuid.NewUUID()
 
 	return user.NewAuthentic(issuer, subject, audience, expiresAt, notBefore, issuedAt, id, user)
 }
@@ -144,7 +144,7 @@ func TestGetPriorityRolePermission(t *testing.T) {
 		authorization.RoleLessPermission,
 		authorization.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
 		authorization.NewRolePermission("MANAGER", true, true, true, true, 9),
-	})
+	}
 
 	var roleLabel, _ = text.NewLabel("MANAGER")
 	var roleName, _ = text.NewName("管理者")
@@ -165,7 +165,7 @@ func TestGetPriorityRolePermissionAnonymous(t *testing.T) {
 		authorization.RoleLessPermission,
 		authorization.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
 		authorization.NewRolePermission("MANAGER", true, true, true, true, 9),
-	})
+	}
 
 	permission, err := auth.GetPriorityRolePermission(permissions, nil)
 
@@ -181,7 +181,7 @@ func TestGetPriorityRolePermissionRoleLess(t *testing.T) {
 		authorization.RoleLessPermission,
 		authorization.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
 		authorization.NewRolePermission("MANAGER", true, true, true, true, 9),
-	})
+	}
 
 	var authentic = getAuthenticRoleLess()
 
@@ -199,7 +199,7 @@ func TestGetPriorityRolePermissionNil(t *testing.T) {
 		authorization.RoleLessPermission,
 		authorization.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
 		authorization.NewRolePermission("MANAGER", true, true, true, true, 9),
-	})
+	}
 
 	var roleLabel, _ = text.NewLabel("SUSPICIOUS_PERSON")
 	var roleName, _ = text.NewName("不審者")

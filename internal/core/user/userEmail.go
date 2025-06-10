@@ -1,9 +1,9 @@
 package user
 
 import (
-	"time"
-	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
 	text "github.com/motojouya/geezer_auth/internal/core/text"
+	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
+	"time"
 )
 
 /*
@@ -28,7 +28,7 @@ func CreateUserEmail(
 	user User,
 	email pkg.Email,
 	verifyToken text.Token,
-	registerDate time.Time
+	registerDate time.Time,
 ) *UnsavedUserEmail {
 	return &UnsavedUserEmail{
 		User:         user,
@@ -41,16 +41,16 @@ func CreateUserEmail(
 }
 
 func NewUserEmail(
-	persistKey uint
+	persistKey uint,
 	user User,
 	email pkg.Email,
 	verifyToken text.Token,
 	registerDate time.Time,
 	verifyDate time.Time,
-	expireDate *time.Time
+	expireDate *time.Time,
 ) *UserEmail {
 	return &UserEmail{
-		PersistKey:       persistKey,
+		PersistKey: persistKey,
 		UnsavedUserEmail: UnsavedUserEmail{
 			User:         user,
 			Email:        email,
