@@ -8,7 +8,7 @@ import (
 
 func TestFilter(t *testing.T) {
 	var list = []string{"this", "test", "item"}
-	var predicate = func (item string) bool {
+	var predicate = func(item string) bool {
 		var chars = []rune(item)
 		if len(chars) > 0 && chars[0] == 't' {
 			return true
@@ -27,7 +27,7 @@ func TestFilter(t *testing.T) {
 
 func TestMap(t *testing.T) {
 	var list = []string{"this", "test", "item"}
-	var mapper = func (item string) string {
+	var mapper = func(item string) string {
 		return item + "_mapped"
 	}
 
@@ -43,7 +43,7 @@ func TestMap(t *testing.T) {
 
 func TestFold(t *testing.T) {
 	var list = []string{"this", "test", "item"}
-	var folder = func (accumulator string, item string) (string, error) {
+	var folder = func(accumulator string, item string) (string, error) {
 		return accumulator + "_" + item, nil
 	}
 
@@ -59,7 +59,7 @@ func TestFold(t *testing.T) {
 
 func TestFoldError(t *testing.T) {
 	var list = []string{"this", "test", "item"}
-	var folder = func (accumulator string, item string) (string, error) {
+	var folder = func(accumulator string, item string) (string, error) {
 		return "", errors.New("test error")
 	}
 
@@ -71,7 +71,7 @@ func TestFoldError(t *testing.T) {
 
 func TestReduce(t *testing.T) {
 	var list = []uint{1, 2, 3}
-	var reducer = func (accumulator uint, item uint) uint {
+	var reducer = func(accumulator uint, item uint) uint {
 		return accumulator + item
 	}
 
@@ -85,7 +85,7 @@ func TestReduce(t *testing.T) {
 func TestSome(t *testing.T) {
 	var list1 = []string{"this", "test", "item"}
 	var list2 = []string{"this", "tast", "item"}
-	var predicate = func (item string) bool {
+	var predicate = func(item string) bool {
 		return item == "test"
 	}
 
@@ -99,7 +99,7 @@ func TestSome(t *testing.T) {
 func TestEvery(t *testing.T) {
 	var list1 = []string{"this", "test", "item"}
 	var list2 = []string{"this", "test", "temi"}
-	var predicate = func (item string) bool {
+	var predicate = func(item string) bool {
 		var chars = []rune(item)
 		return chars[0] == 't'
 	}
@@ -113,7 +113,7 @@ func TestEvery(t *testing.T) {
 
 func TestFind(t *testing.T) {
 	var list = []string{"this", "test", "item"}
-	var predicate = func (item string) bool {
+	var predicate = func(item string) bool {
 		var chars = []rune(item)
 		return chars == 't'
 	}
@@ -127,7 +127,7 @@ func TestFind(t *testing.T) {
 
 func TestFindLast(t *testing.T) {
 	var list = []string{"this", "test", "item"}
-	var predicate = func (item string) bool {
+	var predicate = func(item string) bool {
 		var chars = []rune(item)
 		return chars == 't'
 	}
@@ -195,7 +195,7 @@ func TestEntries(t *testing.T) {
 
 func TestToMap(t *testing.T) {
 	var list = []string{"this", "test", "item"}
-	var getKey = func (item string) string {
+	var getKey = func(item string) string {
 		var chars = []rune(item)
 		return string(chars[:2])
 	}
@@ -291,15 +291,15 @@ func TestIntersect(t *testing.T) {
 	var varticalMatched, horizontalMatched, varticalUnMatched, horizontalUnMatched = utility.Intersect(list1, list2, predicate)
 
 	assert.Equal(t, 2, len(varticalMatched))
-	assert.Equal(t, "Apple", horizontalMatched.[0].Name)
-	assert.Equal(t, "Banana", horizontalMatched.[1].Name)
+	assert.Equal(t, "Apple", horizontalMatched[0].Name)
+	assert.Equal(t, "Banana", horizontalMatched[1].Name)
 	assert.Equal(t, 2, len(horizontalMatched))
-	assert.Equal(t, 2, horizontalMatched.[0].Quantity)
-	assert.Equal(t, 3, horizontalMatched.[1].Quantity)
+	assert.Equal(t, 2, horizontalMatched[0].Quantity)
+	assert.Equal(t, 3, horizontalMatched[1].Quantity)
 	assert.Equal(t, 1, len(varticalUnMatched))
-	assert.Equal(t, "Carrot", varticalUnMatched.[0].Name)
+	assert.Equal(t, "Carrot", varticalUnMatched[0].Name)
 	assert.Equal(t, 1, len(horizontalUnMatched))
-	assert.Equal(t, 4, horizontalMatched.[0].Quantity)
+	assert.Equal(t, 4, horizontalMatched[0].Quantity)
 
 	t.Logf("varticalMatched: %v", varticalMatched)
 	t.Logf("horizontalMatched: %v", horizontalMatched)

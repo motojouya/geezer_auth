@@ -1,9 +1,9 @@
 package io
 
 import (
-	"math/rand"
-	"github.com/google/uuid"
 	"github.com/caarlos0/env/v11"
+	"github.com/google/uuid"
+	"math/rand"
 	"time"
 )
 
@@ -14,7 +14,7 @@ type Local interface {
 	GetEnv(object *interface{}) error
 }
 
-type local interface {}
+type local interface{}
 
 func CreateLocal() Local {
 	return &local(interface{})
@@ -39,8 +39,4 @@ func (l local) GenerateUUID() (UUID, error) {
 
 func (l local) GetNow() time.Time {
 	return time.Now()
-}
-
-func (l local) GetEnv[T any]() (T, error) {
-	return env.ParseAs[T]();
 }

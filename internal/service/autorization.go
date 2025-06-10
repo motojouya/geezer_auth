@@ -8,10 +8,10 @@ import (
 )
 
 type AuthorizationLoader interface {
-	func LoadJwtHandler(local io.Local) (JwtHandler, error)
+	LoadJwtHandler(local io.Local) (JwtHandler, error)
 }
 
-type authorizationLoaderImpl interface {}
+type authorizationLoaderImpl interface{}
 
 type Authorizer interface {
 	Authorize(require RequirePermission, authentic *user.Authentic) error
