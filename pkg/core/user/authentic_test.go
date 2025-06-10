@@ -1,12 +1,12 @@
 package user_test
 
 import (
+	"github.com/google/uuid"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
-	"github.com/google/uuid"
 )
 
 func getUser(userIdentifierStr string) *user.User {
@@ -43,7 +43,7 @@ func TestNewAuthentic(t *testing.T) {
 	var expiresAt = time.Now()
 	var notBefore = time.Now()
 	var issuedAt = time.Now()
-	var id, _ := uuid.NewUUID()
+	var id, _ = uuid.NewUUID()
 
 	var authentic = user.NewAuthentic(issuer, subject, audience, expiresAt, notBefore, issuedAt, id, user)
 
@@ -80,7 +80,7 @@ func TestCreateAuthentic(t *testing.T) {
 	var aud02 = "aud2"
 	var audience = []string{aud01, aud02}
 	var issuedAt = time.Now()
-	var id, _ := uuid.NewUUID()
+	var id, _ = uuid.NewUUID()
 	var validityPeriodMinutes = 60
 
 	var authentic = user.CreateAuthentic(issuer, audience, issuedAt, validityPeriodMinutes, id, user)

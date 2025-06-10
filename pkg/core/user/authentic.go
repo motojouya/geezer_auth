@@ -17,7 +17,7 @@ func CreateAuthentic(
 	issuedAt time.Time,
 	validityPeriodMinutes uint,
 	id UUID,
-	user *User
+	user *User,
 ) *Authentic {
 	var expireDate = issueDate.Add(validityPeriodMinutes * time.Minute)
 
@@ -29,19 +29,19 @@ func CreateAuthentic(
 		issuedAt,
 		issuedAt,
 		id,
-		user
+		user,
 	)
 }
 
 func NewAuthentic(
-	issuer    string,
-	subject   string,
-	audience  []string,
+	issuer string,
+	subject string,
+	audience []string,
 	expiresAt time.Time,
 	notBefore time.Time,
-	issuedAt  time.Time,
-	id        UUID,
-	user      *User
+	issuedAt time.Time,
+	id UUID,
+	user *User,
 ) *Authentic {
 	return &Authentic{
 		jwt.RegisteredClaims: jwt.RegisteredClaims{

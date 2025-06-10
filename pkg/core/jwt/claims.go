@@ -11,15 +11,15 @@ import (
 // FIXME claimsのprivate keyが`github.com/motojouya/geezer_auth/`をprefixとしているが、本来は稼働するサーバのfqdnをprefixとして持つべき。
 type GeezerClaims struct {
 	gojwt.RegisteredClaims
-	UserEmail        *string   `json:"email"`
-	UserName         string    `json:"name"`
-	UpdateDate       time.Time `json:"update_at"`
-	UserEmailId      string    `json:"github.com/motojouya/geezer_auth/email_id"`
-	BotFlag          bool      `json:"github.com/motojouya/geezer_auth/bot_flag"`
-	CompanyIdentifier  *string   `json:"github.com/motojouya/geezer_auth/company_expose_id"`
-	CompanyName      *string   `json:"github.com/motojouya/geezer_auth/company_name"`
-	CompanyRoles     []string `json:"github.com/motojouya/geezer_auth/company_roles"`
-	CompanyRoleNames []string `json:"github.com/motojouya/geezer_auth/company_role_names"`
+	UserEmail         *string   `json:"email"`
+	UserName          string    `json:"name"`
+	UpdateDate        time.Time `json:"update_at"`
+	UserEmailId       string    `json:"github.com/motojouya/geezer_auth/email_id"`
+	BotFlag           bool      `json:"github.com/motojouya/geezer_auth/bot_flag"`
+	CompanyIdentifier *string   `json:"github.com/motojouya/geezer_auth/company_expose_id"`
+	CompanyName       *string   `json:"github.com/motojouya/geezer_auth/company_name"`
+	CompanyRoles      []string  `json:"github.com/motojouya/geezer_auth/company_roles"`
+	CompanyRoleNames  []string  `json:"github.com/motojouya/geezer_auth/company_role_names"`
 }
 
 func FromAuthentic(authentic *user.Authentic) *GeezerClaims {
@@ -47,16 +47,16 @@ func FromAuthentic(authentic *user.Authentic) *GeezerClaims {
 	}
 
 	return &GeezerClaims{
-		RegisteredClaims: authentic.RegisteredClaims,
-		UserEmail:        userEmail,
-		UserName:         string(authentic.User.Name),
-		UpdateDate:       authentic.User.UpdateDate.Time,
-		UserEmailId:      string(authentic.User.EmailId),
-		BotFlag:          authentic.User.BotFlag,
-		CompanyIdentifier:  companyIdentifier,
-		CompanyName:      companyName,
-		CompanyRoles:     companyRoles,
-		CompanyRoleNames: companyRoleNames,
+		RegisteredClaims:  authentic.RegisteredClaims,
+		UserEmail:         userEmail,
+		UserName:          string(authentic.User.Name),
+		UpdateDate:        authentic.User.UpdateDate.Time,
+		UserEmailId:       string(authentic.User.EmailId),
+		BotFlag:           authentic.User.BotFlag,
+		CompanyIdentifier: companyIdentifier,
+		CompanyName:       companyName,
+		CompanyRoles:      companyRoles,
+		CompanyRoleNames:  companyRoleNames,
 	}
 }
 
@@ -72,15 +72,15 @@ func getCompanyRole(claims *GeezerClaims) (*CompanyRole, error) {
 
 			var label, err = text.NewLabel(claims.CompanyRoles[i])
 			if err != nil {
-				return nil, utility.AddPropertyError("Company.Role[" + string(i) + "]", err)
+				return nil, utility.AddPropertyError("Company.Role["+string(i)+"]", err)
 			}
 
 			var name, err = text.NewName(claims.CompanyRoleNames[i])
 			if err != nil {
-				return nil, utility.AddPropertyError("Company.Role[" + string(i) + "]", err)
+				return nil, utility.AddPropertyError("Company.Role["+string(i)+"]", err)
 			}
 
-			var roles[i] = user.NewRole(label, name)
+			roles[i] = user.NewRole(label, name)
 		}
 
 		var companyIdentifier, err = text.NewCompanyIdentifier(*claims.CompanyIdentifier)
@@ -92,7 +92,10 @@ func getCompanyRole(claims *GeezerClaims) (*CompanyRole, error) {
 			return nil, utility.AddPropertyError("company", err)
 		}
 
-		return user.NewCompany(companyIdentifier, companyName, roles), nil
+		var company = user.NewCompany(companyIdentifier, companyName)
+
+		return user.NewCompanyRole(company, roles), nil
+
 	} else {
 		if claims.CompanyIdentifier != nil {
 			return nil, NewJwtError("CompanyIdentifier", claims.CompanyIdentifier, "CompanyIdentifier is not nil")

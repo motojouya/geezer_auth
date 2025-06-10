@@ -73,7 +73,7 @@ func TestFromAuthentic(t *testing.T) {
 	var aud02 = "aud2"
 	var audience = []string{aud01, aud02}
 	var issuedAt = time.Now()
-	var id, _ := uuid.NewUUID()
+	var id, _ = uuid.NewUUID()
 	var validityPeriodMinutes = 60
 
 	var authentic = user.CreateAuthentic(issuer, audience, issuedAt, validityPeriodMinutes, id, user)
@@ -138,7 +138,7 @@ func TestFromAuthenticNil(t *testing.T) {
 	var aud02 = "aud2"
 	var audience = []string{aud01, aud02}
 	var issuedAt = time.Now()
-	var id, _ := uuid.NewUUID()
+	var id, _ = uuid.NewUUID()
 	var validityPeriodMinutes = 60
 
 	var authentic = user.CreateAuthentic(issuer, audience, issuedAt, validityPeriodMinutes, id, user)
@@ -206,7 +206,7 @@ func TestToAuthentic(t *testing.T) {
 	var audience = []string{aud01, aud02}
 	var issuedAt = time.Now()
 	var expiresAt = issuedAt.Add(validityPeriodMinutes * time.Minute)
-	var id, _ := uuid.NewUUID()
+	var id, _ = uuid.NewUUID()
 	var validityPeriodMinutes = 60
 
 	var registeredClaims = gojwt.RegisteredClaims{
@@ -220,16 +220,16 @@ func TestToAuthentic(t *testing.T) {
 	}
 
 	var claims = &jwt.GeezerClaims{
-		RegisteredClaims: registeredClaims
-		UserEmail:        email,
-		UserName:         userName,
-		BotFlag:          botFlag,
-		UpdateDate:       jwt.NewNumericDate(updateDate),
-		UserEmailId:      string(emailId),
-		CompanyIdentifier:  string(companyIdentifier),
-		CompanyName:      string(companyName),
-		CompanyRoles:     []string{string(roleLabel)},
-		CompanyRoleNames: []string{string(roleName)},
+		RegisteredClaims:  registeredClaims,
+		UserEmail:         email,
+		UserName:          userName,
+		BotFlag:           botFlag,
+		UpdateDate:        jwt.NewNumericDate(updateDate),
+		UserEmailId:       string(emailId),
+		CompanyIdentifier: string(companyIdentifier),
+		CompanyName:       string(companyName),
+		CompanyRoles:      []string{string(roleLabel)},
+		CompanyRoleNames:  []string{string(roleName)},
 	}
 
 	var authentic = claims.ToAuthentic()
@@ -290,7 +290,7 @@ func TestToAuthenticNil(t *testing.T) {
 	var audience = []string{aud01, aud02}
 	var issuedAt = time.Now()
 	var expiresAt = issuedAt.Add(validityPeriodMinutes * time.Minute)
-	var id, _ := uuid.NewUUID()
+	var id, _ = uuid.NewUUID()
 	var validityPeriodMinutes = 60
 
 	var registeredClaims = gojwt.RegisteredClaims{
@@ -304,16 +304,16 @@ func TestToAuthenticNil(t *testing.T) {
 	}
 
 	var claims = &jwt.GeezerClaims{
-		RegisteredClaims: registeredClaims
-		UserEmail:        nil,
-		UserName:         userName,
-		BotFlag:          botFlag,
-		UpdateDate:       jwt.NewNumericDate(updateDate),
-		UserEmailId:      string(emailId),
-		CompanyIdentifier:  nil,
-		CompanyName:      nil,
-		CompanyRoles:     []string{},
-		CompanyRoleNames: []string{},
+		RegisteredClaims:  registeredClaims,
+		UserEmail:         nil,
+		UserName:          userName,
+		BotFlag:           botFlag,
+		UpdateDate:        jwt.NewNumericDate(updateDate),
+		UserEmailId:       string(emailId),
+		CompanyIdentifier: nil,
+		CompanyName:       nil,
+		CompanyRoles:      []string{},
+		CompanyRoleNames:  []string{},
 	}
 
 	var authentic = claims.ToAuthentic()
@@ -371,7 +371,7 @@ func getClaims() *jwt.GeezerClaims {
 	var audience = []string{aud01, aud02}
 	var issuedAt = time.Now()
 	var expiresAt = issuedAt.Add(validityPeriodMinutes * time.Minute)
-	var id, _ := uuid.NewUUID()
+	var id, _ = uuid.NewUUID()
 	var validityPeriodMinutes = 60
 
 	var registeredClaims = gojwt.RegisteredClaims{
@@ -385,107 +385,107 @@ func getClaims() *jwt.GeezerClaims {
 	}
 
 	var claims = &jwt.GeezerClaims{
-		RegisteredClaims: registeredClaims
-		UserEmail:        email,
-		UserName:         userName,
-		BotFlag:          botFlag,
-		UpdateDate:       jwt.NewNumericDate(updateDate),
-		UserEmailId:      string(emailId),
-		CompanyIdentifier:  string(companyIdentifier),
-		CompanyName:      string(companyName),
-		CompanyRoles:     []string{string(roleLabel)},
-		CompanyRoleNames: []string{string(roleName)},
+		RegisteredClaims:  registeredClaims,
+		UserEmail:         email,
+		UserName:          userName,
+		BotFlag:           botFlag,
+		UpdateDate:        jwt.NewNumericDate(updateDate),
+		UserEmailId:       string(emailId),
+		CompanyIdentifier: string(companyIdentifier),
+		CompanyName:       string(companyName),
+		CompanyRoles:      []string{string(roleLabel)},
+		CompanyRoleNames:  []string{string(roleName)},
 	}
 }
 
 func TestToAuthenticError(t *testing.T) {
 	var testTable = []struct {
 		name   string
-		change func (*jwt.GeezerClaims)
+		change func(*jwt.GeezerClaims)
 	}{
 		{
 			name: "Subject",
 			change: func(claims *jwt.GeezerClaims) {
 				claims.Subject = "WrongSubject"
-			}
+			},
 		},
 		{
 			name: "UserEmail",
 			change: func(claims *jwt.GeezerClaims) {
 				claims.UserEmail = "WrongUserEmail"
-			}
+			},
 		},
 		{
 			name: "UserName",
 			change: func(claims *jwt.GeezerClaims) {
 				claims.UserName = ""
-			}
+			},
 		},
 		{
 			name: "UserEmailId",
 			change: func(claims *jwt.GeezerClaims) {
 				claims.UserEmailId = "WrongUserEmailId"
-			}
+			},
 		},
 		{
 			name: "CompanyIdentifier",
 			change: func(claims *jwt.GeezerClaims) {
 				claims.CompanyIdentifier = "WrongCompanyIdentifier"
-			}
+			},
 		},
 		{
 			name: "CompanyName",
 			change: func(claims *jwt.GeezerClaims) {
 				claims.CompanyName = ""
-			}
+			},
 		},
 		{
 			name: "CompanyRoles",
 			change: func(claims *jwt.GeezerClaims) {
 				claims.CompanyRoles = []string{""}
-			}
+			},
 		},
 		{
 			name: "CompanyRoleNames",
 			change: func(claims *jwt.GeezerClaims) {
 				claims.CompanyRoleNames = []string{""}
-			}
+			},
 		},
 		{
 			name: "CompanyIdentifier-Nil",
 			change: func(claims *jwt.GeezerClaims) {
 				claims.CompanyIdentifier = nil
-			}
+			},
 		},
 		{
 			name: "CompanyName-Nil",
 			change: func(claims *jwt.GeezerClaims) {
 				claims.CompanyName = nil
-			}
+			},
 		},
 		{
 			name: "CompanyRoles-Nil",
 			change: func(claims *jwt.GeezerClaims) {
 				claims.CompanyRoles = nil
-			}
+			},
 		},
 		{
 			name: "CompanyRoleNames-Nil",
 			change: func(claims *jwt.GeezerClaims) {
 				claims.CompanyRoleNames = nil
-			}
+			},
 		},
 		{
 			name: "CompanyRoles-len",
 			change: func(claims *jwt.GeezerClaims) {
 				claims.CompanyRoles = []string{"Role1", "Role2"}
-			}
+			},
 		},
 		{
 			name: "CompanyRoleNames-len",
 			change: func(claims *jwt.GeezerClaims) {
 				claims.CompanyRoleNames = []string{"RoleName1", "RoleName2"}
-			}
+			},
 		},
 	}
 

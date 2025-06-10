@@ -5,7 +5,7 @@ import (
 )
 
 type User struct {
-	Identifier    Identifier
+	Identifier  Identifier
 	EmailId     Email
 	Email       *Email
 	Name        Name
@@ -15,21 +15,21 @@ type User struct {
 }
 
 func NewUser(
-	identifier    Identifier,
-	emailId     Email,
-	email       *Email,
-	name        Name,
-	botFlag     bool,
+	identifier Identifier,
+	emailId Email,
+	email *Email,
+	name Name,
+	botFlag bool,
 	companyRole *CompanyRole,
-	updateDate  time.Time
+	updateDate time.Time,
 ) *User {
 	return &User{
-		Identifier: identifier,
-		EmailId: emailId,
-		Email: email,
-		Name: name,
-		BotFlag: botFlag,
+		Identifier:  identifier,
+		EmailId:     emailId,
+		Email:       email,
+		Name:        name,
+		BotFlag:     botFlag,
 		CompanyRole: companyRole,
-		UpdateDate: updateDate,
+		UpdateDate:  updateDate,
 	}
 }

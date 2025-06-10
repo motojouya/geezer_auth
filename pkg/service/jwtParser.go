@@ -1,17 +1,17 @@
 package service
 
 import (
-	"os"
+	"github.com/motojouya/geezer_auth/pkg/core/jwt"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
 	"github.com/motojouya/geezer_auth/pkg/utility"
-	"github.com/motojouya/geezer_auth/pkg/core/jwt"
+	"os"
 )
 
 type JwtParserLoader interface {
-	func LoadJwtHandler(local io.Local) (JwtHandler, error)
+	LoadJwtHandler(local io.Local) (JwtHandler, error)
 }
 
-type jwtParserLoaderImpl interface {}
+type jwtParserLoaderImpl interface{}
 
 type JwtParser interface {
 	Parse(tokenString string) (*user.Authentic, error)

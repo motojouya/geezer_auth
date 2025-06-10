@@ -2,9 +2,9 @@ package jwt
 
 import (
 	gojwt "github.com/golang-jwt/jwt/v5"
-	"time"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
+	"time"
 )
 
 type JwtHandling struct {
@@ -21,7 +21,7 @@ func NewJwtHandling(
 	return &JwtHandling{
 		Audience:              audience,
 		ValidityPeriodMinutes: validityPeriodMinutes,
-		JwtParser:             jwtParser
+		JwtParser:             jwtParser,
 	}
 }
 
@@ -32,7 +32,7 @@ func (jwtHandling *JwtHandling) getToken(claims *GeezerClaims) (text.JwtToken, e
 
 	tokenString, err := token.SignedString(jwtHandling.LatestSecret)
 	if err != nil {
-        	return JwtToken(""), err
+		return JwtToken(""), err
 	}
 
 	return text.NewJwtToken(tokenString), nil
