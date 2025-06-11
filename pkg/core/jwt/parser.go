@@ -4,6 +4,7 @@ import (
 	gojwt "github.com/golang-jwt/jwt/v5"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
 	"strings"
+	"slices"
 )
 
 // TODO middlewareも作ってしまいたい。イメージを掴んで置く
@@ -26,8 +27,8 @@ func NewJwtParsing(
 	latestSecret string,
 	oldKeyId string,
 	oldSecret string,
-) JwtParsing {
-	return &JwtParsering{
+) JwtParsering {
+	return JwtParsering{
 		Issuer:       issuer,
 		Myself:       myself,
 		LatestKeyId:  latestKeyId,
@@ -42,9 +43,13 @@ func (jwtParsering *JwtParsering) getClaims(tokenString string) (*GeezerClaims, 
 		tokenString,
 		&GeezerClaims{},
 		func(token *gojwt.Token) (interface{}, error) {
-			// gojwt.SigningMethodHMAC?
-			if _, ok := token.Method.(*gojwt.SigningMethodHS256); !ok {
-				return nil, NewJwtError("header.alg", token.Header["alg"], "Unexpected signing method")
+			// gojwt.SigningMethodHS256?
+			if _, ok := token.Method.(*gojwt.SigningMethodHMAC); !ok {
+				var alg, ok = token.Header["alg"].(string)
+				if !ok {
+					return nil, NewJwtError("header.alg", "", "Unexpected signing method")
+				}
+				return nil, NewJwtError("header.alg", alg, "Unexpected signing method")
 			}
 
 			if token.Header["kid"] == jwtParsering.LatestKeyId {
@@ -55,7 +60,11 @@ func (jwtParsering *JwtParsering) getClaims(tokenString string) (*GeezerClaims, 
 				return []byte(jwtParsering.OldSecret), nil
 			}
 
-			return nil, NewJwtError("header.kid", token.Header["kid"], "Secret not found for key")
+			var kid, ok = token.Header["kid"].(string)
+			if !ok {
+				return nil, NewJwtError("header.kid", "", "Secret not found for key")
+			}
+			return nil, NewJwtError("header.kid", kid, "Secret not found for key")
 		},
 	)
 
@@ -63,16 +72,17 @@ func (jwtParsering *JwtParsering) getClaims(tokenString string) (*GeezerClaims, 
 		return nil, err
 	}
 
-	if claims, ok := token.Claims.(GeezerClaims); !ok || !token.Valid {
+	var claims, ok = token.Claims.(GeezerClaims);
+	if  !ok || !token.Valid {
 		return nil, NewJwtError("hole token", tokenString, "Invalid token")
 	}
 
 	if jwtParsering.Issuer != claims.Issuer {
-		return NewJwtError("Issuer", claims.Issuer, "Issuer is not valid")
+		return nil, NewJwtError("Issuer", claims.Issuer, "Issuer is not valid")
 	}
 
-	if claims.Audience.Contains(jwtParsering.Myself) {
-		return NewJwtError("Audience", strings.Join(claims.Audience, ","), "Audience is not valid")
+	if slices.Contains(claims.Audience, jwtParsering.Myself) {
+		return nil, NewJwtError("Audience", strings.Join(claims.Audience, ","), "Audience is not valid")
 	}
 
 	return &claims, nil

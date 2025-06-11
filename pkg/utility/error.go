@@ -3,12 +3,8 @@ package utility
 import (
 	"errors"
 	"strconv"
+	"reflect"
 )
-
-type HttpError interface {
-	HttpStatus() uint
-	error
-}
 
 /*
  * NilError
@@ -76,9 +72,17 @@ type PropertyError struct {
 	error
 }
 
-func CreatePropertyError(property string, source HttpError) *PropertyError {
-	// FIXME 本当はhttpStatusはsourceから取得したいが、sourceがPropertyErrorでない場合は取得できないため、引数として受け取る
-	return NewPropertyError(property, source.HttpStatus(), source)
+func CreatePropertyError(property string, source error) *PropertyError {
+
+	var tv = reflect.TypeOf(source)
+	var method, exists = tv.MethodByName("HttpStatus")
+	var httpStatus = uint(400)
+	if exists {
+		var result = method.Func.Call(nil)[0]
+		httpStatus, _ = result.Interface().(uint)
+	}
+
+	return NewPropertyError(property, httpStatus, source)
 }
 
 func NewPropertyError(property string, httpStatus uint, source error) *PropertyError {
@@ -120,14 +124,14 @@ func (e PropertyError) Change(path string, httpStatus uint) *PropertyError {
 	}
 }
 
-var propertyError = PropertyError{}
+var propertyError PropertyError = PropertyError{}
 
-func AddPropertyError(path string, source HttpError) *PropertyError {
+func AddPropertyError(path string, source error) *PropertyError {
 	if source == nil {
 		panic("source error cannot be nil")
 	}
 
-	if errors.As(source, propertyError) {
+	if errors.As(source, &propertyError) {
 		return source.(*PropertyError).Add(path)
 	} else {
 		return CreatePropertyError(path, source)
@@ -139,7 +143,7 @@ func ChangePropertyError(path string, source error, httpStatus uint) *PropertyEr
 		panic("source error cannot be nil")
 	}
 
-	if errors.As(source, propertyError) {
+	if errors.As(source, &propertyError) {
 		return source.(*PropertyError).Change(path, httpStatus)
 	} else {
 		return NewPropertyError(path, httpStatus, source)

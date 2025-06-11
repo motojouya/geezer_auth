@@ -10,18 +10,18 @@ import (
 type JwtHandling struct {
 	Audience              []string `env:"JWT_AUDIENCE,notEmpty"`
 	ValidityPeriodMinutes uint     `env:"JWT_VALIDITY_PERIOD_MINUTES,notEmpty"`
-	jwtParserConfig
+	JwtParsering
 }
 
 func NewJwtHandling(
 	audience []string,
-	jwtParser jwtParserConfig,
+	jwtParsering JwtParsering,
 	validityPeriodMinutes uint,
 ) JwtHandling {
-	return &JwtHandling{
+	return JwtHandling{
 		Audience:              audience,
 		ValidityPeriodMinutes: validityPeriodMinutes,
-		JwtParser:             jwtParser,
+		JwtParsering:          jwtParsering,
 	}
 }
 
@@ -32,26 +32,26 @@ func (jwtHandling *JwtHandling) getToken(claims *GeezerClaims) (text.JwtToken, e
 
 	tokenString, err := token.SignedString(jwtHandling.LatestSecret)
 	if err != nil {
-		return JwtToken(""), err
+		return text.JwtToken(""), err
 	}
 
 	return text.NewJwtToken(tokenString), nil
 }
 
 // idはuuidを想定
-func (jwtHandling *JwtHandling) Generate(user *user.User, issueDate time.Time, id string) (*user.Authentic, text.JwtToken, error) {
+func (jwtHandling *JwtHandling) Generate(userValue *user.User, issueDate time.Time, id string) (*user.Authentic, text.JwtToken, error) {
 	var authentic = user.CreateAuthentic(
 		jwtHandling.Issuer,
 		jwtHandling.Audience,
 		issueDate,
 		jwtHandling.ValidityPeriodMinutes,
 		id,
-		user,
+		*userValue,
 	)
 
 	var claims = FromAuthentic(authentic)
 
-	var token, err = jwtHandling.getClaims(claims)
+	var token, err = jwtHandling.getToken(claims)
 	if err != nil {
 		return nil, text.JwtToken(""), err
 	}

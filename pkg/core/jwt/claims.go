@@ -6,6 +6,7 @@ import (
 	"github.com/motojouya/geezer_auth/pkg/core/user"
 	"github.com/motojouya/geezer_auth/pkg/utility"
 	"time"
+	"strings"
 )
 
 // FIXME claimsのprivate keyが`github.com/motojouya/geezer_auth/`をprefixとしているが、本来は稼働するサーバのfqdnをprefixとして持つべき。
@@ -30,8 +31,10 @@ func FromAuthentic(authentic *user.Authentic) *GeezerClaims {
 	var companyRoleNames []string = nil
 
 	if authentic.User.CompanyRole != nil {
-		companyIdentifier = &string(authentic.User.CompanyRole.Company.Identifier)
-		companyName = &string(authentic.User.CompanyRole.Company.Name)
+		var companyIdentifierValue = string(authentic.User.CompanyRole.Company.Identifier)
+		companyIdentifier = &companyIdentifierValue
+		var companyNameValue = string(authentic.User.CompanyRole.Company.Name)
+		companyName = &companyNameValue
 		companyRoles = make([]string, 0, len(authentic.User.CompanyRole.Roles))
 		companyRoleNames = make([]string, 0, len(authentic.User.CompanyRole.Roles))
 
@@ -43,14 +46,15 @@ func FromAuthentic(authentic *user.Authentic) *GeezerClaims {
 
 	var userEmail *string = nil
 	if authentic.User.Email != nil {
-		userEmail = &string(authentic.User.Email)
+		var userEmailValue = string(*authentic.User.Email)
+		userEmail = &userEmailValue
 	}
 
 	return &GeezerClaims{
 		RegisteredClaims:  authentic.RegisteredClaims,
 		UserEmail:         userEmail,
 		UserName:          string(authentic.User.Name),
-		UpdateDate:        authentic.User.UpdateDate.Time,
+		UpdateDate:        authentic.User.UpdateDate,
 		UserEmailId:       string(authentic.User.EmailId),
 		BotFlag:           authentic.User.BotFlag,
 		CompanyIdentifier: companyIdentifier,
@@ -60,36 +64,36 @@ func FromAuthentic(authentic *user.Authentic) *GeezerClaims {
 	}
 }
 
-func getCompanyRole(claims *GeezerClaims) (*CompanyRole, error) {
+func getCompanyRole(claims *GeezerClaims) (*user.CompanyRole, error) {
 
 	if claims.CompanyIdentifier != nil && claims.CompanyName != nil && claims.CompanyRoles != nil && claims.CompanyRoleNames != nil {
 		if len(claims.CompanyRoles) != len(claims.CompanyRoleNames) {
 			return nil, NewJwtError("len(CompanyRoles)", "len(CompanyRoleNames)", "CompanyRoles and CompanyRoleNames length is not equal")
 		}
 
-		var roles []Role = make([]Role, len(claims.CompanyRoles))
+		var roles = make([]user.Role, len(claims.CompanyRoles))
 		for i := 0; i < len(claims.CompanyRoles); i++ {
 
-			var label, err = text.NewLabel(claims.CompanyRoles[i])
-			if err != nil {
-				return nil, utility.AddPropertyError("Company.Role["+string(i)+"]", err)
+			var label, labelErr = text.NewLabel(claims.CompanyRoles[i])
+			if labelErr != nil {
+				return nil, utility.AddPropertyError("Company.Role["+string(i)+"]", labelErr)
 			}
 
-			var name, err = text.NewName(claims.CompanyRoleNames[i])
-			if err != nil {
-				return nil, utility.AddPropertyError("Company.Role["+string(i)+"]", err)
+			var name, nameErr = text.NewName(claims.CompanyRoleNames[i])
+			if nameErr != nil {
+				return nil, utility.AddPropertyError("Company.Role["+string(i)+"]", nameErr)
 			}
 
 			roles[i] = user.NewRole(label, name)
 		}
 
-		var companyIdentifier, err = text.NewCompanyIdentifier(*claims.CompanyIdentifier)
-		if err != nil {
-			return nil, utility.AddPropertyError("company", err)
+		var companyIdentifier, idErr = text.NewIdentifier(*claims.CompanyIdentifier)
+		if idErr != nil {
+			return nil, utility.AddPropertyError("company", idErr)
 		}
-		var companyName, err = NewCompanyName(*claims.CompanyName)
-		if err != nil {
-			return nil, utility.AddPropertyError("company", err)
+		var companyName, nameErr = text.NewName(*claims.CompanyName)
+		if nameErr != nil {
+			return nil, utility.AddPropertyError("company", nameErr)
 		}
 
 		var company = user.NewCompany(companyIdentifier, companyName)
@@ -98,16 +102,16 @@ func getCompanyRole(claims *GeezerClaims) (*CompanyRole, error) {
 
 	} else {
 		if claims.CompanyIdentifier != nil {
-			return nil, NewJwtError("CompanyIdentifier", claims.CompanyIdentifier, "CompanyIdentifier is not nil")
+			return nil, NewJwtError("CompanyIdentifier", *claims.CompanyIdentifier, "CompanyIdentifier is not nil")
 		}
 		if claims.CompanyName != nil {
-			return nil, NewJwtError("CompanyName", claims.CompanyName, "CompanyIdentifier is not nil")
+			return nil, NewJwtError("CompanyName", *claims.CompanyName, "CompanyIdentifier is not nil")
 		}
 		if claims.CompanyRoles != nil {
-			return nil, NewJwtError("CompanyRoles", claims.CompanyRoles, "CompanyIdentifier is not nil")
+			return nil, NewJwtError("CompanyRoles", strings.Join(claims.CompanyRoles, ","), "CompanyIdentifier is not nil")
 		}
 		if claims.CompanyRoleNames != nil {
-			return nil, NewJwtError("CompanyRoleNames", claims.CompanyRoleNames, "CompanyIdentifier is not nil")
+			return nil, NewJwtError("CompanyRoleNames", strings.Join(claims.CompanyRoleNames, ","), "CompanyIdentifier is not nil")
 		}
 		return nil, nil
 	}
@@ -115,42 +119,44 @@ func getCompanyRole(claims *GeezerClaims) (*CompanyRole, error) {
 
 func (claims *GeezerClaims) ToAuthentic() (*user.Authentic, error) {
 
-	var userIdentifier, err = text.NewUserIdentifier(claims.Subject)
-	if err != nil {
-		return nil, utility.AddPropertyError("claims", err)
+	var userIdentifier, idErr = text.NewIdentifier(claims.Subject)
+	if idErr != nil {
+		return nil, utility.AddPropertyError("claims", idErr)
 	}
 
-	var userEmailId, err = text.NewEmail(claims.UserEmailId)
-	if err != nil {
-		return nil, utility.AddPropertyError("claims", err)
+	var userEmailId, emailErr = text.NewEmail(claims.UserEmailId)
+	if emailErr != nil {
+		return nil, utility.AddPropertyError("claims", emailErr)
 	}
 
-	var userEmail = nil
+	var userEmail *text.Email = nil
 	if claims.UserEmail != nil {
-		var userEmail, err = text.NewEmail(claims.UserEmail)
+		var userEmailValue, err = text.NewEmail(*claims.UserEmail)
 		if err != nil {
 			return nil, utility.AddPropertyError("claims", err)
+		} else {
+			userEmail = &userEmailValue
 		}
 	}
 
-	var userName, err = text.NewName(claims.UserName)
-	if err != nil {
-		return nil, utility.AddPropertyError("claims", err)
+	var userName, nameErr = text.NewName(claims.UserName)
+	if nameErr != nil {
+		return nil, utility.AddPropertyError("claims", nameErr)
 	}
 
-	var companyRole, err = getCompanyRole(claims)
-	if err != nil {
-		return nil, utility.AddPropertyError("claims", err)
+	var companyRole, crErr = getCompanyRole(claims)
+	if crErr != nil {
+		return nil, utility.AddPropertyError("claims", crErr)
 	}
 
-	var user = user.NewUser(
+	var userValue = user.NewUser(
 		userIdentifier,
 		userEmailId,
 		userEmail,
 		userName,
 		claims.BotFlag,
 		companyRole,
-		claims.UpdateDate.Time,
+		claims.UpdateDate,
 	)
 
 	return user.NewAuthentic(
@@ -161,6 +167,6 @@ func (claims *GeezerClaims) ToAuthentic() (*user.Authentic, error) {
 		claims.NotBefore.Time,
 		claims.IssuedAt.Time,
 		claims.ID,
-		user,
+		*userValue,
 	), nil
 }

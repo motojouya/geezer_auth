@@ -11,7 +11,7 @@ type Role struct {
 
 func NewRole(label text.Label, name text.Name) Role {
 	return Role{
-		label: label,
+		Label: label,
 		Name:  name,
 	}
 }
