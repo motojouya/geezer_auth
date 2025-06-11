@@ -2,23 +2,24 @@ package user
 
 import (
 	"time"
+	"github.com/motojouya/geezer_auth/pkg/core/text"
 )
 
 type User struct {
-	Identifier  Identifier
-	EmailId     Email
-	Email       *Email
-	Name        Name
+	Identifier  text.Identifier
+	EmailId     text.Email
+	Email       *text.Email
+	Name        text.Name
 	BotFlag     bool
 	CompanyRole *CompanyRole
 	UpdateDate  time.Time
 }
 
 func NewUser(
-	identifier Identifier,
-	emailId Email,
-	email *Email,
-	name Name,
+	identifier text.Identifier,
+	emailId text.Email,
+	email *text.Email,
+	name text.Name,
 	botFlag bool,
 	companyRole *CompanyRole,
 	updateDate time.Time,

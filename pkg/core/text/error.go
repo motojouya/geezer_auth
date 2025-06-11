@@ -2,6 +2,7 @@ package text
 
 import (
 	"errors"
+	"strconv"
 )
 
 /*
@@ -26,7 +27,7 @@ func NewLengthError(name string, value string, min uint, max uint, message strin
 }
 
 func (e LengthError) Error() string {
-	return e.error.Error() + " (name: " + e.Name + ", value: " + e.Value + ", min: " + string(e.min) + ", max: " + string(e.max) + ")"
+	return e.error.Error() + " (name: " + e.Name + ", value: " + e.Value + ", min: " + strconv.Itoa(int(e.min)) + ", max: " + strconv.Itoa(int(e.max)) + ")"
 }
 
 func (e LengthError) Unwrap() error {

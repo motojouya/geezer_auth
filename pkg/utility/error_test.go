@@ -61,11 +61,12 @@ func TestCreatePropertyError(t *testing.T) {
 	var err = utility.NewNilError(name, message)
 
 	var prop = "TestPath"
+	var httpStatus = 402
 
-	var propertyError = utility.CreatePropertyError(prop, err)
+	var propertyError = utility.CreatePropertyError(prop, err, httpStatus)
 
 	assert.Equal(t, prop, propertyError.Property)
-	assert.Equal(t, 400, propertyError.HttpStatus)
+	assert.Equal(t, httpStatus, propertyError.HttpStatus)
 	assert.Equal(t, message, propertyError.Unwrap().Error())
 	assert.Equal(t, message+" (property: "+prop+", httpStatus: "+httpStatus+")", propertyError.Error())
 

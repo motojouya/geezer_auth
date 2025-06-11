@@ -3,6 +3,7 @@ package user
 import (
 	"github.com/golang-jwt/jwt/v5"
 	"time"
+	"github.com/google/uuid"
 )
 
 // TODO IsExpired(currentDate time.Time) bool 実装
@@ -16,10 +17,10 @@ func CreateAuthentic(
 	audience []string,
 	issuedAt time.Time,
 	validityPeriodMinutes uint,
-	id UUID,
+	id uuid.UUID,
 	user *User,
 ) *Authentic {
-	var expireDate = issueDate.Add(validityPeriodMinutes * time.Minute)
+	var expiresAt = issuedAt.Add(int(validityPeriodMinutes) * time.Minute)
 
 	return NewAuthentic(
 		issuer,
@@ -29,7 +30,7 @@ func CreateAuthentic(
 		issuedAt,
 		issuedAt,
 		id,
-		user,
+		*user,
 	)
 }
 
@@ -40,19 +41,19 @@ func NewAuthentic(
 	expiresAt time.Time,
 	notBefore time.Time,
 	issuedAt time.Time,
-	id UUID,
+	id uuid.UUID,
 	user *User,
 ) *Authentic {
 	return &Authentic{
-		jwt.RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    issuer,      // iss
-			Subject:   subject,     // sub
-			Audience:  audience,    // aud
-			ExpiresAt: expiresAt,   // exp
-			NotBefore: notBefore,   // nbf
-			IssuedAt:  issuedAt,    // iat
-			ID:        id.String(), // jti
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    issuer,                        // iss
+			Subject:   subject,                       // sub
+			Audience:  audience,                      // aud
+			ExpiresAt: jwt.NewNumericDate(expiresAt), // exp
+			NotBefore: jwt.NewNumericDate(notBefore), // nbf
+			IssuedAt:  jwt.NewNumericDate(issuedAt),  // iat
+			ID:        id.String(),                   // jti
 		},
-		User: user,
+		User: *user,
 	}
 }

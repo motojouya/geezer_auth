@@ -2,7 +2,13 @@ package utility
 
 import (
 	"errors"
+	"strconv"
 )
+
+type HttpError interface {
+	HttpStatus() uint
+	error
+}
 
 /*
  * NilError
@@ -65,25 +71,26 @@ func (e SystemConfigError) HttpStatus() uint {
  * したがってその経路は呼び出し側で補填する必要があり、その機能を備えたエラー型
  */
 type PropertyError struct {
-	Property   string
-	HttpStatus uint
+	Property       string
+	HttpStatusCode uint
 	error
 }
 
-func CreatePropertyError(property string, source error) *PropertyError {
+func CreatePropertyError(property string, source HttpError) *PropertyError {
+	// FIXME 本当はhttpStatusはsourceから取得したいが、sourceがPropertyErrorでない場合は取得できないため、引数として受け取る
 	return NewPropertyError(property, source.HttpStatus(), source)
 }
 
 func NewPropertyError(property string, httpStatus uint, source error) *PropertyError {
 	return &PropertyError{
-		Property:   property,
-		HttpStatus: httpStatus,
-		error:      source,
+		Property:       property,
+		HttpStatusCode: httpStatus,
+		error:          source,
 	}
 }
 
 func (e PropertyError) Error() string {
-	return e.error.Error() + " (property: " + e.Property + " httpStatus: " + string(e.HttpStatus) + ")"
+	return e.error.Error() + " (property: " + e.Property + " httpStatus: " + strconv.Itoa(int(e.HttpStatusCode)) + ")"
 }
 
 func (e PropertyError) Unwrap() error {
@@ -91,33 +98,33 @@ func (e PropertyError) Unwrap() error {
 }
 
 func (e PropertyError) HttpStatus() uint {
-	if e.HttpStatus != 0 {
-		return e.HttpStatus
+	if e.HttpStatusCode != 0 {
+		return e.HttpStatusCode
 	}
 	return 400
 }
 
 func (e PropertyError) Add(path string) *PropertyError {
 	return &PropertyError{
-		Property:   path + "." + e.Property,
-		HttpStatus: e.HttpStatus,
-		error:      e.error,
+		Property:       path + "." + e.Property,
+		HttpStatusCode: e.HttpStatusCode,
+		error:          e.error,
 	}
 }
 
 func (e PropertyError) Change(path string, httpStatus uint) *PropertyError {
 	return &PropertyError{
-		Property:   path + "." + e.Property,
-		HttpStatus: httpStatus,
-		error:      e.error,
+		Property:       path + "." + e.Property,
+		HttpStatusCode: httpStatus,
+		error:          e.error,
 	}
 }
 
-const propertyError *PropertyError = nil
+var propertyError = PropertyError{}
 
-func AddPropertyError(path string, source error) *PropertyError {
+func AddPropertyError(path string, source HttpError) *PropertyError {
 	if source == nil {
-		return panic("source error cannot be nil")
+		panic("source error cannot be nil")
 	}
 
 	if errors.As(source, propertyError) {
@@ -129,7 +136,7 @@ func AddPropertyError(path string, source error) *PropertyError {
 
 func ChangePropertyError(path string, source error, httpStatus uint) *PropertyError {
 	if source == nil {
-		return panic("source error cannot be nil")
+		panic("source error cannot be nil")
 	}
 
 	if errors.As(source, propertyError) {
