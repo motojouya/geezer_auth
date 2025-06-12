@@ -22,5 +22,5 @@ func NewToken(token string) (Token, error) {
 
 func CreateToken(token uuid.UUID) (Token, error) {
 	var tokenStr = token.String()
-	return NewToken(&token)
+	return NewToken(tokenStr)
 }

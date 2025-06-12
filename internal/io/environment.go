@@ -9,10 +9,10 @@ type Environment interface {
 	GetJwtHandling() (jwt.JwtHandling, error)
 }
 
-type environment interface{}
+type environment struct {}
 
 func CreateEnvironment() Environment {
-	return &environment(interface{})
+	return &environment{}
 }
 
 func (e environment) GetJwtHandling() (jwt.JwtHandling, error) {

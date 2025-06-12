@@ -18,7 +18,7 @@ func NewText(text string) (Text, error) {
 
 	var length = len([]rune(trimmed))
 	if length > 10000 {
-		return Name(""), pkg.NewLengthError("text", text, 0, 10000, "text must be between 0 and 10000 characters")
+		return Text(""), pkg.NewLengthError("text", text, 0, 10000, "text must be between 0 and 10000 characters")
 	}
 
 	return Text(trimmed), nil

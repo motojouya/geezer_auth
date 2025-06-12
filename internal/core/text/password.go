@@ -3,6 +3,7 @@ package text
 import (
 	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
 	"golang.org/x/crypto/bcrypt"
+	"regexp"
 )
 
 type Password string
@@ -10,12 +11,12 @@ type HashedPassword string
 
 func NewPassword(password string) (Password, error) {
 	if password == "" {
-		return Password(""), pkg.NewLengthError("password", &password, 1, 255, "password should not be empty")
+		return Password(""), pkg.NewLengthError("password", password, 1, 255, "password should not be empty")
 	}
 
 	var length = len([]rune(password))
 	if length < 1 || length > 255 {
-		return Password(""), pkg.NewLengthError("password", &password, 1, 255, "password must be between 1 and 255 characters")
+		return Password(""), pkg.NewLengthError("password", password, 1, 255, "password must be between 1 and 255 characters")
 	}
 
 	// TODO 正規表現あってる？
@@ -25,9 +26,9 @@ func NewPassword(password string) (Password, error) {
 		panic(err)
 	}
 
-	var result = re.MatchString(text, -1)
+	var result = re.MatchString(password)
 	if !result {
-		return Password(""), pkg.NewFormatError("password", "password", &password, "password must be a valid password")
+		return Password(""), pkg.NewFormatError("password", "password", password, "password must be a valid password")
 	}
 
 	return Password(password), nil
@@ -49,5 +50,5 @@ func HashPassword(password Password) (HashedPassword, error) {
 }
 
 func VerifyPassword(hashed HashedPassword, password Password) error {
-	return bcrypt.CompareHashAndPassword([]byte(hashed), []byte(parameterPassword))
+	return bcrypt.CompareHashAndPassword([]byte(hashed), []byte(password))
 }

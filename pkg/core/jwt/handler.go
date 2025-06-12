@@ -46,7 +46,7 @@ func (jwtHandling *JwtHandling) Generate(userValue *user.User, issueDate time.Ti
 		issueDate,
 		jwtHandling.ValidityPeriodMinutes,
 		id,
-		*userValue,
+		userValue,
 	)
 
 	var claims = FromAuthentic(authentic)

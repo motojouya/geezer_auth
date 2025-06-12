@@ -7,6 +7,7 @@ import (
 	"github.com/motojouya/geezer_auth/pkg/utility"
 	"time"
 	"strings"
+	"strconv"
 )
 
 // FIXME claimsのprivate keyが`github.com/motojouya/geezer_auth/`をprefixとしているが、本来は稼働するサーバのfqdnをprefixとして持つべき。
@@ -76,12 +77,12 @@ func getCompanyRole(claims *GeezerClaims) (*user.CompanyRole, error) {
 
 			var label, labelErr = text.NewLabel(claims.CompanyRoles[i])
 			if labelErr != nil {
-				return nil, utility.AddPropertyError("Company.Role["+string(i)+"]", labelErr)
+				return nil, utility.AddPropertyError("Company.Role["+strconv.Itoa(i)+"]", labelErr)
 			}
 
 			var name, nameErr = text.NewName(claims.CompanyRoleNames[i])
 			if nameErr != nil {
-				return nil, utility.AddPropertyError("Company.Role["+string(i)+"]", nameErr)
+				return nil, utility.AddPropertyError("Company.Role["+strconv.Itoa(i)+"]", nameErr)
 			}
 
 			roles[i] = user.NewRole(label, name)
@@ -167,6 +168,6 @@ func (claims *GeezerClaims) ToAuthentic() (*user.Authentic, error) {
 		claims.NotBefore.Time,
 		claims.IssuedAt.Time,
 		claims.ID,
-		*userValue,
+		userValue,
 	), nil
 }

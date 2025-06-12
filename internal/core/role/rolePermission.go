@@ -2,7 +2,6 @@ package role
 
 import (
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
-	"time"
 )
 
 // SelfEditがないと、自身の情報を編集するのがだれでもできるとか、権限で管理ができなくなるので
@@ -28,12 +27,12 @@ func NewRolePermission(roleLabel text.Label, selfEdit bool, companyAccess bool, 
 }
 
 // RoleはCompanyにAssignされて、そのCompanyで適用されるものなので、ロールのない状態でできる権限を設定する
-const RoleLessLabel = text.NewLabel("ROLE_LESS")
-const RoleLessPermission = NewRolePermission(RoleLessLabel, true, false, false, false, 1)
+var RoleLessLabel, _ = text.NewLabel("ROLE_LESS") // string literalを入れてるので、errは発生しないはず
+var RoleLessPermission = NewRolePermission(RoleLessLabel, true, false, false, false, 1)
 
 // そもそも認証がない利用者ができることを定義する
-const AnonymousLabel = text.NewLabel("ANONYMOUS")
-const AnonymousPermission = NewRolePermission(AnonymousLabel, false, false, false, false, 0)
+var AnonymousLabel, _ = text.NewLabel("ANONYMOUS") // string literalを入れてるので、errは発生しないはず
+var AnonymousPermission = NewRolePermission(AnonymousLabel, false, false, false, false, 0)
 
 func PermissionKey(permission RolePermission) string {
 	return string(permission.RoleLabel)

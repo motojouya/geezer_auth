@@ -1,7 +1,6 @@
 package io
 
 import (
-	"github.com/caarlos0/env/v11"
 	"github.com/google/uuid"
 	"math/rand"
 	"time"
@@ -9,15 +8,14 @@ import (
 
 type Local interface {
 	GenerateRamdomString(length int, source string) string
-	GenerateUUID() (UUID, error)
+	GenerateUUID() (uuid.UUID, error)
 	GetNow() time.Time
-	GetEnv(object *interface{}) error
 }
 
-type local interface{}
+type local struct {}
 
 func CreateLocal() Local {
-	return &local(interface{})
+	return &local{}
 }
 
 func (l local) GenerateRamdomString(length int, source string) string {
@@ -28,13 +26,14 @@ func (l local) GenerateRamdomString(length int, source string) string {
 	return string(b)
 }
 
-func (l local) GenerateUUID() (UUID, error) {
-	uuid, err := uuid.NewUUID()
+func (l local) GenerateUUID() (uuid.UUID, error) {
+	var uuidValue, err = uuid.NewUUID()
 	if err != nil {
-		return UUID(""), err
+		var zero = uuid.UUID{}
+		return zero, err
 	}
 
-	return uuid, nil
+	return uuidValue, nil
 }
 
 func (l local) GetNow() time.Time {

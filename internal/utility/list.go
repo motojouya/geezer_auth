@@ -1,7 +1,6 @@
 package utility
 
 import (
-	"errors"
 	"reflect"
 	"slices"
 )
@@ -83,9 +82,9 @@ func Fold[T any, U any](slice []T, initial U, folder func(U, T) (U, error)) (U, 
 		return initial, nil
 	}
 
-	result := initial
+	var result = initial
 	for _, item := range slice {
-		result, err = folder(result, item)
+		var result, err = folder(result, item)
 		if err != nil {
 			return result, err
 		}
@@ -123,7 +122,7 @@ func Keys[T comparable, V any](m map[T]V) []T {
 	return keys
 }
 
-func Values[T any, V any](m map[T]V) []V {
+func Values[T comparable, V any](m map[T]V) []V {
 	var values []V
 	for _, value := range m {
 		values = append(values, value)
@@ -164,7 +163,7 @@ func Entries[T comparable, V any](m map[T]V) []struct {
  * branchは、[]leavesの要素を持っているが、DBでqueryを投げる際には、branch,leafで別々に投げたい。
  * 別々に投げた後に紐づけを行うための関数
  */
-func Relate[B any, L any](property string, branches []B, leaves []L, predicate func(B, L) bool) []B {
+func Relate[B any, L any](property string, branches []B, leaves []L, relate func(B, L) bool) []B {
 
 	if len(branches) == 0 {
 		return branches
@@ -175,7 +174,7 @@ func Relate[B any, L any](property string, branches []B, leaves []L, predicate f
 	var rest = slices.Clone(leaves)
 	var matchedIndexes []uint = []uint{}
 
-	for bIndex, branch := range branches {
+	for _, branch := range branches {
 
 		var e = reflect.ValueOf(&branch).Elem()
 		var list = e.FieldByName(property)
@@ -245,13 +244,12 @@ func Group[T any](slice []T, predicate func(T, T) bool) [][]T {
 		}
 
 		var item = workings[index]
-		workings = slices.Delete(working, index, index+1)
+		workings = slices.Delete(workings, index, index+1)
 		var groupedItems = []T{item}
 
 		for i := len(workings) - 1; i >= 0; i-- {
 			var compare = workings[i]
 			if predicate(item, compare) {
-				matchdIndexs = append(matchdIndexs, uint(i))
 				groupedItems = append(groupedItems, compare)
 				workings = slices.Delete(workings, i, i+1)
 			}

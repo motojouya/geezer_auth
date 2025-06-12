@@ -1,7 +1,8 @@
 package role
 
 import (
-	text "github.com/motojouya/geezer_auth/pkg/core/text"
+	text "github.com/motojouya/geezer_auth/internal/core/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	user "github.com/motojouya/geezer_auth/pkg/core/user"
 	"time"
 )
@@ -13,18 +14,18 @@ import (
  */
 type Role struct {
 	user.Role
-	Description    Text
+	Description    text.Text
 	RegisteredDate time.Time
 }
 
 func NewRole(
-	name text.Name,
-	label text.Label,
-	description Text,
+	name           pkgText.Name,
+	label          pkgText.Label,
+	description    text.Text,
 	registeredDate time.Time,
 ) Role {
 	return Role{
-		user.Role:      user.NewRole(label, name),
+		Role:           user.NewRole(label, name),
 		Description:    description,
 		RegisteredDate: registeredDate,
 	}

@@ -2,6 +2,7 @@ package utility
 
 import (
 	"errors"
+	"strconv"
 )
 
 /*
@@ -9,14 +10,14 @@ import (
  */
 type RangeError struct {
 	Name  string
-	Value uint
-	Min   uint
-	Max   uint
+	Value int
+	Min   int
+	Max   int
 	error
 }
 
-func NewRangeError(name string, value uint, min uint, max uint, message string) *LengthError {
-	return &LengthError{
+func NewRangeError(name string, value int, min int, max int, message string) RangeError {
+	return RangeError{
 		Name:  name,
 		Value: value,
 		Min:   min,
@@ -26,7 +27,7 @@ func NewRangeError(name string, value uint, min uint, max uint, message string) 
 }
 
 func (e RangeError) Error() string {
-	return e.error.Error() + " (name: " + e.Name + ", value: " + string(e.Value) + ", min: " + string(e.Min) + ", max: " + string(e.Max) + ")"
+	return e.error.Error() + " (name: " + e.Name + ", value: " + strconv.Itoa(e.Value) + ", min: " + strconv.Itoa(e.Min) + ", max: " + strconv.Itoa(e.Max) + ")"
 }
 
 func (e RangeError) Unwrap() error {
