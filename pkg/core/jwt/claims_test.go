@@ -3,9 +3,12 @@ package jwt_test
 import (
 	gojwt "github.com/golang-jwt/jwt/v5"
 	"github.com/motojouya/geezer_auth/pkg/core/jwt"
+	"github.com/motojouya/geezer_auth/pkg/core/user"
+	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+	"github.com/google/uuid"
 )
 
 func getUser(userIdentifierStr string) *user.User {
@@ -16,33 +19,33 @@ func getUser(userIdentifierStr string) *user.User {
 	var roleLabel, _ = text.NewLabel("TestRole")
 	var roleName, _ = text.NewName("TestRoleName")
 	var role = user.NewRole(roleLabel, roleName)
-	var roles = []user.Roles{role}
+	var roles = []user.Role{role}
 
 	var companyRole = user.NewCompanyRole(company, roles)
 
-	var userIdentifier = text.NewIdentifier(userIdentifierStr)
-	var emailId = text.NewEmail("test@gmail.com")
-	var email = text.NewEmail("test_2@gmail.com")
-	var userName = text.NewName("TestName")
+	var userIdentifier, _ = text.NewIdentifier(userIdentifierStr)
+	var emailId, _ = text.NewEmail("test@gmail.com")
+	var email, _ = text.NewEmail("test_2@gmail.com")
+	var userName, _ = text.NewName("TestName")
 	var botFlag = false
 	var updateDate = time.Now()
 
-	return user.NewUser(userIdentifier, emailId, email, userName, botFlag, companyRole, updateDate)
+	return user.NewUser(userIdentifier, emailId, &email, userName, botFlag, companyRole, updateDate)
 }
 
-func getRegisteredClaims(issuedAt time.Time, id uuid.UUID) jwt.RegisteredClaims {
+func getRegisteredClaims(issuedAt time.Time, id uuid.UUID) gojwt.RegisteredClaims {
 	var issuer = "issuer_id"
 	var subject = "subject_id"
 	var aud01 = "aud1"
 	var aud02 = "aud2"
 	var audience = []string{aud01, aud02}
-	return jwt.RegisteredClaims{
+	return gojwt.RegisteredClaims{
 		Issuer:    issuer,
 		Subject:   subject,
 		Audience:  audience,
-		ExpiresAt: jwt.NewNumericDate(issuedAt),
-		NotBefore: jwt.NewNumericDate(issuedAt),
-		IssuedAt:  jwt.NewNumericDate(issuedAt),
+		ExpiresAt: gojwt.NewNumericDate(issuedAt),
+		NotBefore: gojwt.NewNumericDate(issuedAt),
+		IssuedAt:  gojwt.NewNumericDate(issuedAt),
 		ID:        id.String(),
 	}
 }
@@ -55,7 +58,7 @@ func TestFromAuthentic(t *testing.T) {
 	var roleLabel, _ = text.NewLabel("TestRole")
 	var roleName, _ = text.NewName("TestRoleName")
 	var role = user.NewRole(roleLabel, roleName)
-	var roles = []user.Roles{role}
+	var roles = []user.Role{role}
 
 	var companyRole = user.NewCompanyRole(company, roles)
 
@@ -66,7 +69,7 @@ func TestFromAuthentic(t *testing.T) {
 	var botFlag = false
 	var updateDate = time.Now()
 
-	var user = user.NewUser(userIdentifier, emailId, email, userName, botFlag, companyRole, updateDate)
+	var userValue = user.NewUser(userIdentifier, emailId, &email, userName, botFlag, companyRole, updateDate)
 
 	var issuer = "issuer_id"
 	var aud01 = "aud1"
@@ -74,9 +77,10 @@ func TestFromAuthentic(t *testing.T) {
 	var audience = []string{aud01, aud02}
 	var issuedAt = time.Now()
 	var id, _ = uuid.NewUUID()
-	var validityPeriodMinutes = 60
+	var validityPeriodMinutes uint = 60
+	var expiresAt = issuedAt.Add(time.Duration(validityPeriodMinutes) * time.Minute)
 
-	var authentic = user.CreateAuthentic(issuer, audience, issuedAt, validityPeriodMinutes, id, user)
+	var authentic = user.CreateAuthentic(issuer, audience, issuedAt, validityPeriodMinutes, id.String(), userValue)
 
 	var claims = jwt.FromAuthentic(authentic)
 
@@ -86,7 +90,7 @@ func TestFromAuthentic(t *testing.T) {
 	assert.Equal(t, aud01, claims.RegisteredClaims.Audience[0])
 	assert.Equal(t, aud02, claims.RegisteredClaims.Audience[1])
 	assert.Equal(t, expiresAt, claims.RegisteredClaims.ExpiresAt)
-	assert.Equal(t, notBefore, claims.RegisteredClaims.NotBefore)
+	assert.Equal(t, issuedAt, claims.RegisteredClaims.NotBefore)
 	assert.Equal(t, issuedAt, claims.RegisteredClaims.IssuedAt)
 	assert.Equal(t, id.String(), claims.RegisteredClaims.ID)
 
@@ -99,7 +103,7 @@ func TestFromAuthentic(t *testing.T) {
 	assert.Equal(t, string(companyName), claims.CompanyName)
 	assert.Equal(t, len(roles), len(claims.CompanyRoles))
 	assert.Equal(t, len(roles), len(claims.CompanyRoleNames))
-	assert.Equal(t, string(role), claims.CompanyRoles[0])
+	assert.Equal(t, string(roleLabel), claims.CompanyRoles[0])
 	assert.Equal(t, string(roleName), claims.CompanyRoleNames[0])
 
 	t.Logf("claims: %+v", claims)
@@ -112,9 +116,9 @@ func TestFromAuthentic(t *testing.T) {
 	t.Logf("claims.IssuedAt: %t", claims.RegisteredClaims.IssuedAt)
 	t.Logf("claims.ID: %s", claims.RegisteredClaims.ID)
 
-	t.Logf("claims.User: %+v", user)
-	t.Logf("claims.UserEmail: %s", *claims.Email)
-	t.Logf("claims.UserName: %s", claims.Name)
+	t.Logf("claims.User: %+v", userValue)
+	t.Logf("claims.UserEmail: %s", *claims.UserEmail)
+	t.Logf("claims.UserName: %s", claims.UserName)
 	t.Logf("claims.UserEmailId: %s", claims.UserEmailId)
 	t.Logf("claims.BotFlag: %t", claims.BotFlag)
 	t.Logf("claims.UpdateDate: %t", claims.UpdateDate)
@@ -131,7 +135,7 @@ func TestFromAuthenticNil(t *testing.T) {
 	var botFlag = false
 	var updateDate = time.Now()
 
-	var user = user.NewUser(userIdentifier, emailId, nil, userName, botFlag, nil, updateDate)
+	var userValue = user.NewUser(userIdentifier, emailId, nil, userName, botFlag, nil, updateDate)
 
 	var issuer = "issuer_id"
 	var aud01 = "aud1"
@@ -139,9 +143,10 @@ func TestFromAuthenticNil(t *testing.T) {
 	var audience = []string{aud01, aud02}
 	var issuedAt = time.Now()
 	var id, _ = uuid.NewUUID()
-	var validityPeriodMinutes = 60
+	var validityPeriodMinutes uint = 60
+	var expiresAt = issuedAt.Add(time.Duration(validityPeriodMinutes) * time.Minute)
 
-	var authentic = user.CreateAuthentic(issuer, audience, issuedAt, validityPeriodMinutes, id, user)
+	var authentic = user.CreateAuthentic(issuer, audience, issuedAt, validityPeriodMinutes, id.String(), userValue)
 
 	var claims = jwt.FromAuthentic(authentic)
 
@@ -151,7 +156,7 @@ func TestFromAuthenticNil(t *testing.T) {
 	assert.Equal(t, aud01, claims.RegisteredClaims.Audience[0])
 	assert.Equal(t, aud02, claims.RegisteredClaims.Audience[1])
 	assert.Equal(t, expiresAt, claims.RegisteredClaims.ExpiresAt)
-	assert.Equal(t, notBefore, claims.RegisteredClaims.NotBefore)
+	assert.Equal(t, issuedAt, claims.RegisteredClaims.NotBefore)
 	assert.Equal(t, issuedAt, claims.RegisteredClaims.IssuedAt)
 	assert.Equal(t, id.String(), claims.RegisteredClaims.ID)
 
@@ -175,9 +180,9 @@ func TestFromAuthenticNil(t *testing.T) {
 	t.Logf("claims.IssuedAt: %t", claims.RegisteredClaims.IssuedAt)
 	t.Logf("claims.ID: %s", claims.RegisteredClaims.ID)
 
-	t.Logf("claims.User: %+v", user)
-	t.Logf("claims.UserEmail: %s", *claims.Email)
-	t.Logf("claims.UserName: %s", claims.Name)
+	t.Logf("claims.User: %+v", userValue)
+	t.Logf("claims.UserEmail: %s", *claims.UserEmail)
+	t.Logf("claims.UserName: %s", claims.UserName)
 	t.Logf("claims.UserEmailId: %s", claims.UserEmailId)
 	t.Logf("claims.BotFlag: %t", claims.BotFlag)
 	t.Logf("claims.UpdateDate: %t", claims.UpdateDate)
@@ -189,13 +194,16 @@ func TestFromAuthenticNil(t *testing.T) {
 
 func TestToAuthentic(t *testing.T) {
 	var companyIdentifier, _ = text.NewIdentifier("CP-TESTES")
+	var companyIdentifierStr = string(companyIdentifier)
 	var companyName, _ = text.NewName("TestCompany")
+	var companyNameStr = string(companyName)
 	var roleLabel, _ = text.NewLabel("TestRole")
 	var roleName, _ = text.NewName("TestRoleName")
 
 	var userIdentifier, _ = text.NewIdentifier("TestIdentifier")
 	var emailId, _ = text.NewEmail("test@gmail.com")
 	var email, _ = text.NewEmail("test_2@gmail.com")
+	var emailStr = string(email)
 	var userName, _ = text.NewName("TestName")
 	var botFlag = false
 	var updateDate = time.Now()
@@ -205,34 +213,37 @@ func TestToAuthentic(t *testing.T) {
 	var aud02 = "aud2"
 	var audience = []string{aud01, aud02}
 	var issuedAt = time.Now()
-	var expiresAt = issuedAt.Add(validityPeriodMinutes * time.Minute)
+	var validityPeriodMinutes uint = 60
+	var expiresAt = issuedAt.Add(time.Duration(validityPeriodMinutes) * time.Minute)
 	var id, _ = uuid.NewUUID()
-	var validityPeriodMinutes = 60
 
 	var registeredClaims = gojwt.RegisteredClaims{
 		Issuer:    issuer,
 		Subject:   string(userIdentifier),
 		Audience:  audience,
-		ExpiresAt: jwt.NewNumericDate(expiresAt),
-		NotBefore: jwt.NewNumericDate(issuedAt),
-		IssuedAt:  jwt.NewNumericDate(issuedAt),
+		ExpiresAt: gojwt.NewNumericDate(expiresAt),
+		NotBefore: gojwt.NewNumericDate(issuedAt),
+		IssuedAt:  gojwt.NewNumericDate(issuedAt),
 		ID:        id.String(),
 	}
 
 	var claims = &jwt.GeezerClaims{
 		RegisteredClaims:  registeredClaims,
-		UserEmail:         email,
-		UserName:          userName,
+		UserEmail:         &emailStr,
+		UserName:          string(userName),
 		BotFlag:           botFlag,
-		UpdateDate:        jwt.NewNumericDate(updateDate),
+		UpdateDate:        updateDate,
 		UserEmailId:       string(emailId),
-		CompanyIdentifier: string(companyIdentifier),
-		CompanyName:       string(companyName),
+		CompanyIdentifier: &companyIdentifierStr,
+		CompanyName:       &companyNameStr,
 		CompanyRoles:      []string{string(roleLabel)},
 		CompanyRoleNames:  []string{string(roleName)},
 	}
 
-	var authentic = claims.ToAuthentic()
+	var authentic, err = claims.ToAuthentic()
+	if err != nil {
+		t.Fatalf("ToAuthentic failed: %v", err)
+	}
 
 	assert.Equal(t, issuer, authentic.RegisteredClaims.Issuer)
 	assert.Equal(t, string(userIdentifier), authentic.RegisteredClaims.Subject)
@@ -240,19 +251,19 @@ func TestToAuthentic(t *testing.T) {
 	assert.Equal(t, aud01, authentic.RegisteredClaims.Audience[0])
 	assert.Equal(t, aud02, authentic.RegisteredClaims.Audience[1])
 	assert.Equal(t, expiresAt, authentic.RegisteredClaims.ExpiresAt)
-	assert.Equal(t, notBefore, authentic.RegisteredClaims.NotBefore)
+	assert.Equal(t, issuedAt, authentic.RegisteredClaims.NotBefore)
 	assert.Equal(t, issuedAt, authentic.RegisteredClaims.IssuedAt)
 	assert.Equal(t, id.String(), authentic.RegisteredClaims.ID)
 
-	assert.Equal(t, string(email), *string(authentic.User.UserEmail))
-	assert.Equal(t, string(userName), string(authentic.User.UserName))
+	assert.Equal(t, string(email), string(*authentic.User.Email))
+	assert.Equal(t, string(userName), string(authentic.User.Name))
 	assert.Equal(t, botFlag, authentic.User.BotFlag)
 	assert.Equal(t, updateDate, authentic.User.UpdateDate)
-	assert.Equal(t, string(emailId), string(authentic.User.UserEmailId))
+	assert.Equal(t, string(emailId), string(authentic.User.EmailId))
 	assert.Equal(t, string(companyIdentifier), string(authentic.User.CompanyRole.Company.Identifier))
 	assert.Equal(t, string(companyName), string(authentic.User.CompanyRole.Company.Name))
 	assert.Equal(t, 1, len(authentic.User.CompanyRole.Roles))
-	assert.Equal(t, string(role), string(authentic.User.CompanyRole.Roles[0].Label))
+	assert.Equal(t, string(roleLabel), string(authentic.User.CompanyRole.Roles[0].Label))
 	assert.Equal(t, string(roleName), string(authentic.User.CompanyRole.Roles[0].Name))
 
 	t.Logf("authentic: %+v", authentic)
@@ -265,7 +276,7 @@ func TestToAuthentic(t *testing.T) {
 	t.Logf("authentic.IssuedAt: %t", authentic.RegisteredClaims.IssuedAt)
 	t.Logf("authentic.ID: %s", authentic.RegisteredClaims.ID)
 
-	t.Logf("authentic.User: %+v", user)
+	t.Logf("authentic.User: %+v", authentic.User)
 	t.Logf("authentic.User.Email: %s", string(*authentic.User.Email))
 	t.Logf("authentic.User.Name: %s", string(authentic.User.Name))
 	t.Logf("authentic.User.EmailId: %s", string(authentic.User.EmailId))
@@ -289,26 +300,26 @@ func TestToAuthenticNil(t *testing.T) {
 	var aud02 = "aud2"
 	var audience = []string{aud01, aud02}
 	var issuedAt = time.Now()
-	var expiresAt = issuedAt.Add(validityPeriodMinutes * time.Minute)
+	var validityPeriodMinutes uint = 60
+	var expiresAt = issuedAt.Add(time.Duration(validityPeriodMinutes) * time.Minute)
 	var id, _ = uuid.NewUUID()
-	var validityPeriodMinutes = 60
 
 	var registeredClaims = gojwt.RegisteredClaims{
 		Issuer:    issuer,
 		Subject:   string(userIdentifier),
 		Audience:  audience,
-		ExpiresAt: jwt.NewNumericDate(expiresAt),
-		NotBefore: jwt.NewNumericDate(issuedAt),
-		IssuedAt:  jwt.NewNumericDate(issuedAt),
+		ExpiresAt: gojwt.NewNumericDate(expiresAt),
+		NotBefore: gojwt.NewNumericDate(issuedAt),
+		IssuedAt:  gojwt.NewNumericDate(issuedAt),
 		ID:        id.String(),
 	}
 
 	var claims = &jwt.GeezerClaims{
 		RegisteredClaims:  registeredClaims,
 		UserEmail:         nil,
-		UserName:          userName,
+		UserName:          string(userName),
 		BotFlag:           botFlag,
-		UpdateDate:        jwt.NewNumericDate(updateDate),
+		UpdateDate:        updateDate,
 		UserEmailId:       string(emailId),
 		CompanyIdentifier: nil,
 		CompanyName:       nil,
@@ -316,7 +327,10 @@ func TestToAuthenticNil(t *testing.T) {
 		CompanyRoleNames:  []string{},
 	}
 
-	var authentic = claims.ToAuthentic()
+	var authentic, err = claims.ToAuthentic()
+	if err != nil {
+		t.Fatalf("ToAuthentic failed: %v", err)
+	}
 
 	assert.Equal(t, issuer, authentic.RegisteredClaims.Issuer)
 	assert.Equal(t, string(userIdentifier), authentic.RegisteredClaims.Subject)
@@ -324,15 +338,15 @@ func TestToAuthenticNil(t *testing.T) {
 	assert.Equal(t, aud01, authentic.RegisteredClaims.Audience[0])
 	assert.Equal(t, aud02, authentic.RegisteredClaims.Audience[1])
 	assert.Equal(t, expiresAt, authentic.RegisteredClaims.ExpiresAt)
-	assert.Equal(t, notBefore, authentic.RegisteredClaims.NotBefore)
+	assert.Equal(t, issuedAt, authentic.RegisteredClaims.NotBefore)
 	assert.Equal(t, issuedAt, authentic.RegisteredClaims.IssuedAt)
 	assert.Equal(t, id.String(), authentic.RegisteredClaims.ID)
 
-	assert.Equal(t, nil, authentic.User.UserEmail)
-	assert.Equal(t, string(userName), string(authentic.User.UserName))
+	assert.Equal(t, nil, authentic.User.Email)
+	assert.Equal(t, string(userName), string(authentic.User.Name))
 	assert.Equal(t, botFlag, authentic.User.BotFlag)
 	assert.Equal(t, updateDate, authentic.User.UpdateDate)
-	assert.Equal(t, string(emailId), string(authentic.User.UserEmailId))
+	assert.Equal(t, string(emailId), string(authentic.User.EmailId))
 	assert.Equal(t, nil, authentic.User.CompanyRole)
 
 	t.Logf("authentic: %+v", authentic)
@@ -345,7 +359,7 @@ func TestToAuthenticNil(t *testing.T) {
 	t.Logf("authentic.IssuedAt: %t", authentic.RegisteredClaims.IssuedAt)
 	t.Logf("authentic.ID: %s", authentic.RegisteredClaims.ID)
 
-	t.Logf("authentic.User: %+v", user)
+	t.Logf("authentic.User: %+v", authentic.User)
 	t.Logf("authentic.User.Name: %s", string(authentic.User.Name))
 	t.Logf("authentic.User.EmailId: %s", string(authentic.User.EmailId))
 	t.Logf("authentic.User.BotFlag: %t", authentic.User.BotFlag)
@@ -354,13 +368,16 @@ func TestToAuthenticNil(t *testing.T) {
 
 func getClaims() *jwt.GeezerClaims {
 	var companyIdentifier, _ = text.NewIdentifier("CP-TESTES")
+	var companyIdentifierStr = string(companyIdentifier)
 	var companyName, _ = text.NewName("TestCompany")
+	var companyNameStr = string(companyName)
 	var roleLabel, _ = text.NewLabel("TestRole")
 	var roleName, _ = text.NewName("TestRoleName")
 
 	var userIdentifier, _ = text.NewIdentifier("TestIdentifier")
 	var emailId, _ = text.NewEmail("test@gmail.com")
 	var email, _ = text.NewEmail("test_2@gmail.com")
+	var emailStr = string(email)
 	var userName, _ = text.NewName("TestName")
 	var botFlag = false
 	var updateDate = time.Now()
@@ -370,29 +387,29 @@ func getClaims() *jwt.GeezerClaims {
 	var aud02 = "aud2"
 	var audience = []string{aud01, aud02}
 	var issuedAt = time.Now()
-	var expiresAt = issuedAt.Add(validityPeriodMinutes * time.Minute)
+	var validityPeriodMinutes uint = 60
+	var expiresAt = issuedAt.Add(time.Duration(validityPeriodMinutes) * time.Minute)
 	var id, _ = uuid.NewUUID()
-	var validityPeriodMinutes = 60
 
 	var registeredClaims = gojwt.RegisteredClaims{
 		Issuer:    issuer,
 		Subject:   string(userIdentifier),
 		Audience:  audience,
-		ExpiresAt: jwt.NewNumericDate(expiresAt),
-		NotBefore: jwt.NewNumericDate(issuedAt),
-		IssuedAt:  jwt.NewNumericDate(issuedAt),
+		ExpiresAt: gojwt.NewNumericDate(expiresAt),
+		NotBefore: gojwt.NewNumericDate(issuedAt),
+		IssuedAt:  gojwt.NewNumericDate(issuedAt),
 		ID:        id.String(),
 	}
 
-	var claims = &jwt.GeezerClaims{
+	return &jwt.GeezerClaims{
 		RegisteredClaims:  registeredClaims,
-		UserEmail:         email,
-		UserName:          userName,
+		UserEmail:         &emailStr,
+		UserName:          string(userName),
 		BotFlag:           botFlag,
-		UpdateDate:        jwt.NewNumericDate(updateDate),
+		UpdateDate:        updateDate,
 		UserEmailId:       string(emailId),
-		CompanyIdentifier: string(companyIdentifier),
-		CompanyName:       string(companyName),
+		CompanyIdentifier: &companyIdentifierStr,
+		CompanyName:       &companyNameStr,
 		CompanyRoles:      []string{string(roleLabel)},
 		CompanyRoleNames:  []string{string(roleName)},
 	}
@@ -412,7 +429,8 @@ func TestToAuthenticError(t *testing.T) {
 		{
 			name: "UserEmail",
 			change: func(claims *jwt.GeezerClaims) {
-				claims.UserEmail = "WrongUserEmail"
+				var userEmail = "WrongUserEmail"
+				claims.UserEmail = &userEmail
 			},
 		},
 		{
@@ -430,13 +448,15 @@ func TestToAuthenticError(t *testing.T) {
 		{
 			name: "CompanyIdentifier",
 			change: func(claims *jwt.GeezerClaims) {
-				claims.CompanyIdentifier = "WrongCompanyIdentifier"
+				var companyIdentifier = "WrongCompanyIdentifier"
+				claims.CompanyIdentifier = &companyIdentifier
 			},
 		},
 		{
 			name: "CompanyName",
 			change: func(claims *jwt.GeezerClaims) {
-				claims.CompanyName = ""
+				var companyName = ""
+				claims.CompanyName = &companyName
 			},
 		},
 		{
@@ -495,7 +515,7 @@ func TestToAuthenticError(t *testing.T) {
 			var claims = getClaims()
 			tt.change(claims)
 
-			var authentic, err = claims.ToAuthentic()
+			var _, err = claims.ToAuthentic()
 
 			assert.NotNil(t, err, "Expected error for %s", tt.name)
 			if err != nil {

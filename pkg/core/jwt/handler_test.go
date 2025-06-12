@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func getUser() *user.User {
+func getUserForHandler() *user.User {
 	var companyRole, _ = text.NewLabel("TestRole")
 	var companyRoleName, _ = text.NewName("TestRoleName")
 	var role = user.NewRole(companyRole, companyRoleName)
@@ -31,7 +31,7 @@ func getUser() *user.User {
 }
 
 func TestHandleJwt(t *testing.T) {
-	var user = getUser()
+	var user = getUserForHandler()
 
 	var issuedAt = time.Now()
 	var id = "TestId"
@@ -108,7 +108,7 @@ func TestHandleJwt(t *testing.T) {
 }
 
 func TestHandleJwtFailureId(t *testing.T) {
-	var user = getUser()
+	var user = getUserForHandler()
 
 	var issuedAt = time.Now()
 	var id = "TestId"
@@ -132,7 +132,7 @@ func TestHandleJwtFailureId(t *testing.T) {
 }
 
 func TestHandleJwtFailureIssuer(t *testing.T) {
-	var user = getUser()
+	var user = getUserForHandler()
 
 	var issuedAt = time.Now()
 	var id = "TestId"
@@ -165,7 +165,7 @@ func TestHandleJwtFailureIssuer(t *testing.T) {
 }
 
 func TestHandleJwtFailureAudience(t *testing.T) {
-	var user = getUser()
+	var user = getUserForHandler()
 
 	var issuedAt = time.Now()
 	var id = "TestId"
@@ -198,7 +198,7 @@ func TestHandleJwtFailureAudience(t *testing.T) {
 }
 
 func TestHandleJwtFailureSecret(t *testing.T) {
-	var user = getUser()
+	var user = getUserForHandler()
 
 	var issuedAt = time.Now()
 	var id = "TestId"

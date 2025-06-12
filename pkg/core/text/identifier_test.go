@@ -23,7 +23,7 @@ func TestNewIdentifier(t *testing.T) {
 func TestNewIdentifierEmptyError(t *testing.T) {
 	var identifierString = ""
 
-	var identifier, err = text.NewEmail(identifierString)
+	var _, err = text.NewEmail(identifierString)
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
@@ -37,7 +37,7 @@ func TestNewIdentifierLengthError(t *testing.T) {
 	var identifierSources = []string{"US-ABCDE", "US-ABCDEFG"}
 
 	for _, identifierString := range identifierSources {
-		var identifier, err = text.NewEmail(identifierString)
+		var _, err = text.NewEmail(identifierString)
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}
@@ -52,7 +52,7 @@ func TestNewIdentifierFormatError(t *testing.T) {
 	var identifierSources = []string{"USABCDEFG", "US.ABCDEF", "US_ABCDEF", "USA-BCDEF", "US-ABCDE1", "U1-ABCDEF"}
 
 	for _, identifierString := range identifierSources {
-		var identifier, err = text.NewEmail(identifierString)
+		var _, err = text.NewEmail(identifierString)
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}

@@ -24,7 +24,7 @@ func TestNewName(t *testing.T) {
 func TestNewNameEmptyError(t *testing.T) {
 	var nameString = ""
 
-	var name, err = text.NewName(nameString)
+	var _, err = text.NewName(nameString)
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

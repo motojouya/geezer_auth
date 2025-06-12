@@ -16,7 +16,7 @@ func TestNewCompanyRole(t *testing.T) {
 	var roleLabel, _ = text.NewLabel("TestRole")
 	var roleName, _ = text.NewName("TestRoleName")
 	var role = user.NewRole(roleLabel, roleName)
-	var roles = []user.Roles{role}
+	var roles = []user.Role{role}
 
 	var companyRole = user.NewCompanyRole(company, roles)
 

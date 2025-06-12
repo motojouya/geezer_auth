@@ -11,8 +11,8 @@ import (
 type LengthError struct {
 	Name  string
 	Value string
-	min   uint
-	max   uint
+	Min   uint
+	Max   uint
 	error
 }
 
@@ -20,14 +20,14 @@ func NewLengthError(name string, value string, min uint, max uint, message strin
 	return &LengthError{
 		Name:  name,
 		Value: value,
-		min:   min,
-		max:   max,
+		Min:   min,
+		Max:   max,
 		error: errors.New(message),
 	}
 }
 
 func (e LengthError) Error() string {
-	return e.error.Error() + " (name: " + e.Name + ", value: " + e.Value + ", min: " + strconv.Itoa(int(e.min)) + ", max: " + strconv.Itoa(int(e.max)) + ")"
+	return e.error.Error() + " (name: " + e.Name + ", value: " + e.Value + ", min: " + strconv.Itoa(int(e.Min)) + ", max: " + strconv.Itoa(int(e.Max)) + ")"
 }
 
 func (e LengthError) Unwrap() error {

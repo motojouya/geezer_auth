@@ -9,16 +9,16 @@ import (
 func TestNewLengthError(t *testing.T) {
 	var name = "TestLengthError"
 	var value = "short"
-	var min = uint(5)
-	var max = uint(10)
+	var min uint = 5
+	var max uint= 10
 	var message = "This is a test length error"
 
-	var err = text.NewLengthError(name, &value, &min, &max, message)
+	var err = text.NewLengthError(name, value, min, max, message)
 
 	assert.Equal(t, name, err.Name)
-	assert.Equal(t, value, *err.Value)
-	assert.Equal(t, min, *err.min)
-	assert.Equal(t, max, *err.max)
+	assert.Equal(t, value, err.Value)
+	assert.Equal(t, min, err.Min)
+	assert.Equal(t, max, err.Max)
 	assert.Equal(t, message, err.Unwrap().Error())
 	assert.Equal(t, message+" (name: "+name+", value: "+value+", min: 5, max: 10)", err.Error())
 
@@ -35,11 +35,11 @@ func TestNewCharacterError(t *testing.T) {
 	var value = "xyz"
 	var message = "This is a test character error"
 
-	var err = text.NewCharacterError(name, chars, &value, message)
+	var err = text.NewCharacterError(name, chars, value, message)
 
 	assert.Equal(t, name, err.Name)
 	assert.Equal(t, chars, err.Chars)
-	assert.Equal(t, value, *err.Value)
+	assert.Equal(t, value, err.Value)
 	assert.Equal(t, message, err.Unwrap().Error())
 	assert.Equal(t, message+" (name: "+name+", chars: "+chars+", value: "+value+")", err.Error())
 
@@ -58,7 +58,7 @@ func TestNewFormatError(t *testing.T) {
 	var err = text.NewFormatError(name, value, format, message)
 
 	assert.Equal(t, name, err.Name)
-	assert.Equal(t, value, *err.Value)
+	assert.Equal(t, value, err.Value)
 	assert.Equal(t, format, err.Format)
 	assert.Equal(t, message, err.Unwrap().Error())
 	assert.Equal(t, message+" (name: "+name+", value: "+value+", format: "+format+")", err.Error())

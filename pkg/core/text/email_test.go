@@ -23,7 +23,7 @@ func TestNewEmail(t *testing.T) {
 func TestNewEmailEmptyError(t *testing.T) {
 	var emailString = ""
 
-	var email, err = text.NewEmail(emailString)
+	var _, err = text.NewEmail(emailString)
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
@@ -37,7 +37,7 @@ func TestNewEmailEmptyError(t *testing.T) {
 func TestNewEmailLengthError(t *testing.T) {
 	var emailString = "ts"
 
-	var email, err = text.NewEmail(emailString)
+	var _, err = text.NewEmail(emailString)
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
@@ -50,7 +50,7 @@ func TestNewEmailLengthError(t *testing.T) {
 func TestNewEmailFormatError(t *testing.T) {
 	var emailString = "test_token"
 
-	var email, err = text.NewEmail(emailString)
+	var _, err = text.NewEmail(emailString)
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

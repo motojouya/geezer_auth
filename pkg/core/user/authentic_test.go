@@ -17,23 +17,23 @@ func getUser(userIdentifierStr string) *user.User {
 	var roleLabel, _ = text.NewLabel("TestRole")
 	var roleName, _ = text.NewName("TestRoleName")
 	var role = user.NewRole(roleLabel, roleName)
-	var roles = []user.Roles{role}
+	var roles = []user.Role{role}
 
 	var companyRole = user.NewCompanyRole(company, roles)
 
-	var userIdentifier = text.NewIdentifier(userIdentifierStr)
-	var emailId = text.NewEmail("test@gmail.com")
-	var email = text.NewEmail("test_2@gmail.com")
-	var userName = text.NewName("TestName")
+	var userIdentifier, _ = text.NewIdentifier(userIdentifierStr)
+	var emailId, _ = text.NewEmail("test@gmail.com")
+	var email, _ = text.NewEmail("test_2@gmail.com")
+	var userName, _ = text.NewName("TestName")
 	var botFlag = false
 	var updateDate = time.Now()
 
-	return user.NewUser(userIdentifier, emailId, email, userName, botFlag, companyRole, updateDate)
+	return user.NewUser(userIdentifier, emailId, &email, userName, botFlag, companyRole, updateDate)
 }
 
 func TestNewAuthentic(t *testing.T) {
 	var userIdentifier = "TestIdentifier"
-	var user = getUser(userIdentifier)
+	var userValue = getUser(userIdentifier)
 
 	var issuer = "issuer_id"
 	var subject = "subject_id"
@@ -45,7 +45,7 @@ func TestNewAuthentic(t *testing.T) {
 	var issuedAt = time.Now()
 	var id, _ = uuid.NewUUID()
 
-	var authentic = user.NewAuthentic(issuer, subject, audience, expiresAt, notBefore, issuedAt, id, user)
+	var authentic = user.NewAuthentic(issuer, subject, audience, expiresAt, notBefore, issuedAt, id.String(), userValue)
 
 	assert.Equal(t, issuer, authentic.Issuer)
 	assert.Equal(t, subject, authentic.Subject)
@@ -73,7 +73,7 @@ func TestNewAuthentic(t *testing.T) {
 
 func TestCreateAuthentic(t *testing.T) {
 	var userIdentifier = "TestIdentifier"
-	var user = getUser(userIdentifier)
+	var userValue = getUser(userIdentifier)
 
 	var issuer = "issuer_id"
 	var aud01 = "aud1"
@@ -81,11 +81,11 @@ func TestCreateAuthentic(t *testing.T) {
 	var audience = []string{aud01, aud02}
 	var issuedAt = time.Now()
 	var id, _ = uuid.NewUUID()
-	var validityPeriodMinutes = 60
+	var validityPeriodMinutes uint = 60
 
-	var authentic = user.CreateAuthentic(issuer, audience, issuedAt, validityPeriodMinutes, id, user)
+	var authentic = user.CreateAuthentic(issuer, audience, issuedAt, validityPeriodMinutes, id.String(), userValue)
 
-	var expiresAt = issuedAt.Add(validityPeriodMinutes * time.Minute)
+	var expiresAt = issuedAt.Add(time.Duration(validityPeriodMinutes) * time.Minute)
 
 	assert.Equal(t, issuer, authentic.Issuer)
 	assert.Equal(t, userIdentifier, authentic.Subject)

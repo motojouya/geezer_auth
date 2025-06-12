@@ -23,7 +23,7 @@ func TestNewLabel(t *testing.T) {
 func TestNewLabelEmptyError(t *testing.T) {
 	var labelString = ""
 
-	var label, err = text.NewLabel(labelString)
+	var _, err = text.NewLabel(labelString)
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
@@ -37,7 +37,7 @@ func TestNewLabelEmptyError(t *testing.T) {
 func TestNewLabelLengthError(t *testing.T) {
 	var labelString = "T"
 
-	var label, err = text.NewLabel(labelString)
+	var _, err = text.NewLabel(labelString)
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
@@ -51,7 +51,7 @@ func TestNewLabelFormatError(t *testing.T) {
 	var labelSources = []string{"AbC", "A-B", "A.C", "A1B"}
 
 	for _, labelString := range labelSources {
-		var label, err = text.NewLabel(labelString)
+		var _, err = text.NewLabel(labelString)
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}
