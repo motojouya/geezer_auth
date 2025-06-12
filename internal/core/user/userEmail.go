@@ -47,7 +47,7 @@ func NewUserEmail(
 	verifyToken text.Token,
 	registerDate time.Time,
 	verifyDate time.Time,
-	expireDate *time.Time,
+	expireDate time.Time,
 ) *UserEmail {
 	return &UserEmail{
 		PersistKey: persistKey,
@@ -56,8 +56,8 @@ func NewUserEmail(
 			Email:        email,
 			VerifyToken:  verifyToken,
 			RegisterDate: registerDate,
-			VerifyDate:   verifyDate,
-			ExpireDate:   expireDate,
+			VerifyDate:   &verifyDate,
+			ExpireDate:   &expireDate,
 		},
 	}
 }

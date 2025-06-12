@@ -5,7 +5,6 @@ import (
 	"github.com/motojouya/geezer_auth/internal/core/role"
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
 	pkg "github.com/motojouya/geezer_auth/pkg/core/user"
-	"time"
 )
 
 type CompanyRole struct {
@@ -47,7 +46,7 @@ func (user *UserAuthentic) ToJwtUser() *pkg.User {
 	if user.CompanyRole != nil {
 		var company = pkg.NewCompany(user.CompanyRole.Company.Identifier, user.CompanyRole.Company.Name)
 
-		var roles = make([]*pkg.Role, len(sourceRoles))
+		var roles = make([]pkg.Role, len(user.CompanyRole.Roles))
 		for i, source := range user.CompanyRole.Roles {
 			roles[i] = pkg.NewRole(source.Label, source.Name)
 		}
@@ -55,7 +54,7 @@ func (user *UserAuthentic) ToJwtUser() *pkg.User {
 		companyRole = pkg.NewCompanyRole(company, roles)
 	}
 
-	return &pkg.NewUser(
+	return pkg.NewUser(
 		user.Identifier,
 		user.ExposeEmailId,
 		user.Email,

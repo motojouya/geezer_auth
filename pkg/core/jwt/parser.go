@@ -20,7 +20,7 @@ type JwtParsering struct {
 	OldSecret    string `env:"JWT_OLD_SECRET"`
 }
 
-func NewJwtParsing(
+func NewJwtParsering(
 	issuer string,
 	myself string,
 	latestKeyId string,

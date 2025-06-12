@@ -8,10 +8,10 @@ import (
 )
 
 type JwtParserLoader interface {
-	LoadJwtHandler(local io.Local) (JwtHandler, error)
+	LoadJwtParser() (JwtParser, error)
 }
 
-type jwtParserLoaderImpl interface{}
+type jwtParserLoaderImpl struct{}
 
 type JwtParser interface {
 	Parse(tokenString string) (*user.Authentic, error)
@@ -20,26 +20,37 @@ type JwtParser interface {
 // FIXME 本来はinternal/io/localのGetEnvを使って環境変数を取得すべきだが、ioパッケージを共通部品として使うのは不自然なので、ここではosパッケージを直接使う形
 // また、osパッケージ自体がローカルマシンに依存したものではあるので、引数で受け取ってコントローラブルにすべき
 func (impl jwtParserLoaderImpl) LoadJwtParser() (JwtParser, error) {
-	if issuer, issuerExist := os.LookupEnv("JWT_ISSUER"); !issuerExist {
+	var issuer, issuerExist = os.LookupEnv("JWT_ISSUER");
+	if !issuerExist {
 		return nil, utility.NewSystemConfigError("JWT_ISSUER", "JWT_ISSUER is not set on env")
 	}
-	if myself, myselfExist := os.LookupEnv("JWT_MYSELF"); !myselfExist {
+
+	var myself, myselfExist = os.LookupEnv("JWT_MYSELF");
+	if !myselfExist {
 		return nil, utility.NewSystemConfigError("JWT_ISSUER", "JWT_ISSUER is not set on env")
 	}
-	if latestKeyId, latestKeyIdExist := os.LookupEnv("JWT_LATEST_KEY_ID"); !latestKeyIdExist {
+
+	var latestKeyId, latestKeyIdExist = os.LookupEnv("JWT_LATEST_KEY_ID");
+	if !latestKeyIdExist {
 		return nil, utility.NewSystemConfigError("JWT_LATEST_KEY_ID", "JWT_LATEST_KEY_ID is not set on env")
 	}
-	if latestSecret, latestSecretExist := os.LookupEnv("JWT_LATEST_SECRET"); !latestSecretExist {
+
+	var latestSecret, latestSecretExist = os.LookupEnv("JWT_LATEST_SECRET");
+	if !latestSecretExist {
 		return nil, utility.NewSystemConfigError("JWT_LATEST_SECRET", "JWT_LATEST_SECRET is not set on env")
 	}
-	if oldKeyId, oldKeyIdExist := os.LookupEnv("JWT_OLD_KEY_ID"); !oldKeyIdExist {
+
+	var oldKeyId, oldKeyIdExist = os.LookupEnv("JWT_OLD_KEY_ID");
+	if !oldKeyIdExist {
 		return nil, utility.NewSystemConfigError("JWT_OLD_KEY_ID", "JWT_OLD_KEY_ID is not set on env")
 	}
-	if oldSecret, oldSecretExist := os.LookupEnv("JWT_OLD_SECRET"); !oldSecretExist {
+
+	var oldSecret, oldSecretExist = os.LookupEnv("JWT_OLD_SECRET");
+	if !oldSecretExist {
 		return nil, utility.NewSystemConfigError("JWT_OLD_SECRET", "JWT_OLD_SECRET is not set on env")
 	}
 
-	return jwt.NewJwtParsing(
+	return jwt.NewJwtParsering(
 		issuer,
 		myself,
 		latestKeyId,

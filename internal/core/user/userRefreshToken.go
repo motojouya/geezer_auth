@@ -6,10 +6,10 @@ import (
 )
 
 type UnsavedUserRefreshToken struct {
-	User           User
-	RefreshToken   text.Token
-	RegisteredDate time.Time
-	ExpireDate     time.Time
+	User         User
+	RefreshToken text.Token
+	RegisterDate time.Time
+	ExpireDate   time.Time
 }
 
 type UserRefreshToken struct {
@@ -25,7 +25,7 @@ func CreateUserRefreshToken(
 	refreshToken text.Token,
 	registerDate time.Time,
 ) UnsavedUserRefreshToken {
-	var expireDate = registerDate.Add(TokenValidityPeriodDays * time.Day)
+	var expireDate = registerDate.AddDate(0, 0, TokenValidityPeriodDays)
 
 	return UnsavedUserRefreshToken{
 		User:         user,

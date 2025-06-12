@@ -25,7 +25,7 @@ func CreateUserCompanyRole(
 	role role.Role,
 	registerDate time.Time,
 ) *UnsavedUserCompanyRole {
-	return &UnsavedUserEmail{
+	return &UnsavedUserCompanyRole{
 		User:         user,
 		Company:      company,
 		Role:         role,
@@ -34,22 +34,22 @@ func CreateUserCompanyRole(
 	}
 }
 
-func NewUserEmail(
+func NewUserCompanyRole(
 	persistKey uint,
 	user User,
 	company company.Company,
 	role role.Role,
 	registerDate time.Time,
-	expireDate *time.Time,
-) *UserEmail {
-	return &UserEmail{
-		PersistKey: persistKey,
-		UnsavedUserEmail: UnsavedUserEmail{
+	expireDate time.Time,
+) *UserCompanyRole {
+	return &UserCompanyRole{
+		PersistKey:             persistKey,
+		UnsavedUserCompanyRole: UnsavedUserCompanyRole{
 			User:         user,
 			Company:      company,
 			Role:         role,
 			RegisterDate: registerDate,
-			ExpireDate:   expireDate,
+			ExpireDate:   &expireDate,
 		},
 	}
 }
