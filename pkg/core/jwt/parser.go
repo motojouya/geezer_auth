@@ -11,7 +11,7 @@ import (
 /*
  * MyselfはAudienceと照合する自サーバの識別情報
  */
-type JwtParsering struct {
+type JwtParsing struct {
 	Issuer       string `env:"JWT_ISSUER,notEmpty"`
 	Myself       string `env:"JWT_MYSELF,notEmpty"`
 	LatestKeyId  string `env:"JWT_LATEST_KEY_ID,notEmpty"`
@@ -20,15 +20,15 @@ type JwtParsering struct {
 	OldSecret    string `env:"JWT_OLD_SECRET"`
 }
 
-func NewJwtParsering(
+func NewJwtParsing(
 	issuer string,
 	myself string,
 	latestKeyId string,
 	latestSecret string,
 	oldKeyId string,
 	oldSecret string,
-) JwtParsering {
-	return JwtParsering{
+) JwtParsing {
+	return JwtParsing{
 		Issuer:       issuer,
 		Myself:       myself,
 		LatestKeyId:  latestKeyId,
@@ -38,7 +38,7 @@ func NewJwtParsering(
 	}
 }
 
-func (jwtParsering *JwtParsering) getClaims(tokenString string) (*GeezerClaims, error) {
+func (jwtParsing *JwtParsing) getClaims(tokenString string) (*GeezerClaims, error) {
 	token, err := gojwt.ParseWithClaims(
 		tokenString,
 		&GeezerClaims{},
@@ -52,12 +52,12 @@ func (jwtParsering *JwtParsering) getClaims(tokenString string) (*GeezerClaims, 
 				return nil, NewJwtError("header.alg", alg, "Unexpected signing method")
 			}
 
-			if token.Header["kid"] == jwtParsering.LatestKeyId {
-				return []byte(jwtParsering.LatestSecret), nil
+			if token.Header["kid"] == jwtParsing.LatestKeyId {
+				return []byte(jwtParsing.LatestSecret), nil
 			}
 
-			if token.Header["kid"] == jwtParsering.OldKeyId {
-				return []byte(jwtParsering.OldSecret), nil
+			if token.Header["kid"] == jwtParsing.OldKeyId {
+				return []byte(jwtParsing.OldSecret), nil
 			}
 
 			var kid, ok = token.Header["kid"].(string)
@@ -77,11 +77,11 @@ func (jwtParsering *JwtParsering) getClaims(tokenString string) (*GeezerClaims, 
 		return nil, NewJwtError("hole token", tokenString, "Invalid token")
 	}
 
-	if jwtParsering.Issuer != claims.Issuer {
+	if jwtParsing.Issuer != claims.Issuer {
 		return nil, NewJwtError("Issuer", claims.Issuer, "Issuer is not valid")
 	}
 
-	if slices.Contains(claims.Audience, jwtParsering.Myself) {
+	if slices.Contains(claims.Audience, jwtParsing.Myself) {
 		return nil, NewJwtError("Audience", strings.Join(claims.Audience, ","), "Audience is not valid")
 	}
 
@@ -89,9 +89,9 @@ func (jwtParsering *JwtParsering) getClaims(tokenString string) (*GeezerClaims, 
 }
 
 // 引数のtokenStringはJwtToken型としてもいいが、いずれにしろこの関数で制約がかかるので、事前にチェックされた値ではなくstringを受けるほうが自然
-func (jwtParsering *JwtParsering) Parse(tokenString string) (*user.Authentic, error) {
+func (jwtParsing *JwtParsing) Parse(tokenString string) (*user.Authentic, error) {
 
-	var claims, err = jwtParsering.getClaims(tokenString)
+	var claims, err = jwtParsing.getClaims(tokenString)
 	if err != nil {
 		return nil, err
 	}

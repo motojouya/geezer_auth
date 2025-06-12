@@ -2,17 +2,16 @@ package service
 
 import (
 	"github.com/motojouya/geezer_auth/internal/io"
-	"github.com/motojouya/geezer_auth/pkg/core/jwt"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
 	"time"
 )
 
 type JwtHandlerLoader interface {
-	LoadJwtHandler(local io.Local) (JwtHandler, error)
+	LoadJwtHandler(e io.Environment) (JwtHandler, error)
 }
 
-type jwtHandlerLoaderImpl interface{}
+type jwtHandlerLoaderImpl struct {}
 
 type JwtHandler interface {
 	Generate(user *user.User, issueDate time.Time, id string) (*user.Authentic, text.JwtToken, error)

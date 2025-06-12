@@ -11,8 +11,8 @@ type serviceLoaderImpl struct {
 }
 
 func GetLoader() ServiceLoader {
-	return &ServiceLoaderImpl{
-		authorizationLoaderImpl: &authorizationLoaderImpl{},
-		jwtHandlerLoaderImpl:    &jwtHandlerLoaderImpl{},
+	return &serviceLoaderImpl{
+		authorizationLoaderImpl: authorizationLoaderImpl{},
+		jwtHandlerLoaderImpl:    jwtHandlerLoaderImpl{},
 	}
 }

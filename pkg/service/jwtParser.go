@@ -50,12 +50,14 @@ func (impl jwtParserLoaderImpl) LoadJwtParser() (JwtParser, error) {
 		return nil, utility.NewSystemConfigError("JWT_OLD_SECRET", "JWT_OLD_SECRET is not set on env")
 	}
 
-	return jwt.NewJwtParsering(
+	var jwtParsing = jwt.NewJwtParsing(
 		issuer,
 		myself,
 		latestKeyId,
 		latestSecret,
 		oldKeyId,
 		oldSecret,
-	), nil
+	)
+
+	return &jwtParsing, nil
 }

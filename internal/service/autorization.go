@@ -8,21 +8,27 @@ import (
 )
 
 type AuthorizationLoader interface {
-	LoadJwtHandler(local io.Local) (JwtHandler, error)
+	LoadAuthorization() Authorizer
 }
 
-type authorizationLoaderImpl interface{}
+type authorizationLoaderImpl struct {}
 
 type Authorizer interface {
-	Authorize(require RequirePermission, authentic *user.Authentic) error
+	Authorize(require role.RequirePermission, authentic *user.Authentic) error
 }
 
 // TODO DBアクセスしてロードするが、まだDB実装していない
 func (imple authorizationLoaderImpl) LoadAuthorization() Authorizer {
-	var EmployeeLabel = text.NewLabel("EMPLOYEE")
+	var EmployeeLabel, employeeLabelErr = text.NewLabel("EMPLOYEE")
+	if employeeLabelErr != nil {
+		panic(employeeLabelErr)
+	}
 	var EmployeePermission = role.NewRolePermission(EmployeeLabel, true, true, false, false, 5)
 
-	var ManagerLabel = text.NewLabel("MANAGER")
+	var ManagerLabel, managerLabelErr = text.NewLabel("MANAGER")
+	if managerLabelErr != nil {
+		panic(managerLabelErr)
+	}
 	var ManagerPermission = role.NewRolePermission(ManagerLabel, true, true, true, true, 9)
 
 	var permissions = []role.RolePermission{
