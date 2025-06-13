@@ -26,7 +26,7 @@ func TestNewRolePermission(t *testing.T) {
 
 	var fakeLabel, _ = pkg.NewLabel("TEST_RALE")
 	var isNotRolePermission = role.PermissionIs(fakeLabel)(rolePermission)
-	assert.False(t, isRolePermission, "Expected rolePermission to match the label")
+	assert.False(t, isNotRolePermission, "Expected rolePermission to match the label")
 
 	t.Logf("rolePermission: %+v", rolePermission)
 	t.Logf("rolePermission.RoleLabel: %s", rolePermission.RoleLabel)

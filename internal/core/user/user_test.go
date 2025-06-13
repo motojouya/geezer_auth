@@ -2,6 +2,7 @@ package user_test
 
 import (
 	"github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/core/company"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -9,7 +10,7 @@ import (
 )
 
 func TestCreateUserIdentifier(t *testing.T) {
-	var identifier, err = company.CreateUserIdentifier("TESTES")
+	var identifier, err = company.CreateCompanyIdentifier("TESTES")
 
 	assert.Nil(t, err)
 	assert.NotEmpty(t, identifier)
@@ -44,7 +45,7 @@ func TestCreateUser(t *testing.T) {
 }
 
 func TestNewUser(t *testing.T) {
-	var userId = 1
+	var userId uint = 1
 	var identifier, _ = text.NewIdentifier("TestIdentifier")
 	var emailId, _ = text.NewEmail("test@gmail.com")
 	var name, _ = text.NewName("TestName")
@@ -52,9 +53,9 @@ func TestNewUser(t *testing.T) {
 	var registeredDate = time.Now()
 	var updateDate = time.Now()
 
-	var userObj = user.NewUser(userId, identifier, emailId, name, botFlag, registeredDate, updateDate)
+	var userObj = user.NewUser(userId, identifier, name, emailId, botFlag, registeredDate, updateDate)
 
-	assert.Equal(t, userId, userObj.UserId)
+	assert.Equal(t, userId, userObj.PersistKey)
 	assert.Equal(t, string(identifier), string(userObj.Identifier))
 	assert.Equal(t, string(emailId), string(userObj.ExposeEmailId))
 	assert.Equal(t, string(name), string(userObj.Name))
@@ -63,7 +64,7 @@ func TestNewUser(t *testing.T) {
 	assert.Equal(t, updateDate, userObj.UpdateDate)
 
 	t.Logf("user: %+v", userObj)
-	t.Logf("user.UserId: %d", userObj.UserId)
+	t.Logf("user.PersistKey: %d", userObj.PersistKey)
 	t.Logf("user.Identifier: %s", userObj.Identifier)
 	t.Logf("user.ExposeEmailId: %s", userObj.ExposeEmailId)
 	t.Logf("user.Name: %s", userObj.Name)

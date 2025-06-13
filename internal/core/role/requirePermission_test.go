@@ -4,7 +4,6 @@ import (
 	"github.com/motojouya/geezer_auth/internal/core/role"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
 
 func TestNewRequirePermission(t *testing.T) {

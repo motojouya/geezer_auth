@@ -6,7 +6,6 @@ import (
 	"github.com/motojouya/geezer_auth/internal/core/text"
 	"github.com/motojouya/geezer_auth/internal/core/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
-	pkgUser "github.com/motojouya/geezer_auth/pkg/core/user"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -23,7 +22,7 @@ func getRoles(label pkgText.Label) []role.Role {
 	var roleName, _ = pkgText.NewName("TestRole")
 	var description, _ = text.NewText("Role for testing")
 	var registeredDate = time.Now()
-	return []role.Role{role.NewRole(roleId, roleName, label, description, registeredDate)}
+	return []role.Role{role.NewRole(roleName, label, description, registeredDate)}
 }
 
 func TestNewCompanyRole(t *testing.T) {
@@ -48,13 +47,13 @@ func TestNewCompanyRole(t *testing.T) {
 
 func TestNewUserAuthentic(t *testing.T) {
 	var userId uint = 1
-	var userIdentifier = text.NewIdentifier("TestIdentifier")
-	var emailId = text.NewEmail("test@gmail.com")
-	var email = text.NewEmail("test_2@gmail.com")
-	var userName = text.NewName("TestName")
+	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
+	var emailId, _ = pkgText.NewEmail("test@gmail.com")
+	var userName, _ = pkgText.NewName("TestName")
 	var botFlag = false
 	var userRegisteredDate = time.Now()
 	var updateDate = time.Now()
+	var userValue = user.NewUser(userId, userIdentifier, userName, emailId, botFlag, userRegisteredDate, updateDate)
 
 	var companyIdentifier, _ = pkgText.NewIdentifier("CP-TESTES")
 	var company = getCompany(companyIdentifier)
@@ -64,9 +63,10 @@ func TestNewUserAuthentic(t *testing.T) {
 
 	var companyRole = user.NewCompanyRole(company, roles)
 
-	var userObj = user.NewUserAuthentic(userId, userIdentifier, userName, emailId, &email, botFlag, userRegisteredDate, updateDate, &companyRole)
+	var email, _ = pkgText.NewEmail("test_2@gmail.com")
+	var userObj = user.NewUserAuthentic(userValue, companyRole, &email)
 
-	assert.Equal(t, userId, userObj.UserId)
+	assert.Equal(t, userId, userObj.PersistKey)
 	assert.Equal(t, string(userIdentifier), string(userObj.Identifier))
 	assert.Equal(t, string(emailId), string(userObj.ExposeEmailId))
 	assert.Equal(t, string(email), string(*userObj.Email))
@@ -79,31 +79,32 @@ func TestNewUserAuthentic(t *testing.T) {
 	assert.Equal(t, string(label), string(userObj.CompanyRole.Roles[0].Label))
 
 	t.Logf("user: %+v", userObj)
-	t.Logf("user.UserId: %d", userObj.UserId)
+	t.Logf("user.PersistKey: %d", userObj.PersistKey)
 	t.Logf("user.Identifier: %s", userObj.Identifier)
 	t.Logf("user.ExposeEmailId: %s", userObj.ExposeEmailId)
 	t.Logf("user.Email: %s", *userObj.Email)
 	t.Logf("user.Name: %s", userObj.Name)
 	t.Logf("user.BotFlag: %t", userObj.BotFlag)
-	t.Logf("user.RegisteredDate: %t", userObj.RegisteredDate)
-	t.Logf("user.UpdateDate: %t", userObj.UpdateDate)
+	t.Logf("user.RegisteredDate: %s", userObj.RegisteredDate)
+	t.Logf("user.UpdateDate: %s", userObj.UpdateDate)
 
 	t.Logf("companyRole: %+v", userObj.CompanyRole)
 	t.Logf("company: %+v", userObj.CompanyRole.Company)
-	t.Logf("company.Identifier: %d", userObj.CompanyRole.Company.Identifier)
+	t.Logf("company.Identifier: %s", userObj.CompanyRole.Company.Identifier)
 	t.Logf("role: %+v", userObj.CompanyRole.Roles[0])
-	t.Logf("role.Label: %d", userObj.CompanyRole.Roles[0].Label)
+	t.Logf("role.Label: %s", userObj.CompanyRole.Roles[0].Label)
 }
 
 func TestModelToAccessTokenUser(t *testing.T) {
 	var userId uint = 1
-	var userIdentifier = text.NewIdentifier("TestIdentifier")
-	var emailId = text.NewEmail("test@gmail.com")
-	var email = text.NewEmail("test_2@gmail.com")
-	var userName = text.NewName("TestName")
+	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
+	var emailId, _ = pkgText.NewEmail("test@gmail.com")
+	var email, _ = pkgText.NewEmail("test_2@gmail.com")
+	var userName, _ = pkgText.NewName("TestName")
 	var botFlag = false
 	var userRegisteredDate = time.Now()
 	var updateDate = time.Now()
+	var userValue = user.NewUser(userId, userIdentifier, userName, emailId, botFlag, userRegisteredDate, updateDate)
 
 	var companyId uint = 1
 	var companyIdentifier, _ = pkgText.NewIdentifier("CP-TESTES")
@@ -115,16 +116,16 @@ func TestModelToAccessTokenUser(t *testing.T) {
 	var roleName, _ = pkgText.NewName("TestRole")
 	var description, _ = text.NewText("Role for testing")
 	var roleRegisteredDate = time.Now()
-	var roles = []role.Role{role.NewRole(roleId, roleName, label, description, roleRegisteredDate)}
+	var roles = []role.Role{role.NewRole(roleName, label, description, roleRegisteredDate)}
 
 	var companyRole = user.NewCompanyRole(company, roles)
 
-	var userObj = user.NewUserAuthentic(userId, userIdentifier, userName, emailId, &email, botFlag, userRegisteredDate, updateDate, &companyRole)
+	var userObj = user.NewUserAuthentic(userValue, companyRole, &email)
 
 	var jwtUser = userObj.ToJwtUser()
 
 	assert.Equal(t, string(userIdentifier), string(jwtUser.Identifier))
-	assert.Equal(t, string(emailId), string(jwtUser.ExposeEmailId))
+	assert.Equal(t, string(emailId), string(jwtUser.EmailId))
 	assert.Equal(t, string(email), string(*jwtUser.Email))
 	assert.Equal(t, string(userName), string(jwtUser.Name))
 	assert.Equal(t, botFlag, jwtUser.BotFlag)
@@ -137,12 +138,12 @@ func TestModelToAccessTokenUser(t *testing.T) {
 
 	t.Logf("user: %+v", jwtUser)
 	t.Logf("user.Identifier: %s", jwtUser.Identifier)
-	t.Logf("user.ExposeEmailId: %s", jwtUser.ExposeEmailId)
+	t.Logf("user.ExposeEmailId: %s", jwtUser.EmailId)
 	t.Logf("user.Email: %s", *jwtUser.Email)
 	t.Logf("user.Name: %s", jwtUser.Name)
 	t.Logf("user.BotFlag: %t", jwtUser.BotFlag)
-	t.Logf("user.UpdateDate: %t", jwtUser.UpdateDate)
-	t.Logf("company: %+v", jwtUser.Company)
+	t.Logf("user.UpdateDate: %s", jwtUser.UpdateDate)
+	t.Logf("company: %+v", jwtUser.CompanyRole.Company)
 	t.Logf("company.Identifier: %s", jwtUser.CompanyRole.Company.Identifier)
 	t.Logf("company.Name: %s", jwtUser.CompanyRole.Company.Name)
 	t.Logf("Role.Label: %s", jwtUser.CompanyRole.Roles[0].Label)

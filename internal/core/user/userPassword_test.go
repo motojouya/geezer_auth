@@ -1,7 +1,6 @@
 package user_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/company"
 	"github.com/motojouya/geezer_auth/internal/core/text"
 	"github.com/motojouya/geezer_auth/internal/core/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
@@ -10,25 +9,25 @@ import (
 	"time"
 )
 
-func getUser(identifier pkgText.Identifier) user.User {
-	var userId = 1
+func getUserForPassword(identifier pkgText.Identifier) user.User {
+	var userId uint = 1
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
 	var name, _ = pkgText.NewName("TestName")
 	var botFlag = false
 	var registeredDate = time.Now()
 	var updateDate = time.Now()
 
-	return user.NewUser(userId, identifier, emailId, name, botFlag, registeredDate, updateDate)
+	return user.NewUser(userId, identifier, name, emailId, botFlag, registeredDate, updateDate)
 }
 
 func TestCreateUserPassword(t *testing.T) {
 	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
-	var user = getUser(userIdentifier)
+	var userValue = getUserForPassword(userIdentifier)
 
-	var password, _ = text.NewHashedPassword("TestPassword")
+	var password = text.NewHashedPassword("TestPassword")
 	var registerDate = time.Now()
 
-	var userPassword = user.CreateUserPassword(user, password, registerDate)
+	var userPassword = user.CreateUserPassword(userValue, password, registerDate)
 
 	assert.Equal(t, string(userIdentifier), string(userPassword.User.Identifier))
 	assert.Equal(t, string(password), string(userPassword.Password))
@@ -44,15 +43,15 @@ func TestCreateUserPassword(t *testing.T) {
 
 func TestNewUserPassword(t *testing.T) {
 	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
-	var user = getUser(userIdentifier)
+	var userValue = getUserForPassword(userIdentifier)
 
-	var password, _ = text.NewHashedPassword("TestPassword")
+	var password = text.NewHashedPassword("TestPassword")
 	var registerDate = time.Now()
 	var expireDate = registerDate.Add(24 * time.Hour)
 
-	var userPassword = user.NewUserPassword(1, user, password, registerDate, expireDate)
+	var userPassword = user.NewUserPassword(1, userValue, password, registerDate, expireDate)
 
-	assert.Equal(t, 1, userPassword.UserPasswordID)
+	assert.Equal(t, 1, userPassword.PersistKey)
 	assert.Equal(t, string(userIdentifier), string(userPassword.User.Identifier))
 	assert.Equal(t, string(password), string(userPassword.Password))
 	assert.Equal(t, registerDate, userPassword.RegisteredDate)

@@ -10,7 +10,7 @@ type UnsavedUserAccessToken struct {
 	AccessToken      text.JwtToken
 	SourceUpdateDate time.Time
 	RegisterDate     time.Time
-	ExpireDate       *time.Time
+	ExpireDate       time.Time
 }
 
 type UserAccessToken struct {
@@ -23,13 +23,13 @@ func CreateUserAccessToken(
 	accessToken  text.JwtToken,
 	registerDate time.Time,
 	expireDate   time.Time,
-) *UnsavedUserAccessToken {
-	return &UnsavedUserAccessToken{
+) UnsavedUserAccessToken {
+	return UnsavedUserAccessToken{
 		User:             user,
 		AccessToken:      accessToken,
 		SourceUpdateDate: user.UpdateDate,
 		RegisterDate:     registerDate,
-		ExpireDate:       &expireDate,
+		ExpireDate:       expireDate,
 	}
 }
 
@@ -39,9 +39,9 @@ func NewUserAccessToken(
 	accessToken      text.JwtToken,
 	sourceUpdateDate time.Time,
 	registerDate     time.Time,
-	expireDate       *time.Time,
-) *UserAccessToken {
-	return &UserAccessToken{
+	expireDate       time.Time,
+) UserAccessToken {
+	return UserAccessToken{
 		PersistKey:             persistKey,
 		UnsavedUserAccessToken: UnsavedUserAccessToken{
 			User:             user,

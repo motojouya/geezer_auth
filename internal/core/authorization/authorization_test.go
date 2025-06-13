@@ -8,6 +8,9 @@ import (
 	"github.com/motojouya/geezer_auth/pkg/utility"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
+	"github.com/google/uuid"
+	"errors"
 )
 
 func getAuthentic(role user.Role) *user.Authentic {
@@ -15,18 +18,18 @@ func getAuthentic(role user.Role) *user.Authentic {
 	var companyName, _ = text.NewName("TestCompany")
 	var company = user.NewCompany(companyIdentifier, companyName)
 
-	var roles = []user.Roles{role}
+	var roles = []user.Role{role}
 
 	var companyRole = user.NewCompanyRole(company, roles)
 
-	var userIdentifier = text.NewIdentifier("TestIdentifier")
-	var emailId = text.NewEmail("test@gmail.com")
-	var email = text.NewEmail("test_2@gmail.com")
-	var userName = text.NewName("TestName")
+	var userIdentifier, _ = text.NewIdentifier("TestIdentifier")
+	var emailId, _ = text.NewEmail("test@gmail.com")
+	var email, _ = text.NewEmail("test_2@gmail.com")
+	var userName, _ = text.NewName("TestName")
 	var botFlag = false
 	var updateDate = time.Now()
 
-	var user = user.NewUser(userIdentifier, emailId, email, userName, botFlag, companyRole, updateDate)
+	var userValue = user.NewUser(userIdentifier, emailId, &email, userName, botFlag, companyRole, updateDate)
 
 	var issuer = "issuer_id"
 	var subject = "subject_id"
@@ -38,18 +41,18 @@ func getAuthentic(role user.Role) *user.Authentic {
 	var issuedAt = time.Now()
 	var id, _ = uuid.NewUUID()
 
-	return user.NewAuthentic(issuer, subject, audience, expiresAt, notBefore, issuedAt, id, user)
+	return user.NewAuthentic(issuer, subject, audience, expiresAt, notBefore, issuedAt, id.String(), userValue)
 }
 
 func getAuthenticRoleLess() *user.Authentic {
-	var userIdentifier = text.NewIdentifier("TestIdentifier")
-	var emailId = text.NewEmail("test@gmail.com")
-	var email = text.NewEmail("test_2@gmail.com")
-	var userName = text.NewName("TestName")
+	var userIdentifier, _ = text.NewIdentifier("TestIdentifier")
+	var emailId, _ = text.NewEmail("test@gmail.com")
+	var email, _ = text.NewEmail("test_2@gmail.com")
+	var userName, _ = text.NewName("TestName")
 	var botFlag = false
 	var updateDate = time.Now()
 
-	var user = user.NewUser(userIdentifier, emailId, email, userName, botFlag, nil, updateDate)
+	var userValue = user.NewUser(userIdentifier, emailId, &email, userName, botFlag, nil, updateDate)
 
 	var issuer = "issuer_id"
 	var subject = "subject_id"
@@ -61,11 +64,11 @@ func getAuthenticRoleLess() *user.Authentic {
 	var issuedAt = time.Now()
 	var id, _ = uuid.NewUUID()
 
-	return user.NewAuthentic(issuer, subject, audience, expiresAt, notBefore, issuedAt, id, user)
+	return user.NewAuthentic(issuer, subject, audience, expiresAt, notBefore, issuedAt, id.String(), userValue)
 }
 
 func TestAuthorizeSuccess(t *testing.T) {
-	var auth = authorization.NewAuthorization([]authorization.RolePermission{
+	var auth = authorization.NewAuthorization([]role.RolePermission{
 		role.AnonymousPermission,
 		role.RoleLessPermission,
 		role.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
@@ -87,7 +90,7 @@ func TestAuthorizeSuccess(t *testing.T) {
 }
 
 func TestAuthorizeFailure(t *testing.T) {
-	var auth = authorization.NewAuthorization([]authorization.RolePermission{
+	var auth = authorization.NewAuthorization([]role.RolePermission{
 		role.AnonymousPermission,
 		role.RoleLessPermission,
 		role.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
@@ -113,7 +116,7 @@ func TestAuthorizeFailure(t *testing.T) {
 }
 
 func TestAuthorizeError(t *testing.T) {
-	var auth = authorization.NewAuthorization([]authorization.RolePermission{
+	var auth = authorization.NewAuthorization([]role.RolePermission{
 		role.AnonymousPermission,
 		role.RoleLessPermission,
 		role.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
@@ -139,11 +142,11 @@ func TestAuthorizeError(t *testing.T) {
 }
 
 func TestGetPriorityRolePermission(t *testing.T) {
-	var permissions = []authorization.RolePermission{
-		authorization.AnonymousPermission,
-		authorization.RoleLessPermission,
-		authorization.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
-		authorization.NewRolePermission("MANAGER", true, true, true, true, 9),
+	var permissions = []role.RolePermission{
+		role.AnonymousPermission,
+		role.RoleLessPermission,
+		role.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
+		role.NewRolePermission("MANAGER", true, true, true, true, 9),
 	}
 
 	var roleLabel, _ = text.NewLabel("MANAGER")
@@ -151,54 +154,54 @@ func TestGetPriorityRolePermission(t *testing.T) {
 	var role = user.NewRole(roleLabel, roleName)
 	var authentic = getAuthentic(role)
 
-	permission, err := auth.GetPriorityRolePermission(permissions, authentic)
+	permission, err := authorization.GetPriorityRolePermission(permissions, authentic)
 
 	assert.NoError(t, err)
-	assert.Equal(t, "MANAGER", string(permission.Label))
+	assert.Equal(t, "MANAGER", string(permission.RoleLabel))
 
-	t.Logf("Priority role permission for user: %s is: %s", authentic.User.Identifier, permission.Label.Value)
+	t.Logf("Priority role permission for user: %s is: %s", authentic.User.Identifier, permission.RoleLabel)
 }
 
 func TestGetPriorityRolePermissionAnonymous(t *testing.T) {
-	var permissions = []authorization.RolePermission{
-		authorization.AnonymousPermission,
-		authorization.RoleLessPermission,
-		authorization.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
-		authorization.NewRolePermission("MANAGER", true, true, true, true, 9),
+	var permissions = []role.RolePermission{
+		role.AnonymousPermission,
+		role.RoleLessPermission,
+		role.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
+		role.NewRolePermission("MANAGER", true, true, true, true, 9),
 	}
 
-	permission, err := auth.GetPriorityRolePermission(permissions, nil)
+	permission, err := authorization.GetPriorityRolePermission(permissions, nil)
 
 	assert.NoError(t, err)
-	assert.Equal(t, "ANONYMOUS", string(permission.Label))
+	assert.Equal(t, "ANONYMOUS", string(permission.RoleLabel))
 
-	t.Logf("Priority role permission for user: %s is: %s", authentic.User.Identifier, permission.Label.Value)
+	t.Logf("Priority role permission for user: anonymous is: %s", permission.RoleLabel)
 }
 
 func TestGetPriorityRolePermissionRoleLess(t *testing.T) {
-	var permissions = []authorization.RolePermission{
-		authorization.AnonymousPermission,
-		authorization.RoleLessPermission,
-		authorization.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
-		authorization.NewRolePermission("MANAGER", true, true, true, true, 9),
+	var permissions = []role.RolePermission{
+		role.AnonymousPermission,
+		role.RoleLessPermission,
+		role.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
+		role.NewRolePermission("MANAGER", true, true, true, true, 9),
 	}
 
 	var authentic = getAuthenticRoleLess()
 
-	permission, err := auth.GetPriorityRolePermission(permissions, authentic)
+	permission, err := authorization.GetPriorityRolePermission(permissions, authentic)
 
 	assert.NoError(t, err)
-	assert.Equal(t, "ROLE_LESS", string(permission.Label))
+	assert.Equal(t, "ROLE_LESS", string(permission.RoleLabel))
 
-	t.Logf("Priority role permission for user: %s is: %s", authentic.User.Identifier, permission.Label.Value)
+	t.Logf("Priority role permission for user: %s is: %s", authentic.User.Identifier, permission.RoleLabel)
 }
 
 func TestGetPriorityRolePermissionNil(t *testing.T) {
-	var permissions = []authorization.RolePermission{
-		authorization.AnonymousPermission,
-		authorization.RoleLessPermission,
-		authorization.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
-		authorization.NewRolePermission("MANAGER", true, true, true, true, 9),
+	var permissions = []role.RolePermission{
+		role.AnonymousPermission,
+		role.RoleLessPermission,
+		role.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
+		role.NewRolePermission("MANAGER", true, true, true, true, 9),
 	}
 
 	var roleLabel, _ = text.NewLabel("SUSPICIOUS_PERSON")
@@ -206,7 +209,7 @@ func TestGetPriorityRolePermissionNil(t *testing.T) {
 	var role = user.NewRole(roleLabel, roleName)
 	var authentic = getAuthentic(role)
 
-	permission, err := auth.GetPriorityRolePermission(permissions, authentic)
+	_, err := authorization.GetPriorityRolePermission(permissions, authentic)
 
 	assert.Error(t, err)
 	if !errors.As(err, &utility.NilError{}) {
