@@ -23,12 +23,12 @@ func CreateCompanyIdentifier(random string) (text.Identifier, error) {
 }
 
 func CreateCompany(
-	identifier     text.Identifier,
-	name           text.Name,
+	identifier text.Identifier,
+	name text.Name,
 	registeredDate time.Time,
 ) UnsavedCompany {
 	return UnsavedCompany{
-		Company:   user.NewCompany(identifier, name),
+		Company:        user.NewCompany(identifier, name),
 		RegisteredDate: registeredDate,
 	}
 }
@@ -42,7 +42,7 @@ func NewCompany(
 	return Company{
 		PersistKey: persistKey,
 		UnsavedCompany: UnsavedCompany{
-			Company:   user.NewCompany(identifier, name),
+			Company:        user.NewCompany(identifier, name),
 			RegisteredDate: registeredDate,
 		},
 	}

@@ -1,6 +1,8 @@
 package authorization_test
 
 import (
+	"errors"
+	"github.com/google/uuid"
 	"github.com/motojouya/geezer_auth/internal/core/authorization"
 	"github.com/motojouya/geezer_auth/internal/core/role"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
@@ -9,8 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
-	"github.com/google/uuid"
-	"errors"
 )
 
 func getAuthentic(role user.Role) *user.Authentic {

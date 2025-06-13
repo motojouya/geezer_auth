@@ -43,7 +43,7 @@ func NewUserCompanyRole(
 	expireDate time.Time,
 ) *UserCompanyRole {
 	return &UserCompanyRole{
-		PersistKey:             persistKey,
+		PersistKey: persistKey,
 		UnsavedUserCompanyRole: UnsavedUserCompanyRole{
 			User:         user,
 			Company:      company,

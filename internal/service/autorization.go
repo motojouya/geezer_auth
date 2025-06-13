@@ -11,7 +11,7 @@ type AuthorizationLoader interface {
 	LoadAuthorization() Authorizer
 }
 
-type authorizationLoaderImpl struct {}
+type authorizationLoaderImpl struct{}
 
 type Authorizer interface {
 	Authorize(require role.RequirePermission, authentic *user.Authentic) error

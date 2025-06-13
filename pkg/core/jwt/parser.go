@@ -3,8 +3,8 @@ package jwt
 import (
 	gojwt "github.com/golang-jwt/jwt/v5"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
-	"strings"
 	"slices"
+	"strings"
 )
 
 // TODO middlewareも作ってしまいたい。イメージを掴んで置く
@@ -72,8 +72,8 @@ func (jwtParsing *JwtParsing) getClaims(tokenString string) (*GeezerClaims, erro
 		return nil, err
 	}
 
-	var claims, ok = token.Claims.(GeezerClaims);
-	if  !ok || !token.Valid {
+	var claims, ok = token.Claims.(GeezerClaims)
+	if !ok || !token.Valid {
 		return nil, NewJwtError("hole token", tokenString, "Invalid token")
 	}
 

@@ -11,7 +11,7 @@ type JwtHandlerLoader interface {
 	LoadJwtHandler(e io.Environment) (JwtHandler, error)
 }
 
-type jwtHandlerLoaderImpl struct {}
+type jwtHandlerLoaderImpl struct{}
 
 type JwtHandler interface {
 	Generate(user *user.User, issueDate time.Time, id string) (*user.Authentic, text.JwtToken, error)

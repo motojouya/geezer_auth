@@ -3,8 +3,8 @@ package utility_test
 import (
 	"github.com/motojouya/geezer_auth/internal/utility"
 	"github.com/stretchr/testify/assert"
-	"testing"
 	"strconv"
+	"testing"
 )
 
 func TestNewRangeError(t *testing.T) {

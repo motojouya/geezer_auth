@@ -2,8 +2,8 @@ package company
 
 import (
 	"github.com/google/uuid"
-	"time"
 	"github.com/motojouya/geezer_auth/internal/core/role"
+	"time"
 )
 
 type UnsavedCompanyInvite struct {
@@ -23,9 +23,9 @@ type CompanyInvite struct {
 const TokenValidityPeriodHours = 50
 
 func CreateCompanyInvite(
-	company      Company,
-	token        uuid.UUID,
-	role         role.Role,
+	company Company,
+	token uuid.UUID,
+	role role.Role,
 	registerDate time.Time,
 ) UnsavedCompanyInvite {
 	var expireDate = registerDate.Add(TokenValidityPeriodHours * time.Hour)
@@ -40,12 +40,12 @@ func CreateCompanyInvite(
 }
 
 func NewCompanyInvite(
-	persistKey   uint,
-	company      Company,
-	token        uuid.UUID,
-	role         role.Role,
+	persistKey uint,
+	company Company,
+	token uuid.UUID,
+	role role.Role,
 	registerDate time.Time,
-	expireDate   time.Time,
+	expireDate time.Time,
 ) CompanyInvite {
 	return CompanyInvite{
 		PersistKey: persistKey,

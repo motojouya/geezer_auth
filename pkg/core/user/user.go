@@ -1,8 +1,8 @@
 package user
 
 import (
-	"time"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
+	"time"
 )
 
 type User struct {

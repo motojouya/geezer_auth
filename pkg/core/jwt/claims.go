@@ -5,9 +5,9 @@ import (
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
 	"github.com/motojouya/geezer_auth/pkg/utility"
-	"time"
-	"strings"
 	"strconv"
+	"strings"
+	"time"
 )
 
 // FIXME claimsのprivate keyが`github.com/motojouya/geezer_auth/`をprefixとしているが、本来は稼働するサーバのfqdnをprefixとして持つべき。

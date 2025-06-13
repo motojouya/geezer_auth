@@ -12,7 +12,7 @@ type Local interface {
 	GetNow() time.Time
 }
 
-type local struct {}
+type local struct{}
 
 func CreateLocal() Local {
 	return &local{}

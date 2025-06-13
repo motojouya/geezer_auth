@@ -19,9 +19,9 @@ type Role struct {
 }
 
 func NewRole(
-	name           pkgText.Name,
-	label          pkgText.Label,
-	description    text.Text,
+	name pkgText.Name,
+	label pkgText.Label,
+	description text.Text,
 	registeredDate time.Time,
 ) Role {
 	return Role{

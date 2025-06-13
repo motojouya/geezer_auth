@@ -31,11 +31,11 @@ func CreateUserPassword(
 }
 
 func NewUserPassword(
-	persistKey     uint,
-	user           User,
-	password       text.HashedPassword,
+	persistKey uint,
+	user User,
+	password text.HashedPassword,
 	registeredDate time.Time,
-	expireDate     time.Time,
+	expireDate time.Time,
 ) *UserPassword {
 	return &UserPassword{
 		PersistKey: persistKey,

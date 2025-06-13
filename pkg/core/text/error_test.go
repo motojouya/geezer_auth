@@ -10,7 +10,7 @@ func TestNewLengthError(t *testing.T) {
 	var name = "TestLengthError"
 	var value = "short"
 	var min uint = 5
-	var max uint= 10
+	var max uint = 10
 	var message = "This is a test length error"
 
 	var err = text.NewLengthError(name, value, min, max, message)

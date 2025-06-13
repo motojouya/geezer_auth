@@ -1,10 +1,10 @@
 package utility_test
 
 import (
+	"errors"
 	"github.com/motojouya/geezer_auth/internal/utility"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"errors"
 )
 
 func TestFilter(t *testing.T) {
