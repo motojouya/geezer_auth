@@ -20,20 +20,20 @@ func formatKeys(keys map[string]string) string {
  */
 type NotFoundError struct {
 	Table string
-	keys  map[string]string
+	Keys  map[string]string
 	error
 }
 
 func NewNotFoundError(table string, keys map[string]string, message string) *NotFoundError {
 	return &NotFoundError{
 		Table: table,
-		keys:  keys,
+		Keys:  keys,
 		error: errors.New(message),
 	}
 }
 
 func (e NotFoundError) Error() string {
-	return e.error.Error() + " (table: " + e.Table + ", keys: " + formatKeys(e.keys) + ")"
+	return e.error.Error() + " (table: " + e.Table + ", keys: " + formatKeys(e.Keys) + ")"
 }
 
 func (e NotFoundError) Unwrap() error {
@@ -49,20 +49,20 @@ func (e NotFoundError) HttpStatus() uint {
  */
 type DuplicateError struct {
 	Table string
-	keys  map[string]string
+	Keys  map[string]string
 	error
 }
 
 func NewDuplicateError(table string, keys map[string]string, message string) *DuplicateError {
 	return &DuplicateError{
 		Table: table,
-		keys:  keys,
+		Keys:  keys,
 		error: errors.New(message),
 	}
 }
 
 func (e DuplicateError) Error() string {
-	return e.error.Error() + " (table: " + e.Table + ", keys: " + formatKeys(e.keys) + ")"
+	return e.error.Error() + " (table: " + e.Table + ", keys: " + formatKeys(e.Keys) + ")"
 }
 
 func (e DuplicateError) Unwrap() error {

@@ -15,8 +15,8 @@ func TestNewNotFoundError(t *testing.T) {
 
 	var err = db.NewNotFoundError(table, keys, message)
 
-	assert.Equal(t, name, err.Name)
-	var val, exist = err.keys[key]
+	assert.Equal(t, table, err.Table)
+	var val, exist = err.Keys[key]
 	assert.True(t, exist)
 	assert.Equal(t, value, val)
 	assert.Equal(t, message, err.Unwrap().Error())
@@ -24,7 +24,7 @@ func TestNewNotFoundError(t *testing.T) {
 	assert.Equal(t, 400, err.HttpStatus())
 
 	t.Logf("error: %s", err.Error())
-	t.Logf("error.Name: %s", err.Name)
+	t.Logf("error.Table: %s", err.Table)
 }
 
 func TestNewDuplicateError(t *testing.T) {
@@ -36,8 +36,8 @@ func TestNewDuplicateError(t *testing.T) {
 
 	var err = db.NewDuplicateError(table, keys, message)
 
-	assert.Equal(t, name, err.Name)
-	var val, exist = err.keys[key]
+	assert.Equal(t, table, err.Table)
+	var val, exist = err.Keys[key]
 	assert.True(t, exist)
 	assert.Equal(t, value, val)
 	assert.Equal(t, message, err.Unwrap().Error())
@@ -45,5 +45,5 @@ func TestNewDuplicateError(t *testing.T) {
 	assert.Equal(t, 400, err.HttpStatus())
 
 	t.Logf("error: %s", err.Error())
-	t.Logf("error.Name: %s", err.Name)
+	t.Logf("error.Table: %s", err.Table)
 }
