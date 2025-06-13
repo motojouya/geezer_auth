@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func getCompanyRole(companyIdentifierStr string, roleLabelStr string) user.CompanyRole {
+func getCompanyRole(companyIdentifierStr string, roleLabelStr string) *user.CompanyRole {
 	var companyIdentifier, _ = text.NewIdentifier(companyIdentifierStr)
 	var companyName, _ = text.NewName("TestCompany")
 	var company = user.NewCompany(companyIdentifier, companyName)
@@ -16,7 +16,7 @@ func getCompanyRole(companyIdentifierStr string, roleLabelStr string) user.Compa
 	var roleLabel, _ = text.NewLabel(roleLabelStr)
 	var roleName, _ = text.NewName("TestRoleName")
 	var role = user.NewRole(roleLabel, roleName)
-	var roles = []user.Roles{role}
+	var roles = []user.Role{role}
 
 	return user.NewCompanyRole(company, roles)
 }
@@ -26,33 +26,33 @@ func TestNewUser(t *testing.T) {
 	var roleLabel = "TestRole"
 	var companyRole = getCompanyRole(companyIdentifier, roleLabel)
 
-	var userIdentifier = text.NewIdentifier("TestIdentifier")
-	var emailId = text.NewEmail("test@gmail.com")
-	var email = text.NewEmail("test_2@gmail.com")
-	var userName = text.NewName("TestName")
+	var userIdentifier, _ = text.NewIdentifier("TestIdentifier")
+	var emailId, _ = text.NewEmail("test@gmail.com")
+	var email, _ = text.NewEmail("test_2@gmail.com")
+	var userName, _ = text.NewName("TestName")
 	var botFlag = false
 	var updateDate = time.Now()
 
-	var user = user.NewUser(userIdentifier, emailId, email, userName, botFlag, companyRole, updateDate)
+	var user = user.NewUser(userIdentifier, emailId, &email, userName, botFlag, companyRole, updateDate)
 
 	assert.Equal(t, string(userIdentifier), string(user.Identifier))
-	assert.Equal(t, string(emailId), string(user.ExposeEmailId))
+	assert.Equal(t, string(emailId), string(user.EmailId))
 	assert.Equal(t, string(email), string(*user.Email))
 	assert.Equal(t, string(userName), string(user.Name))
 	assert.Equal(t, botFlag, user.BotFlag)
 	assert.Equal(t, updateDate, user.UpdateDate)
 
 	assert.Equal(t, companyIdentifier, string(companyRole.Company.Identifier))
-	assert.Equal(t, len(roles), len(companyRole.Roles))
+	assert.Equal(t, 1, len(companyRole.Roles))
 	assert.Equal(t, roleLabel, string(companyRole.Roles[0].Label))
 
 	t.Logf("user: %+v", user)
 	t.Logf("user.Identifier: %s", user.Identifier)
-	t.Logf("user.ExposeEmailId: %s", user.ExposeEmailId)
+	t.Logf("user.ExposeEmailId: %s", user.EmailId)
 	t.Logf("user.Email: %s", *user.Email)
 	t.Logf("user.Name: %s", user.Name)
 	t.Logf("user.BotFlag: %t", user.BotFlag)
-	t.Logf("user.UpdateDate: %t", user.UpdateDate)
+	t.Logf("user.UpdateDate: %s", user.UpdateDate)
 
 	t.Logf("user.CompanyRole: %+v", user.CompanyRole)
 	t.Logf("user.CompanyRole.Company.Identifier: %s", string(user.CompanyRole.Company.Identifier))

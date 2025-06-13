@@ -1,6 +1,7 @@
 package jwt_test
 
 import (
+	"github.com/motojouya/geezer_auth/pkg/core/jwt"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
 	"github.com/stretchr/testify/assert"
@@ -9,14 +10,14 @@ import (
 )
 
 func getUserForHandler() *user.User {
-	var companyRole, _ = text.NewLabel("TestRole")
-	var companyRoleName, _ = text.NewName("TestRoleName")
-	var role = user.NewRole(companyRole, companyRoleName)
+	var roleLabel, _ = text.NewLabel("TestRole")
+	var roleName, _ = text.NewName("TestRoleName")
+	var role = user.NewRole(roleLabel, roleName)
 	var roles = []user.Role{role}
 
 	var companyIdentifier, _ = text.NewIdentifier("CP-TESTES")
 	var companyName, _ = text.NewName("TestCompany")
-	var company = user.CreateCompany(identifier, name, role, roleName)
+	var company = user.NewCompany(companyIdentifier, companyName)
 
 	var companyRole = user.NewCompanyRole(company, roles)
 
@@ -27,11 +28,29 @@ func getUserForHandler() *user.User {
 	var botFlag = false
 	var updateDate = time.Now()
 
-	return user.NewUser(userIdentifier, emailId, email, userName, botFlag, company, updateDate)
+	return user.NewUser(userIdentifier, emailId, &email, userName, botFlag, companyRole, updateDate)
 }
 
 func TestHandleJwt(t *testing.T) {
-	var user = getUserForHandler()
+	var roleLabel, _ = text.NewLabel("TestRole")
+	var roleName, _ = text.NewName("TestRoleName")
+	var role = user.NewRole(roleLabel, roleName)
+	var roles = []user.Role{role}
+
+	var companyIdentifier, _ = text.NewIdentifier("CP-TESTES")
+	var companyName, _ = text.NewName("TestCompany")
+	var company = user.NewCompany(companyIdentifier, companyName)
+
+	var companyRole = user.NewCompanyRole(company, roles)
+
+	var userIdentifier, _ = text.NewIdentifier("TestIdentifier")
+	var emailId, _ = text.NewEmail("test@gmail.com")
+	var email, _ = text.NewEmail("test_2@gmail.com")
+	var userName, _ = text.NewName("TestName")
+	var botFlag = false
+	var updateDate = time.Now()
+
+	var userValue = user.NewUser(userIdentifier, emailId, &email, userName, botFlag, companyRole, updateDate)
 
 	var issuedAt = time.Now()
 	var id = "TestId"
@@ -39,24 +58,26 @@ func TestHandleJwt(t *testing.T) {
 	var issuer = "TestIssuer"
 	var application = "TestAudience"
 	var audience = []string{issuer, application}
-	var latestSecret = "TestSecretKeyId"
-	var secretMap = map[string]string{latestSecret: "TestSecret"}
-	var validityPeriodMinutes = 60
-	var getId = func() (string, error) {
-		return id, nil
-	}
-	var jwtParser = user.NewJwtParser(issuer, application, latestSecret, secretMap)
-	var jwtHandker = user.NewJwtHandler(audience, jwtParser, validityPeriodMinutes, getId)
 
-	var tokenString, err = jwtHandker.Generate(user, issuedAt)
-	if err != nil {
-		t.Errorf("failed to generate token: %v", err)
+	var latestKeyId = "TestLatestKeyId"
+	var latestSecret = "TestLatestSecret"
+	var oldKeyId = "TestOldKeyId"
+	var oldSecret = "TestOldSecret"
+	var validityPeriodMinutes uint = 60
+	var expiresAt = issuedAt.Add(time.Duration(validityPeriodMinutes) * time.Minute)
+
+	var jwtParsing = jwt.NewJwtParsing(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
+	var jwtHandling = jwt.NewJwtHandling(audience, jwtParsing, validityPeriodMinutes)
+
+	var _, tokenString, generateErr = jwtHandling.Generate(userValue, issuedAt, id)
+	if generateErr != nil {
+		t.Errorf("failed to generate token: %v", generateErr)
 		return
 	}
 
-	var authentic, err = jwtHandker.Parse(tokenString)
-	if err != nil {
-		t.Errorf("failed to create token: %v", err)
+	var authentic, parseErr = jwtHandling.Parse(string(tokenString))
+	if parseErr != nil {
+		t.Errorf("failed to create token: %v", parseErr)
 		return
 	}
 
@@ -71,7 +92,7 @@ func TestHandleJwt(t *testing.T) {
 	assert.Equal(t, id, authentic.ID)
 
 	assert.Equal(t, string(userIdentifier), authentic.User.Identifier)
-	assert.Equal(t, string(emailId), authentic.User.ExposeEmailId)
+	assert.Equal(t, string(emailId), authentic.User.EmailId)
 	assert.Equal(t, string(email), *authentic.User.Email)
 	assert.Equal(t, string(userName), authentic.User.Name)
 	assert.Equal(t, botFlag, authentic.User.BotFlag)
@@ -79,8 +100,8 @@ func TestHandleJwt(t *testing.T) {
 
 	assert.Equal(t, string(companyIdentifier), authentic.User.CompanyRole.Company.Identifier)
 	assert.Equal(t, string(companyName), authentic.User.CompanyRole.Company.Name)
-	assert.Equal(t, string(companyRole), authentic.User.CompanyRole.Roles[0].Label)
-	assert.Equal(t, string(companyRoleName), authentic.User.CompanyRole.Roles[0].Name)
+	assert.Equal(t, string(roleLabel), authentic.User.CompanyRole.Roles[0].Label)
+	assert.Equal(t, string(roleName), authentic.User.CompanyRole.Roles[0].Name)
 
 	t.Logf("authentic: %+v", authentic)
 	t.Logf("authentic.Issuer: %s", authentic.Issuer)
@@ -94,11 +115,11 @@ func TestHandleJwt(t *testing.T) {
 
 	t.Logf("authentic.User: %+v", authentic.User)
 	t.Logf("authentic.User.Identifier: %s", authentic.User.Identifier)
-	t.Logf("authentic.User.ExposeEmailId: %s", authentic.User.ExposeEmailId)
+	t.Logf("authentic.User.ExposeEmailId: %s", authentic.User.EmailId)
 	t.Logf("authentic.User.Email: %s", *authentic.User.Email)
 	t.Logf("authentic.User.Name: %s", authentic.User.Name)
 	t.Logf("authentic.User.BotFlag: %t", authentic.User.BotFlag)
-	t.Logf("authentic.User.UpdateDate: %t", authentic.User.UpdateDate)
+	t.Logf("authentic.User.UpdateDate: %s", authentic.User.UpdateDate)
 
 	t.Logf("authentic.User.CompanyRole.Company: %+v", authentic.User.CompanyRole)
 	t.Logf("authentic.User.CompanyRole.Company.Identifier: %s", authentic.User.CompanyRole.Company.Identifier)
@@ -108,7 +129,7 @@ func TestHandleJwt(t *testing.T) {
 }
 
 func TestHandleJwtFailureId(t *testing.T) {
-	var user = getUserForHandler()
+	var userValue = getUserForHandler()
 
 	var issuedAt = time.Now()
 	var id = "TestId"
@@ -116,16 +137,17 @@ func TestHandleJwtFailureId(t *testing.T) {
 	var issuer = "TestIssuer"
 	var application = "TestAudience"
 	var audience = []string{issuer, application}
-	var latestSecret = "TestSecretKeyId"
-	var secretMap = map[string]string{latestSecret: "TestSecret"}
-	var validityPeriodMinutes = 60
-	var getId = func() (string, error) {
-		return "", fmt.Error("failed to get id")
-	}
-	var jwtParser = user.NewJwtParser(issuer, application, latestSecret, secretMap)
-	var jwtHandker = user.NewJwtHandler(audience, jwtParser, validityPeriodMinutes, getId)
 
-	var tokenString, err = jwtHandker.Generate(user, issuedAt)
+	var latestKeyId = "TestLatestKeyId"
+	var latestSecret = "TestLatestSecret"
+	var oldKeyId = "TestOldKeyId"
+	var oldSecret = "TestOldSecret"
+	var validityPeriodMinutes uint = 60
+
+	var jwtParser = jwt.NewJwtParsing(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
+	var jwtHandling = jwt.NewJwtHandling(audience, jwtParser, validityPeriodMinutes)
+
+	var _, _, err = jwtHandling.Generate(userValue, issuedAt, id)
 	if err == nil {
 		t.Errorf("failed to generate token: %v", err)
 	}
@@ -140,27 +162,28 @@ func TestHandleJwtFailureIssuer(t *testing.T) {
 	var issuer = "TestIssuer"
 	var application = "TestAudience"
 	var audience = []string{issuer, application}
-	var latestSecret = "TestSecretKeyId"
-	var secretMap = map[string]string{latestSecret: "TestSecret"}
-	var validityPeriodMinutes = 60
-	var getId = func() (string, error) {
-		return id, nil
-	}
-	var parserServer = user.NewJwtParser(issuer, application, latestSecret, secretMap)
-	var jwtHandker = user.NewJwtHandler(audience, parserServer, validityPeriodMinutes, getId)
 
-	var tokenString, err = jwtHandker.Generate(user, issuedAt)
-	if err != nil {
-		t.Errorf("failed to generate token: %v", err)
+	var latestKeyId = "TestLatestKeyId"
+	var latestSecret = "TestLatestSecret"
+	var oldKeyId = "TestOldKeyId"
+	var oldSecret = "TestOldSecret"
+	var validityPeriodMinutes uint = 60
+
+	var parserServer = jwt.NewJwtParsing(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
+	var jwtHandling = jwt.NewJwtHandling(audience, parserServer, validityPeriodMinutes)
+
+	var _, tokenString, generateErr = jwtHandling.Generate(user, issuedAt, id)
+	if generateErr != nil {
+		t.Errorf("failed to generate token: %v", generateErr)
 		return
 	}
 
 	var wrongIssuer = "WrongIssuer"
-	var parserClient = user.NewJwtParser(wrongIssuer, application, latestSecret, secretMap)
+	var parserClient = jwt.NewJwtParsing(wrongIssuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
 
-	var token, err = parserClient.Parse(tokenString)
-	if err == nil {
-		t.Errorf("failed to generate token: %v", err)
+	var _, parseErr = parserClient.Parse(string(tokenString))
+	if parseErr == nil {
+		t.Errorf("failed to generate token: %v", parseErr)
 	}
 }
 
@@ -173,27 +196,28 @@ func TestHandleJwtFailureAudience(t *testing.T) {
 	var issuer = "TestIssuer"
 	var application = "TestAudience"
 	var audience = []string{issuer, application}
-	var latestSecret = "TestSecretKeyId"
-	var secretMap = map[string]string{latestSecret: "TestSecret"}
-	var validityPeriodMinutes = 60
-	var getId = func() (string, error) {
-		return id, nil
-	}
-	var parserServer = user.NewJwtParser(issuer, application, latestSecret, secretMap)
-	var jwtHandker = user.NewJwtHandler(audience, parserServer, validityPeriodMinutes, getId)
 
-	var tokenString, err = jwtHandker.Generate(user, issuedAt)
-	if err != nil {
-		t.Errorf("failed to generate token: %v", err)
+	var latestKeyId = "TestLatestKeyId"
+	var latestSecret = "TestLatestSecret"
+	var oldKeyId = "TestOldKeyId"
+	var oldSecret = "TestOldSecret"
+	var validityPeriodMinutes uint = 60
+
+	var parserServer = jwt.NewJwtParsing(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
+	var jwtHandling = jwt.NewJwtHandling(audience, parserServer, validityPeriodMinutes)
+
+	var _, tokenString, generateErr = jwtHandling.Generate(user, issuedAt, id)
+	if generateErr != nil {
+		t.Errorf("failed to generate token: %v", generateErr)
 		return
 	}
 
 	var wrongApplication = "WrongApplication"
-	var parserClient = user.NewJwtParser(issuer, wrongApplication, latestSecret, secretMap)
+	var parserClient = jwt.NewJwtParsing(issuer, wrongApplication, latestKeyId, latestSecret, oldKeyId, oldSecret)
 
-	var token, err = parserClient.Parse(tokenString)
-	if err == nil {
-		t.Errorf("failed to generate token: %v", err)
+	var _, parseErr = parserClient.Parse(string(tokenString))
+	if parseErr == nil {
+		t.Errorf("failed to generate token: %v", parseErr)
 	}
 }
 
@@ -206,26 +230,26 @@ func TestHandleJwtFailureSecret(t *testing.T) {
 	var issuer = "TestIssuer"
 	var application = "TestAudience"
 	var audience = []string{issuer, application}
-	var latestSecret = "TestSecretKeyId"
-	var secretMap = map[string]string{latestSecret: "TestSecret"}
-	var validityPeriodMinutes = 60
-	var getId = func() (string, error) {
-		return id, nil
-	}
-	var parserServer = user.NewJwtParser(issuer, application, latestSecret, secretMap)
-	var jwtHandker = user.NewJwtHandler(audience, parserServer, validityPeriodMinutes, getId)
 
-	var tokenString, err = jwtHandker.Generate(user, issuedAt)
-	if err != nil {
-		t.Errorf("failed to generate token: %v", err)
+	var latestKeyId = "TestLatestKeyId"
+	var latestSecret = "TestLatestSecret"
+	var oldKeyId = "TestOldKeyId"
+	var oldSecret = "TestOldSecret"
+	var validityPeriodMinutes uint = 60
+
+	var parserServer = jwt.NewJwtParsing(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
+	var jwtHandling = jwt.NewJwtHandling(audience, parserServer, validityPeriodMinutes)
+
+	var _, tokenString, generateErr = jwtHandling.Generate(user, issuedAt, id)
+	if generateErr != nil {
+		t.Errorf("failed to generate token: %v", generateErr)
 		return
 	}
 
-	var wrongSecretMap = map[string]string{"wrongKey": "TestSecret"}
-	var parserClient = user.NewJwtParser(issuer, application, latestSecret, wrongSecretMap)
+	var parserClient = jwt.NewJwtParsing(issuer, application, "WrongKey", latestSecret, "", "")
 
-	var token, err = parserClient.Parse(tokenString)
-	if err == nil {
-		t.Errorf("failed to generate token: %v", err)
+	var _, parseErr = parserClient.Parse(string(tokenString))
+	if parseErr == nil {
+		t.Errorf("failed to generate token: %v", parseErr)
 	}
 }

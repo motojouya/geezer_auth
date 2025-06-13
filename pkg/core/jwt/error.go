@@ -21,10 +21,14 @@ func NewJwtError(claim string, value string, message string) *JwtError {
 	}
 }
 
-func (e *JwtError) Error() string {
+func (e JwtError) Error() string {
 	return e.error.Error() + " (claim: " + e.Claim + ", value:" + e.Value + ")"
 }
 
-func (e *JwtError) Unwrap() error {
+func (e JwtError) Unwrap() error {
 	return e.error
+}
+
+func (e JwtError) HttpStatus() uint {
+	return 400
 }

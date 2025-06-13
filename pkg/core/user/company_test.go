@@ -5,14 +5,13 @@ import (
 	"github.com/motojouya/geezer_auth/pkg/core/user"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
 
 func TestNewCompany(t *testing.T) {
 	var identifier, _ = text.NewIdentifier("CP-TESTES")
-	var name, _ = text.NewIdentifier("TestCompany")
+	var name, _ = text.NewName("TestCompany")
 
-	var company = user.NewCompany(identifier, name, role, roleName)
+	var company = user.NewCompany(identifier, name)
 
 	assert.Equal(t, string(name), string(company.Name))
 	assert.Equal(t, string(identifier), string(company.Identifier))

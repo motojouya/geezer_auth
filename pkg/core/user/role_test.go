@@ -5,14 +5,13 @@ import (
 	"github.com/motojouya/geezer_auth/pkg/core/user"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
 
 func TestNewRole(t *testing.T) {
 	var name, _ = text.NewName("TestCompany")
 	var label, _ = text.NewLabel("TestLabel")
 
-	var role = user.CreateRole(label, name)
+	var role = user.NewRole(label, name)
 
 	assert.Equal(t, string(name), string(role.Name))
 	assert.Equal(t, string(label), string(role.Label))

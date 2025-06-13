@@ -5,7 +5,6 @@ import (
 	"github.com/motojouya/geezer_auth/pkg/core/user"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
 
 func TestNewCompanyRole(t *testing.T) {
