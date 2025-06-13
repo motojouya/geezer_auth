@@ -61,13 +61,15 @@ func Find[T any](slice []T, predicate func(T) bool) (T, bool) {
 	return zero, false
 }
 
-func FindLast[T any](slice []T, predicate func(T) bool) *T {
+func FindLast[T any](slice []T, predicate func(T) bool) (T, bool) {
 	for i := len(slice) - 1; i >= 0; i-- {
 		if predicate(slice[i]) {
-			return &slice[i]
+			return slice[i], true
 		}
 	}
-	return nil
+
+	var zero T
+	return zero, false
 }
 
 /*
@@ -262,9 +264,9 @@ func Group[T any](slice []T, predicate func(T, T) bool) [][]T {
 	return grouped
 }
 
-func Duplicated[T any](slice []T, predicate func(T, T) bool) []T {
-	var groupd = Group(slice, predicate)
-	var duplicates = Filter(groupd, func(group []T) bool {
+func Duplicate[T any](slice []T, predicate func(T, T) bool) []T {
+	var grouped = Group(slice, predicate)
+	var duplicates = Filter(grouped, func(group []T) bool {
 		return len(group) > 1
 	})
 	return Flatten(duplicates)

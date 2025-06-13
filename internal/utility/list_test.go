@@ -4,6 +4,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/utility"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"errors"
 )
 
 func TestFilter(t *testing.T) {
@@ -47,7 +48,7 @@ func TestFold(t *testing.T) {
 		return accumulator + "_" + item, nil
 	}
 
-	var result, err = utility.Fold(list, folder, "first")
+	var result, err = utility.Fold(list, "first", folder)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -63,7 +64,7 @@ func TestFoldError(t *testing.T) {
 		return "", errors.New("test error")
 	}
 
-	var result, err = utility.Fold(list, folder, "first")
+	var _, err = utility.Fold(list, "first", folder)
 	if err == nil {
 		t.Fatal("expected error, but got nil")
 	}
@@ -115,12 +116,13 @@ func TestFind(t *testing.T) {
 	var list = []string{"this", "test", "item"}
 	var predicate = func(item string) bool {
 		var chars = []rune(item)
-		return chars == 't'
+		return chars[0] == 't'
 	}
 
-	var foundItem = utility.Find(list, predicate)
+	var foundItem, exists = utility.Find(list, predicate)
 
 	assert.Equal(t, "this", foundItem)
+	assert.True(t, exists)
 
 	t.Logf("found item: %s", foundItem)
 }
@@ -129,12 +131,13 @@ func TestFindLast(t *testing.T) {
 	var list = []string{"this", "test", "item"}
 	var predicate = func(item string) bool {
 		var chars = []rune(item)
-		return chars == 't'
+		return chars[0] == 't'
 	}
 
-	var foundItem = utility.FindLast(list, predicate)
+	var foundItem, exists = utility.FindLast(list, predicate)
 
 	assert.Equal(t, "test", foundItem)
+	assert.True(t, exists)
 
 	t.Logf("found item: %s", foundItem)
 }
@@ -259,7 +262,7 @@ func TestRelated(t *testing.T) {
 		return order.ID == item.OrderID
 	}
 
-	var related = utility.Related("Items", orderList, itemList, predicate)
+	var related = utility.Relate("Items", orderList, itemList, predicate)
 
 	assert.Equal(t, 2, len(related))
 	assert.Equal(t, related[0].Customer, "Alice")
@@ -288,22 +291,22 @@ func TestIntersect(t *testing.T) {
 		return itemRequest.ID == item.ID
 	}
 
-	var varticalMatched, horizontalMatched, varticalUnMatched, horizontalUnMatched = utility.Intersect(list1, list2, predicate)
+	var verticalMatched, horizontalMatched, verticalUnMatched, horizontalUnMatched = utility.Intersect(list1, list2, predicate)
 
-	assert.Equal(t, 2, len(varticalMatched))
+	assert.Equal(t, 2, len(horizontalMatched))
 	assert.Equal(t, "Apple", horizontalMatched[0].Name)
 	assert.Equal(t, "Banana", horizontalMatched[1].Name)
-	assert.Equal(t, 2, len(horizontalMatched))
-	assert.Equal(t, 2, horizontalMatched[0].Quantity)
-	assert.Equal(t, 3, horizontalMatched[1].Quantity)
-	assert.Equal(t, 1, len(varticalUnMatched))
-	assert.Equal(t, "Carrot", varticalUnMatched[0].Name)
+	assert.Equal(t, 2, len(verticalMatched))
+	assert.Equal(t, 2, verticalMatched[0].Quantity)
+	assert.Equal(t, 3, verticalMatched[1].Quantity)
 	assert.Equal(t, 1, len(horizontalUnMatched))
-	assert.Equal(t, 4, horizontalMatched[0].Quantity)
+	assert.Equal(t, "Carrot", horizontalUnMatched[0].Name)
+	assert.Equal(t, 1, len(verticalUnMatched))
+	assert.Equal(t, 4, verticalUnMatched[0].Quantity)
 
-	t.Logf("varticalMatched: %v", varticalMatched)
+	t.Logf("verticalMatched: %v", verticalMatched)
 	t.Logf("horizontalMatched: %v", horizontalMatched)
-	t.Logf("varticalUnMatched: %v", varticalUnMatched)
+	t.Logf("verticalUnMatched: %v", verticalUnMatched)
 	t.Logf("horizontalUnMatched: %v", horizontalUnMatched)
 }
 
@@ -314,11 +317,11 @@ func TestGroup(t *testing.T) {
 		{ID: "c1", OrderID: "2", Name: "Carrot", Quantity: 2},
 	}
 
-	var grouppper = func(item1 Item, item2 Item) string {
+	var grouper = func(item1 Item, item2 Item) bool {
 		return item1.Quantity == item2.Quantity
 	}
 
-	var grouped = utility.Group(list, grouppper)
+	var grouped = utility.Group(list, grouper)
 
 	assert.Equal(t, 2, len(grouped))
 	assert.Equal(t, 2, len(grouped[0]))
@@ -336,7 +339,7 @@ func TestDuplicates(t *testing.T) {
 		return item1 == item2
 	}
 
-	var duplicates = utility.Duplicates(list, predicate)
+	var duplicates = utility.Duplicate(list, predicate)
 
 	assert.Equal(t, 4, len(duplicates))
 	assert.Equal(t, duplicates[0], "this")

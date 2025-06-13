@@ -4,11 +4,12 @@ import (
 	"github.com/motojouya/geezer_auth/internal/utility"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"strconv"
 )
 
 func TestNewRangeError(t *testing.T) {
 	var name = "TestRangeError"
-	var value = "TestValue"
+	var value = 100
 	var min = 10
 	var max = 20
 	var message = "This is a test range error"
@@ -20,7 +21,7 @@ func TestNewRangeError(t *testing.T) {
 	assert.Equal(t, min, err.Min)
 	assert.Equal(t, max, err.Max)
 	assert.Equal(t, message, err.Unwrap().Error())
-	assert.Equal(t, message+" (name: "+name+", value: "+valu+", min: "+min+", max: "+max+")", err.Error())
+	assert.Equal(t, message+" (name: "+name+", value: "+strconv.Itoa(value)+", min: "+strconv.Itoa(min)+", max: "+strconv.Itoa(max)+")", err.Error())
 	assert.Equal(t, 400, err.HttpStatus())
 
 	t.Logf("error: %s", err.Error())
@@ -35,7 +36,7 @@ func TestNewAuthenticationError(t *testing.T) {
 
 	assert.Equal(t, userIdentifier, err.UserIdentifier)
 	assert.Equal(t, message, err.Unwrap().Error())
-	assert.Equal(t, message+" (name: "+name+")", err.Error())
+	assert.Equal(t, message+" (name: "+userIdentifier+")", err.Error())
 	assert.Equal(t, 500, err.HttpStatus())
 
 	t.Logf("error: %s", err.Error())
