@@ -4,6 +4,7 @@ import (
 	"errors"
 	"reflect"
 	"strconv"
+	"fmt"
 )
 
 /*
@@ -22,7 +23,7 @@ func NewNilError(name string, message string) *NilError {
 }
 
 func (e NilError) Error() string {
-	return e.error.Error() + " (name: " + e.Name + ")"
+	return e.error.Error() + ", name: " + e.Name
 }
 
 func (e NilError) Unwrap() error {
@@ -49,7 +50,7 @@ func NewSystemConfigError(name string, message string) *SystemConfigError {
 }
 
 func (e SystemConfigError) Error() string {
-	return e.error.Error() + " (name: " + e.Name + ")"
+	return e.error.Error() + ", name: " + e.Name
 }
 
 func (e SystemConfigError) Unwrap() error {
@@ -76,9 +77,10 @@ func CreatePropertyError(property string, source error) *PropertyError {
 
 	var tv = reflect.TypeOf(source)
 	var method, exists = tv.MethodByName("HttpStatus")
-	var httpStatus = uint(400)
+	var httpStatus uint = 400
 	if exists {
 		var result = method.Func.Call(nil)[0]
+		fmt.Printf("result: %v, type: %T\n", result, result)
 		httpStatus, _ = result.Interface().(uint)
 	}
 
@@ -94,7 +96,7 @@ func NewPropertyError(property string, httpStatus uint, source error) *PropertyE
 }
 
 func (e PropertyError) Error() string {
-	return e.error.Error() + " (property: " + e.Property + " httpStatus: " + strconv.Itoa(int(e.HttpStatusCode)) + ")"
+	return e.error.Error() + ", property: " + e.Property + ", httpStatus: " + strconv.Itoa(int(e.HttpStatusCode))
 }
 
 func (e PropertyError) Unwrap() error {
