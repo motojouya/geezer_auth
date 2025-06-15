@@ -4,7 +4,6 @@ import (
 	"errors"
 	"reflect"
 	"strconv"
-	"fmt"
 )
 
 /*
@@ -75,13 +74,12 @@ type PropertyError struct {
 
 func CreatePropertyError(property string, source error) *PropertyError {
 
-	var tv = reflect.TypeOf(source)
-	var method, exists = tv.MethodByName("HttpStatus")
+	var rv = reflect.ValueOf(source)
+	var method = rv.MethodByName("HttpStatus")
 	var httpStatus uint = 400
-	if exists {
-		var result = method.Func.Call(nil)[0]
-		fmt.Printf("result: %v, type: %T\n", result, result)
-		httpStatus, _ = result.Interface().(uint)
+	if method.IsValid() && method.Kind() == reflect.Func {
+		var methodReturns = method.Call(nil)
+		httpStatus = uint(methodReturns[0].Uint())
 	}
 
 	return NewPropertyError(property, httpStatus, source)

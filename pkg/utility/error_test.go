@@ -65,14 +65,14 @@ func TestCreatePropertyError(t *testing.T) {
 	var err = utility.NewNilError(name, message)
 
 	var prop = "TestPath"
-	var httpStatus = 400
+	var httpStatus uint = 400
 
 	var propertyError = utility.CreatePropertyError(prop, err)
 
 	assert.Equal(t, prop, propertyError.Property)
-	assert.Equal(t, httpStatus, propertyError.HttpStatus)
-	assert.Equal(t, message, propertyError.Unwrap().Error())
-	assert.Equal(t, message+" property: "+prop+", httpStatus: "+strconv.Itoa(httpStatus), propertyError.Error())
+	assert.Equal(t, httpStatus, propertyError.HttpStatusCode)
+	assert.Equal(t, message+", name: "+name, propertyError.Unwrap().Error())
+	assert.Equal(t, message+", name: "+name+", property: "+prop+", httpStatus: "+strconv.Itoa(int(httpStatus)), propertyError.Error())
 
 	t.Logf("error: %s", propertyError.Error())
 	t.Logf("error.Property: %s", propertyError.Property)
@@ -91,9 +91,9 @@ func TestPropertyErrorAdd(t *testing.T) {
 	var added = propertyError.Add(path)
 
 	assert.Equal(t, path+"."+prop, added.Property)
-	assert.Equal(t, httpStatus, added.HttpStatus)
-	assert.Equal(t, message, added.Unwrap().Error())
-	assert.Equal(t, message+", property: "+prop+", httpStatus: "+strconv.Itoa(int(httpStatus)), added.Error())
+	assert.Equal(t, httpStatus, added.HttpStatusCode)
+	assert.Equal(t, message+", name: "+name, added.Unwrap().Error())
+	assert.Equal(t, message+", name: "+name+", property: "+path+"."+prop+", httpStatus: "+strconv.Itoa(int(httpStatus)), added.Error())
 
 	t.Logf("error: %s", added.Error())
 	t.Logf("error.Property: %s", added.Property)
@@ -113,9 +113,9 @@ func TestPropertyErrorChange(t *testing.T) {
 	var added = propertyError.Change(path, changedStatus)
 
 	assert.Equal(t, path+"."+prop, added.Property)
-	assert.Equal(t, changedStatus, added.HttpStatus)
-	assert.Equal(t, message, added.Unwrap().Error())
-	assert.Equal(t, message+", property: "+prop+", httpStatus: "+strconv.Itoa(int(httpStatus)), added.Error())
+	assert.Equal(t, changedStatus, added.HttpStatusCode)
+	assert.Equal(t, message+", name: "+name, added.Unwrap().Error())
+	assert.Equal(t, message+", name: "+name+", property: "+path+"."+prop+", httpStatus: "+strconv.Itoa(int(changedStatus)), added.Error())
 
 	t.Logf("error: %s", added.Error())
 	t.Logf("error.Property: %s", added.Property)
@@ -134,9 +134,9 @@ func TestAddPropertyError(t *testing.T) {
 	var wrappedPropertyError = utility.AddPropertyError(wrapPath, propertyError)
 
 	assert.Equal(t, wrapPath+"."+prop+"."+name, wrappedPropertyError.Property)
-	assert.Equal(t, httpStatus, wrappedPropertyError.HttpStatus)
-	assert.Equal(t, message, wrappedPropertyError.Unwrap().Error())
-	assert.Equal(t, message+", property: "+prop+", httpStatus: 400", wrappedPropertyError.Error())
+	assert.Equal(t, httpStatus, wrappedPropertyError.HttpStatusCode)
+	assert.Equal(t, message+", name: "+name, wrappedPropertyError.Unwrap().Error())
+	assert.Equal(t, message+", name: "+name+", property: "+wrapPath+"."+prop+", httpStatus: 400", wrappedPropertyError.Error())
 
 	t.Logf("error: %s", wrappedPropertyError.Error())
 	t.Logf("error.Property: %s", wrappedPropertyError.Property)
@@ -156,9 +156,9 @@ func TestChangePropertyError(t *testing.T) {
 	var wrappedPropertyError = utility.ChangePropertyError(wrapPath, propertyError, wraphttpStatus)
 
 	assert.Equal(t, wrapPath+"."+prop+"."+name, wrappedPropertyError.Property)
-	assert.Equal(t, wraphttpStatus, wrappedPropertyError.HttpStatus)
-	assert.Equal(t, message, wrappedPropertyError.Unwrap().Error())
-	assert.Equal(t, message+", property: "+prop+", httpStatus: "+strconv.Itoa(int(wraphttpStatus)), wrappedPropertyError.Error())
+	assert.Equal(t, wraphttpStatus, wrappedPropertyError.HttpStatusCode)
+	assert.Equal(t, message+", name: "+name, wrappedPropertyError.Unwrap().Error())
+	assert.Equal(t, message+", name: "+name+", property: "+wrapPath+"."+prop+", httpStatus: "+strconv.Itoa(int(wraphttpStatus)), wrappedPropertyError.Error())
 
 	t.Logf("error: %s", wrappedPropertyError.Error())
 	t.Logf("error.Property: %s", wrappedPropertyError.Property)
