@@ -1,7 +1,6 @@
 package text_test
 
 import (
-	"errors"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -28,7 +27,7 @@ func TestNewLabelEmptyError(t *testing.T) {
 		t.Fatal("expected error, got nil")
 	}
 
-	if !errors.As(err, &text.LengthError{}) {
+	if _, ok := err.(*text.LengthError); !ok {
 		t.Fatalf("expected ErrInvalidLabelFormat, got %v", err)
 	}
 }
@@ -42,7 +41,7 @@ func TestNewLabelLengthError(t *testing.T) {
 		t.Fatal("expected error, got nil")
 	}
 
-	if !errors.As(err, &text.LengthError{}) {
+	if _, ok := err.(*text.LengthError); !ok {
 		t.Fatalf("expected ErrInvalidLabelFormat, got %v", err)
 	}
 }
@@ -56,7 +55,7 @@ func TestNewLabelFormatError(t *testing.T) {
 			t.Fatal("expected error, got nil")
 		}
 
-		if !errors.As(err, &text.FormatError{}) {
+		if _, ok := err.(*text.FormatError); !ok {
 			t.Fatalf("expected ErrInvalidLabelFormat, got %v", err)
 		}
 	}

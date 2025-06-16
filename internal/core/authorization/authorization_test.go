@@ -1,7 +1,6 @@
 package authorization_test
 
 import (
-	"errors"
 	"github.com/google/uuid"
 	"github.com/motojouya/geezer_auth/internal/core/authorization"
 	"github.com/motojouya/geezer_auth/internal/core/role"
@@ -107,7 +106,7 @@ func TestAuthorizeFailure(t *testing.T) {
 	err := auth.Authorize(requirePermission, authentic)
 
 	assert.Error(t, err)
-	if !errors.As(err, &authorization.AuthorizationError{}) {
+	if _, ok := err.(*authorization.AuthorizationError); !ok {
 		t.Errorf("Expected AuthorizationError, got: %T", err)
 		return
 	}
@@ -133,7 +132,7 @@ func TestAuthorizeError(t *testing.T) {
 	err := auth.Authorize(requirePermission, authentic)
 
 	assert.Error(t, err)
-	if !errors.As(err, &utility.NilError{}) {
+	if _, ok := err.(*utility.NilError); !ok {
 		t.Errorf("Expected NilError, got: %T", err)
 		return
 	}
@@ -212,7 +211,7 @@ func TestGetPriorityRolePermissionNil(t *testing.T) {
 	_, err := authorization.GetPriorityRolePermission(permissions, authentic)
 
 	assert.Error(t, err)
-	if !errors.As(err, &utility.NilError{}) {
+	if _, ok := err.(*utility.NilError); !ok {
 		t.Errorf("Expected NilError, got: %T", err)
 		return
 	}

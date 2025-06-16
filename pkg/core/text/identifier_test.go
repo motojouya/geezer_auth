@@ -1,7 +1,6 @@
 package text_test
 
 import (
-	"errors"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -10,7 +9,7 @@ import (
 func TestNewIdentifier(t *testing.T) {
 	var identifierString = "US-ABCDEF"
 
-	var identifier, err = text.NewEmail(" " + identifierString + " ")
+	var identifier, err = text.NewIdentifier(" " + identifierString + " ")
 	if err != nil {
 		t.Fatalf("failed to create identifier: %v", err)
 	}
@@ -28,7 +27,7 @@ func TestNewIdentifierEmptyError(t *testing.T) {
 		t.Fatal("expected error, got nil")
 	}
 
-	if !errors.As(err, &text.LengthError{}) {
+	if _, ok := err.(*text.LengthError); !ok {
 		t.Fatalf("expected ErrInvalidEmailFormat, got %v", err)
 	}
 }
@@ -37,12 +36,12 @@ func TestNewIdentifierLengthError(t *testing.T) {
 	var identifierSources = []string{"US-ABCDE", "US-ABCDEFG"}
 
 	for _, identifierString := range identifierSources {
-		var _, err = text.NewEmail(identifierString)
+		var _, err = text.NewIdentifier(identifierString)
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}
 
-		if !errors.As(err, &text.LengthError{}) {
+		if _, ok := err.(*text.LengthError); !ok {
 			t.Fatalf("expected ErrInvalidEmailFormat, got %v", err)
 		}
 	}
@@ -57,7 +56,7 @@ func TestNewIdentifierFormatError(t *testing.T) {
 			t.Fatal("expected error, got nil")
 		}
 
-		if !errors.As(err, &text.FormatError{}) {
+		if _, ok := err.(*text.FormatError); !ok {
 			t.Fatalf("expected ErrInvalidEmailFormat, got %v", err)
 		}
 	}

@@ -1,6 +1,7 @@
 package user_test
 
 import (
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
@@ -32,7 +33,7 @@ func getUser(userIdentifierStr string) *user.User {
 }
 
 func TestNewAuthentic(t *testing.T) {
-	var userIdentifier = "TestIdentifier"
+	var userIdentifier = "US-TESTES"
 	var userValue = getUser(userIdentifier)
 
 	var issuer = "issuer_id"
@@ -52,9 +53,9 @@ func TestNewAuthentic(t *testing.T) {
 	assert.Equal(t, len(audience), len(authentic.Audience))
 	assert.Equal(t, aud01, authentic.Audience[0])
 	assert.Equal(t, aud02, authentic.Audience[1])
-	assert.Equal(t, expiresAt, authentic.ExpiresAt)
-	assert.Equal(t, notBefore, authentic.NotBefore)
-	assert.Equal(t, issuedAt, authentic.IssuedAt)
+	assert.Equal(t, jwt.NewNumericDate(expiresAt), authentic.ExpiresAt)
+	assert.Equal(t, jwt.NewNumericDate(notBefore), authentic.NotBefore)
+	assert.Equal(t, jwt.NewNumericDate(issuedAt), authentic.IssuedAt)
 	assert.Equal(t, id.String(), authentic.ID)
 	assert.Equal(t, userIdentifier, string(authentic.User.Identifier))
 
@@ -72,7 +73,7 @@ func TestNewAuthentic(t *testing.T) {
 }
 
 func TestCreateAuthentic(t *testing.T) {
-	var userIdentifier = "TestIdentifier"
+	var userIdentifier = "US-TESTES"
 	var userValue = getUser(userIdentifier)
 
 	var issuer = "issuer_id"
@@ -92,9 +93,9 @@ func TestCreateAuthentic(t *testing.T) {
 	assert.Equal(t, len(audience), len(authentic.Audience))
 	assert.Equal(t, aud01, authentic.Audience[0])
 	assert.Equal(t, aud02, authentic.Audience[1])
-	assert.Equal(t, expiresAt, authentic.ExpiresAt)
-	assert.Equal(t, issuedAt, authentic.NotBefore)
-	assert.Equal(t, issuedAt, authentic.IssuedAt)
+	assert.Equal(t, jwt.NewNumericDate(expiresAt), authentic.ExpiresAt)
+	assert.Equal(t, jwt.NewNumericDate(issuedAt), authentic.NotBefore)
+	assert.Equal(t, jwt.NewNumericDate(issuedAt), authentic.IssuedAt)
 	assert.Equal(t, id.String(), authentic.ID)
 	assert.Equal(t, userIdentifier, string(authentic.User.Identifier))
 

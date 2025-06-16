@@ -36,8 +36,8 @@ func FromAuthentic(authentic *user.Authentic) *GeezerClaims {
 		companyIdentifier = &companyIdentifierValue
 		var companyNameValue = string(authentic.User.CompanyRole.Company.Name)
 		companyName = &companyNameValue
-		companyRoles = make([]string, 0, len(authentic.User.CompanyRole.Roles))
-		companyRoleNames = make([]string, 0, len(authentic.User.CompanyRole.Roles))
+		companyRoles = make([]string, len(authentic.User.CompanyRole.Roles))
+		companyRoleNames = make([]string, len(authentic.User.CompanyRole.Roles))
 
 		for i, role := range authentic.User.CompanyRole.Roles {
 			companyRoles[i] = string(role.Label)

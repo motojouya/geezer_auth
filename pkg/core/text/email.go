@@ -20,7 +20,7 @@ func NewEmail(email string) (Email, error) {
 	}
 
 	// TODO 正規表現あってる？どっかからコピペしたやつなので、まじわからん
-	re, err := regexp.Compile(`/^[a-z\d][\w.-]*@[\w.-]+\.[a-z\d]+$/i`)
+	re, err := regexp.Compile(`^[a-z\d][\w.-]*@[\w.-]+\.[a-z\d]+$`)
 	if err != nil {
 		// 固定値なのでエラーにはならないはず
 		panic(err)

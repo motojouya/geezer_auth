@@ -55,13 +55,13 @@ func TestNewFormatError(t *testing.T) {
 	var format = "expected_format"
 	var message = "This is a test format error"
 
-	var err = text.NewFormatError(name, value, format, message)
+	var err = text.NewFormatError(name, format, value, message)
 
 	assert.Equal(t, name, err.Name)
 	assert.Equal(t, value, err.Value)
 	assert.Equal(t, format, err.Format)
 	assert.Equal(t, message, err.Unwrap().Error())
-	assert.Equal(t, message+" (name: "+name+", value: "+value+", format: "+format+")", err.Error())
+	assert.Equal(t, message+" (name: "+name+", format: "+format+", value: "+value+")", err.Error())
 
 	t.Logf("error: %s", err.Error())
 	t.Logf("error.Name: %s", err.Name)

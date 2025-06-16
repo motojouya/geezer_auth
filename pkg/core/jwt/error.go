@@ -22,7 +22,7 @@ func NewJwtError(claim string, value string, message string) *JwtError {
 }
 
 func (e JwtError) Error() string {
-	return e.error.Error() + " (claim: " + e.Claim + ", value:" + e.Value + ")"
+	return e.error.Error() + ", claim: " + e.Claim + ", value: " + e.Value
 }
 
 func (e JwtError) Unwrap() error {

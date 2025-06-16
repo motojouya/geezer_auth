@@ -131,8 +131,8 @@ func AddPropertyError(path string, source error) *PropertyError {
 		panic("source error cannot be nil")
 	}
 
-	if errors.As(source, &propertyError) {
-		return source.(*PropertyError).Add(path)
+	if pe, ok := source.(*PropertyError); ok {
+		return pe.Add(path)
 	} else {
 		return CreatePropertyError(path, source)
 	}
@@ -143,8 +143,8 @@ func ChangePropertyError(path string, source error, httpStatus uint) *PropertyEr
 		panic("source error cannot be nil")
 	}
 
-	if errors.As(source, &propertyError) {
-		return source.(*PropertyError).Change(path, httpStatus)
+	if pe, ok := source.(*PropertyError); ok {
+		return pe.Change(path, httpStatus)
 	} else {
 		return NewPropertyError(path, httpStatus, source)
 	}

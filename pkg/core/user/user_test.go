@@ -23,7 +23,7 @@ func getCompanyRole(companyIdentifierStr string, roleLabelStr string) *user.Comp
 
 func TestNewUser(t *testing.T) {
 	var companyIdentifier = "CP-TESTES"
-	var roleLabel = "TestRole"
+	var roleLabel = "TEST_ROLE"
 	var companyRole = getCompanyRole(companyIdentifier, roleLabel)
 
 	var userIdentifier, _ = text.NewIdentifier("TestIdentifier")

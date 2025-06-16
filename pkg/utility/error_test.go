@@ -133,7 +133,7 @@ func TestAddPropertyError(t *testing.T) {
 	var httpStatus uint = 400
 	var wrappedPropertyError = utility.AddPropertyError(wrapPath, propertyError)
 
-	assert.Equal(t, wrapPath+"."+prop+"."+name, wrappedPropertyError.Property)
+	assert.Equal(t, wrapPath+"."+prop, wrappedPropertyError.Property)
 	assert.Equal(t, httpStatus, wrappedPropertyError.HttpStatusCode)
 	assert.Equal(t, message+", name: "+name, wrappedPropertyError.Unwrap().Error())
 	assert.Equal(t, message+", name: "+name+", property: "+wrapPath+"."+prop+", httpStatus: 400", wrappedPropertyError.Error())
@@ -155,7 +155,7 @@ func TestChangePropertyError(t *testing.T) {
 	var wraphttpStatus uint = 210
 	var wrappedPropertyError = utility.ChangePropertyError(wrapPath, propertyError, wraphttpStatus)
 
-	assert.Equal(t, wrapPath+"."+prop+"."+name, wrappedPropertyError.Property)
+	assert.Equal(t, wrapPath+"."+prop, wrappedPropertyError.Property)
 	assert.Equal(t, wraphttpStatus, wrappedPropertyError.HttpStatusCode)
 	assert.Equal(t, message+", name: "+name, wrappedPropertyError.Unwrap().Error())
 	assert.Equal(t, message+", name: "+name+", property: "+wrapPath+"."+prop+", httpStatus: "+strconv.Itoa(int(wraphttpStatus)), wrappedPropertyError.Error())
