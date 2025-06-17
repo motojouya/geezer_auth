@@ -106,13 +106,13 @@ func getCompanyRole(claims *GeezerClaims) (*user.CompanyRole, error) {
 			return nil, NewJwtError("CompanyIdentifier", *claims.CompanyIdentifier, "CompanyIdentifier is not nil")
 		}
 		if claims.CompanyName != nil {
-			return nil, NewJwtError("CompanyName", *claims.CompanyName, "CompanyIdentifier is not nil")
+			return nil, NewJwtError("CompanyName", *claims.CompanyName, "CompanyName is not nil")
 		}
-		if claims.CompanyRoles != nil {
-			return nil, NewJwtError("CompanyRoles", strings.Join(claims.CompanyRoles, ","), "CompanyIdentifier is not nil")
+		if claims.CompanyRoles != nil && len(claims.CompanyRoles) > 0 {
+			return nil, NewJwtError("CompanyRoles", strings.Join(claims.CompanyRoles, ","), "CompanyRoles is not nil")
 		}
-		if claims.CompanyRoleNames != nil {
-			return nil, NewJwtError("CompanyRoleNames", strings.Join(claims.CompanyRoleNames, ","), "CompanyIdentifier is not nil")
+		if claims.CompanyRoleNames != nil && len(claims.CompanyRoleNames) > 0 {
+			return nil, NewJwtError("CompanyRoleNames", strings.Join(claims.CompanyRoleNames, ","), "CompanyRoleNames is not nil")
 		}
 		return nil, nil
 	}

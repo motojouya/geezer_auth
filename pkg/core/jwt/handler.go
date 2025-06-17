@@ -30,7 +30,7 @@ func (jwtHandling *JwtHandling) getToken(claims *GeezerClaims) (text.JwtToken, e
 	var token = gojwt.NewWithClaims(gojwt.SigningMethodHS256, claims)
 	token.Header["kid"] = jwtHandling.LatestKeyId
 
-	tokenString, err := token.SignedString(jwtHandling.LatestSecret)
+	tokenString, err := token.SignedString([]byte(jwtHandling.LatestSecret))
 	if err != nil {
 		return text.JwtToken(""), err
 	}

@@ -39,9 +39,10 @@ func NewJwtParsing(
 }
 
 func (jwtParsing *JwtParsing) getClaims(tokenString string) (*GeezerClaims, error) {
+	var claims = GeezerClaims{}
 	token, err := gojwt.ParseWithClaims(
 		tokenString,
-		&GeezerClaims{},
+		&claims,
 		func(token *gojwt.Token) (interface{}, error) {
 			// gojwt.SigningMethodHS256?
 			if _, ok := token.Method.(*gojwt.SigningMethodHMAC); !ok {
@@ -72,16 +73,20 @@ func (jwtParsing *JwtParsing) getClaims(tokenString string) (*GeezerClaims, erro
 		return nil, err
 	}
 
-	var claims, ok = token.Claims.(GeezerClaims)
-	if !ok || !token.Valid {
+	if !token.Valid {
 		return nil, NewJwtError("hole token", tokenString, "Invalid token")
 	}
+
+	// var claims, ok = token.Claims.(GeezerClaims)
+	// if !ok {
+	// 	return nil, NewJwtError("hole token", tokenString, "Invalid GeezerClaims")
+	// }
 
 	if jwtParsing.Issuer != claims.Issuer {
 		return nil, NewJwtError("Issuer", claims.Issuer, "Issuer is not valid")
 	}
 
-	if slices.Contains(claims.Audience, jwtParsing.Myself) {
+	if !slices.Contains(claims.Audience, jwtParsing.Myself) {
 		return nil, NewJwtError("Audience", strings.Join(claims.Audience, ","), "Audience is not valid")
 	}
 

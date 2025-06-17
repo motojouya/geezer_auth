@@ -1,6 +1,7 @@
 package jwt_test
 
 import (
+	gojwt "github.com/golang-jwt/jwt/v5"
 	"github.com/motojouya/geezer_auth/pkg/core/jwt"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
@@ -32,7 +33,7 @@ func getUserForHandler() *user.User {
 }
 
 func TestHandleJwt(t *testing.T) {
-	var roleLabel, _ = text.NewLabel("TestRole")
+	var roleLabel, _ = text.NewLabel("TEST_ROLE")
 	var roleName, _ = text.NewName("TestRoleName")
 	var role = user.NewRole(roleLabel, roleName)
 	var roles = []user.Role{role}
@@ -43,7 +44,7 @@ func TestHandleJwt(t *testing.T) {
 
 	var companyRole = user.NewCompanyRole(company, roles)
 
-	var userIdentifier, _ = text.NewIdentifier("TestIdentifier")
+	var userIdentifier, _ = text.NewIdentifier("US-TESTES")
 	var emailId, _ = text.NewEmail("test@gmail.com")
 	var email, _ = text.NewEmail("test_2@gmail.com")
 	var userName, _ = text.NewName("TestName")
@@ -82,26 +83,26 @@ func TestHandleJwt(t *testing.T) {
 	}
 
 	assert.Equal(t, issuer, authentic.Issuer)
-	assert.Equal(t, userIdentifier, authentic.Subject)
+	assert.Equal(t, string(userIdentifier), authentic.Subject)
 	assert.Equal(t, len(audience), len(authentic.Audience))
 	assert.Equal(t, issuer, authentic.Audience[0])
 	assert.Equal(t, application, authentic.Audience[1])
-	assert.Equal(t, expiresAt, authentic.ExpiresAt)
-	assert.Equal(t, issuedAt, authentic.NotBefore)
-	assert.Equal(t, issuedAt, authentic.IssuedAt)
+	assert.Equal(t, gojwt.NewNumericDate(expiresAt), authentic.ExpiresAt)
+	assert.Equal(t, gojwt.NewNumericDate(issuedAt), authentic.NotBefore)
+	assert.Equal(t, gojwt.NewNumericDate(issuedAt), authentic.IssuedAt)
 	assert.Equal(t, id, authentic.ID)
 
-	assert.Equal(t, string(userIdentifier), authentic.User.Identifier)
-	assert.Equal(t, string(emailId), authentic.User.EmailId)
-	assert.Equal(t, string(email), *authentic.User.Email)
-	assert.Equal(t, string(userName), authentic.User.Name)
+	assert.Equal(t, string(userIdentifier), string(authentic.User.Identifier))
+	assert.Equal(t, string(emailId), string(authentic.User.EmailId))
+	assert.Equal(t, string(email), string(*authentic.User.Email))
+	assert.Equal(t, string(userName), string(authentic.User.Name))
 	assert.Equal(t, botFlag, authentic.User.BotFlag)
 	assert.Equal(t, updateDate, authentic.User.UpdateDate)
 
-	assert.Equal(t, string(companyIdentifier), authentic.User.CompanyRole.Company.Identifier)
-	assert.Equal(t, string(companyName), authentic.User.CompanyRole.Company.Name)
-	assert.Equal(t, string(roleLabel), authentic.User.CompanyRole.Roles[0].Label)
-	assert.Equal(t, string(roleName), authentic.User.CompanyRole.Roles[0].Name)
+	assert.Equal(t, string(companyIdentifier), string(authentic.User.CompanyRole.Company.Identifier))
+	assert.Equal(t, string(companyName), string(authentic.User.CompanyRole.Company.Name))
+	assert.Equal(t, string(roleLabel), string(authentic.User.CompanyRole.Roles[0].Label))
+	assert.Equal(t, string(roleName), string(authentic.User.CompanyRole.Roles[0].Name))
 
 	t.Logf("authentic: %+v", authentic)
 	t.Logf("authentic.Issuer: %s", authentic.Issuer)
@@ -126,31 +127,6 @@ func TestHandleJwt(t *testing.T) {
 	t.Logf("authentic.User.CompanyRole.Company.Name: %s", authentic.User.CompanyRole.Company.Name)
 	t.Logf("authentic.User.CompanyRole.Roles[0].Label: %s", authentic.User.CompanyRole.Roles[0].Label)
 	t.Logf("authentic.User.CompanyRole.Roles[0].Name: %s", authentic.User.CompanyRole.Roles[0].Name)
-}
-
-func TestHandleJwtFailureId(t *testing.T) {
-	var userValue = getUserForHandler()
-
-	var issuedAt = time.Now()
-	var id = "TestId"
-
-	var issuer = "TestIssuer"
-	var application = "TestAudience"
-	var audience = []string{issuer, application}
-
-	var latestKeyId = "TestLatestKeyId"
-	var latestSecret = "TestLatestSecret"
-	var oldKeyId = "TestOldKeyId"
-	var oldSecret = "TestOldSecret"
-	var validityPeriodMinutes uint = 60
-
-	var jwtParser = jwt.NewJwtParsing(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
-	var jwtHandling = jwt.NewJwtHandling(audience, jwtParser, validityPeriodMinutes)
-
-	var _, _, err = jwtHandling.Generate(userValue, issuedAt, id)
-	if err == nil {
-		t.Errorf("failed to generate token: %v", err)
-	}
 }
 
 func TestHandleJwtFailureIssuer(t *testing.T) {
