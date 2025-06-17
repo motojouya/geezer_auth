@@ -97,7 +97,7 @@ func TestFromAuthentic(t *testing.T) {
 	assert.Equal(t, string(email), *claims.UserEmail)
 	assert.Equal(t, string(userName), claims.UserName)
 	assert.Equal(t, botFlag, claims.BotFlag)
-	assert.Equal(t, updateDate, claims.UpdateDate)
+	assert.WithinDuration(t, updateDate, claims.UpdateDate.Time, time.Second)
 	assert.Equal(t, string(emailId), claims.UserEmailId)
 	assert.Equal(t, string(companyIdentifier), *claims.CompanyIdentifier)
 	assert.Equal(t, string(companyName), *claims.CompanyName)
@@ -163,7 +163,7 @@ func TestFromAuthenticNil(t *testing.T) {
 	assert.Nil(t, claims.UserEmail)
 	assert.Equal(t, string(userName), claims.UserName)
 	assert.Equal(t, botFlag, claims.BotFlag)
-	assert.Equal(t, updateDate, claims.UpdateDate)
+	assert.WithinDuration(t, updateDate, claims.UpdateDate.Time, time.Second)
 	assert.Equal(t, string(emailId), claims.UserEmailId)
 	assert.Nil(t, claims.CompanyIdentifier)
 	assert.Nil(t, claims.CompanyName)
@@ -229,7 +229,7 @@ func TestToAuthentic(t *testing.T) {
 		UserEmail:         &emailStr,
 		UserName:          string(userName),
 		BotFlag:           botFlag,
-		UpdateDate:        updateDate,
+		UpdateDate:        gojwt.NewNumericDate(updateDate),
 		UserEmailId:       string(emailId),
 		CompanyIdentifier: &companyIdentifierStr,
 		CompanyName:       &companyNameStr,
@@ -255,7 +255,7 @@ func TestToAuthentic(t *testing.T) {
 	assert.Equal(t, string(email), string(*authentic.User.Email))
 	assert.Equal(t, string(userName), string(authentic.User.Name))
 	assert.Equal(t, botFlag, authentic.User.BotFlag)
-	assert.Equal(t, updateDate, authentic.User.UpdateDate)
+	assert.WithinDuration(t, updateDate, authentic.User.UpdateDate, time.Second)
 	assert.Equal(t, string(emailId), string(authentic.User.EmailId))
 	assert.Equal(t, string(companyIdentifier), string(authentic.User.CompanyRole.Company.Identifier))
 	assert.Equal(t, string(companyName), string(authentic.User.CompanyRole.Company.Name))
@@ -316,7 +316,7 @@ func TestToAuthenticNil(t *testing.T) {
 		UserEmail:         nil,
 		UserName:          string(userName),
 		BotFlag:           botFlag,
-		UpdateDate:        updateDate,
+		UpdateDate:        gojwt.NewNumericDate(updateDate),
 		UserEmailId:       string(emailId),
 		CompanyIdentifier: nil,
 		CompanyName:       nil,
@@ -342,7 +342,7 @@ func TestToAuthenticNil(t *testing.T) {
 	assert.Nil(t, authentic.User.Email)
 	assert.Equal(t, string(userName), string(authentic.User.Name))
 	assert.Equal(t, botFlag, authentic.User.BotFlag)
-	assert.Equal(t, updateDate, authentic.User.UpdateDate)
+	assert.WithinDuration(t, updateDate, authentic.User.UpdateDate, time.Second)
 	assert.Equal(t, string(emailId), string(authentic.User.EmailId))
 	assert.Nil(t, authentic.User.CompanyRole)
 
@@ -403,7 +403,7 @@ func getClaims() *jwt.GeezerClaims {
 		UserEmail:         &emailStr,
 		UserName:          string(userName),
 		BotFlag:           botFlag,
-		UpdateDate:        updateDate,
+		UpdateDate:        gojwt.NewNumericDate(updateDate),
 		UserEmailId:       string(emailId),
 		CompanyIdentifier: &companyIdentifierStr,
 		CompanyName:       &companyNameStr,

@@ -97,7 +97,7 @@ func TestHandleJwt(t *testing.T) {
 	assert.Equal(t, string(email), string(*authentic.User.Email))
 	assert.Equal(t, string(userName), string(authentic.User.Name))
 	assert.Equal(t, botFlag, authentic.User.BotFlag)
-	assert.Equal(t, updateDate, authentic.User.UpdateDate)
+	assert.WithinDuration(t, updateDate, authentic.User.UpdateDate, time.Second)
 
 	assert.Equal(t, string(companyIdentifier), string(authentic.User.CompanyRole.Company.Identifier))
 	assert.Equal(t, string(companyName), string(authentic.User.CompanyRole.Company.Name))

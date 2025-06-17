@@ -7,21 +7,20 @@ import (
 	"github.com/motojouya/geezer_auth/pkg/utility"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // FIXME claimsのprivate keyが`github.com/motojouya/geezer_auth/`をprefixとしているが、本来は稼働するサーバのfqdnをprefixとして持つべき。
 type GeezerClaims struct {
 	gojwt.RegisteredClaims
-	UserEmail         *string   `json:"email"`
-	UserName          string    `json:"name"`
-	UpdateDate        time.Time `json:"update_at"`
-	UserEmailId       string    `json:"github.com/motojouya/geezer_auth/email_id"`
-	BotFlag           bool      `json:"github.com/motojouya/geezer_auth/bot_flag"`
-	CompanyIdentifier *string   `json:"github.com/motojouya/geezer_auth/company_expose_id"`
-	CompanyName       *string   `json:"github.com/motojouya/geezer_auth/company_name"`
-	CompanyRoles      []string  `json:"github.com/motojouya/geezer_auth/company_roles"`
-	CompanyRoleNames  []string  `json:"github.com/motojouya/geezer_auth/company_role_names"`
+	UserEmail         *string            `json:"email"`
+	UserName          string             `json:"name"`
+	UpdateDate        *gojwt.NumericDate `json:"update_at"`
+	UserEmailId       string             `json:"github.com/motojouya/geezer_auth/email_id"`
+	BotFlag           bool               `json:"github.com/motojouya/geezer_auth/bot_flag"`
+	CompanyIdentifier *string            `json:"github.com/motojouya/geezer_auth/company_expose_id"`
+	CompanyName       *string            `json:"github.com/motojouya/geezer_auth/company_name"`
+	CompanyRoles      []string           `json:"github.com/motojouya/geezer_auth/company_roles"`
+	CompanyRoleNames  []string           `json:"github.com/motojouya/geezer_auth/company_role_names"`
 }
 
 func FromAuthentic(authentic *user.Authentic) *GeezerClaims {
@@ -55,7 +54,7 @@ func FromAuthentic(authentic *user.Authentic) *GeezerClaims {
 		RegisteredClaims:  authentic.RegisteredClaims,
 		UserEmail:         userEmail,
 		UserName:          string(authentic.User.Name),
-		UpdateDate:        authentic.User.UpdateDate,
+		UpdateDate:        gojwt.NewNumericDate(authentic.User.UpdateDate),
 		UserEmailId:       string(authentic.User.EmailId),
 		BotFlag:           authentic.User.BotFlag,
 		CompanyIdentifier: companyIdentifier,
@@ -157,7 +156,7 @@ func (claims *GeezerClaims) ToAuthentic() (*user.Authentic, error) {
 		userName,
 		claims.BotFlag,
 		companyRole,
-		claims.UpdateDate,
+		claims.UpdateDate.Time,
 	)
 
 	return user.NewAuthentic(
