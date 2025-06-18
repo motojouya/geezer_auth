@@ -5,6 +5,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/utility"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"sort"
 )
 
 func TestFilter(t *testing.T) {
@@ -71,8 +72,8 @@ func TestFoldError(t *testing.T) {
 }
 
 func TestReduce(t *testing.T) {
-	var list = []uint{1, 2, 3}
-	var reducer = func(accumulator uint, item uint) uint {
+	var list = []int{1, 2, 3}
+	var reducer = func(accumulator int, item int) int {
 		return accumulator + item
 	}
 
@@ -105,11 +106,11 @@ func TestEvery(t *testing.T) {
 		return chars[0] == 't'
 	}
 
-	var allMatch1 = utility.Every(list1, predicate)
-	var allMatch2 = utility.Every(list2, predicate)
+	var unMatched = utility.Every(list1, predicate)
+	var allMatched = utility.Every(list2, predicate)
 
-	assert.True(t, allMatch1)
-	assert.False(t, allMatch2)
+	assert.False(t, unMatched)
+	assert.True(t, allMatched)
 }
 
 func TestFind(t *testing.T) {
@@ -150,23 +151,25 @@ func TestKeys(t *testing.T) {
 	}
 
 	var keys = utility.Keys(m)
+	sort.Strings(keys)
 
 	assert.Equal(t, 3, len(keys))
-	assert.Equal(t, keys[0], "this")
+	assert.Equal(t, keys[0], "item")
 	assert.Equal(t, keys[1], "test")
-	assert.Equal(t, keys[2], "item")
+	assert.Equal(t, keys[2], "this")
 
 	t.Logf("keys: %v", keys)
 }
 
 func TestValues(t *testing.T) {
 	var m = map[string]int{
-		"this": 1,
+		"this": 3,
 		"test": 2,
-		"item": 3,
+		"item": 1,
 	}
 
 	var values = utility.Values(m)
+	sort.Ints(values)
 
 	assert.Equal(t, 3, len(values))
 	assert.Equal(t, values[0], 1)
@@ -184,14 +187,17 @@ func TestEntries(t *testing.T) {
 	}
 
 	var entries = utility.Entries(m)
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i].Key < entries[j].Key
+	})
 
 	assert.Equal(t, 3, len(entries))
-	assert.Equal(t, entries[0].Key, "this")
-	assert.Equal(t, entries[0].Value, 1)
+	assert.Equal(t, entries[0].Key, "item")
+	assert.Equal(t, entries[0].Value, 3)
 	assert.Equal(t, entries[1].Key, "test")
 	assert.Equal(t, entries[1].Value, 2)
-	assert.Equal(t, entries[2].Key, "item")
-	assert.Equal(t, entries[2].Value, 3)
+	assert.Equal(t, entries[2].Key, "this")
+	assert.Equal(t, entries[2].Value, 1)
 
 	t.Logf("entries: %v", entries)
 }
@@ -258,11 +264,16 @@ func TestRelated(t *testing.T) {
 		{ID: "b1", OrderID: "1", Name: "Banana", Quantity: 3},
 		{ID: "c1", OrderID: "2", Name: "Carrot", Quantity: 5},
 	}
-	var predicate = func(order Order, item Item) bool {
-		return order.ID == item.OrderID
+	var relate = func(order Order, item Item) (Order, bool) {
+		if order.ID == item.OrderID {
+			order.Items = append(order.Items, item)
+			return order, true
+		} else {
+			return order, false
+		}
 	}
 
-	var related = utility.Relate("Items", orderList, itemList, predicate)
+	var related = utility.Relate(orderList, itemList, relate)
 
 	assert.Equal(t, 2, len(related))
 	assert.Equal(t, related[0].Customer, "Alice")
@@ -271,7 +282,7 @@ func TestRelated(t *testing.T) {
 	assert.Equal(t, "Banana", related[0].Items[1].Name)
 	assert.Equal(t, related[1].Customer, "Bob")
 	assert.Equal(t, 1, len(related[1].Items))
-	assert.Equal(t, "Carrot", related[1].Items[1].Name)
+	assert.Equal(t, "Carrot", related[1].Items[0].Name)
 
 	t.Logf("related items: %v", related)
 }

@@ -27,7 +27,7 @@ func NewRangeError(name string, value int, min int, max int, message string) Ran
 }
 
 func (e RangeError) Error() string {
-	return e.error.Error() + " (name: " + e.Name + ", value: " + strconv.Itoa(e.Value) + ", min: " + strconv.Itoa(e.Min) + ", max: " + strconv.Itoa(e.Max) + ")"
+	return e.error.Error() + ", name: " + e.Name + ", value: " + strconv.Itoa(e.Value) + ", min: " + strconv.Itoa(e.Min) + ", max: " + strconv.Itoa(e.Max)
 }
 
 func (e RangeError) Unwrap() error {
@@ -54,7 +54,7 @@ func NewAuthenticationError(userIdentifier string, message string) *Authenticati
 }
 
 func (e AuthenticationError) Error() string {
-	return e.error.Error() + " (userIdentifier: " + e.UserIdentifier + ")"
+	return e.error.Error() + ", userIdentifier: " + e.UserIdentifier
 }
 
 func (e AuthenticationError) Unwrap() error {

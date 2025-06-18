@@ -1,7 +1,6 @@
 package utility
 
 import (
-	"reflect"
 	"slices"
 )
 
@@ -86,7 +85,8 @@ func Fold[T any, U any](slice []T, initial U, folder func(U, T) (U, error)) (U, 
 
 	var result = initial
 	for _, item := range slice {
-		var result, err = folder(result, item)
+		var working, err = folder(result, item)
+		result = working
 		if err != nil {
 			return result, err
 		}
@@ -165,7 +165,7 @@ func Entries[T comparable, V any](m map[T]V) []struct {
  * branchは、[]leavesの要素を持っているが、DBでqueryを投げる際には、branch,leafで別々に投げたい。
  * 別々に投げた後に紐づけを行うための関数
  */
-func Relate[B any, L any](property string, branches []B, leaves []L, relate func(B, L) bool) []B {
+func Relate[B any, L any](branches []B, leaves []L, relateIfCase func(B, L) (B, bool)) []B {
 
 	if len(branches) == 0 {
 		return branches
@@ -174,32 +174,30 @@ func Relate[B any, L any](property string, branches []B, leaves []L, relate func
 	var related = make([]B, 0, len(branches))
 
 	var rest = slices.Clone(leaves)
-	var matchedIndexes []uint = []uint{}
 
 	for _, branch := range branches {
+		var workingBranch = branch
+		var matchedIndexes = []int{}
 
-		var e = reflect.ValueOf(&branch).Elem()
-		var list = e.FieldByName(property)
-		if !list.IsValid() || list.Kind() != reflect.Slice {
-			panic("property must be a valid slice field")
-		}
-
-		for lIndex, leaf := range rest {
-			if relate(branch, leaf) {
-				var item = []L{leaf}
-				list.Set(reflect.AppendSlice(list, reflect.ValueOf(&item)))
-
-				matchedIndexes = append(matchedIndexes, uint(lIndex))
+		for index, leaf := range rest {
+			var result, hasRelated = relateIfCase(workingBranch, leaf)
+			if hasRelated {
+				workingBranch = result
+				matchedIndexes = append(matchedIndexes, index)
 			}
 		}
 
-		// indexの削除は、後ろから行うことで、削除によるindexのずれを防ぐ
+		/*
+		 * indexの削除は、後ろから行うことで、削除によるindexのずれを防ぐ
+		 * 同一のloopで実現しようとすると、その場合は削除のために逆順でloopを回すので、sort orderが逆転してしまう
+		 * そのため、ここでは、削除のために逆順でloopを回る
+		 */
 		for i := len(matchedIndexes) - 1; i >= 0; i-- {
-			var index = matchedIndexes[i]
-			rest = slices.Delete(rest, int(index), int(index+1))
+			var indexValue = matchedIndexes[i]
+			rest = slices.Delete(rest, indexValue, indexValue+1)
 		}
 
-		related = append(related, branch)
+		related = append(related, workingBranch)
 	}
 
 	return related
