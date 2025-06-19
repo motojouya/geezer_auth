@@ -34,16 +34,14 @@ func TestCreateUserEmail(t *testing.T) {
 	assert.Equal(t, string(email), string(userEmail.Email))
 	assert.Equal(t, string(verifyToken), string(userEmail.VerifyToken))
 	assert.Equal(t, registerDate, userEmail.RegisterDate)
-	assert.Nil(t, *userEmail.VerifyDate)
-	assert.Nil(t, *userEmail.ExpireDate)
+	assert.Nil(t, userEmail.VerifyDate)
+	assert.Nil(t, userEmail.ExpireDate)
 
 	t.Logf("userEmail: %+v", userEmail)
 	t.Logf("userEmail.User.Identifier: %s", userEmail.User.Identifier)
 	t.Logf("userEmail.Email: %s", userEmail.Email)
 	t.Logf("userEmail.VerifyToken: %s", userEmail.VerifyToken)
 	t.Logf("userEmail.RegisteredDate: %s", userEmail.RegisterDate)
-	t.Logf("userEmail.VerifyDate: %s", *userEmail.VerifyDate)
-	t.Logf("userEmail.ExpireDate: %s", *userEmail.ExpireDate)
 }
 
 func TestNewUserEmail(t *testing.T) {
@@ -58,7 +56,7 @@ func TestNewUserEmail(t *testing.T) {
 
 	var userEmail = user.NewUserEmail(1, userValue, email, verifyToken, registerDate, verifyDate, expireDate)
 
-	assert.Equal(t, 1, userEmail.PersistKey)
+	assert.Equal(t, uint(1), userEmail.PersistKey)
 	assert.Equal(t, string(userIdentifier), string(userEmail.User.Identifier))
 	assert.Equal(t, string(email), string(userEmail.Email))
 	assert.Equal(t, string(verifyToken), string(userEmail.VerifyToken))

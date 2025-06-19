@@ -32,13 +32,12 @@ func TestCreateUserPassword(t *testing.T) {
 	assert.Equal(t, string(userIdentifier), string(userPassword.User.Identifier))
 	assert.Equal(t, string(password), string(userPassword.Password))
 	assert.Equal(t, registerDate, userPassword.RegisteredDate)
-	assert.Nil(t, *userPassword.ExpireDate)
+	assert.Nil(t, userPassword.ExpireDate)
 
 	t.Logf("userPassword: %+v", userPassword)
 	t.Logf("userPassword.User.Identifier: %s", userPassword.User.Identifier)
 	t.Logf("userPassword.Password: %s", userPassword.Password)
 	t.Logf("userPassword.RegisteredDate: %s", userPassword.RegisteredDate)
-	t.Logf("userPassword.ExpireDate: %s", *userPassword.ExpireDate)
 }
 
 func TestNewUserPassword(t *testing.T) {
@@ -51,7 +50,7 @@ func TestNewUserPassword(t *testing.T) {
 
 	var userPassword = user.NewUserPassword(1, userValue, password, registerDate, expireDate)
 
-	assert.Equal(t, 1, userPassword.PersistKey)
+	assert.Equal(t, uint(1), userPassword.PersistKey)
 	assert.Equal(t, string(userIdentifier), string(userPassword.User.Identifier))
 	assert.Equal(t, string(password), string(userPassword.Password))
 	assert.Equal(t, registerDate, userPassword.RegisteredDate)

@@ -56,14 +56,13 @@ func TestCreateUserCompanyRole(t *testing.T) {
 	assert.Equal(t, string(companyIdentifier), string(userCompanyRole.Company.Identifier))
 	assert.Equal(t, string(label), string(userCompanyRole.Role.Label))
 	assert.Equal(t, registerDate, userCompanyRole.RegisterDate)
-	assert.Nil(t, *userCompanyRole.ExpireDate)
+	assert.Nil(t, userCompanyRole.ExpireDate)
 
 	t.Logf("userCompanyRole: %+v", userCompanyRole)
 	t.Logf("userCompanyRole.User.Identifier: %s", userCompanyRole.User.Identifier)
 	t.Logf("userCompanyRole.Company.Identifier: %s", userCompanyRole.Company.Identifier)
 	t.Logf("userCompanyRole.Role.Label: %s", userCompanyRole.Role.Label)
 	t.Logf("userCompanyRole.RegisterDate: %s", userCompanyRole.RegisterDate)
-	t.Logf("userCompanyRole.ExpireDate: %s", *userCompanyRole.ExpireDate)
 }
 
 func TestNewUserCompanyRole(t *testing.T) {
@@ -81,7 +80,7 @@ func TestNewUserCompanyRole(t *testing.T) {
 
 	var userCompanyRole = user.NewUserCompanyRole(1, userValue, company, role, registerDate, expireDate)
 
-	assert.Equal(t, 1, userCompanyRole.PersistKey)
+	assert.Equal(t, uint(1), userCompanyRole.PersistKey)
 	assert.Equal(t, string(userIdentifier), string(userCompanyRole.User.Identifier))
 	assert.Equal(t, string(companyIdentifier), string(userCompanyRole.Company.Identifier))
 	assert.Equal(t, string(label), string(userCompanyRole.Role.Label))

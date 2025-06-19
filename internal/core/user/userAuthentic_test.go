@@ -36,7 +36,7 @@ func TestNewCompanyRole(t *testing.T) {
 
 	assert.Equal(t, string(identifier), string(companyRole.Company.Identifier))
 	assert.Equal(t, len(roles), len(companyRole.Roles))
-	assert.Equal(t, string(label), companyRole.Roles[0].Label)
+	assert.Equal(t, string(label), string(companyRole.Roles[0].Label))
 
 	t.Logf("companyRole: %+v", companyRole)
 	t.Logf("company: %+v", companyRole.Company)

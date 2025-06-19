@@ -30,7 +30,7 @@ func TestCreateUserAccessToken(t *testing.T) {
 	var userAccessToken = user.CreateUserAccessToken(userValue, accessToken, registerDate, expireDate)
 
 	assert.Equal(t, string(identifier), string(userAccessToken.User.Identifier))
-	assert.Equal(t, string(accessToken), userAccessToken.User.BotFlag)
+	assert.Equal(t, string(accessToken), string(userAccessToken.AccessToken))
 	assert.Equal(t, registerDate, userAccessToken.RegisterDate)
 	assert.Equal(t, expireDate, userAccessToken.ExpireDate)
 
@@ -53,7 +53,7 @@ func TestNewUserAccessToken(t *testing.T) {
 
 	var userAccessToken = user.NewUserAccessToken(1, userValue, accessToken, sourceUpdateDate, registerDate, expireDate)
 
-	assert.Equal(t, 1, userAccessToken.PersistKey)
+	assert.Equal(t, uint(1), userAccessToken.PersistKey)
 	assert.Equal(t, string(identifier), string(userAccessToken.User.Identifier))
 	assert.Equal(t, string(accessToken), string(userAccessToken.AccessToken))
 	assert.Equal(t, sourceUpdateDate, userAccessToken.SourceUpdateDate)
