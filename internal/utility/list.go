@@ -226,7 +226,7 @@ func Intersect[V any, H any](verticals []V, horizontals []H, predicate func(V, H
 			}
 		}
 	}
- 	return verticalMatched, horizontalMatched, verticalUnmatched, horizontalUnmatched
+	return verticalMatched, horizontalMatched, verticalUnmatched, horizontalUnmatched
 }
 
 func Group[T any](slice []T, predicate func(T, T) bool) [][]T {
