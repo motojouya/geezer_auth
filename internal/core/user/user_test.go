@@ -1,7 +1,6 @@
 package user_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/company"
 	"github.com/motojouya/geezer_auth/internal/core/user"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/stretchr/testify/assert"
@@ -10,7 +9,7 @@ import (
 )
 
 func TestCreateUserIdentifier(t *testing.T) {
-	var identifier, err = company.CreateCompanyIdentifier("TESTES")
+	var identifier, err = user.CreateUserIdentifier("TESTES")
 
 	assert.Nil(t, err)
 	assert.NotEmpty(t, identifier)

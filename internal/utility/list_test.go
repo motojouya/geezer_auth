@@ -288,12 +288,12 @@ func TestRelated(t *testing.T) {
 }
 
 func TestIntersect(t *testing.T) {
-	var list1 = []ItemRequest{
+	var verticalList = []ItemRequest{
 		{ID: "a1", Quantity: 2},
 		{ID: "b1", Quantity: 3},
 		{ID: "d1", Quantity: 4},
 	}
-	var list2 = []Item{
+	var horizontalList = []Item{
 		{ID: "a1", OrderID: "1", Name: "Apple", Quantity: 1},
 		{ID: "b1", OrderID: "1", Name: "Banana", Quantity: 1},
 		{ID: "c1", OrderID: "2", Name: "Carrot", Quantity: 1},
@@ -302,18 +302,18 @@ func TestIntersect(t *testing.T) {
 		return itemRequest.ID == item.ID
 	}
 
-	var verticalMatched, horizontalMatched, verticalUnMatched, horizontalUnMatched = utility.Intersect(list1, list2, predicate)
+	var verticalMatched, horizontalMatched, verticalUnMatched, horizontalUnMatched = utility.Intersect(verticalList, horizontalList, predicate)
 
 	assert.Equal(t, 2, len(horizontalMatched))
 	assert.Equal(t, "Apple", horizontalMatched[0].Name)
 	assert.Equal(t, "Banana", horizontalMatched[1].Name)
 	assert.Equal(t, 2, len(verticalMatched))
-	assert.Equal(t, 2, verticalMatched[0].Quantity)
-	assert.Equal(t, 3, verticalMatched[1].Quantity)
+	assert.Equal(t, uint(2), verticalMatched[0].Quantity)
+	assert.Equal(t, uint(3), verticalMatched[1].Quantity)
 	assert.Equal(t, 1, len(horizontalUnMatched))
 	assert.Equal(t, "Carrot", horizontalUnMatched[0].Name)
 	assert.Equal(t, 1, len(verticalUnMatched))
-	assert.Equal(t, 4, verticalUnMatched[0].Quantity)
+	assert.Equal(t, uint(4), verticalUnMatched[0].Quantity)
 
 	t.Logf("verticalMatched: %v", verticalMatched)
 	t.Logf("horizontalMatched: %v", horizontalMatched)

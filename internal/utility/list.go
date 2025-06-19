@@ -211,52 +211,49 @@ func Intersect[V any, H any](verticals []V, horizontals []H, predicate func(V, H
 	var verticalUnmatched []V = slices.Clone(verticals)
 	var horizontalUnmatched []H = slices.Clone(horizontals)
 
-	var vIndex = len(verticalUnmatched)
-	for {
-		if vIndex == 0 {
-			break
-		}
+	for vIndex := len(verticalUnmatched) - 1; vIndex >= 0; vIndex-- {
+		var vertical = verticalUnmatched[vIndex]
 
-		var vertical = verticalUnmatched[vIndex-1]
-		for hIndex, horizontal := range horizontalUnmatched {
+		for hIndex := len(horizontalUnmatched) - 1; hIndex >= 0; hIndex-- {
+			var horizontal = horizontalUnmatched[hIndex]
+
 			if predicate(vertical, horizontal) {
-				verticalMatched = append(verticalMatched, vertical)
-				horizontalMatched = append(horizontalMatched, horizontal)
-				verticalUnmatched = slices.Delete(verticalUnmatched, vIndex-1, vIndex)
+				verticalMatched = append([]V{vertical}, verticalMatched...)
+				horizontalMatched = append([]H{horizontal}, horizontalMatched...)
+				verticalUnmatched = slices.Delete(verticalUnmatched, vIndex, vIndex+1)
 				horizontalUnmatched = slices.Delete(horizontalUnmatched, hIndex, hIndex+1)
 				break
 			}
 		}
-
-		vIndex -= 1
 	}
-	return verticalMatched, horizontalMatched, verticalUnmatched, horizontalUnmatched
+ 	return verticalMatched, horizontalMatched, verticalUnmatched, horizontalUnmatched
 }
 
 func Group[T any](slice []T, predicate func(T, T) bool) [][]T {
 	grouped := make([][]T, 0)
 
 	var workings = slices.Clone(slice)
-	var index = len(workings)
+	var outerI = len(workings) - 1
 	for {
-		if index == 0 {
+		if outerI < 0 {
 			break
 		}
 
-		var item = workings[index]
-		workings = slices.Delete(workings, index, index+1)
+		var item = workings[outerI]
+		workings = slices.Delete(workings, outerI, outerI+1)
 		var groupedItems = []T{item}
 
-		for i := len(workings) - 1; i >= 0; i-- {
-			var compare = workings[i]
+		for innerI := len(workings) - 1; innerI >= 0; innerI-- {
+			var compare = workings[innerI]
 			if predicate(item, compare) {
-				groupedItems = append(groupedItems, compare)
-				workings = slices.Delete(workings, i, i+1)
+				groupedItems = append([]T{compare}, groupedItems...)
+				workings = slices.Delete(workings, innerI, innerI+1)
 			}
 		}
 
+		// groupedされている時点でsort orderめちゃくちゃなので、気にせず末尾追加している
 		grouped = append(grouped, groupedItems)
-		index = len(workings)
+		outerI = len(workings) - 1
 	}
 
 	return grouped

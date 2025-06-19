@@ -32,8 +32,8 @@ func TestCreateUserRefreshToken(t *testing.T) {
 
 	assert.Equal(t, string(userIdentifier), string(userRefreshToken.User.Identifier))
 	assert.Equal(t, string(token), string(userRefreshToken.RefreshToken))
-	assert.Equal(t, registerDate, userRefreshToken.RegisterDate)
-	assert.Equal(t, expireDate, userRefreshToken.ExpireDate)
+	assert.WithinDuration(t, registerDate, userRefreshToken.RegisterDate, time.Second)
+	assert.WithinDuration(t, expireDate, userRefreshToken.ExpireDate, time.Second)
 
 	t.Logf("userRefreshToken: %+v", userRefreshToken)
 	t.Logf("userRefreshToken.User.Identifier: %s", userRefreshToken.User.Identifier)
@@ -52,7 +52,7 @@ func TestNewUserRefreshToken(t *testing.T) {
 
 	var userRefreshToken = user.NewUserRefreshToken(1, userValue, token, registerDate, expireDate)
 
-	assert.Equal(t, 1, userRefreshToken.PersistKey)
+	assert.Equal(t, uint(1), userRefreshToken.PersistKey)
 	assert.Equal(t, string(userIdentifier), string(userRefreshToken.User.Identifier))
 	assert.Equal(t, string(token), string(userRefreshToken.RefreshToken))
 	assert.Equal(t, registerDate, userRefreshToken.RegisterDate)

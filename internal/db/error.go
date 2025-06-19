@@ -33,7 +33,7 @@ func NewNotFoundError(table string, keys map[string]string, message string) *Not
 }
 
 func (e NotFoundError) Error() string {
-	return e.error.Error() + " (table: " + e.Table + ", keys: " + formatKeys(e.Keys) + ")"
+	return e.error.Error() + ", table: " + e.Table + ", keys: " + formatKeys(e.Keys)
 }
 
 func (e NotFoundError) Unwrap() error {
@@ -62,7 +62,7 @@ func NewDuplicateError(table string, keys map[string]string, message string) *Du
 }
 
 func (e DuplicateError) Error() string {
-	return e.error.Error() + " (table: " + e.Table + ", keys: " + formatKeys(e.Keys) + ")"
+	return e.error.Error() + ", table: " + e.Table + ", keys: " + formatKeys(e.Keys)
 }
 
 func (e DuplicateError) Unwrap() error {
