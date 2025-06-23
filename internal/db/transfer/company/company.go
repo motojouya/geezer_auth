@@ -1,8 +1,8 @@
 package company
 
 import (
-	text "github.com/motojouya/geezer_auth/pkg/core/text"
 	core "github.com/motojouya/geezer_auth/internal/core/company"
+	text "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
 )
 

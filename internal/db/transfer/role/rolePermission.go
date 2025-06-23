@@ -1,8 +1,8 @@
 package role
 
 import (
-	text "github.com/motojouya/geezer_auth/pkg/core/text"
 	core "github.com/motojouya/geezer_auth/internal/core/role"
+	text "github.com/motojouya/geezer_auth/pkg/core/text"
 )
 
 type RolePermission struct {
@@ -14,7 +14,7 @@ type RolePermission struct {
 	Priority      uint
 }
 
-func FromCoreRolePermission(r core.RolePermission) (RolePermission) {
+func FromCoreRolePermission(r core.RolePermission) RolePermission {
 	return RolePermission{
 		RoleLabel:     string(r.RoleLabel),
 		SelfEdit:      r.SelfEdit,

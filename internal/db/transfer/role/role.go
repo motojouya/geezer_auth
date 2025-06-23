@@ -1,16 +1,16 @@
 package role
 
 import (
-	coreText "github.com/motojouya/geezer_auth/internal/core/text"
 	core "github.com/motojouya/geezer_auth/internal/core/role"
+	coreText "github.com/motojouya/geezer_auth/internal/core/text"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
 )
 
 type Role struct {
-	Label       string
-	Name        string
-	Description string
+	Label          string
+	Name           string
+	Description    string
 	RegisteredDate time.Time
 }
 

@@ -2,8 +2,8 @@ package role_test
 
 import (
 	coreRole "github.com/motojouya/geezer_auth/internal/core/role"
-	role "github.com/motojouya/geezer_auth/internal/db/transfer/role"
 	"github.com/motojouya/geezer_auth/internal/core/text"
+	role "github.com/motojouya/geezer_auth/internal/db/transfer/role"
 	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
