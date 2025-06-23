@@ -33,7 +33,8 @@ func TestCreateCompanyInvite(t *testing.T) {
 	var label, _ = pkgText.NewLabel("TEST_ROLE")
 	var role = getRole(label)
 
-	var token, _ = uuid.NewUUID()
+	var tokenUUID, _ = uuid.NewUUID()
+	var token, _ = text.CreateToken(tokenUUID)
 	var registerDate = time.Now()
 	var expireDate = registerDate.Add(50 * time.Hour)
 
@@ -60,7 +61,8 @@ func TestNewCompanyInvite(t *testing.T) {
 	var label, _ = pkgText.NewLabel("TEST_ROLE")
 	var role = getRole(label)
 
-	var token, _ = uuid.NewUUID()
+	var tokenUUID, _ = uuid.NewUUID()
+	var token, _ = text.CreateToken(tokenUUID)
 	var registeredDate = time.Now()
 	var expireDate = registeredDate.Add(50 * time.Hour)
 

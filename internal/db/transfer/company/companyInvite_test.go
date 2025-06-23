@@ -11,6 +11,33 @@ import (
 	"time"
 )
 
+// TODO working
+func TestFromCoreCompanyInvite(t *testing.T) {
+	var identifier, _ = pkgText.NewIdentifier("CP-TESTES")
+	var companyValue = getCompany(identifier)
+
+	var label, _ = pkgText.NewLabel("TEST_ROLE")
+	var role = getRole(label)
+
+	var token, _ = uuid.NewUUID()
+	var registerDate = time.Now()
+	var expireDate = registerDate.Add(50 * time.Hour)
+
+	var coreCompanyInvite = company.CreateCompanyInvite(companyValue, token, role, registerDate)
+	var companyInvite = company.FromCoreCompanyInvite(coreCompanyInvite)
+
+	assert.Equal(t, string(label), string(companyInvite.Role.Label))
+	assert.Equal(t, string(identifier), string(companyInvite.Company.Identifier))
+	assert.Equal(t, registerDate, companyInvite.RegisterDate)
+	assert.Equal(t, expireDate, companyInvite.ExpireDate)
+
+	t.Logf("companyInvite: %+v", companyInvite)
+	t.Logf("companyInvite.Company.Identifier: %s", companyInvite.Company.Identifier)
+	t.Logf("companyInvite.Role.Label: %s", companyInvite.Role.Label)
+	t.Logf("companyInvite.RegisteredDate: %s", companyInvite.RegisterDate)
+	t.Logf("companyInvite.ExpireDate: %s", companyInvite.ExpireDate)
+}
+
 func getCompany(identifier pkgText.Identifier) company.Company {
 	var name, _ = pkgText.NewName("TestRole")
 	var registeredDate = time.Now()
