@@ -2,7 +2,8 @@ package company_test
 
 import (
 	"github.com/google/uuid"
-	"github.com/motojouya/geezer_auth/internal/core/company"
+	core "github.com/motojouya/geezer_auth/internal/core/company"
+	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	"github.com/motojouya/geezer_auth/internal/core/role"
 	"github.com/motojouya/geezer_auth/internal/core/text"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
@@ -11,38 +12,118 @@ import (
 	"time"
 )
 
-// TODO working
 func TestFromCoreCompanyInvite(t *testing.T) {
-	var identifier, _ = pkgText.NewIdentifier("CP-TESTES")
-	var companyValue = getCompany(identifier)
+	var persistKey uint = 1
+	var companyValue = getCompany(persistKey)
 
 	var label, _ = pkgText.NewLabel("TEST_ROLE")
 	var role = getRole(label)
 
-	var token, _ = uuid.NewUUID()
+	var tokenUUID, _ = uuid.NewUUID()
+	var token, _ = text.CreateToken(tokenUUID)
 	var registerDate = time.Now()
 	var expireDate = registerDate.Add(50 * time.Hour)
 
-	var coreCompanyInvite = company.CreateCompanyInvite(companyValue, token, role, registerDate)
+	var coreCompanyInvite = core.NewCompanyInvite(persistKey, companyValue, token, role, registerDate, expireDate)
 	var companyInvite = company.FromCoreCompanyInvite(coreCompanyInvite)
 
-	assert.Equal(t, string(label), string(companyInvite.Role.Label))
-	assert.Equal(t, string(identifier), string(companyInvite.Company.Identifier))
+	assert.Equal(t, uint(0), companyInvite.PersistKey)
+	assert.Equal(t, string(label), companyInvite.RoleLabel)
+	assert.Equal(t, persistKey, companyInvite.CompanyPersistKey)
+	assert.Equal(t, string(token), companyInvite.Token)
 	assert.Equal(t, registerDate, companyInvite.RegisterDate)
 	assert.Equal(t, expireDate, companyInvite.ExpireDate)
 
 	t.Logf("companyInvite: %+v", companyInvite)
-	t.Logf("companyInvite.Company.Identifier: %s", companyInvite.Company.Identifier)
-	t.Logf("companyInvite.Role.Label: %s", companyInvite.Role.Label)
-	t.Logf("companyInvite.RegisteredDate: %s", companyInvite.RegisterDate)
-	t.Logf("companyInvite.ExpireDate: %s", companyInvite.ExpireDate)
 }
 
-func getCompany(identifier pkgText.Identifier) company.Company {
+func TestToCoreCompanyInvite(t *testing.T) {
+	var companyInvitePersistKey uint = 1
+
+	var companyPersistKey uint = 1
+	var companyValue = getCompany(companyPersistKey)
+
+	var label, _ = pkgText.NewLabel("TEST_ROLE")
+	var role = getRole(label)
+
+	var tokenUUID, _ = uuid.NewUUID()
+	var token, _ = text.CreateToken(tokenUUID)
+	var registerDate = time.Now()
+	var expireDate = registerDate.Add(50 * time.Hour)
+
+	var companyInviteFull = company.CompanyInviteFull{
+		CompanyInvite: company.CompanyInvite{
+			PersistKey:        companyInvitePersistKey,
+			CompanyPersistKey: companyPersistKey,
+			Token:             string(token),
+			RoleLabel:         string(label),
+			RegisterDate:      registerDate,
+			ExpireDate:        expireDate,
+		},
+		CompanyIdentifier:     string(companyValue.Identifier),
+		CompanyName:           string(companyValue.Name),
+		CompanyRegisteredDate: companyValue.RegisteredDate,
+		RoleName:              string(role.Name),
+		RoleDescription:       string(role.Description),
+		RoleRegisteredDate:    role.RegisteredDate,
+	}
+
+	var coreCompanyInvite, err = companyInviteFull.ToCoreCompanyInvite()
+
+	assert.Nil(t, err)
+	assert.Equal(t, companyValue.Identifier, coreCompanyInvite.Company.Identifier)
+	assert.Equal(t, label, coreCompanyInvite.Role.Label)
+	assert.Equal(t, token, coreCompanyInvite.Token)
+	assert.Equal(t, registerDate, coreCompanyInvite.RegisterDate)
+	assert.Equal(t, expireDate, coreCompanyInvite.ExpireDate)
+
+	t.Logf("coreCompanyInvite: %+v", coreCompanyInvite)
+}
+
+func TestToCoreCompanyInviteError(t *testing.T) {
+	var companyInvitePersistKey uint = 1
+
+	var companyPersistKey uint = 1
+	var companyValue = getCompany(companyPersistKey)
+
+	var label, _ = pkgText.NewLabel("TEST_ROLE")
+	var role = getRole(label)
+
+	var tokenUUID, _ = uuid.NewUUID()
+	var token, _ = text.CreateToken(tokenUUID)
+	var registerDate = time.Now()
+	var expireDate = registerDate.Add(50 * time.Hour)
+
+	var companyInviteFull = company.CompanyInviteFull{
+		CompanyInvite: company.CompanyInvite{
+			PersistKey:        companyInvitePersistKey,
+			CompanyPersistKey: companyPersistKey,
+			Token:             string(token),
+			RoleLabel:         "invalid_label",
+			RegisterDate:      registerDate,
+			ExpireDate:        expireDate,
+		},
+		CompanyIdentifier:     string(companyValue.Identifier),
+		CompanyName:           string(companyValue.Name),
+		CompanyRegisteredDate: companyValue.RegisteredDate,
+		RoleName:              string(role.Name),
+		RoleDescription:       string(role.Description),
+		RoleRegisteredDate:    role.RegisteredDate,
+	}
+
+	var _, err = companyInviteFull.ToCoreCompanyInvite()
+
+	assert.NotNil(t, err)
+
+	t.Logf("coreCompanyInvite error: %v", err)
+}
+
+func getCompany(persistKey uint) core.Company {
+	var identifier, _ = pkgText.NewIdentifier("CP-TESTES")
 	var name, _ = pkgText.NewName("TestRole")
 	var registeredDate = time.Now()
 
-	return company.NewCompany(1, identifier, name, registeredDate)
+	return core.NewCompany(persistKey, identifier, name, registeredDate)
 }
 
 func getRole(label pkgText.Label) role.Role {
@@ -51,58 +132,4 @@ func getRole(label pkgText.Label) role.Role {
 	var description, _ = text.NewText("This is a test role")
 
 	return role.NewRole(name, label, description, registeredDate)
-}
-
-func TestCreateCompanyInvite(t *testing.T) {
-	var identifier, _ = pkgText.NewIdentifier("CP-TESTES")
-	var companyValue = getCompany(identifier)
-
-	var label, _ = pkgText.NewLabel("TEST_ROLE")
-	var role = getRole(label)
-
-	var token, _ = uuid.NewUUID()
-	var registerDate = time.Now()
-	var expireDate = registerDate.Add(50 * time.Hour)
-
-	var companyInvite = company.CreateCompanyInvite(companyValue, token, role, registerDate)
-
-	assert.Equal(t, string(label), string(companyInvite.Role.Label))
-	assert.Equal(t, string(identifier), string(companyInvite.Company.Identifier))
-	assert.Equal(t, registerDate, companyInvite.RegisterDate)
-	assert.Equal(t, expireDate, companyInvite.ExpireDate)
-
-	t.Logf("companyInvite: %+v", companyInvite)
-	t.Logf("companyInvite.Company.Identifier: %s", companyInvite.Company.Identifier)
-	t.Logf("companyInvite.Role.Label: %s", companyInvite.Role.Label)
-	t.Logf("companyInvite.RegisteredDate: %s", companyInvite.RegisterDate)
-	t.Logf("companyInvite.ExpireDate: %s", companyInvite.ExpireDate)
-}
-
-func TestNewCompanyInvite(t *testing.T) {
-	var companyInviteId uint = 1
-
-	var identifier, _ = pkgText.NewIdentifier("CP-TESTES")
-	var companyValue = getCompany(identifier)
-
-	var label, _ = pkgText.NewLabel("TEST_ROLE")
-	var role = getRole(label)
-
-	var token, _ = uuid.NewUUID()
-	var registeredDate = time.Now()
-	var expireDate = registeredDate.Add(50 * time.Hour)
-
-	var companyInvite = company.NewCompanyInvite(companyInviteId, companyValue, token, role, registeredDate, expireDate)
-
-	assert.Equal(t, companyInviteId, companyInvite.PersistKey)
-	assert.Equal(t, string(label), string(companyInvite.Role.Label))
-	assert.Equal(t, string(identifier), string(companyInvite.Company.Identifier))
-	assert.Equal(t, registeredDate, companyInvite.RegisterDate)
-	assert.Equal(t, expireDate, companyInvite.ExpireDate)
-
-	t.Logf("companyInvite: %+v", companyInvite)
-	t.Logf("companyInvite.Company.CompanyId: %d", companyInvite.Company.PersistKey)
-	t.Logf("companyInvite.Company.Identifier: %s", companyInvite.Company.Identifier)
-	t.Logf("companyInvite.Role.Label: %s", companyInvite.Role.Label)
-	t.Logf("companyInvite.RegisteredDate: %s", companyInvite.RegisterDate)
-	t.Logf("companyInvite.ExpireDate: %s", companyInvite.ExpireDate)
 }

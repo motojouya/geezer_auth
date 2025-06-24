@@ -2,7 +2,6 @@ package company
 
 import (
 	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
-	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	core "github.com/motojouya/geezer_auth/internal/core/company"
 	"github.com/motojouya/geezer_auth/internal/core/text"
 	"time"
@@ -18,25 +17,20 @@ type CompanyInvite struct {
 }
 
 type CompanyInviteFull struct {
-	PersistKey            uint
-	CompanyPersistKey     uint
+	CompanyInvite
 	CompanyIdentifier     string
 	CompanyName           string
 	CompanyRegisteredDate time.Time
-	Token                 string
-	RoleLabel             string
 	RoleName              string
 	RoleDescription       string
 	RoleRegisteredDate    time.Time
-	RegisterDate          time.Time
-	ExpireDate            time.Time
 }
 
 func FromCoreCompanyInvite(invite core.CompanyInvite) CompanyInvite {
 	return CompanyInvite{
 		CompanyPersistKey:     invite.Company.PersistKey,
-		Token:                 invite.Token.String(),
-		RoleLabel:             string(invite.role.Label),
+		Token:                 string(invite.Token),
+		RoleLabel:             string(invite.Role.Label),
 		RegisterDate:          invite.RegisterDate,
 		ExpireDate:            invite.ExpireDate,
 	}
