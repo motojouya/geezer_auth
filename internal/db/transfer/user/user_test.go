@@ -1,73 +1,89 @@
 package user_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/user"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	core "github.com/motojouya/geezer_auth/internal/core/user"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
-func TestCreateUserIdentifier(t *testing.T) {
-	var identifier, err = user.CreateUserIdentifier("TESTES")
-
-	assert.Nil(t, err)
-	assert.NotEmpty(t, identifier)
-	assert.Equal(t, "US-TESTES", string(identifier))
-
-	t.Logf("identifier: %s", identifier)
-}
-
-func TestCreateUser(t *testing.T) {
-	var identifier, _ = text.NewIdentifier("TestIdentifier")
+func TestFromCoreUser(t *testing.T) {
+	var identifier, _ = text.NewIdentifier("US-TESTES")
 	var emailId, _ = text.NewEmail("test@gmail.com")
 	var name, _ = text.NewName("TestName")
 	var botFlag = false
 	var registeredDate = time.Now()
 
-	var userObj = user.CreateUser(identifier, emailId, name, botFlag, registeredDate)
+	var coreUser = core.CreateUser(identifier, emailId, name, botFlag, registeredDate)
+	var transferUser = user.FromCoreUser(coreUser)
 
-	assert.Equal(t, string(identifier), string(userObj.Identifier))
-	assert.Equal(t, string(emailId), string(userObj.ExposeEmailId))
-	assert.Equal(t, string(name), string(userObj.Name))
-	assert.Equal(t, botFlag, userObj.BotFlag)
-	assert.Equal(t, registeredDate, userObj.RegisteredDate)
-	assert.Equal(t, registeredDate, userObj.UpdateDate)
+	assert.Equal(t, uint(0), transferUser.PersistKey)
+	assert.Equal(t, string(identifier), string(transferUser.Identifier))
+	assert.Equal(t, string(emailId), string(transferUser.ExposeEmailId))
+	assert.Equal(t, string(name), string(transferUser.Name))
+	assert.Equal(t, botFlag, transferUser.BotFlag)
+	assert.Equal(t, registeredDate, transferUser.RegisteredDate)
+	assert.Equal(t, registeredDate, transferUser.UpdateDate)
 
-	t.Logf("user: %+v", userObj)
-	t.Logf("user.Identifier: %s", userObj.Identifier)
-	t.Logf("user.ExposeEmailId: %s", userObj.ExposeEmailId)
-	t.Logf("user.Name: %s", userObj.Name)
-	t.Logf("user.BotFlag: %t", userObj.BotFlag)
-	t.Logf("user.RegisteredDate: %s", userObj.RegisteredDate)
-	t.Logf("user.UpdateDate: %s", userObj.UpdateDate)
+	t.Logf("transferUser: %+v", transferUser)
 }
 
-func TestNewUser(t *testing.T) {
-	var userId uint = 1
-	var identifier, _ = text.NewIdentifier("TestIdentifier")
-	var emailId, _ = text.NewEmail("test@gmail.com")
-	var name, _ = text.NewName("TestName")
+func TestToCoreUser(t *testing.T) {
+	var persistKey uint = 1
+	var identifier = "US-TESTES"
+	var emailId = "test@gmail.com"
+	var name = "TestName"
 	var botFlag = false
 	var registeredDate = time.Now()
 	var updateDate = time.Now()
 
-	var userObj = user.NewUser(userId, identifier, name, emailId, botFlag, registeredDate, updateDate)
+	var user = user.User{
+		PersistKey:     persistKey,
+		Identifier:     identifier,
+		ExposeEmailId:  emailId,
+		Name:           name,
+		BotFlag:        botFlag,
+		RegisteredDate: registeredDate,
+		UpdateDate:     updateDate,
+	}
 
-	assert.Equal(t, userId, userObj.PersistKey)
-	assert.Equal(t, string(identifier), string(userObj.Identifier))
-	assert.Equal(t, string(emailId), string(userObj.ExposeEmailId))
-	assert.Equal(t, string(name), string(userObj.Name))
-	assert.Equal(t, botFlag, userObj.BotFlag)
-	assert.Equal(t, registeredDate, userObj.RegisteredDate)
-	assert.Equal(t, updateDate, userObj.UpdateDate)
+	var coreUser, err = user.ToCoreUser()
 
-	t.Logf("user: %+v", userObj)
-	t.Logf("user.PersistKey: %d", userObj.PersistKey)
-	t.Logf("user.Identifier: %s", userObj.Identifier)
-	t.Logf("user.ExposeEmailId: %s", userObj.ExposeEmailId)
-	t.Logf("user.Name: %s", userObj.Name)
-	t.Logf("user.BotFlag: %t", userObj.BotFlag)
-	t.Logf("user.RegisteredDate: %s", userObj.RegisteredDate)
-	t.Logf("user.UpdateDate: %s", userObj.UpdateDate)
+	assert.NoError(t, err)
+	assert.Equal(t, persistKey, coreUser.PersistKey)
+	assert.Equal(t, identifier, string(coreUser.Identifier))
+	assert.Equal(t, emailId, string(coreUser.ExposeEmailId))
+	assert.Equal(t, name, string(coreUser.Name))
+	assert.Equal(t, botFlag, coreUser.BotFlag)
+	assert.Equal(t, registeredDate, coreUser.RegisteredDate)
+	assert.Equal(t, updateDate, coreUser.UpdateDate)
+
+	t.Logf("coreUser: %+v", coreUser)
+}
+
+func TestToCoreUserErr(t *testing.T) {
+	var persistKey uint = 1
+	var identifier = "invalid-identifier"
+	var emailId = "test@gmail.com"
+	var name = "TestName"
+	var botFlag = false
+	var registeredDate = time.Now()
+	var updateDate = time.Now()
+
+	var user = user.User{
+		PersistKey:     persistKey,
+		Identifier:     identifier,
+		ExposeEmailId:  emailId,
+		Name:           name,
+		BotFlag:        botFlag,
+		RegisteredDate: registeredDate,
+		UpdateDate:     updateDate,
+	}
+
+	var _, err = user.ToCoreUser()
+	assert.Error(t, err)
+
+	t.Logf("error: %v", err)
 }
