@@ -34,13 +34,13 @@ func FromCoreUserAccessToken(coreUserAccessToken core.UnsavedUserAccessToken) Us
 	return UserAccessToken{
 		UserPersistKey:   coreUserAccessToken.User.PersistKey,
 		AccessToken:      string(coreUserAccessToken.AccessToken),
-		SourceUpdateDate: coreUserAccessToken.sourceUpdateDate,
-		RegisterDate:     coreUserAccessToken.registerDate,
-		ExpireDate:       coreUserAccessToken.expireDate,
+		SourceUpdateDate: coreUserAccessToken.SourceUpdateDate,
+		RegisterDate:     coreUserAccessToken.RegisterDate,
+		ExpireDate:       coreUserAccessToken.ExpireDate,
 	}
 }
 
-func (ua UserAccessToken) ToCoreUserAccessToken() (core.UserAccessToken, error) {
+func (ua UserAccessTokenFull) ToCoreUserAccessToken() (core.UserAccessToken, error) {
 	var user, userErr = (User{
 		PersistKey:     ua.UserPersistKey,
 		Identifier:     ua.UserIdentifier,
@@ -54,17 +54,12 @@ func (ua UserAccessToken) ToCoreUserAccessToken() (core.UserAccessToken, error) 
 		return core.UserAccessToken{}, userErr
 	}
 
-	var token, tokenErr = text.NewJwtToken(ua.AccessToken);
-	if tokenErr != nil {
-		return core.UserAccessToken{}, tokenErr
-	}
-
 	return core.NewUserAccessToken(
 		ua.PersistKey,
 		user,
-		token,
+		text.NewJwtToken(ua.AccessToken),
 		ua.SourceUpdateDate,
 		ua.RegisterDate,
 		ua.ExpireDate,
-	)
+	), nil
 }

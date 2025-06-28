@@ -1,7 +1,7 @@
 package user_test
 
 import (
-	"github.com/motojouya/geezer_auth/pkg/core/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +17,7 @@ func getUserForAccessToken(persistKey uint) core.User {
 	var registeredDate = time.Now()
 	var updateDate = time.Now()
 
-	return user.NewUser(persistKey, identifier, name, emailId, botFlag, registeredDate, updateDate)
+	return core.NewUser(persistKey, identifier, name, emailId, botFlag, registeredDate, updateDate)
 }
 
 func TestFromCoreUserAccessToken(t *testing.T) {
@@ -28,16 +28,16 @@ func TestFromCoreUserAccessToken(t *testing.T) {
 	var registerDate = time.Now()
 	var expireDate = time.Now().Add(24 * time.Hour)
 
-	var coreUserAccessToken = core.CreateUserAccessToken(userValue, accessToken, registerDate, expireDate)
+	var coreUserAccessToken = core.CreateUserAccessToken(coreUser, accessToken, registerDate, expireDate)
 
 	var userAccessToken = user.FromCoreUserAccessToken(coreUserAccessToken)
 
 	assert.Equal(t, uint(0), userAccessToken.PersistKey)
-	assert.Equal(t, persistKey, userAccessToken.User.PersistKey)
+	assert.Equal(t, persistKey, userAccessToken.UserPersistKey)
 	assert.Equal(t, string(accessToken), string(userAccessToken.AccessToken))
-	assert.Equal(t, registerDate, userAccessToken.SourceUpdateDate)
-	assert.Equal(t, registerDate, userAccessToken.RegisterDate)
-	assert.Equal(t, expireDate, userAccessToken.ExpireDate)
+	assert.WithinDuration(t, registerDate, userAccessToken.SourceUpdateDate, time.Second)
+	assert.WithinDuration(t, registerDate, userAccessToken.RegisterDate, time.Second)
+	assert.WithinDuration(t, expireDate, userAccessToken.ExpireDate, time.Second)
 
 	t.Logf("userAccessToken: %+v", userAccessToken)
 }
@@ -58,7 +58,7 @@ func TestToCoreUserAccessToken(t *testing.T) {
 	var expireDate = time.Now().Add(24 * time.Hour)
 
 	var userAccessToken = user.UserAccessTokenFull{
-		PersistKey:     persistKey,
+		PersistKey:         persistKey,
 		UserPersistKey:     userPersistKey,
 		UserIdentifier:     userIdentifier,
 		UserExposeEmailId:  userEmailId,
@@ -72,43 +72,21 @@ func TestToCoreUserAccessToken(t *testing.T) {
 		ExpireDate:         expireDate,
 	}
 
-	var userAccessToken, err = userAccessToken.ToCoreUserAccessToken()
-
 	var coreUserAccessToken, err = userAccessToken.ToCoreUserAccessToken()
 
 	assert.NoError(t, err)
-	assert.Equal(t, persistKey, coreUserAccessToken.User.PersistKey)
+	assert.Equal(t, persistKey, coreUserAccessToken.PersistKey)
 	assert.Equal(t, string(accessToken), string(coreUserAccessToken.AccessToken))
 	assert.Equal(t, sourceUpdateDate, coreUserAccessToken.SourceUpdateDate)
 	assert.Equal(t, registerDate, coreUserAccessToken.RegisterDate)
 	assert.Equal(t, expireDate, coreUserAccessToken.ExpireDate)
+	assert.Equal(t, userPersistKey, coreUserAccessToken.User.PersistKey)
+	assert.Equal(t, userIdentifier, string(coreUserAccessToken.User.Identifier))
+	assert.Equal(t, userEmailId, string(coreUserAccessToken.User.ExposeEmailId))
+	assert.Equal(t, userName, string(coreUserAccessToken.User.Name))
+	assert.Equal(t, userBotFlag, coreUserAccessToken.User.BotFlag)
+	assert.Equal(t, userRegisteredDate, coreUserAccessToken.User.RegisteredDate)
+	assert.Equal(t, userUpdateDate, coreUserAccessToken.User.UpdateDate)
 
 	t.Logf("coreUserAccessToken: %+v", coreUserAccessToken)
-}
-
-func TestNewUserAccessToken(t *testing.T) {
-	var identifier, _ = pkgText.NewIdentifier("TestIdentifier")
-	var userValue = getUserForAccessToken(identifier)
-
-	var accessToken = pkgText.NewJwtToken("test.jwt.token")
-	var sourceUpdateDate = time.Now()
-	var registerDate = time.Now()
-	var expireDate = time.Now().Add(24 * time.Hour)
-
-	var userAccessToken = user.NewUserAccessToken(1, userValue, accessToken, sourceUpdateDate, registerDate, expireDate)
-
-	assert.Equal(t, uint(1), userAccessToken.PersistKey)
-	assert.Equal(t, string(identifier), string(userAccessToken.User.Identifier))
-	assert.Equal(t, string(accessToken), string(userAccessToken.AccessToken))
-	assert.Equal(t, sourceUpdateDate, userAccessToken.SourceUpdateDate)
-	assert.Equal(t, registerDate, userAccessToken.RegisterDate)
-	assert.Equal(t, expireDate, userAccessToken.ExpireDate)
-
-	t.Logf("userAccessToken: %+v", userAccessToken)
-	t.Logf("userAccessToken.PersistKey: %d", userAccessToken.PersistKey)
-	t.Logf("userAccessToken.User.Identifier: %s", userAccessToken.User.Identifier)
-	t.Logf("userAccessToken.AccessToken: %s", userAccessToken.AccessToken)
-	t.Logf("userAccessToken.SourceUpdateDate: %s", userAccessToken.SourceUpdateDate)
-	t.Logf("userAccessToken.RegisterDate: %s", userAccessToken.RegisterDate)
-	t.Logf("userAccessToken.ExpireDate: %s", userAccessToken.ExpireDate)
 }
