@@ -40,7 +40,7 @@ func NewUserCompanyRole(
 	company company.Company,
 	role role.Role,
 	registerDate time.Time,
-	expireDate time.Time,
+	expireDate *time.Time,
 ) *UserCompanyRole {
 	return &UserCompanyRole{
 		PersistKey: persistKey,
@@ -49,7 +49,7 @@ func NewUserCompanyRole(
 			Company:      company,
 			Role:         role,
 			RegisterDate: registerDate,
-			ExpireDate:   &expireDate,
+			ExpireDate:   expireDate,
 		},
 	}
 }
