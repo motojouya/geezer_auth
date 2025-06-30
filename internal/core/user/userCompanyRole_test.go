@@ -78,7 +78,7 @@ func TestNewUserCompanyRole(t *testing.T) {
 	var registerDate = time.Now()
 	var expireDate = registerDate.Add(24 * time.Hour)
 
-	var userCompanyRole = user.NewUserCompanyRole(1, userValue, company, role, registerDate, expireDate)
+	var userCompanyRole = user.NewUserCompanyRole(1, userValue, company, role, registerDate, &expireDate)
 
 	assert.Equal(t, uint(1), userCompanyRole.PersistKey)
 	assert.Equal(t, string(userIdentifier), string(userCompanyRole.User.Identifier))

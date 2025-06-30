@@ -48,7 +48,7 @@ func TestNewUserPassword(t *testing.T) {
 	var registerDate = time.Now()
 	var expireDate = registerDate.Add(24 * time.Hour)
 
-	var userPassword = user.NewUserPassword(1, userValue, password, registerDate, expireDate)
+	var userPassword = user.NewUserPassword(1, userValue, password, registerDate, &expireDate)
 
 	assert.Equal(t, uint(1), userPassword.PersistKey)
 	assert.Equal(t, string(userIdentifier), string(userPassword.User.Identifier))

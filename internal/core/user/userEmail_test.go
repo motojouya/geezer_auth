@@ -54,7 +54,7 @@ func TestNewUserEmail(t *testing.T) {
 	var verifyDate = registerDate.Add(24 * time.Hour)
 	var expireDate = registerDate.Add(48 * time.Hour)
 
-	var userEmail = user.NewUserEmail(1, userValue, email, verifyToken, registerDate, verifyDate, expireDate)
+	var userEmail = user.NewUserEmail(1, userValue, email, verifyToken, registerDate, &verifyDate, &expireDate)
 
 	assert.Equal(t, uint(1), userEmail.PersistKey)
 	assert.Equal(t, string(userIdentifier), string(userEmail.User.Identifier))
