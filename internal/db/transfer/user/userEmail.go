@@ -2,19 +2,19 @@ package user
 
 import (
 	text "github.com/motojouya/geezer_auth/internal/core/text"
-	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
+	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
 )
 
 type UserEmail struct {
-	PersistKey         uint
-	UserPersistKey     uint
-	Email              string
-	VerifyToken        string
-	RegisterDate       time.Time
-	VerifyDate         *time.Time
-	ExpireDate         *time.Time
+	PersistKey     uint
+	UserPersistKey uint
+	Email          string
+	VerifyToken    string
+	RegisterDate   time.Time
+	VerifyDate     *time.Time
+	ExpireDate     *time.Time
 }
 
 type UserEmailFull struct {

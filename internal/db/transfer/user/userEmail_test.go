@@ -3,8 +3,8 @@ package user_test
 import (
 	"github.com/motojouya/geezer_auth/internal/core/text"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -55,12 +55,12 @@ func TestToCoreUserEmail(t *testing.T) {
 			VerifyDate:     &verifiyDate,
 			ExpireDate:     &expireDate,
 		},
-		UserIdentifier:        "US-TESTES",
-		UserExposeEmailId:     "test02@example.com",
-		UserName:              "TestUserName",
-		UserBotFlag:           false,
-		UserRegisteredDate:    now.Add(2 * time.Hour),
-		UserUpdateDate:        now.Add(3 * time.Hour),
+		UserIdentifier:     "US-TESTES",
+		UserExposeEmailId:  "test02@example.com",
+		UserName:           "TestUserName",
+		UserBotFlag:        false,
+		UserRegisteredDate: now.Add(2 * time.Hour),
+		UserUpdateDate:     now.Add(3 * time.Hour),
 	}
 
 	var coreUserEmail, err = userEmail.ToCoreUserEmail()
@@ -99,12 +99,12 @@ func TestToCoreUserEmailError(t *testing.T) {
 			VerifyDate:     &verifiyDate,
 			ExpireDate:     &expireDate,
 		},
-		UserIdentifier:        "invalid-identifier",
-		UserExposeEmailId:     "test02@example.com",
-		UserName:              "TestUserName",
-		UserBotFlag:           false,
-		UserRegisteredDate:    now.Add(2 * time.Hour),
-		UserUpdateDate:        now.Add(3 * time.Hour),
+		UserIdentifier:     "invalid-identifier",
+		UserExposeEmailId:  "test02@example.com",
+		UserName:           "TestUserName",
+		UserBotFlag:        false,
+		UserRegisteredDate: now.Add(2 * time.Hour),
+		UserUpdateDate:     now.Add(3 * time.Hour),
 	}
 
 	var _, err = userEmail.ToCoreUserEmail()

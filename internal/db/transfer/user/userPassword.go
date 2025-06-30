@@ -7,7 +7,7 @@ import (
 )
 
 type UserPassword struct {
-	PersistKey uint
+	PersistKey     uint
 	UserPersistKey uint
 	Password       string
 	RegisteredDate time.Time

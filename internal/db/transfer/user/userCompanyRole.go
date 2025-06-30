@@ -1,9 +1,9 @@
 package user
 
 import (
+	core "github.com/motojouya/geezer_auth/internal/core/user"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
 	"time"
 )
 

@@ -1,8 +1,8 @@
 package user
 
 import (
-	"github.com/motojouya/geezer_auth/pkg/core/text"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
 )
 
@@ -28,17 +28,17 @@ func FromCoreUser(coreUser core.UnsavedUser) User {
 }
 
 func (u User) ToCoreUser() (core.User, error) {
-	var identifier, idErr = text.NewIdentifier(u.Identifier);
+	var identifier, idErr = text.NewIdentifier(u.Identifier)
 	if idErr != nil {
 		return core.User{}, idErr
 	}
 
-	var emailId, emailErr = text.NewEmail(u.ExposeEmailId);
+	var emailId, emailErr = text.NewEmail(u.ExposeEmailId)
 	if emailErr != nil {
 		return core.User{}, emailErr
 	}
 
-	var name, nameErr = text.NewName(u.Name);
+	var name, nameErr = text.NewName(u.Name)
 	if nameErr != nil {
 		return core.User{}, nameErr
 	}

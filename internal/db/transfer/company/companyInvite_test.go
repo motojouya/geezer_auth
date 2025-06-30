@@ -3,9 +3,9 @@ package company_test
 import (
 	"github.com/google/uuid"
 	core "github.com/motojouya/geezer_auth/internal/core/company"
-	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	"github.com/motojouya/geezer_auth/internal/core/role"
 	"github.com/motojouya/geezer_auth/internal/core/text"
+	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/stretchr/testify/assert"
 	"testing"

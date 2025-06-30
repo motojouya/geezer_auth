@@ -69,12 +69,12 @@ func TestToCoreUserCompanyRole(t *testing.T) {
 	var expireDate = now.Add(1 * time.Hour)
 	var userCompanyRoleFull = &user.UserCompanyRoleFull{
 		UserCompanyRole: user.UserCompanyRole{
-			PersistKey:            1,
-			UserPersistKey:        2,
-			CompanyPersistKey:     3,
-			RoleLabel:             "TEST_ROLE_LABEL",
-			RegisterDate:          now,
-			ExpireDate:            &expireDate,
+			PersistKey:        1,
+			UserPersistKey:    2,
+			CompanyPersistKey: 3,
+			RoleLabel:         "TEST_ROLE_LABEL",
+			RegisterDate:      now,
+			ExpireDate:        &expireDate,
 		},
 		UserIdentifier:        "US-TESTES",
 		UserExposeEmailId:     "test02@example.com",
@@ -109,12 +109,12 @@ func TestToCoreUserCompanyRoleError(t *testing.T) {
 	var expireDate = now.Add(1 * time.Hour)
 	var userCompanyRoleFull = &user.UserCompanyRoleFull{
 		UserCompanyRole: user.UserCompanyRole{
-			PersistKey:            1,
-			UserPersistKey:        2,
-			CompanyPersistKey:     3,
-			RoleLabel:             "test_role_label",
-			RegisterDate:          now,
-			ExpireDate:            &expireDate,
+			PersistKey:        1,
+			UserPersistKey:    2,
+			CompanyPersistKey: 3,
+			RoleLabel:         "test_role_label",
+			RegisterDate:      now,
+			ExpireDate:        &expireDate,
 		},
 		UserIdentifier:        "US-TESTES",
 		UserExposeEmailId:     "test02@example.com",

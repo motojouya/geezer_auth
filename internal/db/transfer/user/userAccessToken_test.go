@@ -1,9 +1,9 @@
 package user_test
 
 import (
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
