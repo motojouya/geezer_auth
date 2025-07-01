@@ -55,8 +55,8 @@ func NewUserCompanyRole(
 	}
 }
 
-func IsUserUCR(user User) func (userCompanyRole *UserCompanyRole) bool {
-	return func (userCompanyRole *UserCompanyRole) bool {
+func IsUserUCR(user User) func(userCompanyRole *UserCompanyRole) bool {
+	return func(userCompanyRole *UserCompanyRole) bool {
 		return userCompanyRole.User.Identifier == user.Identifier
 	}
 }

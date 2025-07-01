@@ -13,8 +13,8 @@ func getUserCompanyRoleFull(persistKey uint, userId string, companyId string, ro
 	return &user.UserCompanyRoleFull{
 		UserCompanyRole: user.UserCompanyRole{
 			PersistKey:        persistKey,
-			UserPersistKey:    persistKey+1,
-			CompanyPersistKey: persistKey+2,
+			UserPersistKey:    persistKey + 1,
+			CompanyPersistKey: persistKey + 2,
 			RoleLabel:         roleLabel,
 			RegisterDate:      now,
 			ExpireDate:        &expireDate,

@@ -1,8 +1,8 @@
 package user
 
 import (
-	text "github.com/motojouya/geezer_auth/pkg/core/text"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
+	text "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
 )
 
