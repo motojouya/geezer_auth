@@ -6,6 +6,35 @@ import (
 )
 
 /*
+ * InvalidArgumentError
+ */
+type InvalidArgumentError struct {
+	Name  string
+	Value string
+	error
+}
+
+func NewInvalidArgumentError(name string, value string, message string) InvalidArgumentError {
+	return InvalidArgumentError{
+		Name:  name,
+		Value: value,
+		error: errors.New(message),
+	}
+}
+
+func (e InvalidArgumentError) Error() string {
+	return e.error.Error() + ", name: " + e.Name + ", value: " + e.Value
+}
+
+func (e InvalidArgumentError) Unwrap() error {
+	return e.error
+}
+
+func (e InvalidArgumentError) HttpStatus() uint {
+	return 400
+}
+
+/*
  * RangeError
  */
 type RangeError struct {
