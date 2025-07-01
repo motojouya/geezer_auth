@@ -15,7 +15,7 @@ type UserAuthentic struct {
 	UserRegisteredDate time.Time
 	UserUpdateDate     time.Time
 	Email              *string
-	UserCompanyRole    []UserCompanyRoleFull
+	UserCompanyRole    []*UserCompanyRoleFull
 }
 
 func (ua UserAuthentic) ToCoreUserAuthentic() (*core.UserAuthentic, error) {

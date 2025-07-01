@@ -174,8 +174,6 @@ func TestGetRoleUCR(t *testing.T) {
 	t.Logf("userCompanyRole: %v", userCompanyRole)
 }
 
-// TODO working
-
 func TestListToCompanyRole(t *testing.T) {
 	var userIdentifier, _ = pkgText.NewIdentifier("US-TESTES")
 	var userValue = getUserForCompanyRole(userIdentifier)
@@ -183,22 +181,86 @@ func TestListToCompanyRole(t *testing.T) {
 	var companyIdentifier, _ = pkgText.NewIdentifier("CP-TESTES")
 	var company = getCompanyForCompanyRole(companyIdentifier)
 
-	var label, _ = pkgText.NewLabel("TEST_ROLE_LABEL")
-	var role = getRole(label)
+	var label1, _ = pkgText.NewLabel("TEST_ROLE_LABEL")
+	var role1 = getRole(label1)
+
+	var label2, _ = pkgText.NewLabel("TOST_ROLE_LABEL")
+	var role2 = getRole(label2)
 
 	var registerDate = time.Now()
 	var expireDate = registerDate.Add(24 * time.Hour)
 
-	var unsavedUserCompanyRole = user.CreateUserCompanyRole(userValue, company, role, registerDate)
-	var coreUserCompanyRole = user.FromCoreUserCompanyRole(unsavedUserCompanyRole)
+	var userCompanyRole1 = user.NewUserCompanyRole(1, userValue, company, role1, registerDate, &expireDate)
+	var userCompanyRole2 = user.NewUserCompanyRole(2, userValue, company, role2, registerDate, &expireDate)
 
-	var coreUserCompanyRoles = []*user.UserCompanyRole{coreUserCompanyRole}
+	var userCompanyRoles = []*user.UserCompanyRole{userCompanyRole1, userCompanyRole2}
+	var companyRole, err = user.ListToCompanyRole(userValue, userCompanyRoles)
 
-	companyRole, err := user.ListToCompanyRole(userValue, coreUserCompanyRoles)
-	assert.NoError(t, err)
-	assert.Equal(t, userValue.PersistKey, companyRole.User.PersistKey)
-	assert.Equal(t, company.PersistKey, companyRole.Company.PersistKey)
-	assert.Equal(t, role.Label, companyRole.Role.Label)
+	assert.Nil(t, err)
+	assert.Equal(t, string(companyIdentifier), string(companyRole.Company.Identifier))
+	assert.Equal(t, 2, len(companyRole.Roles))
+	assert.Equal(t, string(label1), string(companyRole.Roles[0].Label))
+	assert.Equal(t, string(label2), string(companyRole.Roles[1].Label))
 
 	t.Logf("companyRole: %v", companyRole)
+}
+
+func TestListToCompanyRoleErrUser(t *testing.T) {
+	var userIdentifier1, _ = pkgText.NewIdentifier("US-TESTES")
+	var userValue1 = getUserForCompanyRole(userIdentifier1)
+
+	var userIdentifier2, _ = pkgText.NewIdentifier("US-TOSTOS")
+	var userValue2 = getUserForCompanyRole(userIdentifier2)
+
+	var companyIdentifier, _ = pkgText.NewIdentifier("CP-TESTES")
+	var company = getCompanyForCompanyRole(companyIdentifier)
+
+	var label1, _ = pkgText.NewLabel("TEST_ROLE_LABEL")
+	var role1 = getRole(label1)
+
+	var label2, _ = pkgText.NewLabel("TOST_ROLE_LABEL")
+	var role2 = getRole(label2)
+
+	var registerDate = time.Now()
+	var expireDate = registerDate.Add(24 * time.Hour)
+
+	var userCompanyRole1 = user.NewUserCompanyRole(1, userValue1, company, role1, registerDate, &expireDate)
+	var userCompanyRole2 = user.NewUserCompanyRole(2, userValue2, company, role2, registerDate, &expireDate)
+
+	var userCompanyRoles = []*user.UserCompanyRole{userCompanyRole1, userCompanyRole2}
+	var _, err = user.ListToCompanyRole(userValue1, userCompanyRoles)
+
+	assert.Error(t, err)
+
+	t.Logf("Error: %v", err)
+}
+
+func TestListToCompanyRoleErrCompany(t *testing.T) {
+	var userIdentifier, _ = pkgText.NewIdentifier("US-TESTES")
+	var userValue = getUserForCompanyRole(userIdentifier)
+
+	var companyIdentifier1, _ = pkgText.NewIdentifier("CP-TESTES")
+	var company1 = getCompanyForCompanyRole(companyIdentifier1)
+
+	var companyIdentifier2, _ = pkgText.NewIdentifier("CP-TOSTOS")
+	var company2 = getCompanyForCompanyRole(companyIdentifier2)
+
+	var label1, _ = pkgText.NewLabel("TEST_ROLE_LABEL")
+	var role1 = getRole(label1)
+
+	var label2, _ = pkgText.NewLabel("TOST_ROLE_LABEL")
+	var role2 = getRole(label2)
+
+	var registerDate = time.Now()
+	var expireDate = registerDate.Add(24 * time.Hour)
+
+	var userCompanyRole1 = user.NewUserCompanyRole(1, userValue, company1, role1, registerDate, &expireDate)
+	var userCompanyRole2 = user.NewUserCompanyRole(2, userValue, company2, role2, registerDate, &expireDate)
+
+	var userCompanyRoles = []*user.UserCompanyRole{userCompanyRole1, userCompanyRole2}
+	var _, err = user.ListToCompanyRole(userValue, userCompanyRoles)
+
+	assert.Error(t, err)
+
+	t.Logf("Error: %v", err)
 }

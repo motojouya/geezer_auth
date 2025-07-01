@@ -71,8 +71,8 @@ func GetRoleUCR(userCompanyRole *UserCompanyRole) role.Role {
 
 func ListToCompanyRole(user User, userCompanyRoles []*UserCompanyRole) (*CompanyRole, error) {
 
-	var sameUserFiltered = utility.Filter(userCompanyRoles, IsUserUCR(user))
-	if len(sameUserFiltered) != len(userCompanyRoles) {
+	var allSameUser = utility.Every(userCompanyRoles, IsUserUCR(user))
+	if !allSameUser {
 		return &CompanyRole{}, utility.NewInvalidArgumentError("UserCompanyRole.User", string(user.Identifier), "UserCompanyRole.User does not match the User")
 	}
 
