@@ -2,8 +2,8 @@ package transfer_test
 
 import (
 	"github.com/motojouya/geezer_auth/internal/core/role"
-	"github.com/motojouya/geezer_auth/internal/entry/transfer"
 	"github.com/motojouya/geezer_auth/internal/core/text"
+	"github.com/motojouya/geezer_auth/internal/entry/transfer"
 	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/stretchr/testify/assert"
 	"testing"

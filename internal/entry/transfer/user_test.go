@@ -49,7 +49,7 @@ func TestFromCoreUser(t *testing.T) {
 	var updateDate = time.Now()
 	var coreUser = user.NewUser(userId, userIdentifier, userName, emailId, botFlag, userRegisteredDate, updateDate)
 
-	var email, _ = pkgText.NewEmail("test2@gmail.com");
+	var email, _ = pkgText.NewEmail("test2@gmail.com")
 
 	var coreUserAuthentic = user.NewUserAuthentic(coreUser, companyRole, &email)
 

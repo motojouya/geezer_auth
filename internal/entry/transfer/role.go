@@ -5,9 +5,9 @@ import (
 )
 
 type Role struct {
-	Label          string
-	Name           string
-	Description    string
+	Label       string
+	Name        string
+	Description string
 }
 
 func FromCoreRole(r core.Role) Role {
