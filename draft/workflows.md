@@ -1,0 +1,262 @@
+
+# Work Flow
+work flowとして流れを記載するが、WEB API ENDPOINTも記載する  
+
+大まかに4つ
+- user
+- company
+- user company role
+- auth
+
+共通のreturn形はcommonみたいにするか
+正直、ワークフローでカテゴライズしてたほうがいいよな。
+in/outで区別つけても、ちょっと分かりづらくなる気がする。
+
+なので、transfer以下は、上記4つ+commonみたいにするか
+
+in/outは同じファイルで問題ないと思う。そのほうがわかりやすいはず。file数も減るし。
+struct名は、RequestとResponseというsuffixでいいかな。いずれにしろ、jsonのkey名もtag付けするので、基本的にはhttpでrequestとresponseという名前にしたほうがいい。
+
+inは、methodでcoreを取り出す関数を定義。
+outは、関数で、coreとかpremitiveな値を引数にとって、自身を返す。
+dbとかは、引数がcore一つとかだったが、これはrelationが強い関連なので。outに関しては、割と関連の弱いものも、同じjsonに含めたりするので、引数に複数取る感じが良さそう。
+
+## ユーザ情報
+### ユーザ登録
+- /auth/user/register
+- request
+  - e mail address
+  - password
+  - name
+  - bot or human
+  - optional
+    - 企業id
+    - 企業 token
+- response
+  - refresh token
+  - user
+    - id
+    - name
+    - email
+    - bot or not
+- model
+  - create user
+    - email verify request
+  - assign company
+    - token check
+  - login
+    - password check
+    - republish refresh token
+    - expire old refresh token
+
+in 
+```go
+type UserRegisterRequest struct {
+    Email     string `json:"email"`
+    Name      string `json:"name"`
+    Bot       bool   `json:"bot"`
+    Password  string `json:"password"`
+}
+```
+
+out
+```go
+type UserRegisterResponse struct {
+    RefreshToken string `json:"refresh_token"`
+    User User `json:"user"`
+}
+```
+
+### email varification
+- /auth/user/verify_email
+- request
+  - e mail address
+  - tempral token(メールで送られて来る)
+- response
+  - result
+- model
+  - email verify
+    - token check
+
+in
+```go
+type UserEmailVerifyRequest struct {
+    Email string `json:"email"`
+    Token string `json:"token"`
+}
+```
+
+out
+```go
+type UserEmailVerifyResponse struct {
+    User User `json:"user"`
+}
+```
+
+### ユーザ参照
+- /auth/user/self
+- request
+- response
+  - user
+    - id
+    - name
+    - ...
+- model
+  - get user
+
+### name
+- /auth/user/change
+- request
+  - id
+  - name
+- response
+  - user
+    - id
+    - name
+    - ...
+- model
+  - update user
+
+### password
+- /auth/user/change_password
+- request
+  - id
+  - password
+- response
+  - user
+    - id
+    - name
+    - ...
+- model
+  - update user password
+    - expire old password
+
+### メールアドレス変更
+- /auth/user/change_email
+- request
+  - id
+  - email address
+- response
+  - user
+    - id
+    - name
+    - ...
+- model
+  - update user email
+    - verify email request
+
+### email verification
+上と同様
+
+## 企業作成
+### 企業作成
+- /auth/company/create
+- request
+  - name
+- response
+  - company
+    - name
+    - id
+    - master user
+      - id
+      - name
+      - ...
+- model
+  - create company
+
+### 企業参照
+- /auth/company/<company_expose_id>
+- response
+  - company
+    - name
+    - id
+    - master user
+      - id
+      - name
+      - ...
+- model
+  - get company
+
+## 企業アサイン
+### ユーザ誘導
+- /auth/company/企業id/invite
+- request
+  - optional
+    - ロールid
+- response
+  - token
+- model
+  - company invite user
+    - publish token
+    - expire old user token
+
+### 企業登録
+- /auth/user/assign/company/企業id
+- request
+  - token
+  - (ログイン済み)
+- model
+  - assign company
+    - token check
+
+### ロール一覧
+- /auth/company/企業id/role
+- response
+  - roles
+    - role
+      - id
+      - name
+      - label
+      - description
+- model
+  - get roles
+
+### 企業ユーザ一覧
+- /auth/company/企業id/user
+- request
+- response
+  - users
+    - user
+- model
+  - get users
+
+### ロール付与
+- /auth/company/企業id/role/assign
+- request
+  - user id
+  - role id
+- response
+  - user
+  - role
+- model
+  - assign role
+
+## 認証
+### login
+- /auth/login
+- request
+  - id
+  - password
+- response
+  - refresh token
+  - access token
+- model
+  - login
+    - check password
+    - republish refresh token
+    - expire old refresh token
+
+### token refresh
+- /auth/refresh
+- request
+  - user id
+  - refresh token
+- response
+  - access token
+- model
+  - publish access token
+    - expire check
+      - sqlだけでチェックできて、有効なaccess tokenだけをDBから取り出せる。
+    - republish access token
+    - access tokenは2つまで発行でき、有効期限が切れていないものが2つある場合は、新しい方をreturn
+
