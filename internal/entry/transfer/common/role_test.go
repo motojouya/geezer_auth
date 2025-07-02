@@ -1,4 +1,4 @@
-package transfer_test
+package common_test
 
 import (
 	"github.com/motojouya/geezer_auth/internal/core/role"

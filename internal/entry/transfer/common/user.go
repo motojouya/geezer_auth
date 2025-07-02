@@ -1,4 +1,4 @@
-package transfer
+package common
 
 import (
 	core "github.com/motojouya/geezer_auth/internal/core/user"
