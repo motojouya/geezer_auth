@@ -183,12 +183,20 @@ type UserEmailVerifyResponse struct {
 - model
   - get company
 
+### 企業ユーザ一覧
+- /auth/company/企業id/user
+- request
+- response
+  - users
+    - user
+- model
+  - get users
+
 ## 企業アサイン
 ### ユーザ誘導
 - /auth/company/企業id/invite
 - request
-  - optional
-    - ロールid
+  - ロールid
 - response
   - token
 - model
@@ -216,15 +224,6 @@ type UserEmailVerifyResponse struct {
       - description
 - model
   - get roles
-
-### 企業ユーザ一覧
-- /auth/company/企業id/user
-- request
-- response
-  - users
-    - user
-- model
-  - get users
 
 ### ロール付与
 - /auth/company/企業id/role/assign

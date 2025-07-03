@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-func getUserCompanyRoleFull(persistKey uint, userId string, companyId string, roleLabel string) *user.UserCompanyRoleFull {
+func getUserCompanyRoleFull(persistKey uint, userPersistKey uint, userId string, companyId string, roleLabel string) *user.UserCompanyRoleFull {
 	var now = time.Now()
 	var expireDate = now.Add(1 * time.Hour)
 	return &user.UserCompanyRoleFull{
 		UserCompanyRole: user.UserCompanyRole{
 			PersistKey:        persistKey,
-			UserPersistKey:    persistKey + 1,
+			UserPersistKey:    userPersistKey,
 			CompanyPersistKey: persistKey + 2,
 			RoleLabel:         roleLabel,
 			RegisterDate:      now,
@@ -38,8 +38,8 @@ func TestToCoreUserAuthentic(t *testing.T) {
 
 	var userId = "US-TESTES"
 	var companyId = "CP-TESTES"
-	var userCompanyRole1 = getUserCompanyRoleFull(1, userId, companyId, "TEST_ROLE")
-	var userCompanyRole2 = getUserCompanyRoleFull(2, userId, companyId, "TOST_ROLE")
+	var userCompanyRole1 = getUserCompanyRoleFull(1, 2, userId, companyId, "TEST_ROLE")
+	var userCompanyRole2 = getUserCompanyRoleFull(2, 3, userId, companyId, "TOST_ROLE")
 	var userCompanyRoles = []*user.UserCompanyRoleFull{userCompanyRole1, userCompanyRole2}
 
 	var now = time.Now()
@@ -71,8 +71,8 @@ func TestToCoreUserAuthentic(t *testing.T) {
 	assert.Equal(t, email, string(*coreUserAuthentic.Email))
 	assert.Equal(t, companyId, string(coreUserAuthentic.CompanyRole.Company.Identifier))
 	assert.Equal(t, 2, len(coreUserAuthentic.CompanyRole.Roles))
-	assert.Equal(t, "TEST_ROLE", coreUserAuthentic.CompanyRole.Roles[0].Label)
-	assert.Equal(t, "TOST_ROLE", coreUserAuthentic.CompanyRole.Roles[1].Label)
+	assert.Equal(t, "TEST_ROLE", string(coreUserAuthentic.CompanyRole.Roles[0].Label))
+	assert.Equal(t, "TOST_ROLE", string(coreUserAuthentic.CompanyRole.Roles[1].Label))
 
 	t.Logf("coreUserAuthentic: %+v", coreUserAuthentic)
 	t.Logf("coreUserAuthentic.Email: %s", *coreUserAuthentic.Email)
@@ -83,8 +83,8 @@ func TestToCoreUserAuthenticError(t *testing.T) {
 
 	var userId = "US-TESTES"
 	var companyId = "CP-TESTES"
-	var userCompanyRole1 = getUserCompanyRoleFull(1, userId, companyId, "TEST_ROLE")
-	var userCompanyRole2 = getUserCompanyRoleFull(2, userId, companyId, "TOST_ROLE")
+	var userCompanyRole1 = getUserCompanyRoleFull(1, 2, userId, companyId, "TEST_ROLE")
+	var userCompanyRole2 = getUserCompanyRoleFull(2, 3, userId, companyId, "TOST_ROLE")
 	var userCompanyRoles = []*user.UserCompanyRoleFull{userCompanyRole1, userCompanyRole2}
 
 	var now = time.Now()
@@ -106,4 +106,42 @@ func TestToCoreUserAuthenticError(t *testing.T) {
 	assert.Error(t, err)
 
 	t.Logf("Error: %v", err)
+}
+
+func TestRelateUserCompanyRole(t *testing.T) {
+	var userPersistKey1 uint = 1
+	var userId1 = "US-TESTES"
+	var now = time.Now()
+	var email = "test01@example.com"
+	var userAuthentic = &user.UserAuthentic{
+		UserPersistKey:     userPersistKey1,
+		UserIdentifier:     userId1,
+		UserExposeEmailId:  "test02@example.com",
+		UserName:           "TestUserName",
+		UserBotFlag:        false,
+		UserRegisteredDate: now,
+		UserUpdateDate:     now.Add(1 * time.Hour),
+		Email:              &email,
+		UserCompanyRole:    []*user.UserCompanyRoleFull{},
+	}
+
+	var companyId = "CP-TESTES"
+	var userCompanyRole1 = getUserCompanyRoleFull(1, userPersistKey1, userId1, companyId, "TEST_ROLE")
+
+	var updatedUserAuthentic1, ok1 = user.RelateUserCompanyRole(userAuthentic, userCompanyRole1)
+
+	assert.True(t, ok1)
+	assert.Equal(t, 1, len(updatedUserAuthentic1.UserCompanyRole))
+	assert.Equal(t, userCompanyRole1, updatedUserAuthentic1.UserCompanyRole[0])
+
+	var userPersistKey2 uint = 2
+	var userId2 = "US-TESTES"
+	var userCompanyRole2 = getUserCompanyRoleFull(2, userPersistKey2, userId2, companyId, "TOST_ROLE")
+
+	var updatedUserAuthentic2, ok2 = user.RelateUserCompanyRole(userAuthentic, userCompanyRole2)
+
+	assert.False(t, ok2)
+	assert.Equal(t, 1, len(updatedUserAuthentic2.UserCompanyRole)) // 長さ変わってないので紐づいてない
+
+	t.Logf("Updated UserAuthentic: %+v", updatedUserAuthentic2)
 }

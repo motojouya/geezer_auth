@@ -18,6 +18,15 @@ type UserAuthentic struct {
 	UserCompanyRole    []*UserCompanyRoleFull
 }
 
+func RelateUserCompanyRole(ua *UserAuthentic, ucr *UserCompanyRoleFull) (*UserAuthentic, bool) {
+	if ua.UserPersistKey == ucr.UserPersistKey {
+		ua.UserCompanyRole = append(ua.UserCompanyRole, ucr)
+		return ua, true
+	} else {
+		return ua, false
+	}
+}
+
 func (ua UserAuthentic) ToCoreUserAuthentic() (*core.UserAuthentic, error) {
 	var user, userErr = (User{
 		PersistKey:     ua.UserPersistKey,
