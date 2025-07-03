@@ -205,7 +205,7 @@ type UserEmailVerifyResponse struct {
     - expire old user token
 
 ### 企業登録
-- /auth/user/assign/company/企業id
+- /auth/company/企業id/accept
 - request
   - token
   - (ログイン済み)
@@ -213,8 +213,20 @@ type UserEmailVerifyResponse struct {
   - assign company
     - token check
 
+### ロール付与
+- /auth/company/企業id/assign
+- request
+  - user id
+  - role id
+- response
+  - user
+  - role
+- model
+  - assign role
+
+## ロール
 ### ロール一覧
-- /auth/company/企業id/role
+- /auth/role
 - response
   - roles
     - role
@@ -224,17 +236,6 @@ type UserEmailVerifyResponse struct {
       - description
 - model
   - get roles
-
-### ロール付与
-- /auth/company/企業id/role/assign
-- request
-  - user id
-  - role id
-- response
-  - user
-  - role
-- model
-  - assign role
 
 ## 認証
 ### login

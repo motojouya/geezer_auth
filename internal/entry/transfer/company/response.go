@@ -1,4 +1,4 @@
-package user
+package company
 
 import (
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
