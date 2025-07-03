@@ -1,10 +1,8 @@
 package auth
 
 import (
-	core "github.com/motojouya/geezer_auth/internal/core/user"
 	text "github.com/motojouya/geezer_auth/internal/core/text"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
-	"time"
 )
 
 type AuthRefresh struct {

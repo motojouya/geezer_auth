@@ -1,10 +1,8 @@
 package auth
 
 import (
-	core "github.com/motojouya/geezer_auth/internal/core/user"
 	text "github.com/motojouya/geezer_auth/internal/core/text"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
-	"time"
 )
 
 type AuthIdentifier struct {
@@ -16,9 +14,9 @@ func (a AuthIdentifier) GetIdentifier() (*pkgText.Identifier, error) {
 	if a.Identifier == nil {
 		return nil, nil
 	}
-	var identifier, err = pkgText.NewIdentifier(a.Identifier)
+	var identifier, err = pkgText.NewIdentifier(*a.Identifier)
 	if err != nil {
-		return &pkgText.Identifier{}, err
+		return &identifier, err
 	}
 
 	return &identifier, nil
@@ -28,9 +26,9 @@ func (a AuthIdentifier) GetEmailIdentifier() (*pkgText.Email, error) {
 	if a.EmailIdentifier == nil {
 		return nil, nil
 	}
-	var email, err = pkgText.NewEmail(a.EmailIdentifier)
+	var email, err = pkgText.NewEmail(*a.EmailIdentifier)
 	if err != nil {
-		return &pkgText.Email{}, err
+		return &email, err
 	}
 
 	return &email, nil

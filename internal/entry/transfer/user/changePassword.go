@@ -1,9 +1,7 @@
 package user
 
 import (
-	core "github.com/motojouya/geezer_auth/internal/core/user"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
-	"time"
+	"github.com/motojouya/geezer_auth/internal/core/text"
 )
 
 type UserChangePassword struct {

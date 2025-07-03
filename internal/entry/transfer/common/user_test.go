@@ -5,7 +5,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/core/role"
 	"github.com/motojouya/geezer_auth/internal/core/text"
 	"github.com/motojouya/geezer_auth/internal/core/user"
-	"github.com/motojouya/geezer_auth/internal/entry/transfer"
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -53,7 +53,7 @@ func TestFromCoreUser(t *testing.T) {
 
 	var coreUserAuthentic = user.NewUserAuthentic(coreUser, companyRole, &email)
 
-	var transferUser = transfer.FromCoreUser(coreUserAuthentic)
+	var transferUser = common.FromCoreUser(coreUserAuthentic)
 
 	assert.Equal(t, string(userIdentifier), transferUser.Identifier)
 	assert.Equal(t, string(emailId), transferUser.IdentifierEmail)

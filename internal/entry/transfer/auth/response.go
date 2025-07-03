@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
 	text "github.com/motojouya/geezer_auth/internal/core/text"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
@@ -14,20 +15,10 @@ type AuthLoginResponse struct {
 	user.UserRegisterResponse
 }
 
-type UserUpdateResponse struct {
-	UserGetResponse
-	AccessToken string `json:"access_token"`
-}
-
-type UserRegisterResponse struct {
-	UserUpdateResponse
-	RefreshToken string `json:"refresh_token"`
-}
-
 func FromCoreUserAuthenticToRefreshResponse(coreUser *core.UserAuthentic, accessToken pkgText.JwtToken) *AuthRefreshResponse {
 	var userGetResponse = user.FromCoreUserAuthenticToGetResponse(coreUser)
 	return &AuthRefreshResponse{
-		UserUpdateResponse: UserUpdateResponse{
+		UserUpdateResponse: user.UserUpdateResponse{
 			UserGetResponse: *userGetResponse,
 			AccessToken: string(accessToken),
 		},
@@ -35,9 +26,9 @@ func FromCoreUserAuthenticToRefreshResponse(coreUser *core.UserAuthentic, access
 }
 
 func FromCoreUserAuthenticToLoginResponse(coreUser *core.UserAuthentic, refreshToken text.Token, accessToken pkgText.JwtToken) *AuthLoginResponse {
-	var userUpdateResponse = FromCoreUserAuthenticToRefreshResponse(coreUser, accessToken)
+	var userUpdateResponse = user.FromCoreUserAuthenticToUpdateResponse(coreUser, accessToken)
 	return &AuthLoginResponse{
-		UserRegisterResponse: UserRegisterResponse{
+		UserRegisterResponse: user.UserRegisterResponse{
 			UserUpdateResponse: *userUpdateResponse,
 			RefreshToken: string(refreshToken),
 		},

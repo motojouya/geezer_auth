@@ -2,9 +2,8 @@ package company
 
 import (
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
-	text "github.com/motojouya/geezer_auth/internal/core/text"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
+	coreCompany "github.com/motojouya/geezer_auth/internal/core/company"
 	"github.com/motojouya/geezer_auth/internal/utility"
 )
 
@@ -16,14 +15,14 @@ type CompanyUserResponse struct {
 	Users []*common.User `json:"users"`
 }
 
-func FromCoreCompany(coreCompany core.Company) CompanyGetResponse {
+func FromCoreCompany(coreCompany coreCompany.Company) CompanyGetResponse {
 	var commonUser = common.FromCoreCompany(coreCompany)
 	return CompanyGetResponse{
-		User: commonUser,
+		Company: commonUser,
 	}
 }
 
-func FromCoreUserAuthentic(coreUsers []*core.UserAuthentic) *CompanyUserResponse {
+func FromCoreUserAuthentic(coreUsers []*coreUser.UserAuthentic) *CompanyUserResponse {
 	var users []*common.User = utility.Map(coreUsers, common.FromCoreUser)
 	return &CompanyUserResponse{
 		Users: users,

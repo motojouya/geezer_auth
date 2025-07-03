@@ -3,7 +3,7 @@ package common_test
 import (
 	"github.com/motojouya/geezer_auth/internal/core/role"
 	"github.com/motojouya/geezer_auth/internal/core/text"
-	"github.com/motojouya/geezer_auth/internal/entry/transfer"
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -18,7 +18,7 @@ func TestFromCoreRole(t *testing.T) {
 
 	var coreRole = role.NewRole(name, label, description, registeredDate)
 
-	var transferRole = transfer.FromCoreRole(coreRole)
+	var transferRole = common.FromCoreRole(coreRole)
 
 	assert.Equal(t, string(name), transferRole.Name)
 	assert.Equal(t, string(label), transferRole.Label)

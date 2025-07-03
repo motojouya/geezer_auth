@@ -14,6 +14,6 @@ type CompanyUserAcceptRequest struct {
 	CompanyAccept CompanyAccept `http:"body"`
 }
 
-func (c CompanyUserAcceptRequest) GetToken() (text.NewToken, error) {
-	return text.NewToken(c.RoleInvite.RoleLabel)
+func (c CompanyUserAcceptRequest) GetToken() (text.Token, error) {
+	return text.NewToken(c.CompanyAccept.Token)
 }
