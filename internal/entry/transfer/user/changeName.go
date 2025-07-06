@@ -7,7 +7,7 @@ import (
 )
 
 type UserChangeName struct {
-    Name string `json:"name"`
+	Name string `json:"name"`
 }
 
 type UserChangeNameRequest struct {

@@ -1,15 +1,15 @@
 package user
 
 import (
-	core "github.com/motojouya/geezer_auth/internal/core/user"
 	text "github.com/motojouya/geezer_auth/internal/core/text"
+	core "github.com/motojouya/geezer_auth/internal/core/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
 )
 
 type UserVerifyEmail struct {
-    Email       string `json:"email"`
-    VerifyToken string `json:"verify_token"`
+	Email       string `json:"email"`
+	VerifyToken string `json:"verify_token"`
 }
 
 type UserVerifyEmailRequest struct {

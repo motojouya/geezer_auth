@@ -7,7 +7,7 @@ import (
 
 type AuthRefresh struct {
 	AuthIdentifier
-	RefreshToken    string `json:"refresh_token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 type AuthRefreshRequest struct {

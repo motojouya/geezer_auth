@@ -5,7 +5,7 @@ import (
 )
 
 type CompanyGet struct {
-    Identifier string `json:"identifier"`
+	Identifier string `json:"identifier"`
 }
 
 type CompanyGetRequest struct {

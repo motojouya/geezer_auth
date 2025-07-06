@@ -36,7 +36,7 @@ func (a AuthIdentifier) GetEmailIdentifier() (*pkgText.Email, error) {
 
 type AuthLogin struct {
 	AuthIdentifier
-	Password        string `json:"password"`
+	Password string `json:"password"`
 }
 
 type AuthLoginRequest struct {

@@ -1,9 +1,9 @@
 package auth
 
 import (
-	"github.com/motojouya/geezer_auth/internal/entry/transfer/user"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
 	text "github.com/motojouya/geezer_auth/internal/core/text"
+	core "github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 )
 
@@ -20,7 +20,7 @@ func FromCoreUserAuthenticToRefreshResponse(coreUser *core.UserAuthentic, access
 	return &AuthRefreshResponse{
 		UserUpdateResponse: user.UserUpdateResponse{
 			UserGetResponse: *userGetResponse,
-			AccessToken: string(accessToken),
+			AccessToken:     string(accessToken),
 		},
 	}
 }
@@ -30,7 +30,7 @@ func FromCoreUserAuthenticToLoginResponse(coreUser *core.UserAuthentic, refreshT
 	return &AuthLoginResponse{
 		UserRegisterResponse: user.UserRegisterResponse{
 			UserUpdateResponse: *userUpdateResponse,
-			RefreshToken: string(refreshToken),
+			RefreshToken:       string(refreshToken),
 		},
 	}
 }

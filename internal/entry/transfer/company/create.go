@@ -7,7 +7,7 @@ import (
 )
 
 type CompanyCreate struct {
-    Name string `json:"name"`
+	Name string `json:"name"`
 }
 
 type CompanyCreateRequest struct {

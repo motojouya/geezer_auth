@@ -1,8 +1,8 @@
 package user_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/stretchr/testify/assert"
 	"testing"

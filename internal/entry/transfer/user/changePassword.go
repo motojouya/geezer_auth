@@ -5,8 +5,8 @@ import (
 )
 
 type UserChangePassword struct {
-    NextPassword string `json:"next_password"`
-    NowPassword string `json:"now_password"`
+	NextPassword string `json:"next_password"`
+	NowPassword  string `json:"now_password"`
 }
 
 type UserChangePasswordRequest struct {

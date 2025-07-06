@@ -1,14 +1,14 @@
 package user
 
 import (
-	core "github.com/motojouya/geezer_auth/internal/core/user"
 	text "github.com/motojouya/geezer_auth/internal/core/text"
+	core "github.com/motojouya/geezer_auth/internal/core/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
 )
 
 type UserChangeEmail struct {
-    Email string `json:"email"`
+	Email string `json:"email"`
 }
 
 type UserChangeEmailRequest struct {

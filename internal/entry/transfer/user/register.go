@@ -1,17 +1,17 @@
 package user
 
 import (
-	core "github.com/motojouya/geezer_auth/internal/core/user"
 	text "github.com/motojouya/geezer_auth/internal/core/text"
+	core "github.com/motojouya/geezer_auth/internal/core/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
 )
 
 type UserRegister struct {
-    Email     string `json:"email"`
-    Name      string `json:"name"`
-    Bot       bool   `json:"bot"`
-    Password  string `json:"password"`
+	Email    string `json:"email"`
+	Name     string `json:"name"`
+	Bot      bool   `json:"bot"`
+	Password string `json:"password"`
 }
 
 type UserRegisterRequest struct {

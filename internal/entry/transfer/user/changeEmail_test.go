@@ -1,9 +1,9 @@
 package user_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/entry/transfer/user"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
 	"github.com/motojouya/geezer_auth/internal/core/text"
+	core "github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -14,7 +14,7 @@ func TestChangeEmailToCoreUserEmail(t *testing.T) {
 	var email = "test@example.com"
 	var userChangeEmailRequest = user.UserChangeEmailRequest{
 		UserChangeEmail: user.UserChangeEmail{
-			Email:       email,
+			Email: email,
 		},
 	}
 
@@ -34,7 +34,7 @@ func TestChangeEmailToCoreUserEmailError(t *testing.T) {
 	var email = "testexample.com"
 	var userChangeEmailRequest = user.UserChangeEmailRequest{
 		UserChangeEmail: user.UserChangeEmail{
-			Email:       email,
+			Email: email,
 		},
 	}
 

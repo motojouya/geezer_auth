@@ -1,9 +1,9 @@
 package company
 
 import (
-	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
-	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
 	coreCompany "github.com/motojouya/geezer_auth/internal/core/company"
+	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 	"github.com/motojouya/geezer_auth/internal/utility"
 )
 

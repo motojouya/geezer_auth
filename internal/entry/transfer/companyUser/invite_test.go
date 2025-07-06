@@ -1,8 +1,8 @@
 package companyUser_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/entry/transfer/companyUser"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/company"
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/companyUser"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
