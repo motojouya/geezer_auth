@@ -2,8 +2,20 @@ package text_test
 
 import (
 	"github.com/motojouya/geezer_auth/internal/core/text"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
+
+func TestNewPassword(t *testing.T) {
+	var passwordStr = "PassWord123"
+	var password, unexpectErr = text.NewPassword(passwordStr)
+	assert.Nil(t, unexpectErr)
+	assert.Equal(t, passwordStr, string(password))
+
+	var errorStr = "Pass_Word123"
+	var _, expectErr = text.NewPassword(errorStr)
+	assert.Error(t, expectErr)
+}
 
 func TestPasswordSuccess(t *testing.T) {
 	var passwordStr = "password"

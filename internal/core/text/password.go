@@ -20,7 +20,7 @@ func NewPassword(password string) (Password, error) {
 	}
 
 	// TODO 正規表現あってる？
-	re, err := regexp.Compile(`^[A-Za-z0-1]{1,255}$`)
+	re, err := regexp.Compile(`^[A-Za-z\d]{1,255}$`)
 	if err != nil {
 		// 固定値なのでエラーにはならないはず
 		panic(err)
