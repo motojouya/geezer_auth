@@ -8,7 +8,7 @@ import (
 
 type Environment interface {
 	GetJwtHandling() (jwt.JwtHandling, error)
-	GetDBAccess() (db.DbAccess, error)
+	GetDBAccess() (db.DBAccess, error)
 }
 
 type environment struct{}
@@ -21,6 +21,6 @@ func (e environment) GetJwtHandling() (jwt.JwtHandling, error) {
 	return env.ParseAs[jwt.JwtHandling]()
 }
 
-func (e environment) GetDBAccess() (db.DbAccess, error) {
-	return env.ParseAs[db.DbAccess]()
+func (e environment) GetDBAccess() (db.DBAccess, error) {
+	return env.ParseAs[db.DBAccess]()
 }

@@ -12,24 +12,24 @@ type DatabaseLoader interface {
 
 type databaseLoaderImpl struct{}
 
-var dbAccess db.DBAccess
+var dbAccess *core.DBAccess
 
 func (imple databaseLoaderImpl) LoadDatabase(e io.Environment) (db.ORP, error) {
 	// access 情報はcacheするが、connectionはcacheしない
-	if dbAccess != nil {
+	if dbAccess == nil {
 		var dbAccessData, err = e.GetDBAccess()
 		if err != nil {
-			return dbAccessData, err
+			return nil, err
 		}
-		dbAccess = dbAccessData
+		dbAccess = &dbAccessData
 	}
 
-	var connection, err = core.CreateConnection(dbAccess)
+	var connection, err = dbAccess.CreateConnection()
 	if err != nil {
-		return connection, err
+		return nil, err
 	}
 
-	var database, err = db.CreateDatabase(connection)
+	var database = db.CreateDatabase(connection)
 	if err != nil {
 		return database, err
 	}

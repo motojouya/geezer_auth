@@ -1,9 +1,8 @@
 package db
 
 import (
-	core "github.com/motojouya/geezer_auth/internal/core/db"
+	"github.com/motojouya/geezer_auth/internal/utility"
 	"database/sql"
-	"fmt"
 	"github.com/go-gorp/gorp"
 	_ "github.com/lib/pq"
 )
@@ -15,7 +14,7 @@ import (
 type ORP interface {
 	gorp.SqlExecutor
 	Begin() (ORPTransaction, error)
-	core.Connection
+	utility.Closable
 }
 
 type ORPTransaction interface {
