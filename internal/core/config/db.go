@@ -1,4 +1,4 @@
-package essence
+package config
 
 import (
 	"database/sql"
