@@ -17,8 +17,14 @@ type Authorizer interface {
 	Authorize(require role.RequirePermission, authentic *user.Authentic) error
 }
 
+var authorizationSingleton *authorization.Authorization
+
 // TODO DBアクセスしてロードするが、まだDB実装していない
 func (imple authorizationLoaderImpl) LoadAuthorization() Authorizer {
+	if authorizationSingleton != nil {
+		return authorizationSingleton
+	}
+
 	var EmployeeLabel, employeeLabelErr = text.NewLabel("EMPLOYEE")
 	if employeeLabelErr != nil {
 		panic(employeeLabelErr)
@@ -36,5 +42,6 @@ func (imple authorizationLoaderImpl) LoadAuthorization() Authorizer {
 		ManagerPermission,
 	}
 
-	return authorization.CreateAuthorization(permissions)
+	authorizationSingleton = authorization.CreateAuthorization(permissions)
+	return authorizationSingleton
 }

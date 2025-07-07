@@ -17,9 +17,15 @@ type JwtParser interface {
 	Parse(tokenString string) (*user.Authentic, error)
 }
 
+var jwtParser *jwt.JwtParsing
+
 // FIXME 本来はinternal/io/localのGetEnvを使って環境変数を取得すべきだが、ioパッケージを共通部品として使うのは不自然なので、ここではosパッケージを直接使う形
 // また、osパッケージ自体がローカルマシンに依存したものではあるので、引数で受け取ってコントローラブルにすべき
 func (impl jwtParserLoaderImpl) LoadJwtParser() (JwtParser, error) {
+	if jwtParser != nil {
+		return jwtParser, nil
+	}
+
 	var issuer, issuerExist = os.LookupEnv("JWT_ISSUER")
 	if !issuerExist {
 		return nil, utility.NewSystemConfigError("JWT_ISSUER", "JWT_ISSUER is not set on env")
@@ -59,5 +65,7 @@ func (impl jwtParserLoaderImpl) LoadJwtParser() (JwtParser, error) {
 		oldSecret,
 	)
 
-	return &jwtParsing, nil
+	jwtParser = &jwtParsing
+
+	return jwtParser, nil
 }

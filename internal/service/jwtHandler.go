@@ -4,6 +4,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/io"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
+	"github.com/motojouya/geezer_auth/pkg/core/jwt"
 	"time"
 )
 
@@ -17,13 +18,19 @@ type JwtHandler interface {
 	Generate(user *user.User, issueDate time.Time, id string) (*user.Authentic, text.JwtToken, error)
 }
 
+var jwtHandling *jwt.JwtHandling
+
 func (imple jwtHandlerLoaderImpl) LoadJwtHandler(e io.Environment) (JwtHandler, error) {
-	var jwtHandling, err = e.GetJwtHandling()
-	if err != nil {
-		return nil, err
+	if jwtHandling == nil {
+		var jwtHandlingObj, err = e.GetJwtHandling()
+		if err != nil {
+			return nil, err
+		}
+
+		jwtHandling = &jwtHandlingObj
 	}
 
-	return &jwtHandling, nil
+	return jwtHandling, nil
 }
 
 // !old code!
