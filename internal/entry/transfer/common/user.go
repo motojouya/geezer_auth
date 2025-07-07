@@ -1,8 +1,8 @@
 package common
 
 import (
-	core "github.com/motojouya/geezer_auth/internal/core/user"
 	"github.com/motojouya/geezer_auth/internal/core/essence"
+	core "github.com/motojouya/geezer_auth/internal/core/user"
 	"time"
 )
 

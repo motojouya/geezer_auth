@@ -2,9 +2,9 @@ package company
 
 import (
 	coreCompany "github.com/motojouya/geezer_auth/internal/core/company"
+	"github.com/motojouya/geezer_auth/internal/core/essence"
 	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
-	"github.com/motojouya/geezer_auth/internal/core/essence"
 )
 
 type CompanyGetResponse struct {

@@ -1,9 +1,9 @@
 package service
 
 import (
+	"github.com/motojouya/geezer_auth/pkg/core/essence"
 	"github.com/motojouya/geezer_auth/pkg/core/jwt"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
-	"github.com/motojouya/geezer_auth/pkg/core/essence"
 	"os"
 )
 
