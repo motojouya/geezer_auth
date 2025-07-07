@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"github.com/go-gorp/gorp"
 	_ "github.com/lib/pq"
-	"github.com/motojouya/geezer_auth/internal/utility"
+	"github.com/motojouya/geezer_auth/internal/core/essence"
 )
 
 // FIXME Prepare関数いる？
@@ -14,7 +14,7 @@ import (
 type ORP interface {
 	gorp.SqlExecutor
 	Begin() (ORPTransaction, error)
-	utility.Closable
+	essence.Closable
 }
 
 type ORPTransaction interface {

@@ -1,7 +1,7 @@
-package utility_test
+package essence_test
 
 import (
-	"github.com/motojouya/geezer_auth/pkg/utility"
+	"github.com/motojouya/geezer_auth/pkg/core/essence"
 	"github.com/stretchr/testify/assert"
 	"strconv"
 	"testing"
@@ -12,7 +12,7 @@ func TestNewNilError(t *testing.T) {
 	var message = "This is a test nil error"
 	var httpStatus uint = 400
 
-	var err = utility.NewNilError(name, message)
+	var err = essence.NewNilError(name, message)
 
 	assert.Equal(t, name, err.Name)
 	assert.Equal(t, message, err.Unwrap().Error())
@@ -29,7 +29,7 @@ func TestNewSystemConfigError(t *testing.T) {
 	var message = "This is a test system config error"
 	var httpStatus uint = 500
 
-	var err = utility.NewSystemConfigError(name, message)
+	var err = essence.NewSystemConfigError(name, message)
 
 	assert.Equal(t, name, err.Name)
 	assert.Equal(t, message, err.Unwrap().Error())
@@ -43,12 +43,12 @@ func TestNewSystemConfigError(t *testing.T) {
 func TestNewPropertyError(t *testing.T) {
 	var name = "TestNilError"
 	var message = "This is a test nil error"
-	var err = utility.NewNilError(name, message)
+	var err = essence.NewNilError(name, message)
 
 	var prop = "TestPath"
 	var httpStatus uint = 210
 
-	var propertyError = utility.NewPropertyError(prop, httpStatus, err)
+	var propertyError = essence.NewPropertyError(prop, httpStatus, err)
 
 	assert.Equal(t, prop, propertyError.Property)
 	assert.Equal(t, httpStatus, propertyError.HttpStatusCode)
@@ -62,12 +62,12 @@ func TestNewPropertyError(t *testing.T) {
 func TestCreatePropertyError(t *testing.T) {
 	var name = "TestNilError"
 	var message = "This is a test nil error"
-	var err = utility.NewNilError(name, message)
+	var err = essence.NewNilError(name, message)
 
 	var prop = "TestPath"
 	var httpStatus uint = 400
 
-	var propertyError = utility.CreatePropertyError(prop, err)
+	var propertyError = essence.CreatePropertyError(prop, err)
 
 	assert.Equal(t, prop, propertyError.Property)
 	assert.Equal(t, httpStatus, propertyError.HttpStatusCode)
@@ -81,12 +81,12 @@ func TestCreatePropertyError(t *testing.T) {
 func TestPropertyErrorAdd(t *testing.T) {
 	var name = "TestNilError"
 	var message = "This is a test nil error"
-	var err = utility.NewNilError(name, message)
+	var err = essence.NewNilError(name, message)
 
 	var prop = "TestPath"
 	var httpStatus uint = 210
 
-	var propertyError = utility.NewPropertyError(prop, httpStatus, err)
+	var propertyError = essence.NewPropertyError(prop, httpStatus, err)
 	var path = "additional"
 	var added = propertyError.Add(path)
 
@@ -102,12 +102,12 @@ func TestPropertyErrorAdd(t *testing.T) {
 func TestPropertyErrorChange(t *testing.T) {
 	var name = "TestNilError"
 	var message = "This is a test nil error"
-	var err = utility.NewNilError(name, message)
+	var err = essence.NewNilError(name, message)
 
 	var prop = "TestPath"
 	var httpStatus uint = 210
 
-	var propertyError = utility.NewPropertyError(prop, httpStatus, err)
+	var propertyError = essence.NewPropertyError(prop, httpStatus, err)
 	var path = "additional"
 	var changedStatus uint = 220
 	var added = propertyError.Change(path, changedStatus)
@@ -124,14 +124,14 @@ func TestPropertyErrorChange(t *testing.T) {
 func TestAddPropertyError(t *testing.T) {
 	var name = "TestNilError"
 	var message = "This is a test nil error"
-	var err = utility.NewNilError(name, message)
+	var err = essence.NewNilError(name, message)
 
 	var prop = "TestPath"
-	var propertyError = utility.AddPropertyError(prop, err)
+	var propertyError = essence.AddPropertyError(prop, err)
 
 	var wrapPath = "additional"
 	var httpStatus uint = 400
-	var wrappedPropertyError = utility.AddPropertyError(wrapPath, propertyError)
+	var wrappedPropertyError = essence.AddPropertyError(wrapPath, propertyError)
 
 	assert.Equal(t, wrapPath+"."+prop, wrappedPropertyError.Property)
 	assert.Equal(t, httpStatus, wrappedPropertyError.HttpStatusCode)
@@ -145,15 +145,15 @@ func TestAddPropertyError(t *testing.T) {
 func TestChangePropertyError(t *testing.T) {
 	var name = "TestNilError"
 	var message = "This is a test nil error"
-	var err = utility.NewNilError(name, message)
+	var err = essence.NewNilError(name, message)
 
 	var prop = "TestPath"
 	var httpStatus uint = 210
-	var propertyError = utility.ChangePropertyError(prop, err, httpStatus)
+	var propertyError = essence.ChangePropertyError(prop, err, httpStatus)
 
 	var wrapPath = "additional"
 	var wraphttpStatus uint = 210
-	var wrappedPropertyError = utility.ChangePropertyError(wrapPath, propertyError, wraphttpStatus)
+	var wrappedPropertyError = essence.ChangePropertyError(wrapPath, propertyError, wraphttpStatus)
 
 	assert.Equal(t, wrapPath+"."+prop, wrappedPropertyError.Property)
 	assert.Equal(t, wraphttpStatus, wrappedPropertyError.HttpStatusCode)
@@ -172,7 +172,7 @@ func TestAddPropertyErrorNil(t *testing.T) {
 	}()
 
 	var prop = "TestPath"
-	var _ = utility.AddPropertyError(prop, nil)
+	var _ = essence.AddPropertyError(prop, nil)
 
 	t.Error("Expected panic for nil source error, but did not panic")
 }
@@ -186,7 +186,7 @@ func TestChangePropertyErrorNil(t *testing.T) {
 
 	var prop = "TestPath"
 	var httpStatus uint = 210
-	var _ = utility.ChangePropertyError(prop, nil, httpStatus)
+	var _ = essence.ChangePropertyError(prop, nil, httpStatus)
 
 	t.Error("Expected panic for nil source error, but did not panic")
 }

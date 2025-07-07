@@ -6,7 +6,7 @@ import (
 	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/user"
-	"github.com/motojouya/geezer_auth/internal/utility"
+	"github.com/motojouya/geezer_auth/internal/core/essence"
 )
 
 type CompanyUserResponse struct {
@@ -22,7 +22,7 @@ type RoleGetResponse struct {
 }
 
 func FromCoreRoles(coreRoles []coreRole.Role) RoleGetResponse {
-	var roles = utility.Map(coreRoles, common.FromCoreRole)
+	var roles = essence.Map(coreRoles, common.FromCoreRole)
 	return RoleGetResponse{
 		Roles: roles,
 	}

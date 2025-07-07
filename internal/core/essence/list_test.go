@@ -1,8 +1,8 @@
-package utility_test
+package essence_test
 
 import (
 	"errors"
-	"github.com/motojouya/geezer_auth/internal/utility"
+	"github.com/motojouya/geezer_auth/internal/core/essence"
 	"github.com/stretchr/testify/assert"
 	"sort"
 	"testing"
@@ -18,7 +18,7 @@ func TestFilter(t *testing.T) {
 		return false
 	}
 
-	var tList = utility.Filter(list, predicate)
+	var tList = essence.Filter(list, predicate)
 
 	assert.Equal(t, 2, len(tList))
 	assert.Equal(t, "this", tList[0])
@@ -33,7 +33,7 @@ func TestMap(t *testing.T) {
 		return item + "_mapped"
 	}
 
-	var tList = utility.Map(list, mapper)
+	var tList = essence.Map(list, mapper)
 
 	assert.Equal(t, 3, len(tList))
 	assert.Equal(t, "this_mapped", tList[0])
@@ -49,7 +49,7 @@ func TestFold(t *testing.T) {
 		return accumulator + "_" + item, nil
 	}
 
-	var result, err = utility.Fold(list, "first", folder)
+	var result, err = essence.Fold(list, "first", folder)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -65,7 +65,7 @@ func TestFoldError(t *testing.T) {
 		return "", errors.New("test error")
 	}
 
-	var _, err = utility.Fold(list, "first", folder)
+	var _, err = essence.Fold(list, "first", folder)
 	if err == nil {
 		t.Fatal("expected error, but got nil")
 	}
@@ -77,7 +77,7 @@ func TestReduce(t *testing.T) {
 		return accumulator + item
 	}
 
-	var result = utility.Reduce(list, reducer)
+	var result = essence.Reduce(list, reducer)
 
 	assert.Equal(t, 6, result)
 
@@ -91,8 +91,8 @@ func TestSome(t *testing.T) {
 		return item == "test"
 	}
 
-	var contains1 = utility.Some(list1, predicate)
-	var contains2 = utility.Some(list2, predicate)
+	var contains1 = essence.Some(list1, predicate)
+	var contains2 = essence.Some(list2, predicate)
 
 	assert.True(t, contains1)
 	assert.False(t, contains2)
@@ -106,8 +106,8 @@ func TestEvery(t *testing.T) {
 		return chars[0] == 't'
 	}
 
-	var unMatched = utility.Every(list1, predicate)
-	var allMatched = utility.Every(list2, predicate)
+	var unMatched = essence.Every(list1, predicate)
+	var allMatched = essence.Every(list2, predicate)
 
 	assert.False(t, unMatched)
 	assert.True(t, allMatched)
@@ -120,7 +120,7 @@ func TestFind(t *testing.T) {
 		return chars[0] == 't'
 	}
 
-	var foundItem, exists = utility.Find(list, predicate)
+	var foundItem, exists = essence.Find(list, predicate)
 
 	assert.Equal(t, "this", foundItem)
 	assert.True(t, exists)
@@ -135,7 +135,7 @@ func TestFindLast(t *testing.T) {
 		return chars[0] == 't'
 	}
 
-	var foundItem, exists = utility.FindLast(list, predicate)
+	var foundItem, exists = essence.FindLast(list, predicate)
 
 	assert.Equal(t, "test", foundItem)
 	assert.True(t, exists)
@@ -150,7 +150,7 @@ func TestKeys(t *testing.T) {
 		"item": 3,
 	}
 
-	var keys = utility.Keys(m)
+	var keys = essence.Keys(m)
 	sort.Strings(keys)
 
 	assert.Equal(t, 3, len(keys))
@@ -168,7 +168,7 @@ func TestValues(t *testing.T) {
 		"item": 1,
 	}
 
-	var values = utility.Values(m)
+	var values = essence.Values(m)
 	sort.Ints(values)
 
 	assert.Equal(t, 3, len(values))
@@ -186,7 +186,7 @@ func TestEntries(t *testing.T) {
 		"item": 3,
 	}
 
-	var entries = utility.Entries(m)
+	var entries = essence.Entries(m)
 	sort.Slice(entries, func(i, j int) bool {
 		return entries[i].Key < entries[j].Key
 	})
@@ -209,7 +209,7 @@ func TestToMap(t *testing.T) {
 		return string(chars[:2])
 	}
 
-	var result = utility.ToMap(list, getKey)
+	var result = essence.ToMap(list, getKey)
 
 	assert.Equal(t, 3, len(result))
 	assert.Equal(t, result["th"], "this")
@@ -225,7 +225,7 @@ func TestFlatten(t *testing.T) {
 		{"item", "example"},
 	}
 
-	var flattened = utility.Flatten(nestedList)
+	var flattened = essence.Flatten(nestedList)
 
 	assert.Equal(t, 4, len(flattened))
 	assert.Equal(t, flattened[0], "this")
@@ -273,7 +273,7 @@ func TestRelated(t *testing.T) {
 		}
 	}
 
-	var related = utility.Relate(orderList, itemList, relate)
+	var related = essence.Relate(orderList, itemList, relate)
 
 	assert.Equal(t, 2, len(related))
 	assert.Equal(t, related[0].Customer, "Alice")
@@ -302,7 +302,7 @@ func TestIntersect(t *testing.T) {
 		return itemRequest.ID == item.ID
 	}
 
-	var verticalMatched, horizontalMatched, verticalUnMatched, horizontalUnMatched = utility.Intersect(verticalList, horizontalList, predicate)
+	var verticalMatched, horizontalMatched, verticalUnMatched, horizontalUnMatched = essence.Intersect(verticalList, horizontalList, predicate)
 
 	assert.Equal(t, 2, len(horizontalMatched))
 	assert.Equal(t, "Apple", horizontalMatched[0].Name)
@@ -332,7 +332,7 @@ func TestGroup(t *testing.T) {
 		return item1.Quantity == item2.Quantity
 	}
 
-	var grouped = utility.Group(list, grouper)
+	var grouped = essence.Group(list, grouper)
 
 	assert.Equal(t, 2, len(grouped))
 	assert.Equal(t, 2, len(grouped[0]))
@@ -350,7 +350,7 @@ func TestDuplicates(t *testing.T) {
 		return item1 == item2
 	}
 
-	var duplicates = utility.Duplicate(list, predicate)
+	var duplicates = essence.Duplicate(list, predicate)
 
 	assert.Equal(t, 4, len(duplicates))
 	assert.Equal(t, duplicates[0], "this")

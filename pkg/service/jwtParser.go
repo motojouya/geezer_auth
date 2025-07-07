@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/motojouya/geezer_auth/pkg/core/jwt"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
-	"github.com/motojouya/geezer_auth/pkg/utility"
+	"github.com/motojouya/geezer_auth/pkg/core/essence"
 	"os"
 )
 
@@ -28,32 +28,32 @@ func (impl jwtParserLoaderImpl) LoadJwtParser() (JwtParser, error) {
 
 	var issuer, issuerExist = os.LookupEnv("JWT_ISSUER")
 	if !issuerExist {
-		return nil, utility.NewSystemConfigError("JWT_ISSUER", "JWT_ISSUER is not set on env")
+		return nil, essence.NewSystemConfigError("JWT_ISSUER", "JWT_ISSUER is not set on env")
 	}
 
 	var myself, myselfExist = os.LookupEnv("JWT_MYSELF")
 	if !myselfExist {
-		return nil, utility.NewSystemConfigError("JWT_ISSUER", "JWT_ISSUER is not set on env")
+		return nil, essence.NewSystemConfigError("JWT_ISSUER", "JWT_ISSUER is not set on env")
 	}
 
 	var latestKeyId, latestKeyIdExist = os.LookupEnv("JWT_LATEST_KEY_ID")
 	if !latestKeyIdExist {
-		return nil, utility.NewSystemConfigError("JWT_LATEST_KEY_ID", "JWT_LATEST_KEY_ID is not set on env")
+		return nil, essence.NewSystemConfigError("JWT_LATEST_KEY_ID", "JWT_LATEST_KEY_ID is not set on env")
 	}
 
 	var latestSecret, latestSecretExist = os.LookupEnv("JWT_LATEST_SECRET")
 	if !latestSecretExist {
-		return nil, utility.NewSystemConfigError("JWT_LATEST_SECRET", "JWT_LATEST_SECRET is not set on env")
+		return nil, essence.NewSystemConfigError("JWT_LATEST_SECRET", "JWT_LATEST_SECRET is not set on env")
 	}
 
 	var oldKeyId, oldKeyIdExist = os.LookupEnv("JWT_OLD_KEY_ID")
 	if !oldKeyIdExist {
-		return nil, utility.NewSystemConfigError("JWT_OLD_KEY_ID", "JWT_OLD_KEY_ID is not set on env")
+		return nil, essence.NewSystemConfigError("JWT_OLD_KEY_ID", "JWT_OLD_KEY_ID is not set on env")
 	}
 
 	var oldSecret, oldSecretExist = os.LookupEnv("JWT_OLD_SECRET")
 	if !oldSecretExist {
-		return nil, utility.NewSystemConfigError("JWT_OLD_SECRET", "JWT_OLD_SECRET is not set on env")
+		return nil, essence.NewSystemConfigError("JWT_OLD_SECRET", "JWT_OLD_SECRET is not set on env")
 	}
 
 	var jwtParsing = jwt.NewJwtParsing(

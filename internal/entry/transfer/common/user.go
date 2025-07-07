@@ -2,7 +2,7 @@ package common
 
 import (
 	core "github.com/motojouya/geezer_auth/internal/core/user"
-	"github.com/motojouya/geezer_auth/internal/utility"
+	"github.com/motojouya/geezer_auth/internal/core/essence"
 	"time"
 )
 
@@ -26,7 +26,7 @@ func FromCoreUser(u *core.UserAuthentic) *User {
 	if u.CompanyRole != nil {
 		companyRole = &CompanyRole{
 			Company: FromCoreCompany(u.CompanyRole.Company),
-			Roles:   utility.Map(u.CompanyRole.Roles, FromCoreRole),
+			Roles:   essence.Map(u.CompanyRole.Roles, FromCoreRole),
 		}
 	}
 

@@ -2,9 +2,9 @@ package authorization
 
 import (
 	"github.com/motojouya/geezer_auth/internal/core/role"
-	utility "github.com/motojouya/geezer_auth/internal/utility"
-	user "github.com/motojouya/geezer_auth/pkg/core/user"
-	pkgUtility "github.com/motojouya/geezer_auth/pkg/utility"
+	"github.com/motojouya/geezer_auth/internal/core/essence"
+	"github.com/motojouya/geezer_auth/pkg/core/user"
+	pkgEssence "github.com/motojouya/geezer_auth/pkg/core/essence"
 	"slices"
 )
 
@@ -35,15 +35,15 @@ func GetPriorityRolePermission(permissions []role.RolePermission, authentic *use
 		return role.RoleLessPermission, nil
 	}
 
-	var permissionMap = utility.ToMap(permissions, role.PermissionKey)
+	var permissionMap = essence.ToMap(permissions, role.PermissionKey)
 
 	var permission *role.RolePermission = nil
 	for _, r := range authentic.User.CompanyRole.Roles {
 		var roleLabel = string(r.Label)
 		var p, exists = permissionMap[roleLabel]
-		// var p, ok = utility.Find(permissions, role.PermissionIs(r.Label)) // こうも書けるが、パフォーマンス的に悪い
+		// var p, ok = essence.Find(permissions, role.PermissionIs(r.Label)) // こうも書けるが、パフォーマンス的に悪い
 		if !exists {
-			return role.RolePermission{}, pkgUtility.NewNilError("role_permission."+roleLabel, "RolePermission not found")
+			return role.RolePermission{}, pkgEssence.NewNilError("role_permission."+roleLabel, "RolePermission not found")
 		}
 		if permission == nil || p.Priority > permission.Priority {
 			permission = &p

@@ -1,7 +1,7 @@
 package service
 
 import (
-	core "github.com/motojouya/geezer_auth/internal/core/db"
+	"github.com/motojouya/geezer_auth/internal/core/essence"
 	"github.com/motojouya/geezer_auth/internal/db"
 	"github.com/motojouya/geezer_auth/internal/io"
 )
@@ -12,7 +12,7 @@ type DatabaseLoader interface {
 
 type databaseLoaderImpl struct{}
 
-var dbAccess *core.DBAccess
+var dbAccess *essence.DBAccess
 
 func (imple databaseLoaderImpl) LoadDatabase(e io.Environment) (db.ORP, error) {
 	// access 情報はcacheするが、connectionはcacheしない

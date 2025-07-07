@@ -1,7 +1,7 @@
-package utility_test
+package essence_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/utility"
+	"github.com/motojouya/geezer_auth/internal/core/essence"
 	"github.com/stretchr/testify/assert"
 	"strconv"
 	"testing"
@@ -13,7 +13,7 @@ func TestInvalidArgumentError(t *testing.T) {
 	var message = "This is a test invalid argument error"
 	var httpStatus uint = 400
 
-	var err = utility.NewInvalidArgumentError(name, value, message)
+	var err = essence.NewInvalidArgumentError(name, value, message)
 
 	assert.Equal(t, name, err.Name)
 	assert.Equal(t, value, err.Value)
@@ -33,7 +33,7 @@ func TestNewRangeError(t *testing.T) {
 	var message = "This is a test range error"
 	var httpStatus uint = 400
 
-	var err = utility.NewRangeError(name, value, min, max, message)
+	var err = essence.NewRangeError(name, value, min, max, message)
 
 	assert.Equal(t, name, err.Name)
 	assert.Equal(t, value, err.Value)
@@ -52,7 +52,7 @@ func TestNewAuthenticationError(t *testing.T) {
 	var message = "This is a test system config error"
 	var httpStatus uint = 401
 
-	var err = utility.NewAuthenticationError(userIdentifier, message)
+	var err = essence.NewAuthenticationError(userIdentifier, message)
 
 	assert.Equal(t, userIdentifier, err.UserIdentifier)
 	assert.Equal(t, message, err.Unwrap().Error())

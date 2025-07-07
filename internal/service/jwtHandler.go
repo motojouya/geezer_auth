@@ -37,12 +37,12 @@ func (imple jwtHandlerLoaderImpl) LoadJwtHandler(e io.Environment) (JwtHandler, 
 // func CreateJwtHandler() (JwtHandler, error) {
 // 	var audience, audienceExist = os.LookupEnv("JWT_AUDIENCE");
 // 	if !audienceExist {
-// 		return nil, utility.NewSystemConfigError("JWT_AUDIENCE", "JWT_AUDIENCE is not set on env")
+// 		return nil, essence.NewSystemConfigError("JWT_AUDIENCE", "JWT_AUDIENCE is not set on env")
 // 	}
 //
 // 	var validityPeriodMinutesStr, validityPeriodMinutesExist = os.LookupEnv("JWT_VALIDITY_PERIOD_MINUTES");
 // 	if !validityPeriodMinutesExist {
-// 		return nil, utility.NewSystemConfigError("JWT_VALIDITY_PERIOD_MINUTES", "JWT_VALIDITY_PERIOD_MINUTES is not set on env")
+// 		return nil, essence.NewSystemConfigError("JWT_VALIDITY_PERIOD_MINUTES", "JWT_VALIDITY_PERIOD_MINUTES is not set on env")
 // 	}
 //
 // 	var validityPeriodMinutes, err = strconv.Atoi(validityPeriodMinutesStr)
@@ -64,7 +64,7 @@ func (imple jwtHandlerLoaderImpl) LoadJwtHandler(e io.Environment) (JwtHandler, 
 // 		return nil, err
 // 	}
 // 	if jwtParserConfig, ok := jwtParser.(jwtParserConfig); !ok {
-// 		return nil, utility.NewNilError("jwtParser", "JwtParser is nil")
+// 		return nil, essence.NewNilError("jwtParser", "JwtParser is nil")
 // 	}
 //
 // 	return NewJwtHandler(

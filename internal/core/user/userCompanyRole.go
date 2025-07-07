@@ -3,7 +3,7 @@ package user
 import (
 	"github.com/motojouya/geezer_auth/internal/core/company"
 	"github.com/motojouya/geezer_auth/internal/core/role"
-	utility "github.com/motojouya/geezer_auth/internal/utility"
+	"github.com/motojouya/geezer_auth/internal/core/essence"
 	"time"
 )
 
@@ -71,18 +71,18 @@ func GetRoleUCR(userCompanyRole *UserCompanyRole) role.Role {
 
 func ListToCompanyRole(user User, userCompanyRoles []*UserCompanyRole) (*CompanyRole, error) {
 
-	var allSameUser = utility.Every(userCompanyRoles, IsUserUCR(user))
+	var allSameUser = essence.Every(userCompanyRoles, IsUserUCR(user))
 	if !allSameUser {
-		return &CompanyRole{}, utility.NewInvalidArgumentError("UserCompanyRole.User", string(user.Identifier), "UserCompanyRole.User does not match the User")
+		return &CompanyRole{}, essence.NewInvalidArgumentError("UserCompanyRole.User", string(user.Identifier), "UserCompanyRole.User does not match the User")
 	}
 
-	var grouped = utility.Group(userCompanyRoles, SameCompanyUCR)
+	var grouped = essence.Group(userCompanyRoles, SameCompanyUCR)
 	if len(grouped) > 1 {
-		return &CompanyRole{}, utility.NewInvalidArgumentError("UserCompanyRole.Company", "", "UserCompanyRole.Company must be unique for a User")
+		return &CompanyRole{}, essence.NewInvalidArgumentError("UserCompanyRole.Company", "", "UserCompanyRole.Company must be unique for a User")
 	}
 
 	var company = userCompanyRoles[0].Company
-	var roles = utility.Map(userCompanyRoles, GetRoleUCR)
+	var roles = essence.Map(userCompanyRoles, GetRoleUCR)
 
 	return NewCompanyRole(company, roles), nil
 }

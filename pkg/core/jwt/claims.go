@@ -4,7 +4,7 @@ import (
 	gojwt "github.com/golang-jwt/jwt/v5"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
-	"github.com/motojouya/geezer_auth/pkg/utility"
+	"github.com/motojouya/geezer_auth/pkg/core/essence"
 	"strconv"
 	"strings"
 )
@@ -76,12 +76,12 @@ func getCompanyRole(claims *GeezerClaims) (*user.CompanyRole, error) {
 
 			var label, labelErr = text.NewLabel(claims.CompanyRoles[i])
 			if labelErr != nil {
-				return nil, utility.AddPropertyError("Company.Role["+strconv.Itoa(i)+"]", labelErr)
+				return nil, essence.AddPropertyError("Company.Role["+strconv.Itoa(i)+"]", labelErr)
 			}
 
 			var name, nameErr = text.NewName(claims.CompanyRoleNames[i])
 			if nameErr != nil {
-				return nil, utility.AddPropertyError("Company.Role["+strconv.Itoa(i)+"]", nameErr)
+				return nil, essence.AddPropertyError("Company.Role["+strconv.Itoa(i)+"]", nameErr)
 			}
 
 			roles[i] = user.NewRole(label, name)
@@ -89,11 +89,11 @@ func getCompanyRole(claims *GeezerClaims) (*user.CompanyRole, error) {
 
 		var companyIdentifier, idErr = text.NewIdentifier(*claims.CompanyIdentifier)
 		if idErr != nil {
-			return nil, utility.AddPropertyError("company", idErr)
+			return nil, essence.AddPropertyError("company", idErr)
 		}
 		var companyName, nameErr = text.NewName(*claims.CompanyName)
 		if nameErr != nil {
-			return nil, utility.AddPropertyError("company", nameErr)
+			return nil, essence.AddPropertyError("company", nameErr)
 		}
 
 		var company = user.NewCompany(companyIdentifier, companyName)
@@ -121,19 +121,19 @@ func (claims *GeezerClaims) ToAuthentic() (*user.Authentic, error) {
 
 	var userIdentifier, idErr = text.NewIdentifier(claims.Subject)
 	if idErr != nil {
-		return nil, utility.AddPropertyError("claims", idErr)
+		return nil, essence.AddPropertyError("claims", idErr)
 	}
 
 	var userEmailId, emailErr = text.NewEmail(claims.UserEmailId)
 	if emailErr != nil {
-		return nil, utility.AddPropertyError("claims", emailErr)
+		return nil, essence.AddPropertyError("claims", emailErr)
 	}
 
 	var userEmail *text.Email = nil
 	if claims.UserEmail != nil {
 		var userEmailValue, err = text.NewEmail(*claims.UserEmail)
 		if err != nil {
-			return nil, utility.AddPropertyError("claims", err)
+			return nil, essence.AddPropertyError("claims", err)
 		} else {
 			userEmail = &userEmailValue
 		}
@@ -141,12 +141,12 @@ func (claims *GeezerClaims) ToAuthentic() (*user.Authentic, error) {
 
 	var userName, nameErr = text.NewName(claims.UserName)
 	if nameErr != nil {
-		return nil, utility.AddPropertyError("claims", nameErr)
+		return nil, essence.AddPropertyError("claims", nameErr)
 	}
 
 	var companyRole, crErr = getCompanyRole(claims)
 	if crErr != nil {
-		return nil, utility.AddPropertyError("claims", crErr)
+		return nil, essence.AddPropertyError("claims", crErr)
 	}
 
 	var userValue = user.NewUser(

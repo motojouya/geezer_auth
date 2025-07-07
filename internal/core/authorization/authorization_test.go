@@ -6,7 +6,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/core/role"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
-	"github.com/motojouya/geezer_auth/pkg/utility"
+	"github.com/motojouya/geezer_auth/pkg/core/essence"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -132,7 +132,7 @@ func TestAuthorizeError(t *testing.T) {
 	err := auth.Authorize(requirePermission, authentic)
 
 	assert.Error(t, err)
-	if _, ok := err.(*utility.NilError); !ok {
+	if _, ok := err.(*essence.NilError); !ok {
 		t.Errorf("Expected NilError, got: %T", err)
 		return
 	}
@@ -211,7 +211,7 @@ func TestGetPriorityRolePermissionNil(t *testing.T) {
 	_, err := authorization.GetPriorityRolePermission(permissions, authentic)
 
 	assert.Error(t, err)
-	if _, ok := err.(*utility.NilError); !ok {
+	if _, ok := err.(*essence.NilError); !ok {
 		t.Errorf("Expected NilError, got: %T", err)
 		return
 	}

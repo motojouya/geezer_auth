@@ -4,7 +4,7 @@ import (
 	coreCompany "github.com/motojouya/geezer_auth/internal/core/company"
 	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
-	"github.com/motojouya/geezer_auth/internal/utility"
+	"github.com/motojouya/geezer_auth/internal/core/essence"
 )
 
 type CompanyGetResponse struct {
@@ -23,7 +23,7 @@ func FromCoreCompany(coreCompany coreCompany.Company) CompanyGetResponse {
 }
 
 func FromCoreUserAuthentic(coreUsers []*coreUser.UserAuthentic) *CompanyUserResponse {
-	var users []*common.User = utility.Map(coreUsers, common.FromCoreUser)
+	var users []*common.User = essence.Map(coreUsers, common.FromCoreUser)
 	return &CompanyUserResponse{
 		Users: users,
 	}
