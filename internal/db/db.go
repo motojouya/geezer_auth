@@ -1,10 +1,10 @@
 package db
 
 import (
-	"github.com/motojouya/geezer_auth/internal/utility"
 	"database/sql"
 	"github.com/go-gorp/gorp"
 	_ "github.com/lib/pq"
+	"github.com/motojouya/geezer_auth/internal/utility"
 )
 
 // FIXME Prepare関数いる？

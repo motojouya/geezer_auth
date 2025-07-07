@@ -17,11 +17,11 @@ type DBAccess struct {
 
 func NewDBAccess(
 	driver string,
-	name   string,
-	host   string,
-	port   uint,
-	user   string,
-	pass   string,
+	name string,
+	host string,
+	port uint,
+	user string,
+	pass string,
 ) DBAccess {
 	return DBAccess{
 		Driver: driver,

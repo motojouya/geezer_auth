@@ -1,9 +1,9 @@
 package service
 
 import (
-	"github.com/motojouya/geezer_auth/internal/io"
 	core "github.com/motojouya/geezer_auth/internal/core/db"
 	"github.com/motojouya/geezer_auth/internal/db"
+	"github.com/motojouya/geezer_auth/internal/io"
 )
 
 type DatabaseLoader interface {

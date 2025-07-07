@@ -2,9 +2,9 @@ package service
 
 import (
 	"github.com/motojouya/geezer_auth/internal/io"
+	"github.com/motojouya/geezer_auth/pkg/core/jwt"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
-	"github.com/motojouya/geezer_auth/pkg/core/jwt"
 	"time"
 )
 

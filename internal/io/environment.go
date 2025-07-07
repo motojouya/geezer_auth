@@ -2,8 +2,8 @@ package io
 
 import (
 	"github.com/caarlos0/env/v11"
-	"github.com/motojouya/geezer_auth/pkg/core/jwt"
 	"github.com/motojouya/geezer_auth/internal/core/db"
+	"github.com/motojouya/geezer_auth/pkg/core/jwt"
 )
 
 type Environment interface {
