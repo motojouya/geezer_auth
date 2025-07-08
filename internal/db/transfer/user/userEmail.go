@@ -1,11 +1,11 @@
 package user
 
 import (
+	"github.com/doug-martin/goqu/v9"
 	text "github.com/motojouya/geezer_auth/internal/core/text"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
-	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/motojouya/geezer_auth/internal/db"
-	"github.com/doug-martin/goqu/v9"
+	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
 )
 

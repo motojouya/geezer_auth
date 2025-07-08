@@ -58,18 +58,20 @@ func TestToCoreUserAccessToken(t *testing.T) {
 	var expireDate = time.Now().Add(24 * time.Hour)
 
 	var userAccessToken = user.UserAccessTokenFull{
-		PersistKey:         persistKey,
-		UserPersistKey:     userPersistKey,
+		UserAccessToken: user.UserAccessToken{
+			PersistKey:       persistKey,
+			UserPersistKey:   userPersistKey,
+			AccessToken:      string(accessToken),
+			SourceUpdateDate: sourceUpdateDate,
+			RegisterDate:     registerDate,
+			ExpireDate:       expireDate,
+		},
 		UserIdentifier:     userIdentifier,
 		UserExposeEmailId:  userEmailId,
 		UserName:           userName,
 		UserBotFlag:        userBotFlag,
 		UserRegisteredDate: userRegisteredDate,
 		UserUpdateDate:     userUpdateDate,
-		AccessToken:        string(accessToken),
-		SourceUpdateDate:   sourceUpdateDate,
-		RegisterDate:       registerDate,
-		ExpireDate:         expireDate,
 	}
 
 	var coreUserAccessToken, err = userAccessToken.ToCoreUserAccessToken()

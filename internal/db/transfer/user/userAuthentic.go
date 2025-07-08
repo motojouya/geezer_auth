@@ -1,11 +1,11 @@
 package user
 
 import (
+	"github.com/doug-martin/goqu/v9"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/db"
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
-	"github.com/motojouya/geezer_auth/internal/db"
-	"github.com/doug-martin/goqu/v9"
 )
 
 type UserAuthentic struct {
@@ -20,10 +20,10 @@ type UserAuthentic struct {
 	UserCompanyRole    []*UserCompanyRoleFull
 }
 
-var SelectFullUserCompanyRole = db.Dialect.From("user").As("u").LeftOuterJoin(
+var SelectFullUserAuthentic = db.Dialect.From("user").As("u").LeftOuterJoin(
 	goqu.T("user_email").As("ue"),
 	goqu.On(goqu.Ex{
-		"u.persist_key": goqu.I("ue.user_persist_key"),
+		"u.persist_key":  goqu.I("ue.user_persist_key"),
 		"ue.verify_date": goqu.I("ue.verify_date").IsNotNull(),
 		"ue.expire_date": nil,
 	}),

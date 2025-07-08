@@ -1,11 +1,11 @@
 package user
 
 import (
+	"github.com/doug-martin/goqu/v9"
 	"github.com/motojouya/geezer_auth/internal/core/text"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
-	"time"
 	"github.com/motojouya/geezer_auth/internal/db"
-	"github.com/doug-martin/goqu/v9"
+	"time"
 )
 
 type UserRefreshToken struct {

@@ -1,11 +1,11 @@
 package company
 
 import (
+	"github.com/doug-martin/goqu/v9"
 	core "github.com/motojouya/geezer_auth/internal/core/company"
+	"github.com/motojouya/geezer_auth/internal/db"
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
-	"github.com/motojouya/geezer_auth/internal/db"
-	"github.com/doug-martin/goqu/v9"
 )
 
 type Company struct {
