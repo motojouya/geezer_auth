@@ -20,29 +20,22 @@ type UserAuthentic struct {
 	UserCompanyRole    []*UserCompanyRoleFull
 }
 
-// TODO user join user_email
 var SelectFullUserCompanyRole = db.Dialect.From("user").As("u").LeftOuterJoin(
 	goqu.T("user_email").As("ue"),
-	goqu.On(goqu.Ex{"uat.user_persist_key": goqu.I("ue.persist_key")}),
+	goqu.On(goqu.Ex{
+		"u.persist_key": goqu.I("ue.user_persist_key"),
+		"ue.verify_date": goqu.I("ue.verify_date").IsNotNull(),
+		"ue.expire_date": nil,
+	}),
 ).Select(
-	goqu.C("ucr.persist_key").As("persist_key"),
-	goqu.C("ucr.user_persist_key").As("user_persist_key"),
-	goqu.C("u.identifier").As("user_identifier"),
-	goqu.C("u.email_identifier").As("user_email_identifier"),
-	goqu.C("u.name").As("user_name"),
-	goqu.C("u.bot_flag").As("user_bot_flag"),
-	goqu.C("u.register_date").As("user_register_date"),
-	goqu.C("u.update_date").As("user_update_date"),
-	goqu.C("ucr.company_persist_key").As("company_persist_key"),
-	goqu.C("c.identifier").As("company_identifier"),
-	goqu.C("c.name").As("company_name"),
-	goqu.C("c.register_date").As("company_register_date"),
-	goqu.C("ucr.role_label").As("role_label"),
-	goqu.C("r.name").As("role_name"),
-	goqu.C("r.description").As("role_description"),
-	goqu.C("r.register_date").As("role_register_date"),
-	goqu.C("ucr.register_date").As("register_date"),
-	goqu.C("ucr.expire_date").As("expire_date"),
+	goqu.C("u.persist_key").As("persist_key"),
+	goqu.C("u.identifier").As("identifier"),
+	goqu.C("u.email_identifier").As("email_identifier"),
+	goqu.C("u.name").As("name"),
+	goqu.C("u.bot_flag").As("bot_flag"),
+	goqu.C("u.register_date").As("register_date"),
+	goqu.C("u.update_date").As("update_date"),
+	goqu.C("ue.email").As("email"),
 )
 
 func RelateUserCompanyRole(ua *UserAuthentic, ucr *UserCompanyRoleFull) (*UserAuthentic, bool) {
