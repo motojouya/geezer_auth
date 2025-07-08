@@ -3,18 +3,30 @@ package user
 import (
 	core "github.com/motojouya/geezer_auth/internal/core/user"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/motojouya/geezer_auth/internal/db"
+	"github.com/doug-martin/goqu/v9"
 	"time"
 )
 
 type User struct {
-	PersistKey     uint
-	Identifier     string
-	ExposeEmailId  string
-	Name           string
-	BotFlag        bool
-	RegisteredDate time.Time
-	UpdateDate     time.Time
+	PersistKey     uint      `db:"persist_key"`
+	Identifier     string    `db:"identifier"`
+	ExposeEmailId  string    `db:"email_identifier"`
+	Name           string    `db:"name"`
+	BotFlag        bool      `db:"bot_flag"`
+	RegisteredDate time.Time `db:"register_date"`
+	UpdateDate     time.Time `db:"update_date"`
 }
+
+var SelectUser = db.Dialect.From("user").As("u").Select(
+	goqu.C("u.persist_key").As("persist_key"),
+	goqu.C("u.identifier").As("identifier"),
+	goqu.C("u.email_identifier").As("email_identifier"),
+	goqu.C("u.name").As("name"),
+	goqu.C("u.bot_flag").As("bot_flag"),
+	goqu.C("u.register_date").As("register_date"),
+	goqu.C("u.update_date").As("update_date"),
+)
 
 func FromCoreUser(coreUser core.UnsavedUser) User {
 	return User{

@@ -3,16 +3,27 @@ package role
 import (
 	core "github.com/motojouya/geezer_auth/internal/core/role"
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/motojouya/geezer_auth/internal/db"
+	"github.com/doug-martin/goqu/v9"
 )
 
 type RolePermission struct {
-	RoleLabel     string
-	SelfEdit      bool
-	CompanyAccess bool
-	CompanyInvite bool
-	CompanyEdit   bool
-	Priority      uint
+	RoleLabel     string `db:"role_label"`
+	SelfEdit      bool   `db:"self_edit"`
+	CompanyAccess bool   `db:"company_access"`
+	CompanyInvite bool   `db:"company_invite"`
+	CompanyEdit   bool   `db:"company_edit"`
+	Priority      uint   `db:"priority"`
 }
+
+var SelectRolePermission = db.Dialect.From("role_permission").As("rp").Select(
+	goqu.C("rp.role_label").As("role_label"),
+	goqu.C("rp.self_edit").As("self_edit"),
+	goqu.C("rp.company_access").As("company_access"),
+	goqu.C("rp.company_invite").As("company_invite"),
+	goqu.C("rp.company_edit").As("company_edit"),
+	goqu.C("rp.priority").As("priority"),
+)
 
 func FromCoreRolePermission(r core.RolePermission) RolePermission {
 	return RolePermission{

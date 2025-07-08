@@ -5,14 +5,23 @@ import (
 	coreText "github.com/motojouya/geezer_auth/internal/core/text"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
+	"github.com/motojouya/geezer_auth/internal/db"
+	"github.com/doug-martin/goqu/v9"
 )
 
 type Role struct {
-	Label          string
-	Name           string
-	Description    string
-	RegisteredDate time.Time
+	Label          string    `db:"label"`
+	Name           string    `db:"name"`
+	Description    string    `db:"description"`
+	RegisteredDate time.Time `db:"register_date"`
 }
+
+var SelectRole = db.Dialect.From("role").As("r").Select(
+	goqu.C("r.label").As("label"),
+	goqu.C("r.name").As("name"),
+	goqu.C("r.description").As("description"),
+	goqu.C("r.register_date").As("register_date"),
+)
 
 func FromCoreRole(role core.Role) Role {
 	return Role{
