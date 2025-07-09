@@ -4,10 +4,9 @@ import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
-	"github.com/motojouya/geezer_auth/internal/db"
 )
 
-type GetCompany interface {
+type GetCompanyQuery interface {
 	GetCompany(identifier string) (*company.Company, error)
 }
 

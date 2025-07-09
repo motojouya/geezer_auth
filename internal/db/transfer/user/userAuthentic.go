@@ -3,24 +3,24 @@ package user
 import (
 	"github.com/doug-martin/goqu/v9"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
-	"github.com/motojouya/geezer_auth/internal/db"
+	"github.com/motojouya/geezer_auth/internal/db/sql"
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
 )
 
 type UserAuthentic struct {
-	UserPersistKey     uint
-	UserIdentifier     string
-	UserExposeEmailId  string
-	UserName           string
-	UserBotFlag        bool
-	UserRegisteredDate time.Time
-	UserUpdateDate     time.Time
-	Email              *string
+	UserPersistKey     uint      `db:"persist_key"`
+	UserIdentifier     string    `db:"identifier"`
+	UserExposeEmailId  string    `db:"email_identifier"`
+	UserName           string    `db:"name"`
+	UserBotFlag        bool      `db:"bot_flag"`
+	UserRegisteredDate time.Time `db:"register_date"`
+	UserUpdateDate     time.Time `db:"update_date"`
+	Email              *string   `db:"email"`
 	UserCompanyRole    []*UserCompanyRoleFull
 }
 
-var SelectFullUserAuthentic = db.Dialect.From("user").As("u").LeftOuterJoin(
+var SelectFullUserAuthentic = sql.Dialect.From("user").As("u").LeftOuterJoin(
 	goqu.T("user_email").As("ue"),
 	goqu.On(
 		goqu.C("u.persist_key").Eq("ue.user_persist_key"),

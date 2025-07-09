@@ -3,7 +3,7 @@ package company
 import (
 	"github.com/doug-martin/goqu/v9"
 	core "github.com/motojouya/geezer_auth/internal/core/company"
-	"github.com/motojouya/geezer_auth/internal/db"
+	"github.com/motojouya/geezer_auth/internal/db/sql"
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
 )
@@ -15,7 +15,7 @@ type Company struct {
 	RegisteredDate time.Time `db:"register_date"`
 }
 
-var SelectCompany = db.Dialect.From("company").As("c").Select(
+var SelectCompany = sql.Dialect.From("company").As("c").Select(
 	goqu.C("c.persist_key").As("persist_key"),
 	goqu.C("c.identifier").As("identifier"),
 	goqu.C("c.name").As("name"),

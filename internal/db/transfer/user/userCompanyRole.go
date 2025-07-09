@@ -3,7 +3,7 @@ package user
 import (
 	"github.com/doug-martin/goqu/v9"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
-	"github.com/motojouya/geezer_auth/internal/db"
+	"github.com/motojouya/geezer_auth/internal/db/sql"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
 	"time"
@@ -34,7 +34,7 @@ type UserCompanyRoleFull struct {
 	RoleRegisteredDate    time.Time `db:"role_register_date"`
 }
 
-var SelectUserCompanyRole = db.Dialect.From("user_company_role").As("ucr").Select(
+var SelectUserCompanyRole = sql.Dialect.From("user_company_role").As("ucr").Select(
 	goqu.C("ucr.persist_key").As("persist_key"),
 	goqu.C("ucr.user_persist_key").As("user_persist_key"),
 	goqu.C("ucr.company_persist_key").As("company_persist_key"),
@@ -43,7 +43,7 @@ var SelectUserCompanyRole = db.Dialect.From("user_company_role").As("ucr").Selec
 	goqu.C("ucr.expire_date").As("expire_date"),
 )
 
-var SelectFullUserCompanyRole = db.Dialect.From("user_company_role").As("ucr").InnerJoin(
+var SelectFullUserCompanyRole = sql.Dialect.From("user_company_role").As("ucr").InnerJoin(
 	goqu.T("user").As("u"),
 	goqu.On(goqu.Ex{"uat.user_persist_key": goqu.I("u.persist_key")}),
 ).InnerJoin(

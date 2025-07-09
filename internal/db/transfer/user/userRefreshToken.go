@@ -4,29 +4,29 @@ import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/motojouya/geezer_auth/internal/core/text"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
-	"github.com/motojouya/geezer_auth/internal/db"
+	"github.com/motojouya/geezer_auth/internal/db/sql"
 	"time"
 )
 
 type UserRefreshToken struct {
-	PersistKey     uint
-	UserPersistKey uint
-	RefreshToken   string
-	RegisterDate   time.Time
-	ExpireDate     time.Time
+	PersistKey     uint      `db:"persist_key"`
+	UserPersistKey uint      `db:"user_persist_key"`
+	RefreshToken   string    `db:"refresh_token"`
+	RegisterDate   time.Time `db:"register_date"`
+	ExpireDate     time.Time `db:"expire_date"`
 }
 
 type UserRefreshTokenFull struct {
 	UserRefreshToken
-	UserIdentifier     string
-	UserExposeEmailId  string
-	UserName           string
-	UserBotFlag        bool
-	UserRegisteredDate time.Time
-	UserUpdateDate     time.Time
+	UserIdentifier     string    `db:"user_identifier"`
+	UserExposeEmailId  string    `db:"user_email_identifier"`
+	UserName           string    `db:"user_name"`
+	UserBotFlag        bool      `db:"user_bot_flag"`
+	UserRegisteredDate time.Time `db:"user_register_date"`
+	UserUpdateDate     time.Time `db:"user_update_date"`
 }
 
-var SelectUserRefreshToken = db.Dialect.From("user_refresh_token").As("urt").Select(
+var SelectUserRefreshToken = sql.Dialect.From("user_refresh_token").As("urt").Select(
 	goqu.C("urt.persist_key").As("persist_key"),
 	goqu.C("urt.user_persist_key").As("user_persist_key"),
 	goqu.C("urt.refresh_token").As("refresh_token"),
@@ -34,7 +34,7 @@ var SelectUserRefreshToken = db.Dialect.From("user_refresh_token").As("urt").Sel
 	goqu.C("urt.expire_date").As("expire_date"),
 )
 
-var SelectFullUserRefreshToken = db.Dialect.From("user_refresh_token").As("urt").InnerJoin(
+var SelectFullUserRefreshToken = sql.Dialect.From("user_refresh_token").As("urt").InnerJoin(
 	goqu.T("user").As("u"),
 	goqu.On(goqu.Ex{"uat.user_persist_key": goqu.I("u.persist_key")}),
 ).Select(

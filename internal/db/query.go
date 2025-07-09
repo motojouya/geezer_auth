@@ -6,8 +6,8 @@ import (
 )
 
 type Query interface {
-	query.GetCompany
-	query.GetCompanyInvite
+	query.GetCompanyQuery
+	query.GetCompanyInviteQuery
 }
 
 /** GetCompany */

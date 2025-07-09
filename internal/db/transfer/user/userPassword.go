@@ -4,7 +4,7 @@ import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/motojouya/geezer_auth/internal/core/text"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
-	"github.com/motojouya/geezer_auth/internal/db"
+	"github.com/motojouya/geezer_auth/internal/db/sql"
 	"time"
 )
 
@@ -26,7 +26,7 @@ type UserPasswordFull struct {
 	UserUpdateDate     time.Time `db:"user_update_date"`
 }
 
-var SelectUserPassword = db.Dialect.From("user_password").As("up").Select(
+var SelectUserPassword = sql.Dialect.From("user_password").As("up").Select(
 	goqu.C("up.persist_key").As("persist_key"),
 	goqu.C("up.user_persist_key").As("user_persist_key"),
 	goqu.C("up.password").As("password"),
@@ -34,7 +34,7 @@ var SelectUserPassword = db.Dialect.From("user_password").As("up").Select(
 	goqu.C("up.expire_date").As("expire_date"),
 )
 
-var SelectFullUserPassword = db.Dialect.From("user_password").As("up").InnerJoin(
+var SelectFullUserPassword = sql.Dialect.From("user_password").As("up").InnerJoin(
 	goqu.T("user").As("u"),
 	goqu.On(goqu.Ex{"uat.user_persist_key": goqu.I("u.persist_key")}),
 ).Select(
