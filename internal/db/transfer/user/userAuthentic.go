@@ -9,14 +9,14 @@ import (
 )
 
 type UserAuthentic struct {
-	UserPersistKey     uint      `db:"persist_key"`
-	UserIdentifier     string    `db:"identifier"`
-	UserExposeEmailId  string    `db:"email_identifier"`
-	UserName           string    `db:"name"`
-	UserBotFlag        bool      `db:"bot_flag"`
-	UserRegisteredDate time.Time `db:"register_date"`
-	UserUpdateDate     time.Time `db:"update_date"`
-	Email              *string   `db:"email"`
+	UserPersistKey     uint                   `db:"persist_key"`
+	UserIdentifier     string                 `db:"identifier"`
+	UserExposeEmailId  string                 `db:"email_identifier"`
+	UserName           string                 `db:"name"`
+	UserBotFlag        bool                   `db:"bot_flag"`
+	UserRegisteredDate time.Time              `db:"register_date"`
+	UserUpdateDate     time.Time              `db:"update_date"`
+	Email              *string                `db:"email"`
 	UserCompanyRole    []*UserCompanyRoleFull `db:"-"`
 }
 
