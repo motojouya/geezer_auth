@@ -10,7 +10,7 @@ import (
 )
 
 type UserEmail struct {
-	PersistKey     uint       `db:"persist_key"`
+	PersistKey     uint       `db:"persist_key,primarykey,autoincrement"`
 	UserPersistKey uint       `db:"user_persist_key"`
 	Email          string     `db:"email"`
 	VerifyToken    string     `db:"verify_token"`

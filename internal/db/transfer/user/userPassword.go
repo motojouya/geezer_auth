@@ -9,7 +9,7 @@ import (
 )
 
 type UserPassword struct {
-	PersistKey     uint       `db:"persist_key"`
+	PersistKey     uint       `db:"persist_key,primarykey,autoincrement"`
 	UserPersistKey uint       `db:"user_persist_key"`
 	Password       string     `db:"password"`
 	RegisteredDate time.Time  `db:"register_date"`

@@ -10,7 +10,7 @@ import (
 )
 
 type UserCompanyRole struct {
-	PersistKey        uint       `db:"persist_key"`
+	PersistKey        uint       `db:"persist_key,primarykey,autoincrement"`
 	UserPersistKey    uint       `db:"user_persist_key"`
 	CompanyPersistKey uint       `db:"company_persist_key"`
 	RoleLabel         string     `db:"role_label"`

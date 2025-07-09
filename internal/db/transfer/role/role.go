@@ -10,7 +10,7 @@ import (
 )
 
 type Role struct {
-	Label          string    `db:"label"`
+	Label          string    `db:"label,primarykey"`
 	Name           string    `db:"name"`
 	Description    string    `db:"description"`
 	RegisteredDate time.Time `db:"register_date"`

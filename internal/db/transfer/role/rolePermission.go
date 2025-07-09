@@ -8,7 +8,7 @@ import (
 )
 
 type RolePermission struct {
-	RoleLabel     string `db:"role_label"`
+	RoleLabel     string `db:"role_label,primarykey"`
 	SelfEdit      bool   `db:"self_edit"`
 	CompanyAccess bool   `db:"company_access"`
 	CompanyInvite bool   `db:"company_invite"`

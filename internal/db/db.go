@@ -10,6 +10,8 @@ import (
 // FIXME Prepare関数いる？
 // TODO migrationは、このモジュールではなく、dbモジュールを起動時に呼び出して行うので、webプロセスではしない
 // TODO defer dbMap.Db.Close() は、内部にConnectionを持っている場合、自動で呼び出せるように工夫する。これはwebのmiddlewareで行う
+// TODO primary key の設定いるかな？テーブル名は合わせてるので、不要だが、autoincrementはどうか。必要なら関数をtransferに用意して、こっちで呼び出す感じ
+// t1 := dbmap.AddTableWithName(Invoice{}, "invoice_test").SetKeys(true, "Id")
 
 type ORP interface {
 	gorp.SqlExecutor

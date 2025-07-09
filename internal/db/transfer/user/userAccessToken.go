@@ -9,7 +9,7 @@ import (
 )
 
 type UserAccessToken struct {
-	PersistKey       uint      `db:"persist_key"`
+	PersistKey       uint      `db:"persist_key,primarykey,autoincrement"`
 	UserPersistKey   uint      `db:"user_persist_key"`
 	AccessToken      string    `db:"access_token"`
 	SourceUpdateDate time.Time `db:"source_update_date"`

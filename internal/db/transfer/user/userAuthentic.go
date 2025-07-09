@@ -17,7 +17,7 @@ type UserAuthentic struct {
 	UserRegisteredDate time.Time `db:"register_date"`
 	UserUpdateDate     time.Time `db:"update_date"`
 	Email              *string   `db:"email"`
-	UserCompanyRole    []*UserCompanyRoleFull
+	UserCompanyRole    []*UserCompanyRoleFull `db:"-"`
 }
 
 var SelectUserAuthentic = sql.Dialect.From("user").As("u").LeftOuterJoin(

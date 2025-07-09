@@ -10,7 +10,7 @@ import (
 )
 
 type CompanyInvite struct {
-	PersistKey        uint      `db:"persist_key"`
+	PersistKey        uint      `db:"persist_key,primarykey,autoincrement"`
 	CompanyPersistKey uint      `db:"company_persist_key"`
 	Token             string    `db:"verify_token"`
 	RoleLabel         string    `db:"role_label"`

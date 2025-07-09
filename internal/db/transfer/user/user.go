@@ -9,7 +9,7 @@ import (
 )
 
 type User struct {
-	PersistKey     uint      `db:"persist_key"`
+	PersistKey     uint      `db:"persist_key,primarykey,autoincrement"`
 	Identifier     string    `db:"identifier"`
 	ExposeEmailId  string    `db:"email_identifier"`
 	Name           string    `db:"name"`

@@ -9,7 +9,7 @@ import (
 )
 
 type UserRefreshToken struct {
-	PersistKey     uint      `db:"persist_key"`
+	PersistKey     uint      `db:"persist_key,primarykey,autoincrement"`
 	UserPersistKey uint      `db:"user_persist_key"`
 	RefreshToken   string    `db:"refresh_token"`
 	RegisterDate   time.Time `db:"register_date"`

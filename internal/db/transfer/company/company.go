@@ -9,7 +9,7 @@ import (
 )
 
 type Company struct {
-	PersistKey     uint      `db:"persist_key"`
+	PersistKey     uint      `db:"persist_key,primarykey,autoincrement"`
 	Identifier     string    `db:"identifier"`
 	Name           string    `db:"name"`
 	RegisteredDate time.Time `db:"register_date"`
