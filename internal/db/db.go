@@ -15,12 +15,14 @@ type ORP interface {
 	gorp.SqlExecutor
 	Begin() (ORPTransaction, error)
 	essence.Closable
+	Query
 }
 
 type ORPTransaction interface {
 	gorp.SqlExecutor
 	Commit() error
 	Rollback() error
+	Query
 }
 
 func CreateDatabase(connection *sql.DB) ORP {

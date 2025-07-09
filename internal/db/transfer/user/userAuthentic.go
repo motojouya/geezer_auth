@@ -22,11 +22,16 @@ type UserAuthentic struct {
 
 var SelectFullUserAuthentic = db.Dialect.From("user").As("u").LeftOuterJoin(
 	goqu.T("user_email").As("ue"),
-	goqu.On(goqu.Ex{
-		"u.persist_key":  goqu.I("ue.user_persist_key"),
-		"ue.verify_date": goqu.I("ue.verify_date").IsNotNull(),
-		"ue.expire_date": nil,
-	}),
+	goqu.On(
+		goqu.C("u.persist_key").Eq("ue.user_persist_key"),
+		goqu.C("ue.verify_date").IsNotNull(),
+		goqu.C("ue.expire_date").IsNull(),
+	),
+	// goqu.On(goqu.Ex{
+	// 	"u.persist_key":  goqu.I("ue.user_persist_key"),
+	// 	"ue.verify_date": goqu.I("ue.verify_date").IsNotNull(),
+	// 	"ue.expire_date": nil,
+	// }),
 ).Select(
 	goqu.C("u.persist_key").As("persist_key"),
 	goqu.C("u.identifier").As("identifier"),
