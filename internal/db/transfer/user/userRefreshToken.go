@@ -26,15 +26,15 @@ type UserRefreshTokenFull struct {
 	UserUpdateDate     time.Time `db:"user_update_date"`
 }
 
-var SelectUserRefreshToken = sql.Dialect.From("user_refresh_token").As("urt").Select(
-	goqu.C("urt.persist_key").As("persist_key"),
-	goqu.C("urt.user_persist_key").As("user_persist_key"),
-	goqu.C("urt.refresh_token").As("refresh_token"),
-	goqu.C("urt.register_date").As("register_date"),
-	goqu.C("urt.expire_date").As("expire_date"),
-)
+// var SelectUserRefreshToken = sql.Dialect.From("user_refresh_token").As("urt").Select(
+// 	goqu.C("urt.persist_key").As("persist_key"),
+// 	goqu.C("urt.user_persist_key").As("user_persist_key"),
+// 	goqu.C("urt.refresh_token").As("refresh_token"),
+// 	goqu.C("urt.register_date").As("register_date"),
+// 	goqu.C("urt.expire_date").As("expire_date"),
+// )
 
-var SelectFullUserRefreshToken = sql.Dialect.From("user_refresh_token").As("urt").InnerJoin(
+var SelectUserRefreshToken = sql.Dialect.From("user_refresh_token").As("urt").InnerJoin(
 	goqu.T("user").As("u"),
 	goqu.On(goqu.Ex{"uat.user_persist_key": goqu.I("u.persist_key")}),
 ).Select(

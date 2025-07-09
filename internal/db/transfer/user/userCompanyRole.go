@@ -34,16 +34,16 @@ type UserCompanyRoleFull struct {
 	RoleRegisteredDate    time.Time `db:"role_register_date"`
 }
 
-var SelectUserCompanyRole = sql.Dialect.From("user_company_role").As("ucr").Select(
-	goqu.C("ucr.persist_key").As("persist_key"),
-	goqu.C("ucr.user_persist_key").As("user_persist_key"),
-	goqu.C("ucr.company_persist_key").As("company_persist_key"),
-	goqu.C("ucr.role_label").As("role_label"),
-	goqu.C("ucr.register_date").As("register_date"),
-	goqu.C("ucr.expire_date").As("expire_date"),
-)
+// var SelectUserCompanyRole = sql.Dialect.From("user_company_role").As("ucr").Select(
+// 	goqu.C("ucr.persist_key").As("persist_key"),
+// 	goqu.C("ucr.user_persist_key").As("user_persist_key"),
+// 	goqu.C("ucr.company_persist_key").As("company_persist_key"),
+// 	goqu.C("ucr.role_label").As("role_label"),
+// 	goqu.C("ucr.register_date").As("register_date"),
+// 	goqu.C("ucr.expire_date").As("expire_date"),
+// )
 
-var SelectFullUserCompanyRole = sql.Dialect.From("user_company_role").As("ucr").InnerJoin(
+var SelectUserCompanyRole = sql.Dialect.From("user_company_role").As("ucr").InnerJoin(
 	goqu.T("user").As("u"),
 	goqu.On(goqu.Ex{"uat.user_persist_key": goqu.I("u.persist_key")}),
 ).InnerJoin(

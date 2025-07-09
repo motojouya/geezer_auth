@@ -11,7 +11,7 @@ type GetCompanyInviteQuery interface {
 }
 
 func GetCompanyInvite(executer gorp.SqlExecutor, companyIdentifier string, verifyToken string) (*company.CompanyInviteFull, error) {
-	var sql, args, sqlErr = company.SelectFullCompanyInvite.Where(
+	var sql, args, sqlErr = company.SelectCompanyInvite.Where(
 		goqu.C("c.identifier").Eq(companyIdentifier),
 		goqu.C("ci.verify_token").Eq(verifyToken),
 	).Prepared(true).ToSQL()

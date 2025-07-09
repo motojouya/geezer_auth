@@ -29,17 +29,17 @@ type UserEmailFull struct {
 	UserUpdateDate     time.Time `db:"user_update_date"`
 }
 
-var SelectUserEmail = sql.Dialect.From("user_email").As("ue").Select(
-	goqu.C("ue.persist_key").As("persist_key"),
-	goqu.C("ue.user_persist_key").As("user_persist_key"),
-	goqu.C("ue.email").As("email"),
-	goqu.C("ue.verify_token").As("verify_token"),
-	goqu.C("ue.register_date").As("register_date"),
-	goqu.C("ue.verify_date").As("verify_date"),
-	goqu.C("ue.expire_date").As("expire_date"),
-)
+// var SelectUserEmail = sql.Dialect.From("user_email").As("ue").Select(
+// 	goqu.C("ue.persist_key").As("persist_key"),
+// 	goqu.C("ue.user_persist_key").As("user_persist_key"),
+// 	goqu.C("ue.email").As("email"),
+// 	goqu.C("ue.verify_token").As("verify_token"),
+// 	goqu.C("ue.register_date").As("register_date"),
+// 	goqu.C("ue.verify_date").As("verify_date"),
+// 	goqu.C("ue.expire_date").As("expire_date"),
+// )
 
-var SelectFullUserEmail = sql.Dialect.From("user_email").As("ue").InnerJoin(
+var SelectUserEmail = sql.Dialect.From("user_email").As("ue").InnerJoin(
 	goqu.T("user").As("u"),
 	goqu.On(goqu.Ex{"uat.user_persist_key": goqu.I("u.persist_key")}),
 ).Select(

@@ -28,16 +28,16 @@ type CompanyInviteFull struct {
 	RoleRegisteredDate    time.Time `db:"role_register_date"`
 }
 
-var SelectCompanyInvite = sql.Dialect.From("company_invite").As("ci").Select(
-	goqu.C("ci.persist_key").As("persist_key"),
-	goqu.C("ci.company_persist_key").As("company_persist_key"),
-	goqu.C("ci.verify_token").As("verify_token"),
-	goqu.C("ci.role_label").As("role_label"),
-	goqu.C("ci.register_date").As("register_date"),
-	goqu.C("ci.expire_date").As("expire_date"),
-)
+// var SelectCompanyInvite = sql.Dialect.From("company_invite").As("ci").Select(
+// 	goqu.C("ci.persist_key").As("persist_key"),
+// 	goqu.C("ci.company_persist_key").As("company_persist_key"),
+// 	goqu.C("ci.verify_token").As("verify_token"),
+// 	goqu.C("ci.role_label").As("role_label"),
+// 	goqu.C("ci.register_date").As("register_date"),
+// 	goqu.C("ci.expire_date").As("expire_date"),
+// )
 
-var SelectFullCompanyInvite = sql.Dialect.From("company_invite").As("ci").InnerJoin(
+var SelectCompanyInvite = sql.Dialect.From("company_invite").As("ci").InnerJoin(
 	goqu.T("company").As("c"),
 	goqu.On(goqu.Ex{"ci.company_persist_key": goqu.I("c.persist_key")}),
 ).InnerJoin(

@@ -27,16 +27,16 @@ type UserAccessTokenFull struct {
 	UserUpdateDate     time.Time `db:"user_update_date"`
 }
 
-var SelectUserAccessToken = sql.Dialect.From("user_access_token").As("uat").Select(
-	goqu.C("uat.persist_key").As("persist_key"),
-	goqu.C("uat.user_persist_key").As("user_persist_key"),
-	goqu.C("uat.access_token").As("access_token"),
-	goqu.C("uat.source_update_date").As("source_update_date"),
-	goqu.C("uat.register_date").As("register_date"),
-	goqu.C("uat.expire_date").As("expire_date"),
-)
+// var SelectUserAccessToken = sql.Dialect.From("user_access_token").As("uat").Select(
+// 	goqu.C("uat.persist_key").As("persist_key"),
+// 	goqu.C("uat.user_persist_key").As("user_persist_key"),
+// 	goqu.C("uat.access_token").As("access_token"),
+// 	goqu.C("uat.source_update_date").As("source_update_date"),
+// 	goqu.C("uat.register_date").As("register_date"),
+// 	goqu.C("uat.expire_date").As("expire_date"),
+// )
 
-var SelectFullUserAccessToken = sql.Dialect.From("user_access_token").As("uat").InnerJoin(
+var SelectUserAccessToken = sql.Dialect.From("user_access_token").As("uat").InnerJoin(
 	goqu.T("user").As("u"),
 	goqu.On(goqu.Ex{"uat.user_persist_key": goqu.I("u.persist_key")}),
 ).Select(
