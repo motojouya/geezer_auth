@@ -17,7 +17,7 @@ func GetUser(executer gorp.SqlExecutor, identifier string) (*transfer.User, erro
 		return nil, sqlErr
 	}
 
-	var user, execErr = utility.SelectSingle[transfer.User](executer, "user", map[string]string{"identifier":identifier}, sql, args...)
+	var user, execErr = utility.SelectSingle[transfer.User](executer, "user", map[string]string{"identifier": identifier}, sql, args...)
 	if execErr != nil {
 		return nil, execErr
 	}

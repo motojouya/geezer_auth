@@ -21,7 +21,7 @@ func GetCompanyInvite(executer gorp.SqlExecutor, companyIdentifier string, verif
 	}
 
 	var keys = map[string]string{
-		"identifier": companyIdentifier,
+		"identifier":   companyIdentifier,
 		"verify_token": verifyToken,
 	}
 	var companyInvite, execErr = utility.SelectSingle[transfer.CompanyInviteFull](executer, "company_invite", keys, sql, args...)

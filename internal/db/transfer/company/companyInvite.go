@@ -4,8 +4,8 @@ import (
 	"github.com/doug-martin/goqu/v9"
 	core "github.com/motojouya/geezer_auth/internal/core/company"
 	"github.com/motojouya/geezer_auth/internal/core/text"
-	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
+	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"time"
 )
 

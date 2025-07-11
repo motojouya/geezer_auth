@@ -1,50 +1,63 @@
 package db
 
 import (
-	"github.com/motojouya/geezer_auth/internal/db/query"
-	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
-	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
+	"github.com/motojouya/geezer_auth/internal/db/query/company"
+	"github.com/motojouya/geezer_auth/internal/db/query/role"
+	"github.com/motojouya/geezer_auth/internal/db/query/user"
+	transferCompany "github.com/motojouya/geezer_auth/internal/db/transfer/company"
+	transferRole "github.com/motojouya/geezer_auth/internal/db/transfer/role"
+	transferUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 )
 
 type Query interface {
-	query.GetCompanyQuery
-	query.GetCompanyInviteQuery
-	query.GetRoleQuery
-	query.GetRolePermissionQuery
+	company.GetCompanyQuery
+	company.GetCompanyInviteQuery
+	role.GetRoleQuery
+	role.GetRolePermissionQuery
+	user.GetUserQuery
 }
 
 /** GetCompany */
-func (orp ORPImpl) GetCompany(identifier string) (*company.Company, error) {
-	return query.GetCompany(orp, identifier)
+func (orp ORPImpl) GetCompany(identifier string) (*transferCompany.Company, error) {
+	return company.GetCompany(orp, identifier)
 }
 
-func (orp ORPTransactionImpl) GetCompany(identifier string) (*company.Company, error) {
-	return query.GetCompany(orp, identifier)
+func (orp ORPTransactionImpl) GetCompany(identifier string) (*transferCompany.Company, error) {
+	return company.GetCompany(orp, identifier)
 }
 
 /** GetCompanyInvite */
-func (orp ORPImpl) GetCompanyInvite(identifier string, verifyToken string) (*company.CompanyInviteFull, error) {
-	return query.GetCompanyInvite(orp, identifier, verifyToken)
+func (orp ORPImpl) GetCompanyInvite(identifier string, verifyToken string) (*transferCompany.CompanyInviteFull, error) {
+	return company.GetCompanyInvite(orp, identifier, verifyToken)
 }
 
-func (orp ORPTransactionImpl) GetCompanyInvite(identifier string, verifyToken string) (*company.CompanyInviteFull, error) {
-	return query.GetCompanyInvite(orp, identifier, verifyToken)
+func (orp ORPTransactionImpl) GetCompanyInvite(identifier string, verifyToken string) (*transferCompany.CompanyInviteFull, error) {
+	return company.GetCompanyInvite(orp, identifier, verifyToken)
 }
 
 /** GetRole */
-func (orp ORPImpl) GetRole() ([]role.Role, error) {
-	return query.GetRole(orp)
+func (orp ORPImpl) GetRole() ([]transferRole.Role, error) {
+	return role.GetRole(orp)
 }
 
-func (orp ORPTransactionImpl) GetRole() ([]role.Role, error) {
-	return query.GetRole(orp)
+func (orp ORPTransactionImpl) GetRole() ([]transferRole.Role, error) {
+	return role.GetRole(orp)
 }
 
 /** GetRolePermission */
-func (orp ORPImpl) GetRolePermission() ([]role.RolePermission, error) {
-	return query.GetRolePermission(orp)
+func (orp ORPImpl) GetRolePermission() ([]transferRole.RolePermission, error) {
+	return role.GetRolePermission(orp)
 }
 
-func (orp ORPTransactionImpl) GetRolePermission() ([]role.RolePermission, error) {
-	return query.GetRolePermission(orp)
+func (orp ORPTransactionImpl) GetRolePermission() ([]transferRole.RolePermission, error) {
+	return role.GetRolePermission(orp)
+}
+
+/** GetUser */
+func (orp ORPImpl) GetUser(identifier string) (*transferUser.User, error) {
+	return user.GetUser(orp, identifier)
+}
+
+func (orp ORPTransactionImpl) GetUser(identifier string) (*transferUser.User, error) {
+	return user.GetUser(orp, identifier)
 }

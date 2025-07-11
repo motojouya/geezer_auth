@@ -17,7 +17,7 @@ func GetCompany(executer gorp.SqlExecutor, identifier string) (*transfer.Company
 		return nil, sqlErr
 	}
 
-	var company, execErr = utility.SelectSingle[transfer.Company](executer, "company", map[string]string{"identifier":identifier}, sql, args...)
+	var company, execErr = utility.SelectSingle[transfer.Company](executer, "company", map[string]string{"identifier": identifier}, sql, args...)
 	if execErr != nil {
 		return nil, execErr
 	}
