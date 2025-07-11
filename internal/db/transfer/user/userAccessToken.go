@@ -3,7 +3,7 @@ package user
 import (
 	"github.com/doug-martin/goqu/v9"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
-	"github.com/motojouya/geezer_auth/internal/db/sql"
+	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
 )
@@ -27,7 +27,7 @@ type UserAccessTokenFull struct {
 	UserUpdateDate     time.Time `db:"user_update_date"`
 }
 
-// var SelectUserAccessToken = sql.Dialect.From("user_access_token").As("uat").Select(
+// var SelectUserAccessToken = utility.Dialect.From("user_access_token").As("uat").Select(
 // 	goqu.C("uat.persist_key").As("persist_key"),
 // 	goqu.C("uat.user_persist_key").As("user_persist_key"),
 // 	goqu.C("uat.access_token").As("access_token"),
@@ -36,7 +36,7 @@ type UserAccessTokenFull struct {
 // 	goqu.C("uat.expire_date").As("expire_date"),
 // )
 
-var SelectUserAccessToken = sql.Dialect.From("user_access_token").As("uat").InnerJoin(
+var SelectUserAccessToken = utility.Dialect.From("user_access_token").As("uat").InnerJoin(
 	goqu.T("user").As("u"),
 	goqu.On(goqu.Ex{"uat.user_persist_key": goqu.I("u.persist_key")}),
 ).Select(

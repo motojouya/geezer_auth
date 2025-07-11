@@ -3,7 +3,7 @@ package role
 import (
 	"github.com/doug-martin/goqu/v9"
 	core "github.com/motojouya/geezer_auth/internal/core/role"
-	"github.com/motojouya/geezer_auth/internal/db/sql"
+	"github.com/motojouya/geezer_auth/internal/db/utility"
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
 )
 
@@ -16,7 +16,7 @@ type RolePermission struct {
 	Priority      uint   `db:"priority"`
 }
 
-var SelectRolePermission = sql.Dialect.From("role_permission").As("rp").Select(
+var SelectRolePermission = utility.Dialect.From("role_permission").As("rp").Select(
 	goqu.C("rp.role_label").As("role_label"),
 	goqu.C("rp.self_edit").As("self_edit"),
 	goqu.C("rp.company_access").As("company_access"),

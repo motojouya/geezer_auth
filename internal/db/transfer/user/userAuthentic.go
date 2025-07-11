@@ -3,7 +3,7 @@ package user
 import (
 	"github.com/doug-martin/goqu/v9"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
-	"github.com/motojouya/geezer_auth/internal/db/sql"
+	"github.com/motojouya/geezer_auth/internal/db/utility"
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
 )
@@ -20,7 +20,7 @@ type UserAuthentic struct {
 	UserCompanyRole    []*UserCompanyRoleFull `db:"-"`
 }
 
-var SelectUserAuthentic = sql.Dialect.From("user").As("u").LeftOuterJoin(
+var SelectUserAuthentic = utility.Dialect.From("user").As("u").LeftOuterJoin(
 	goqu.T("user_email").As("ue"),
 	goqu.On(
 		goqu.C("u.persist_key").Eq("ue.user_persist_key"),

@@ -3,7 +3,7 @@ package user
 import (
 	"github.com/doug-martin/goqu/v9"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
-	"github.com/motojouya/geezer_auth/internal/db/sql"
+	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
 )
@@ -18,7 +18,7 @@ type User struct {
 	UpdateDate     time.Time `db:"update_date"`
 }
 
-var SelectUser = sql.Dialect.From("user").As("u").Select(
+var SelectUser = utility.Dialect.From("user").As("u").Select(
 	goqu.C("u.persist_key").As("persist_key"),
 	goqu.C("u.identifier").As("identifier"),
 	goqu.C("u.email_identifier").As("email_identifier"),

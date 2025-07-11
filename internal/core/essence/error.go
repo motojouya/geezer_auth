@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strconv"
 )
-
 /*
  * InvalidArgumentError
  */
@@ -92,4 +91,73 @@ func (e AuthenticationError) Unwrap() error {
 
 func (e AuthenticationError) HttpStatus() uint {
 	return 401
+}
+
+func formatKeys(keys map[string]string) string {
+	if len(keys) == 0 {
+		return "{}"
+	}
+	result := "{"
+	for k, v := range keys {
+		result += k + ": " + v + ", "
+	}
+	return result + "}"
+}
+
+/*
+ * NotFoundError
+ */
+type NotFoundError struct {
+	Table string
+	Keys  map[string]string
+	error
+}
+
+func NewNotFoundError(table string, keys map[string]string, message string) *NotFoundError {
+	return &NotFoundError{
+		Table: table,
+		Keys:  keys,
+		error: errors.New(message),
+	}
+}
+
+func (e NotFoundError) Error() string {
+	return e.error.Error() + ", table: " + e.Table + ", keys: " + formatKeys(e.Keys)
+}
+
+func (e NotFoundError) Unwrap() error {
+	return e.error
+}
+
+func (e NotFoundError) HttpStatus() uint {
+	return 400
+}
+
+/*
+ * DuplicateError
+ */
+type DuplicateError struct {
+	Table string
+	Keys  map[string]string
+	error
+}
+
+func NewDuplicateError(table string, keys map[string]string, message string) *DuplicateError {
+	return &DuplicateError{
+		Table: table,
+		Keys:  keys,
+		error: errors.New(message),
+	}
+}
+
+func (e DuplicateError) Error() string {
+	return e.error.Error() + ", table: " + e.Table + ", keys: " + formatKeys(e.Keys)
+}
+
+func (e DuplicateError) Unwrap() error {
+	return e.error
+}
+
+func (e DuplicateError) HttpStatus() uint {
+	return 400
 }

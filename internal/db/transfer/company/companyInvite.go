@@ -4,7 +4,7 @@ import (
 	"github.com/doug-martin/goqu/v9"
 	core "github.com/motojouya/geezer_auth/internal/core/company"
 	"github.com/motojouya/geezer_auth/internal/core/text"
-	"github.com/motojouya/geezer_auth/internal/db/sql"
+	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
 	"time"
 )
@@ -28,7 +28,7 @@ type CompanyInviteFull struct {
 	RoleRegisteredDate    time.Time `db:"role_register_date"`
 }
 
-// var SelectCompanyInvite = sql.Dialect.From("company_invite").As("ci").Select(
+// var SelectCompanyInvite = utility.Dialect.From("company_invite").As("ci").Select(
 // 	goqu.C("ci.persist_key").As("persist_key"),
 // 	goqu.C("ci.company_persist_key").As("company_persist_key"),
 // 	goqu.C("ci.verify_token").As("verify_token"),
@@ -37,7 +37,7 @@ type CompanyInviteFull struct {
 // 	goqu.C("ci.expire_date").As("expire_date"),
 // )
 
-var SelectCompanyInvite = sql.Dialect.From("company_invite").As("ci").InnerJoin(
+var SelectCompanyInvite = utility.Dialect.From("company_invite").As("ci").InnerJoin(
 	goqu.T("company").As("c"),
 	goqu.On(goqu.Ex{"ci.company_persist_key": goqu.I("c.persist_key")}),
 ).InnerJoin(
