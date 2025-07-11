@@ -4,23 +4,28 @@ import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
 	transfer "github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	"github.com/motojouya/geezer_auth/internal/db/utility"
+	"time"
 )
 
 type GetUserAccessTokenQuery interface {
-	GetUserAccessToken(identifier string) (*transfer.User, error)
+	GetUserAccessToken(identifier string, now time.Time) ([]transfer.UserAccessToken, error)
 }
 
-func GetUserAccessToken(executer gorp.SqlExecutor, identifier string) (*transfer.User, error) {
-	var sql, args, sqlErr = transfer.SelectUser.Where(goqu.C("u.identifier").Eq(identifier)).Prepared(true).ToSQL()
+func GetUserAccessToken(executer gorp.SqlExecutor, identifier string, now time.Time) ([]transfer.UserAccessToken, error) {
+	var sql, args, sqlErr = transfer.SelectUserAccessToken.Where(
+		goqu.C("u.identifier").Eq(identifier),
+		goqu.C("uat.source_update_date").Eq("u.update_date"),
+		goqu.C("uat.expire_date").Gte(now),
+	).Prepared(true).ToSQL()
 	if sqlErr != nil {
 		return nil, sqlErr
 	}
 
-	var user, execErr = utility.SelectSingle[transfer.User](executer, "user", map[string]string{"identifier": identifier}, sql, args...)
+	var uats []transfer.UserAccessToken
+	var _, execErr = executer.Select(&uats, sql, args...)
 	if execErr != nil {
 		return nil, execErr
 	}
 
-	return user, nil
+	return uats, nil
 }
