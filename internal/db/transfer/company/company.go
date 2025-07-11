@@ -6,6 +6,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db/utility"
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
+	"github.com/go-gorp/gorp"
 )
 
 type Company struct {
@@ -13,6 +14,10 @@ type Company struct {
 	Identifier     string    `db:"identifier"`
 	Name           string    `db:"name"`
 	RegisteredDate time.Time `db:"register_date"`
+}
+
+func AddCompanyTable(dbMap *gorp.DbMap) {
+	dbMap.AddTable(Company{}).SetKeys(true, "PersistKey")
 }
 
 var SelectCompany = utility.Dialect.From("company").As("c").Select(

@@ -5,6 +5,7 @@ import (
 	core "github.com/motojouya/geezer_auth/internal/core/role"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/go-gorp/gorp"
 )
 
 type RolePermission struct {
@@ -14,6 +15,10 @@ type RolePermission struct {
 	CompanyInvite bool   `db:"company_invite"`
 	CompanyEdit   bool   `db:"company_edit"`
 	Priority      uint   `db:"priority"`
+}
+
+func AddRolePermissionTable(dbMap *gorp.DbMap) {
+	dbMap.AddTable(RolePermission{})
 }
 
 var SelectRolePermission = utility.Dialect.From("role_permission").As("rp").Select(

@@ -6,6 +6,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
+	"github.com/go-gorp/gorp"
 )
 
 type User struct {
@@ -16,6 +17,10 @@ type User struct {
 	BotFlag        bool      `db:"bot_flag"`
 	RegisteredDate time.Time `db:"register_date"`
 	UpdateDate     time.Time `db:"update_date"`
+}
+
+func AddUserTable(dbMap *gorp.DbMap) {
+	dbMap.AddTable(User{}).SetKeys(true, "PersistKey")
 }
 
 var SelectUser = utility.Dialect.From("user").As("u").Select(

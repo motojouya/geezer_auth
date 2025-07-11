@@ -6,6 +6,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
+	"github.com/go-gorp/gorp"
 )
 
 type UserAccessToken struct {
@@ -25,6 +26,10 @@ type UserAccessTokenFull struct {
 	UserBotFlag        bool      `db:"user_bot_flag"`
 	UserRegisteredDate time.Time `db:"user_register_date"`
 	UserUpdateDate     time.Time `db:"user_update_date"`
+}
+
+func AddUserAccessTokenTable(dbMap *gorp.DbMap) {
+	dbMap.AddTable(UserAccessToken{}).SetKeys(true, "PersistKey")
 }
 
 // var SelectUserAccessToken = utility.Dialect.From("user_access_token").As("uat").Select(

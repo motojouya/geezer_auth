@@ -6,6 +6,7 @@ import (
 	core "github.com/motojouya/geezer_auth/internal/core/user"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"time"
+	"github.com/go-gorp/gorp"
 )
 
 type UserRefreshToken struct {
@@ -24,6 +25,10 @@ type UserRefreshTokenFull struct {
 	UserBotFlag        bool      `db:"user_bot_flag"`
 	UserRegisteredDate time.Time `db:"user_register_date"`
 	UserUpdateDate     time.Time `db:"user_update_date"`
+}
+
+func AddUserRefreshTokenTable(dbMap *gorp.DbMap) {
+	dbMap.AddTable(UserRefreshToken{}).SetKeys(true, "PersistKey")
 }
 
 // var SelectUserRefreshToken = utility.Dialect.From("user_refresh_token").As("urt").Select(

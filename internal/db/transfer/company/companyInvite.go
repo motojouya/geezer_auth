@@ -7,6 +7,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"time"
+	"github.com/go-gorp/gorp"
 )
 
 type CompanyInvite struct {
@@ -26,6 +27,10 @@ type CompanyInviteFull struct {
 	RoleName              string    `db:"role_name"`
 	RoleDescription       string    `db:"role_description"`
 	RoleRegisteredDate    time.Time `db:"role_register_date"`
+}
+
+func AddCompanyInviteTable(dbMap *gorp.DbMap) {
+	dbMap.AddTable(CompanyInvite{}).SetKeys(true, "PersistKey")
 }
 
 // var SelectCompanyInvite = utility.Dialect.From("company_invite").As("ci").Select(

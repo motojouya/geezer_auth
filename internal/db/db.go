@@ -5,13 +5,14 @@ import (
 	"github.com/go-gorp/gorp"
 	_ "github.com/lib/pq"
 	"github.com/motojouya/geezer_auth/internal/core/essence"
+	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
+	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
+	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
 )
 
 // FIXME Prepare関数いる？
 // TODO migrationは、このモジュールではなく、dbモジュールを起動時に呼び出して行うので、webプロセスではしない
 // TODO defer dbMap.Db.Close() は、内部にConnectionを持っている場合、自動で呼び出せるように工夫する。これはwebのmiddlewareで行う
-// TODO primary key の設定いるかな？テーブル名は合わせてるので、不要だが、autoincrementはどうか。必要なら関数をtransferに用意して、こっちで呼び出す感じ
-// t1 := dbmap.AddTableWithName(Invoice{}, "invoice_test").SetKeys(true, "Id")
 
 type ORP interface {
 	gorp.SqlExecutor
@@ -29,9 +30,24 @@ type ORPTransaction interface {
 
 func CreateDatabase(connection *sql.DB) ORP {
 	var dbMap = &gorp.DbMap{Db: connection, Dialect: gorp.PostgresDialect{}}
+	setTable(dbMap)
+
 	return &ORPImpl{
 		DbMap: dbMap,
 	}
+}
+
+func setTable(dbMap *gorp.DbMap) {
+	company.AddCompanyTable(dbMap)
+	company.AddCompanyInviteTable(dbMap)
+	role.AddRoleTable(dbMap)
+	role.AddRolePermissionTable(dbMap)
+	user.AddUserTable(dbMap)
+	user.AddUserAccessTokenTable(dbMap)
+	user.AddUserCompanyRoleTable(dbMap)
+	user.AddUserEmailTable(dbMap)
+	user.AddUserPasswordTable(dbMap)
+	user.AddUserRefreshTokenTable(dbMap)
 }
 
 type ORPImpl struct {
@@ -55,4 +71,8 @@ func (orp ORPImpl) Begin() (ORPTransaction, error) {
 	return &ORPTransactionImpl{
 		Transaction: transaction,
 	}, nil
+}
+
+func (orp ORPImpl) Migrate() error {
+	return orp.DbMap.CreateTablesIfNotExists()
 }

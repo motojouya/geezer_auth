@@ -7,6 +7,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db/utility"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
+	"github.com/go-gorp/gorp"
 )
 
 type Role struct {
@@ -14,6 +15,10 @@ type Role struct {
 	Name           string    `db:"name"`
 	Description    string    `db:"description"`
 	RegisteredDate time.Time `db:"register_date"`
+}
+
+func AddRoleTable(dbMap *gorp.DbMap) {
+	dbMap.AddTable(Role{})
 }
 
 var SelectRole = utility.Dialect.From("role").As("r").Select(

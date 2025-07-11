@@ -7,6 +7,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db/utility"
 	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
+	"github.com/go-gorp/gorp"
 )
 
 type UserEmail struct {
@@ -27,6 +28,10 @@ type UserEmailFull struct {
 	UserBotFlag        bool      `db:"user_bot_flag"`
 	UserRegisteredDate time.Time `db:"user_register_date"`
 	UserUpdateDate     time.Time `db:"user_update_date"`
+}
+
+func AddUserEmailTable(dbMap *gorp.DbMap) {
+	dbMap.AddTable(UserEmail{}).SetKeys(true, "PersistKey")
 }
 
 // var SelectUserEmail = utility.Dialect.From("user_email").As("ue").Select(
