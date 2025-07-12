@@ -4,28 +4,40 @@ import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
 	transfer "github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	"github.com/motojouya/geezer_auth/internal/db/utility"
+	"time"
 )
 
-type GetUserEmailQuery interface {
-	GetUserEmail(email string) ([]transfer.UserEmail, error)
+type GetUserEmailOfTokenQuery interface {
+	GetUserEmailOfToken(identifier string, email string, verifyToken string, now time.Time) (*transfer.UserEmail, error)
 }
 
-func GetUserEmail(executer gorp.SqlExecutor, email string) ([]transfer.UserEmail, error) {
+func GetUserEmailOfToken(executer gorp.SqlExecutor, identifier string, email string, verifyToken string, now time.Time) (*transfer.UserEmail, error) {
 	var sql, args, sqlErr = transfer.SelectUserEmail.Where(
+		goqu.C("u.identifier").Eq(identifier),
 		goqu.C("ue.email").Eq(email),
-		goqu.C("ue.expire_date").IsNull(),
+		goqu.C("ue.verify_token").Eq(verifyToken),
+		// goqu.C("ue.verify_date").IsNull(), すでにverifiedならば、登録されましたと返せばいいだけ
+		goqu.Or(
+			goqu.C("ue.expire_date").Gte(now),
+			goqu.C("ue.expire_date").IsNull(),
+		),
 	).Prepared(true).ToSQL()
 	if sqlErr != nil {
 		return nil, sqlErr
 	}
 
-	var ues []transfer.UserEmail
-	var _, execErr = executer.Select(&ues, sql, args...)
+	var keys = map[string]string{
+		"identifier": identifier,
+		"email":      email,
+		"verifyToken": verifyToken,
+	}
+	var ue, execErr = utility.SelectSingle[transfer.UserEmail](executer, "user_email", keys, sql, args...)
 	if execErr != nil {
 		return nil, execErr
 	}
 
-	return ues, nil
+	return ue, nil
 }
 
 // TODO verify_date, expire_dateを見るかいなか。verification最中のemailをどう許容するのか。一つしかない状況を作るほうが健全か。
