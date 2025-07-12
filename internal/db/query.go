@@ -15,6 +15,10 @@ type Query interface {
 	role.GetRoleQuery
 	role.GetRolePermissionQuery
 	user.GetUserQuery
+	// user.GetUserAccessTokenQuery
+	// user.GetUserCompanyRoleQuery
+	// user.GetUserEmailOfTokenQuery
+	// user.GetUserEmailQuery
 }
 
 /** GetCompany */
