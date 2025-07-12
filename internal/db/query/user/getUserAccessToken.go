@@ -11,10 +11,15 @@ type GetUserAccessTokenQuery interface {
 	GetUserAccessToken(identifier string, now time.Time) ([]transfer.UserAccessToken, error)
 }
 
+/*
+ * 以下でも良かったが、1,2病の間に登録される可能性は低いので、複数レコードといっても数レコードの想定。
+ * `goqu.C("uat.source_update_date").Eq("u.update_date"),`
+ * それよりは、access tokenが取得できない状況のほうが問題なので、betweenで広く取得する。
+ */
 func GetUserAccessToken(executer gorp.SqlExecutor, identifier string, now time.Time) ([]transfer.UserAccessToken, error) {
 	var sql, args, sqlErr = transfer.SelectUserAccessToken.Where(
 		goqu.C("u.identifier").Eq(identifier),
-		goqu.C("uat.source_update_date").Eq("u.update_date"),
+		goqu.C("uat.source_update_date").Between(goqu.Range(goqu.L("u.update_date + '-1 second'"), goqu.L("u.update_date + '1 second'"))),
 		goqu.C("uat.expire_date").Gte(now),
 	).Prepared(true).ToSQL()
 	if sqlErr != nil {
