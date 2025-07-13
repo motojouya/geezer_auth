@@ -2,10 +2,10 @@ package role
 
 import (
 	"github.com/doug-martin/goqu/v9"
+	"github.com/go-gorp/gorp"
 	core "github.com/motojouya/geezer_auth/internal/core/role"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
-	"github.com/go-gorp/gorp"
 )
 
 type RolePermission struct {

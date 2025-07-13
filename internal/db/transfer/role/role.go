@@ -2,12 +2,12 @@ package role
 
 import (
 	"github.com/doug-martin/goqu/v9"
+	"github.com/go-gorp/gorp"
 	core "github.com/motojouya/geezer_auth/internal/core/role"
 	coreText "github.com/motojouya/geezer_auth/internal/core/text"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
-	"github.com/go-gorp/gorp"
 )
 
 type Role struct {

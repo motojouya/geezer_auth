@@ -28,8 +28,8 @@ func GetUserEmailOfToken(executer gorp.SqlExecutor, identifier string, email str
 	}
 
 	var keys = map[string]string{
-		"identifier": identifier,
-		"email":      email,
+		"identifier":  identifier,
+		"email":       email,
 		"verifyToken": verifyToken,
 	}
 	var ue, execErr = utility.SelectSingle[transfer.UserEmail](executer, "user_email", keys, sql, args...)

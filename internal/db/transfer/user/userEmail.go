@@ -2,12 +2,12 @@ package user
 
 import (
 	"github.com/doug-martin/goqu/v9"
+	"github.com/go-gorp/gorp"
 	text "github.com/motojouya/geezer_auth/internal/core/text"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
 	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
-	"github.com/go-gorp/gorp"
 )
 
 type UserEmail struct {

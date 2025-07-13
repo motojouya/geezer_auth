@@ -2,11 +2,11 @@ package user
 
 import (
 	"github.com/doug-martin/goqu/v9"
+	"github.com/go-gorp/gorp"
 	"github.com/motojouya/geezer_auth/internal/core/text"
 	core "github.com/motojouya/geezer_auth/internal/core/user"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"time"
-	"github.com/go-gorp/gorp"
 )
 
 type UserPassword struct {
