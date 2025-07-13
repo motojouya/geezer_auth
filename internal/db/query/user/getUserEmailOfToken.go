@@ -9,10 +9,10 @@ import (
 )
 
 type GetUserEmailOfTokenQuery interface {
-	GetUserEmailOfToken(identifier string, email string, verifyToken string, now time.Time) (*transfer.UserEmail, error)
+	GetUserEmailOfToken(identifier string, email string, verifyToken string, now time.Time) (*transfer.UserEmailFull, error)
 }
 
-func GetUserEmailOfToken(executer gorp.SqlExecutor, identifier string, email string, verifyToken string, now time.Time) (*transfer.UserEmail, error) {
+func GetUserEmailOfToken(executer gorp.SqlExecutor, identifier string, email string, verifyToken string, now time.Time) (*transfer.UserEmailFull, error) {
 	var sql, args, sqlErr = transfer.SelectUserEmail.Where(
 		goqu.C("u.identifier").Eq(identifier),
 		goqu.C("ue.email").Eq(email),
@@ -32,7 +32,7 @@ func GetUserEmailOfToken(executer gorp.SqlExecutor, identifier string, email str
 		"email":       email,
 		"verifyToken": verifyToken,
 	}
-	var ue, execErr = utility.SelectSingle[transfer.UserEmail](executer, "user_email", keys, sql, args...)
+	var ue, execErr = utility.SelectSingle[transfer.UserEmailFull](executer, "user_email", keys, sql, args...)
 	if execErr != nil {
 		return nil, execErr
 	}

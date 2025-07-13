@@ -9,10 +9,10 @@ import (
 )
 
 type GetUserRefreshTokenQuery interface {
-	GetUserRefreshToken(identifier string, now time.Time) (*transfer.UserRefreshToken, error)
+	GetUserRefreshToken(identifier string, now time.Time) (*transfer.UserRefreshTokenFull, error)
 }
 
-func GetUserRefreshToken(executer gorp.SqlExecutor, identifier string, now time.Time) (*transfer.UserRefreshToken, error) {
+func GetUserRefreshToken(executer gorp.SqlExecutor, identifier string, now time.Time) (*transfer.UserRefreshTokenFull, error) {
 	var sql, args, sqlErr = transfer.SelectUserRefreshToken.Where(
 		goqu.C("u.identifier").Eq(identifier),
 		goqu.C("urt.expire_date").Gte(now),
@@ -21,7 +21,7 @@ func GetUserRefreshToken(executer gorp.SqlExecutor, identifier string, now time.
 		return nil, sqlErr
 	}
 
-	var urt, execErr = utility.SelectSingle[transfer.UserRefreshToken](executer, "user_refresh_token", map[string]string{"identifier": identifier}, sql, args...)
+	var urt, execErr = utility.SelectSingle[transfer.UserRefreshTokenFull](executer, "user_refresh_token", map[string]string{"identifier": identifier}, sql, args...)
 	if execErr != nil {
 		return nil, execErr
 	}

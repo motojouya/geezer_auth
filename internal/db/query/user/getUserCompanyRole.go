@@ -8,10 +8,10 @@ import (
 )
 
 type GetUserCompanyRoleQuery interface {
-	GetUserCompanyRole(identifier string, now time.Time) ([]transfer.UserCompanyRole, error)
+	GetUserCompanyRole(identifier string, now time.Time) ([]transfer.UserCompanyRoleFull, error)
 }
 
-func GetUserCompanyRole(executer gorp.SqlExecutor, identifier string, now time.Time) ([]transfer.UserCompanyRole, error) {
+func GetUserCompanyRole(executer gorp.SqlExecutor, identifier string, now time.Time) ([]transfer.UserCompanyRoleFull, error) {
 	var sql, args, sqlErr = transfer.SelectUserCompanyRole.Where(
 		goqu.C("u.identifier").Eq(identifier),
 		goqu.Or(
@@ -23,7 +23,7 @@ func GetUserCompanyRole(executer gorp.SqlExecutor, identifier string, now time.T
 		return nil, sqlErr
 	}
 
-	var ucrs []transfer.UserCompanyRole
+	var ucrs []transfer.UserCompanyRoleFull
 	var _, execErr = executer.Select(&ucrs, sql, args...)
 	if execErr != nil {
 		return nil, execErr

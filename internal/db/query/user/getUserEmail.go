@@ -7,10 +7,10 @@ import (
 )
 
 type GetUserEmailQuery interface {
-	GetUserEmail(email string) ([]transfer.UserEmail, error)
+	GetUserEmail(email string) ([]transfer.UserEmailFull, error)
 }
 
-func GetUserEmail(executer gorp.SqlExecutor, email string) ([]transfer.UserEmail, error) {
+func GetUserEmail(executer gorp.SqlExecutor, email string) ([]transfer.UserEmailFull, error) {
 	var sql, args, sqlErr = transfer.SelectUserEmail.Where(
 		goqu.C("ue.email").Eq(email),
 		goqu.C("ue.expire_date").IsNull(),
@@ -19,7 +19,7 @@ func GetUserEmail(executer gorp.SqlExecutor, email string) ([]transfer.UserEmail
 		return nil, sqlErr
 	}
 
-	var ues []transfer.UserEmail
+	var ues []transfer.UserEmailFull
 	var _, execErr = executer.Select(&ues, sql, args...)
 	if execErr != nil {
 		return nil, execErr

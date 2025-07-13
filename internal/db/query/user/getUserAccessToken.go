@@ -8,7 +8,7 @@ import (
 )
 
 type GetUserAccessTokenQuery interface {
-	GetUserAccessToken(identifier string, now time.Time) ([]transfer.UserAccessToken, error)
+	GetUserAccessToken(identifier string, now time.Time) ([]transfer.UserAccessTokenFull, error)
 }
 
 /*
@@ -16,7 +16,7 @@ type GetUserAccessTokenQuery interface {
  * `goqu.C("uat.source_update_date").Eq("u.update_date"),`
  * それよりは、access tokenが取得できない状況のほうが問題なので、betweenで広く取得する。
  */
-func GetUserAccessToken(executer gorp.SqlExecutor, identifier string, now time.Time) ([]transfer.UserAccessToken, error) {
+func GetUserAccessToken(executer gorp.SqlExecutor, identifier string, now time.Time) ([]transfer.UserAccessTokenFull, error) {
 	var sql, args, sqlErr = transfer.SelectUserAccessToken.Where(
 		goqu.C("u.identifier").Eq(identifier),
 		goqu.C("uat.source_update_date").Between(goqu.Range(goqu.L("u.update_date + '-1 second'"), goqu.L("u.update_date + '1 second'"))),
@@ -26,7 +26,7 @@ func GetUserAccessToken(executer gorp.SqlExecutor, identifier string, now time.T
 		return nil, sqlErr
 	}
 
-	var uats []transfer.UserAccessToken
+	var uats []transfer.UserAccessTokenFull
 	var _, execErr = executer.Select(&uats, sql, args...)
 	if execErr != nil {
 		return nil, execErr

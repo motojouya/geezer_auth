@@ -4,6 +4,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db/query/company"
 	"github.com/motojouya/geezer_auth/internal/db/query/role"
 	"github.com/motojouya/geezer_auth/internal/db/query/user"
+	"github.com/motojouya/geezer_auth/internal/db/query/command"
 	transferCompany "github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	transferRole "github.com/motojouya/geezer_auth/internal/db/transfer/role"
 	transferUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
@@ -70,55 +71,78 @@ func (orp ORPTransactionImpl) GetUser(identifier string) (*transferUser.User, er
 }
 
 /** GetUserAccessToken */
-func (orp ORPImpl) GetUserAccessToken(identifier string, now time.Time) ([]transferUser.UserAccessToken, error) {
+func (orp ORPImpl) GetUserAccessToken(identifier string, now time.Time) ([]transferUser.UserAccessTokenFull, error) {
 	return user.GetUserAccessToken(orp, identifier, now)
 }
 
-func (orp ORPTransactionImpl) GetUserAccessToken(identifier string, now time.Time) ([]transferUser.UserAccessToken, error) {
+func (orp ORPTransactionImpl) GetUserAccessToken(identifier string, now time.Time) ([]transferUser.UserAccessTokenFull, error) {
 	return user.GetUserAccessToken(orp, identifier, now)
 }
 
 /** GetUserCompanyRole */
-func (orp ORPImpl) GetUserCompanyRole(identifier string, now time.Time) ([]transferUser.UserCompanyRole, error) {
+func (orp ORPImpl) GetUserCompanyRole(identifier string, now time.Time) ([]transferUser.UserCompanyRoleFull, error) {
 	return user.GetUserCompanyRole(orp, identifier, now)
 }
 
-func (orp ORPTransactionImpl) GetUserCompanyRole(identifier string, now time.Time) ([]transferUser.UserCompanyRole, error) {
+func (orp ORPTransactionImpl) GetUserCompanyRole(identifier string, now time.Time) ([]transferUser.UserCompanyRoleFull, error) {
 	return user.GetUserCompanyRole(orp, identifier, now)
 }
 
 /** GetUserEmailOfToken */
-func (orp ORPImpl) GetUserEmailOfToken(identifier string, email string, verifyToken string, now time.Time) (*transferUser.UserEmail, error) {
+func (orp ORPImpl) GetUserEmailOfToken(identifier string, email string, verifyToken string, now time.Time) (*transferUser.UserEmailFull, error) {
 	return user.GetUserEmailOfToken(orp, identifier, email, verifyToken, now)
 }
 
-func (orp ORPTransactionImpl) GetUserEmailOfToken(identifier string, email string, verifyToken string, now time.Time) (*transferUser.UserEmail, error) {
+func (orp ORPTransactionImpl) GetUserEmailOfToken(identifier string, email string, verifyToken string, now time.Time) (*transferUser.UserEmailFull, error) {
 	return user.GetUserEmailOfToken(orp, identifier, email, verifyToken, now)
 }
 
 /** GetUserEmail */
-func (orp ORPImpl) GetUserEmail(email string) ([]transferUser.UserEmail, error) {
+func (orp ORPImpl) GetUserEmail(email string) ([]transferUser.UserEmailFull, error) {
 	return user.GetUserEmail(orp, email)
 }
 
-func (orp ORPTransactionImpl) GetUserEmail(email string) ([]transferUser.UserEmail, error) {
+func (orp ORPTransactionImpl) GetUserEmail(email string) ([]transferUser.UserEmailFull, error) {
 	return user.GetUserEmail(orp, email)
 }
 
 /** GetUserPassword */
-func (orp ORPImpl) GetUserPassword(identifier string, now time.Time) (*transferUser.UserPassword, error) {
+func (orp ORPImpl) GetUserPassword(identifier string, now time.Time) (*transferUser.UserPasswordFull, error) {
 	return user.GetUserPassword(orp, identifier, now)
 }
 
-func (orp ORPTransactionImpl) GetUserPassword(identifier string, now time.Time) (*transferUser.UserPassword, error) {
+func (orp ORPTransactionImpl) GetUserPassword(identifier string, now time.Time) (*transferUser.UserPasswordFull, error) {
 	return user.GetUserPassword(orp, identifier, now)
 }
 
 /** GetUserRefreshToken */
-func (orp ORPImpl) GetUserRefreshToken(identifier string, now time.Time) (*transferUser.UserRefreshToken, error) {
+func (orp ORPImpl) GetUserRefreshToken(identifier string, now time.Time) (*transferUser.UserRefreshTokenFull, error) {
 	return user.GetUserRefreshToken(orp, identifier, now)
 }
 
-func (orp ORPTransactionImpl) GetUserRefreshToken(identifier string, now time.Time) (*transferUser.UserRefreshToken, error) {
+func (orp ORPTransactionImpl) GetUserRefreshToken(identifier string, now time.Time) (*transferUser.UserRefreshTokenFull, error) {
 	return user.GetUserRefreshToken(orp, identifier, now)
+}
+
+type Command interface {
+	command.AddEmailQuery
+	command.VerifyEmailQuery
+	command.AddPasswordQuery
+	command.AddRefreshTokenQuery
+}
+
+func (orp ORPTransactionImpl) AddEmail(userEmail *transferUser.UserEmail, now time.Time) (*transferUser.UserEmail, error) {
+	return command.AddEmail(orp, userEmail, now)
+}
+
+func (orp ORPTransactionImpl) VerifyEmail(userEmail *transferUser.UserEmail, now time.Time) (*transferUser.UserEmail, error) {
+	return command.VerifyEmail(orp, userEmail, now)
+}
+
+func (orp ORPTransactionImpl) AddPassword(userPassword *transferUser.UserPassword, now time.Time) (*transferUser.UserPassword, error) {
+	return command.AddPassword(orp, userPassword, now)
+}
+
+func (orp ORPTransactionImpl) AddRefreshToken(userRefreshToken *transferUser.UserRefreshToken, now time.Time) (*transferUser.UserRefreshToken, error) {
+	return command.AddRefreshToken(orp, userRefreshToken, now)
 }

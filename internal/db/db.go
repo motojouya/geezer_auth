@@ -26,6 +26,7 @@ type ORPTransaction interface {
 	Commit() error
 	Rollback() error
 	Query
+	Command
 }
 
 func CreateDatabase(connection *sql.DB) ORP {

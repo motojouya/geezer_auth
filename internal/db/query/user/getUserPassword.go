@@ -9,10 +9,10 @@ import (
 )
 
 type GetUserPasswordQuery interface {
-	GetUserPassword(identifier string, now time.Time) (*transfer.UserPassword, error)
+	GetUserPassword(identifier string, now time.Time) (*transfer.UserPasswordFull, error)
 }
 
-func GetUserPassword(executer gorp.SqlExecutor, identifier string, now time.Time) (*transfer.UserPassword, error) {
+func GetUserPassword(executer gorp.SqlExecutor, identifier string, now time.Time) (*transfer.UserPasswordFull, error) {
 	var sql, args, sqlErr = transfer.SelectUserPassword.Where(
 		goqu.C("u.identifier").Eq(identifier),
 		goqu.Or(
@@ -24,7 +24,7 @@ func GetUserPassword(executer gorp.SqlExecutor, identifier string, now time.Time
 		return nil, sqlErr
 	}
 
-	var up, execErr = utility.SelectSingle[transfer.UserPassword](executer, "user_password", map[string]string{"identifier": identifier}, sql, args...)
+	var up, execErr = utility.SelectSingle[transfer.UserPasswordFull](executer, "user_password", map[string]string{"identifier": identifier}, sql, args...)
 	if execErr != nil {
 		return nil, execErr
 	}
