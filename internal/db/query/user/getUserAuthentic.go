@@ -6,7 +6,6 @@ import (
 	transfer "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	"time"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
-	"github.com/motojouya/geezer_auth/internal/core/essence"
 )
 
 type GetUserAuthenticQuery interface {
@@ -28,13 +27,11 @@ func GetUserAuthentic(executer gorp.SqlExecutor, identifier string, now time.Tim
 		return nil, nil
 	}
 
-	var ucrs, getUserCompanyRolesErr = GetUserCompanyRole(executer, identifier, now)
+	var ucrs, getUserCompanyRolesErr = GetUserCompanyRole(executer, []string{identifier}, now)
 	if getUserCompanyRolesErr != nil {
 		return nil, getUserCompanyRolesErr
 	}
 
-	// TODO []*UserCompanyRoles として扱いたいが型があってない
-	// TODO あとcompanyに所属する複数レコード取得するやつも必要。
-	ua.UserCompanyRole = userCompanyRoles
+	ua.UserCompanyRole = ucrs
 	return ua, nil
 }

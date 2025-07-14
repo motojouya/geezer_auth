@@ -40,7 +40,7 @@ func TestToCoreUserAuthentic(t *testing.T) {
 	var companyId = "CP-TESTES"
 	var userCompanyRole1 = getUserCompanyRoleFull(1, 2, userId, companyId, "TEST_ROLE")
 	var userCompanyRole2 = getUserCompanyRoleFull(2, 3, userId, companyId, "TOST_ROLE")
-	var userCompanyRoles = []*user.UserCompanyRoleFull{userCompanyRole1, userCompanyRole2}
+	var userCompanyRoles = []user.UserCompanyRoleFull{*userCompanyRole1, *userCompanyRole2}
 
 	var now = time.Now()
 	var email = "test01@example.com"
@@ -85,7 +85,7 @@ func TestToCoreUserAuthenticError(t *testing.T) {
 	var companyId = "CP-TESTES"
 	var userCompanyRole1 = getUserCompanyRoleFull(1, 2, userId, companyId, "TEST_ROLE")
 	var userCompanyRole2 = getUserCompanyRoleFull(2, 3, userId, companyId, "TOST_ROLE")
-	var userCompanyRoles = []*user.UserCompanyRoleFull{userCompanyRole1, userCompanyRole2}
+	var userCompanyRoles = []user.UserCompanyRoleFull{*userCompanyRole1, *userCompanyRole2}
 
 	var now = time.Now()
 	var email = "test01@example.com"
@@ -122,13 +122,13 @@ func TestRelateUserCompanyRole(t *testing.T) {
 		UserRegisteredDate: now,
 		UserUpdateDate:     now.Add(1 * time.Hour),
 		Email:              &email,
-		UserCompanyRole:    []*user.UserCompanyRoleFull{},
+		UserCompanyRole:    []user.UserCompanyRoleFull{},
 	}
 
 	var companyId = "CP-TESTES"
 	var userCompanyRole1 = getUserCompanyRoleFull(1, userPersistKey1, userId1, companyId, "TEST_ROLE")
 
-	var updatedUserAuthentic1, ok1 = user.RelateUserCompanyRole(userAuthentic, userCompanyRole1)
+	var updatedUserAuthentic1, ok1 = user.RelateUserCompanyRole(userAuthentic, *userCompanyRole1)
 
 	assert.True(t, ok1)
 	assert.Equal(t, 1, len(updatedUserAuthentic1.UserCompanyRole))
@@ -138,7 +138,7 @@ func TestRelateUserCompanyRole(t *testing.T) {
 	var userId2 = "US-TESTES"
 	var userCompanyRole2 = getUserCompanyRoleFull(2, userPersistKey2, userId2, companyId, "TOST_ROLE")
 
-	var updatedUserAuthentic2, ok2 = user.RelateUserCompanyRole(userAuthentic, userCompanyRole2)
+	var updatedUserAuthentic2, ok2 = user.RelateUserCompanyRole(userAuthentic, *userCompanyRole2)
 
 	assert.False(t, ok2)
 	assert.Equal(t, 1, len(updatedUserAuthentic2.UserCompanyRole)) // 長さ変わってないので紐づいてない

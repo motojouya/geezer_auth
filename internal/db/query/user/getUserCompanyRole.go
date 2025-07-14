@@ -8,16 +8,19 @@ import (
 )
 
 type GetUserCompanyRoleQuery interface {
-	GetUserCompanyRole(identifier string, now time.Time) ([]transfer.UserCompanyRoleFull, error)
+	GetUserCompanyRole(identifiers []string, now time.Time) ([]transfer.UserCompanyRoleFull, error)
 }
 
-func GetUserCompanyRole(executer gorp.SqlExecutor, identifier string, now time.Time) ([]transfer.UserCompanyRoleFull, error) {
+func GetUserCompanyRole(executer gorp.SqlExecutor, identifiers []string, now time.Time) ([]transfer.UserCompanyRoleFull, error) {
 	var sql, args, sqlErr = transfer.SelectUserCompanyRole.Where(
-		goqu.C("u.identifier").Eq(identifier),
+		goqu.C("u.identifier").In(identifiers),
 		goqu.Or(
 			goqu.C("ucr.expire_date").Gte(now),
 			goqu.C("ucr.expire_date").IsNull(),
 		),
+	).Order(
+		goqu.C("ucr.user_persist_key").Asc(),
+		goqu.C("ucr.role_label").Asc(),
 	).Prepared(true).ToSQL()
 	if sqlErr != nil {
 		return nil, sqlErr

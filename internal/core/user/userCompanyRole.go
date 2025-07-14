@@ -69,20 +69,21 @@ func GetRoleUCR(userCompanyRole *UserCompanyRole) role.Role {
 	return userCompanyRole.Role
 }
 
-func ListToCompanyRole(user User, userCompanyRoles []*UserCompanyRole) (*CompanyRole, error) {
+func ListToCompanyRole(user User, userCompanyRoles []UserCompanyRole) (*CompanyRole, error) {
+	var ptrUCR = essence.ToPtr(userCompanyRoles)
 
-	var allSameUser = essence.Every(userCompanyRoles, IsUserUCR(user))
+	var allSameUser = essence.Every(ptrUCR, IsUserUCR(user))
 	if !allSameUser {
 		return &CompanyRole{}, essence.NewInvalidArgumentError("UserCompanyRole.User", string(user.Identifier), "UserCompanyRole.User does not match the User")
 	}
 
-	var grouped = essence.Group(userCompanyRoles, SameCompanyUCR)
+	var grouped = essence.Group(ptrUCR, SameCompanyUCR)
 	if len(grouped) > 1 {
 		return &CompanyRole{}, essence.NewInvalidArgumentError("UserCompanyRole.Company", "", "UserCompanyRole.Company must be unique for a User")
 	}
 
-	var company = userCompanyRoles[0].Company
-	var roles = essence.Map(userCompanyRoles, GetRoleUCR)
+	var company = ptrUCR[0].Company
+	var roles = essence.Map(ptrUCR, GetRoleUCR)
 
 	return NewCompanyRole(company, roles), nil
 }

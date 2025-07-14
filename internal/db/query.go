@@ -23,6 +23,8 @@ type Query interface {
 	user.GetUserEmailQuery
 	user.GetUserPasswordQuery
 	user.GetUserRefreshTokenQuery
+	user.GetUserAuthenticQuery
+	user.GetUserAuthenticOfCompanyQuery
 }
 
 /** GetCompany */
@@ -80,12 +82,12 @@ func (orp ORPTransactionImpl) GetUserAccessToken(identifier string, now time.Tim
 }
 
 /** GetUserCompanyRole */
-func (orp ORPImpl) GetUserCompanyRole(identifier string, now time.Time) ([]transferUser.UserCompanyRoleFull, error) {
-	return user.GetUserCompanyRole(orp, identifier, now)
+func (orp ORPImpl) GetUserCompanyRole(identifiers []string, now time.Time) ([]transferUser.UserCompanyRoleFull, error) {
+	return user.GetUserCompanyRole(orp, identifiers, now)
 }
 
-func (orp ORPTransactionImpl) GetUserCompanyRole(identifier string, now time.Time) ([]transferUser.UserCompanyRoleFull, error) {
-	return user.GetUserCompanyRole(orp, identifier, now)
+func (orp ORPTransactionImpl) GetUserCompanyRole(identifiers []string, now time.Time) ([]transferUser.UserCompanyRoleFull, error) {
+	return user.GetUserCompanyRole(orp, identifiers, now)
 }
 
 /** GetUserEmailOfToken */
@@ -122,6 +124,24 @@ func (orp ORPImpl) GetUserRefreshToken(identifier string, now time.Time) (*trans
 
 func (orp ORPTransactionImpl) GetUserRefreshToken(identifier string, now time.Time) (*transferUser.UserRefreshTokenFull, error) {
 	return user.GetUserRefreshToken(orp, identifier, now)
+}
+
+/** GetUserAuthentic */
+func (orp ORPImpl) GetUserAuthentic(identifier string, now time.Time) (*transferUser.UserAuthentic, error) {
+	return user.GetUserAuthentic(orp, identifier, now)
+}
+
+func (orp ORPTransactionImpl) GetUserAuthentic(identifier string, now time.Time) (*transferUser.UserAuthentic, error) {
+	return user.GetUserAuthentic(orp, identifier, now)
+}
+
+/** GetUserAuthenticOfCompany */
+func (orp ORPImpl) GetUserAuthenticOfCompany(identifier string, now time.Time) ([]transferUser.UserAuthentic, error) {
+	return user.GetUserAuthenticOfCompany(orp, identifier, now)
+}
+
+func (orp ORPTransactionImpl) GetUserAuthenticOfCompany(identifier string, now time.Time) ([]transferUser.UserAuthentic, error) {
+	return user.GetUserAuthenticOfCompany(orp, identifier, now)
 }
 
 type Command interface {

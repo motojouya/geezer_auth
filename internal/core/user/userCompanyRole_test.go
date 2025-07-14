@@ -193,7 +193,7 @@ func TestListToCompanyRole(t *testing.T) {
 	var userCompanyRole1 = user.NewUserCompanyRole(1, userValue, company, role1, registerDate, &expireDate)
 	var userCompanyRole2 = user.NewUserCompanyRole(2, userValue, company, role2, registerDate, &expireDate)
 
-	var userCompanyRoles = []*user.UserCompanyRole{userCompanyRole1, userCompanyRole2}
+	var userCompanyRoles = []user.UserCompanyRole{*userCompanyRole1, *userCompanyRole2}
 	var companyRole, err = user.ListToCompanyRole(userValue, userCompanyRoles)
 
 	assert.Nil(t, err)
@@ -227,7 +227,7 @@ func TestListToCompanyRoleErrUser(t *testing.T) {
 	var userCompanyRole1 = user.NewUserCompanyRole(1, userValue1, company, role1, registerDate, &expireDate)
 	var userCompanyRole2 = user.NewUserCompanyRole(2, userValue2, company, role2, registerDate, &expireDate)
 
-	var userCompanyRoles = []*user.UserCompanyRole{userCompanyRole1, userCompanyRole2}
+	var userCompanyRoles = []user.UserCompanyRole{*userCompanyRole1, *userCompanyRole2}
 	var _, err = user.ListToCompanyRole(userValue1, userCompanyRoles)
 
 	assert.Error(t, err)
@@ -257,7 +257,7 @@ func TestListToCompanyRoleErrCompany(t *testing.T) {
 	var userCompanyRole1 = user.NewUserCompanyRole(1, userValue, company1, role1, registerDate, &expireDate)
 	var userCompanyRole2 = user.NewUserCompanyRole(2, userValue, company2, role2, registerDate, &expireDate)
 
-	var userCompanyRoles = []*user.UserCompanyRole{userCompanyRole1, userCompanyRole2}
+	var userCompanyRoles = []user.UserCompanyRole{*userCompanyRole1, *userCompanyRole2}
 	var _, err = user.ListToCompanyRole(userValue, userCompanyRoles)
 
 	assert.Error(t, err)

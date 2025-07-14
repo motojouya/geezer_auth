@@ -17,7 +17,7 @@ type UserAuthentic struct {
 	UserRegisteredDate time.Time              `db:"register_date"`
 	UserUpdateDate     time.Time              `db:"update_date"`
 	Email              *string                `db:"email"`
-	UserCompanyRole    []*UserCompanyRoleFull `db:"-"`
+	UserCompanyRole    []UserCompanyRoleFull `db:"-"`
 }
 
 var SelectUserAuthentic = utility.Dialect.From("user").As("u").LeftOuterJoin(
@@ -43,7 +43,11 @@ var SelectUserAuthentic = utility.Dialect.From("user").As("u").LeftOuterJoin(
 	goqu.C("ue.email").As("email"),
 )
 
-func RelateUserCompanyRole(ua *UserAuthentic, ucr *UserCompanyRoleFull) (*UserAuthentic, bool) {
+func UserIdentifierUserAuthentic(userAuthentic *UserAuthentic) string {
+	return userAuthentic.UserIdentifier
+}
+
+func RelateUserCompanyRole(ua *UserAuthentic, ucr UserCompanyRoleFull) (*UserAuthentic, bool) {
 	if ua.UserPersistKey == ucr.UserPersistKey {
 		ua.UserCompanyRole = append(ua.UserCompanyRole, ucr)
 		return ua, true
@@ -75,13 +79,13 @@ func (ua UserAuthentic) ToCoreUserAuthentic() (*core.UserAuthentic, error) {
 		email = &emailResult
 	}
 
-	var coreUserCompanyRoles = make([]*core.UserCompanyRole, 0, len(ua.UserCompanyRole))
+	var coreUserCompanyRoles = make([]core.UserCompanyRole, 0, len(ua.UserCompanyRole))
 	for _, ucr := range ua.UserCompanyRole {
 		var coreUserCompanyRole, companyRoleErr = ucr.ToCoreUserCompanyRole()
 		if companyRoleErr != nil {
 			return &core.UserAuthentic{}, companyRoleErr
 		}
-		coreUserCompanyRoles = append(coreUserCompanyRoles, coreUserCompanyRole)
+		coreUserCompanyRoles = append(coreUserCompanyRoles, *coreUserCompanyRole)
 	}
 
 	var companyRole, companyRoleErr = core.ListToCompanyRole(user, coreUserCompanyRoles)

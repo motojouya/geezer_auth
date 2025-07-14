@@ -22,6 +22,22 @@ func Map[T any, U any](slice []T, mapper func(T) U) []U {
 	return result
 }
 
+func ToPtr[T any](slice []T) []*T {
+	var result []*T
+	for _, item := range slice {
+		result = append(result, &item)
+	}
+	return result
+}
+
+func ToVal[T any](slice []*T) []T {
+	var result []T
+	for _, item := range slice {
+		result = append(result, *item)
+	}
+	return result
+}
+
 func Flatten[T any](slice [][]T) []T {
 	var result []T
 	for _, subSlice := range slice {
