@@ -56,3 +56,15 @@ func (r RolePermission) ToCoreRolePermission() (core.RolePermission, error) {
 		r.Priority,
 	), nil
 }
+
+// testdata投入時に楽するためのもの。アプリケーションからは利用を想定しない。
+func NewRolePermission(roleLabel string, selfEdit bool, companyAccess bool, companyInvite bool, companyEdit bool, priority uint) RolePermission {
+	return RolePermission{
+		RoleLabel:     roleLabel,
+		SelfEdit:      selfEdit,
+		CompanyAccess: companyAccess,
+		CompanyInvite: companyInvite,
+		CompanyEdit:   companyEdit,
+		Priority:      priority,
+	}
+}

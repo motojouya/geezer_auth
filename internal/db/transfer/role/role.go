@@ -60,3 +60,13 @@ func (r Role) ToCoreRole() (core.Role, error) {
 		r.RegisteredDate,
 	), nil
 }
+
+// testdata投入時に楽するためのもの。アプリケーションからは利用を想定しない。
+func NewRole(label string, name string, description string, registeredDate time.Time) Role {
+	return Role{
+		Label:          label,
+		Name:           name,
+		Description:    description,
+		RegisteredDate: registeredDate,
+	}
+}

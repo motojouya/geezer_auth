@@ -54,3 +54,13 @@ func (c Company) ToCoreCompany() (core.Company, error) {
 		c.RegisteredDate,
 	), nil
 }
+
+// testdata投入時に楽するためのもの。アプリケーションからは利用を想定しない。
+func NewCompany(persistKey uint, identifier string, name string, registerDate time.Time) Company {
+	return Company{
+		PersistKey:     persistKey,
+		Identifier:     identifier,
+		Name:           name,
+		RegisteredDate: registerDate,
+	}
+}

@@ -92,3 +92,15 @@ func (ua UserAccessTokenFull) ToCoreUserAccessToken() (core.UserAccessToken, err
 		ua.ExpireDate,
 	), nil
 }
+
+// testdata投入時に楽するためのもの。アプリケーションからは利用を想定しない。
+func NewUserAccessToken(persistKey uint, userPersistKey uint, accessToken string, sourceUpdateDate time.Time, registerDate time.Time, expireDate time.Time) UserAccessToken {
+	return UserAccessToken{
+		PersistKey:       persistKey,
+		UserPersistKey:   userPersistKey,
+		AccessToken:      accessToken,
+		SourceUpdateDate: sourceUpdateDate,
+		RegisterDate:     registerDate,
+		ExpireDate:       expireDate,
+	}
+}

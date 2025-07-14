@@ -108,3 +108,16 @@ func (u UserEmailFull) ToCoreUserEmail() (*core.UserEmail, error) {
 		u.ExpireDate,
 	), nil
 }
+
+// testdata投入時に楽するためのもの。アプリケーションからは利用を想定しない。
+func NewUserEmail(persistKey uint, userPersistKey uint, email string, verifyToken string, registerDate time.Time, verifyDate *time.Time, expireDate *time.Time) *UserEmail {
+	return &UserEmail{
+		PersistKey:     persistKey,
+		UserPersistKey: userPersistKey,
+		Email:          email,
+		VerifyToken:    verifyToken,
+		RegisterDate:   registerDate,
+		VerifyDate:     verifyDate,
+		ExpireDate:     expireDate,
+	}
+}

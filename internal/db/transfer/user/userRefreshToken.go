@@ -92,3 +92,14 @@ func (u UserRefreshTokenFull) ToCoreUserRefreshToken() (core.UserRefreshToken, e
 		u.ExpireDate,
 	), nil
 }
+
+// testdata投入時に楽するためのもの。アプリケーションからは利用を想定しない。
+func NewUserRefreshToken(persistKey uint, userPersistKey uint, refreshToken string, registerDate time.Time, expireDate time.Time) UserRefreshToken {
+	return UserRefreshToken{
+		PersistKey:     persistKey,
+		UserPersistKey: userPersistKey,
+		RefreshToken:   refreshToken,
+		RegisterDate:   registerDate,
+		ExpireDate:     expireDate,
+	}
+}

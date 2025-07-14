@@ -108,3 +108,15 @@ func (c CompanyInviteFull) ToCoreCompanyInvite() (core.CompanyInvite, error) {
 		c.ExpireDate,
 	), nil
 }
+
+// testdata投入時に楽するためのもの。アプリケーションからは利用を想定しない。
+func NewCompanyInvite(persistKey uint, companyPersistKey uint, token string, roleLabel string, registerDate time.Time, expireDate time.Time) CompanyInvite {
+	return CompanyInvite{
+		PersistKey:        persistKey,
+		CompanyPersistKey: companyPersistKey,
+		Token:             token,
+		RoleLabel:         roleLabel,
+		RegisterDate:      registerDate,
+		ExpireDate:        expireDate,
+	}
+}

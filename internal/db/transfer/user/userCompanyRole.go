@@ -131,3 +131,15 @@ func (u UserCompanyRoleFull) ToCoreUserCompanyRole() (*core.UserCompanyRole, err
 		u.UserCompanyRole.ExpireDate,
 	), nil
 }
+
+// testdata投入時に楽するためのもの。アプリケーションからは利用を想定しない。
+func NewUserCompanyRole(persistKey uint, userPersistKey uint, companyPersistKey uint, roleLabel string, registerDate time.Time, expireDate *time.Time) *UserCompanyRole {
+	return &UserCompanyRole{
+		PersistKey:        persistKey,
+		UserPersistKey:    userPersistKey,
+		CompanyPersistKey: companyPersistKey,
+		RoleLabel:         roleLabel,
+		RegisterDate:      registerDate,
+		ExpireDate:        expireDate,
+	}
+}

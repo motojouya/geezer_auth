@@ -70,3 +70,16 @@ func (u User) ToCoreUser() (core.User, error) {
 		u.UpdateDate,
 	), nil
 }
+
+// testdata投入時に楽するためのもの。アプリケーションからは利用を想定しない。
+func NewUser(persistKey uint, identifier string, exposeEmailId string, name string, botFlag bool, registeredDate time.Time, updateDate time.Time) User {
+	return User{
+		PersistKey:     persistKey,
+		Identifier:     identifier,
+		ExposeEmailId:  exposeEmailId,
+		Name:           name,
+		BotFlag:        botFlag,
+		RegisteredDate: registeredDate,
+		UpdateDate:     updateDate,
+	}
+}

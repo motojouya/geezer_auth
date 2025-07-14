@@ -87,3 +87,14 @@ func (u UserPasswordFull) ToCoreUserPassword() (*core.UserPassword, error) {
 		u.ExpireDate,
 	), nil
 }
+
+// testdata投入時に楽するためのもの。アプリケーションからは利用を想定しない。
+func NewUserPassword(persistKey uint, userPersistKey uint, password string, registeredDate time.Time, expireDate *time.Time) *UserPassword {
+	return &UserPassword{
+		PersistKey:     persistKey,
+		UserPersistKey: userPersistKey,
+		Password:       password,
+		RegisteredDate: registeredDate,
+		ExpireDate:     expireDate,
+	}
+}
