@@ -1,10 +1,10 @@
 package db
 
 import (
+	"github.com/motojouya/geezer_auth/internal/db/query/command"
 	"github.com/motojouya/geezer_auth/internal/db/query/company"
 	"github.com/motojouya/geezer_auth/internal/db/query/role"
 	"github.com/motojouya/geezer_auth/internal/db/query/user"
-	"github.com/motojouya/geezer_auth/internal/db/query/command"
 	transferCompany "github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	transferRole "github.com/motojouya/geezer_auth/internal/db/transfer/role"
 	transferUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"

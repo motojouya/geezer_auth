@@ -4,8 +4,8 @@ import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
 	transfer "github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	"time"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
+	"time"
 )
 
 type GetUserAuthenticQuery interface {
@@ -18,7 +18,7 @@ func GetUserAuthentic(executer gorp.SqlExecutor, identifier string, now time.Tim
 		return nil, sqlErr
 	}
 
-	var ua, execErr = utility.SelectSingle[transfer.UserAuthentic](executer, "user", map[string]string{"identifier":identifier}, sql, args...)
+	var ua, execErr = utility.SelectSingle[transfer.UserAuthentic](executer, "user", map[string]string{"identifier": identifier}, sql, args...)
 	if execErr != nil {
 		return nil, execErr
 	}

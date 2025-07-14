@@ -3,8 +3,8 @@ package command
 import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
-	"time"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
+	"time"
 )
 
 type ExpirePasswordQuery interface {

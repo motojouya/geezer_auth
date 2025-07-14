@@ -3,10 +3,10 @@ package user
 import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
-	transfer "github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	"time"
-	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"github.com/motojouya/geezer_auth/internal/core/essence"
+	transfer "github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	"github.com/motojouya/geezer_auth/internal/db/utility"
+	"time"
 )
 
 type GetUserAuthenticOfCompanyQuery interface {
