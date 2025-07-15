@@ -1,13 +1,13 @@
 package testUtility
 
 import (
-	"github.com/motojouya/geezer_auth/internal/db"
 	"database/sql"
 	"fmt"
-	"log"
-	"os"
+	"github.com/motojouya/geezer_auth/internal/db"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
+	"log"
+	"os"
 )
 
 func ExecuteDatabaseTest(run func(db.ORP) int) {
