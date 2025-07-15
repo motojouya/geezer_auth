@@ -16,6 +16,7 @@ func TestMain(m *testing.M) {
 	orp = nil // il?
 }
 
+// TODO transaction管理どうしようか
 // func TestGreatestUsecase(t *testing.T) {
 // 	tests := map[string]struct {
 // 		input   GreatestUsecaseInput
