@@ -18,6 +18,7 @@ type ORP interface {
 	gorp.SqlExecutor
 	Begin() (ORPTransaction, error)
 	essence.Closable
+	Migrate() error
 	Query
 }
 
