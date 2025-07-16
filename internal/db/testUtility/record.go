@@ -3,9 +3,9 @@ package testUtility
 import (
 	"github.com/motojouya/geezer_auth/internal/db"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
+	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
-	"github.com/stretchr/testify/assert"
 )
 
 func Truncate(t *testing.T, orp db.ORP) {

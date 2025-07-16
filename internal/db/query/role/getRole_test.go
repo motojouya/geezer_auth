@@ -3,17 +3,17 @@ package role_test
 import (
 	"github.com/motojouya/geezer_auth/internal/db/testUtility"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
+	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
-	"github.com/stretchr/testify/assert"
 )
 
 var now = time.Now()
 
 var records = []role.Role{
 	//           label         , name           , description                , registeredDate
-	role.NewRole("LABEL_ADMIN" , "Administrator", "administrator description", now),
-	role.NewRole("LABEL_MEMBER", "Member"       , "member description"       , now),
+	role.NewRole("LABEL_ADMIN", "Administrator", "administrator description", now),
+	role.NewRole("LABEL_MEMBER", "Member", "member description", now),
 }
 
 func TestGetRole(t *testing.T) {
