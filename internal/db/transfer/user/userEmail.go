@@ -31,7 +31,7 @@ type UserEmailFull struct {
 }
 
 func AddUserEmailTable(dbMap *gorp.DbMap) {
-	dbMap.AddTable(UserEmail{}).SetKeys(true, "PersistKey")
+	dbMap.AddTableWithName(UserEmail{}, "user_email").SetKeys(true, "PersistKey")
 }
 
 // var SelectUserEmail = utility.Dialect.From("user_email").As("ue").Select(

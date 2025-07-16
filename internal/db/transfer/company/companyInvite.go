@@ -30,7 +30,7 @@ type CompanyInviteFull struct {
 }
 
 func AddCompanyInviteTable(dbMap *gorp.DbMap) {
-	dbMap.AddTable(CompanyInvite{}).SetKeys(true, "PersistKey")
+	dbMap.AddTableWithName(CompanyInvite{}, "company_invite").SetKeys(true, "PersistKey")
 }
 
 // var SelectCompanyInvite = utility.Dialect.From("company_invite").As("ci").Select(

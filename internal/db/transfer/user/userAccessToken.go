@@ -29,7 +29,7 @@ type UserAccessTokenFull struct {
 }
 
 func AddUserAccessTokenTable(dbMap *gorp.DbMap) {
-	dbMap.AddTable(UserAccessToken{}).SetKeys(true, "PersistKey")
+	dbMap.AddTableWithName(UserAccessToken{}, "user_access_token").SetKeys(true, "PersistKey")
 }
 
 // var SelectUserAccessToken = utility.Dialect.From("user_access_token").As("uat").Select(

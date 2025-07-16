@@ -28,7 +28,7 @@ type UserPasswordFull struct {
 }
 
 func AddUserPasswordTable(dbMap *gorp.DbMap) {
-	dbMap.AddTable(UserPassword{}).SetKeys(true, "PersistKey")
+	dbMap.AddTableWithName(UserPassword{}, "user_password").SetKeys(true, "PersistKey")
 }
 
 // var SelectUserPassword = utility.Dialect.From("user_password").As("up").Select(

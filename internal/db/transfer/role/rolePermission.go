@@ -18,7 +18,7 @@ type RolePermission struct {
 }
 
 func AddRolePermissionTable(dbMap *gorp.DbMap) {
-	dbMap.AddTable(RolePermission{})
+	dbMap.AddTableWithName(RolePermission{}, "role_permission")
 }
 
 var SelectRolePermission = utility.Dialect.From("role_permission").As("rp").Select(

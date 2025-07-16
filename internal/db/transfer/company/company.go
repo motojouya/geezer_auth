@@ -17,7 +17,7 @@ type Company struct {
 }
 
 func AddCompanyTable(dbMap *gorp.DbMap) {
-	dbMap.AddTable(Company{}).SetKeys(true, "PersistKey")
+	dbMap.AddTableWithName(Company{}, "company").SetKeys(true, "PersistKey")
 }
 
 var SelectCompany = utility.Dialect.From("company").As("c").Select(

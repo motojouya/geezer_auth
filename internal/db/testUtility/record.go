@@ -22,7 +22,7 @@ func Truncate(t *testing.T, orp db.ORP) {
 func Ready[T any](t *testing.T, orp db.ORP, records ...T) {
 	var r []interface{}
 	for _, record := range records {
-		r = append(r, record)
+		r = append(r, &record)
 	}
 	var err = orp.Insert(r...)
 	if err != nil {

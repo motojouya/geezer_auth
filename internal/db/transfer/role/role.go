@@ -18,14 +18,14 @@ type Role struct {
 }
 
 func AddRoleTable(dbMap *gorp.DbMap) {
-	dbMap.AddTable(Role{})
+	dbMap.AddTableWithName(Role{}, "role")
 }
 
-var SelectRole = utility.Dialect.From("role").As("r").Select(
-	goqu.C("r.label").As("label"),
-	goqu.C("r.name").As("name"),
-	goqu.C("r.description").As("description"),
-	goqu.C("r.register_date").As("register_date"),
+var SelectRole = utility.Dialect.From(goqu.T("role").As("r")).Select(
+	goqu.I("r.label").As("label"),
+	goqu.I("r.name").As("name"),
+	goqu.I("r.description").As("description"),
+	goqu.I("r.register_date").As("register_date"),
 )
 
 func FromCoreRole(role core.Role) Role {

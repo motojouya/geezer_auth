@@ -20,7 +20,7 @@ type User struct {
 }
 
 func AddUserTable(dbMap *gorp.DbMap) {
-	dbMap.AddTable(User{}).SetKeys(true, "PersistKey")
+	dbMap.AddTableWithName(User{}, "user").SetKeys(true, "PersistKey")
 }
 
 var SelectUser = utility.Dialect.From("user").As("u").Select(

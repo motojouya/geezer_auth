@@ -36,7 +36,7 @@ type UserCompanyRoleFull struct {
 }
 
 func AddUserCompanyRoleTable(dbMap *gorp.DbMap) {
-	dbMap.AddTable(UserCompanyRole{}).SetKeys(true, "PersistKey")
+	dbMap.AddTableWithName(UserCompanyRole{}, "user_company_role").SetKeys(true, "PersistKey")
 }
 
 // var SelectUserCompanyRole = utility.Dialect.From("user_company_role").As("ucr").Select(

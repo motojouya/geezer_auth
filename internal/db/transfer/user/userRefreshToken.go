@@ -28,7 +28,7 @@ type UserRefreshTokenFull struct {
 }
 
 func AddUserRefreshTokenTable(dbMap *gorp.DbMap) {
-	dbMap.AddTable(UserRefreshToken{}).SetKeys(true, "PersistKey")
+	dbMap.AddTableWithName(UserRefreshToken{}, "user_refresh_token").SetKeys(true, "PersistKey")
 }
 
 // var SelectUserRefreshToken = utility.Dialect.From("user_refresh_token").As("urt").Select(
