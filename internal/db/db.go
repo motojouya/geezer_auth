@@ -18,7 +18,6 @@ type ORP interface {
 	gorp.SqlExecutor
 	Begin() (ORPTransaction, error)
 	essence.Closable
-	Migrate() error
 	Query
 }
 
@@ -32,14 +31,14 @@ type ORPTransaction interface {
 
 func CreateDatabase(connection *sql.DB) ORP {
 	var dbMap = &gorp.DbMap{Db: connection, Dialect: gorp.PostgresDialect{}}
-	setTable(dbMap)
+	registerTable(dbMap)
 
 	return &ORPImpl{
 		DbMap: dbMap,
 	}
 }
 
-func setTable(dbMap *gorp.DbMap) {
+func registerTable(dbMap *gorp.DbMap) {
 	company.AddCompanyTable(dbMap)
 	company.AddCompanyInviteTable(dbMap)
 	role.AddRoleTable(dbMap)
@@ -73,8 +72,4 @@ func (orp ORPImpl) Begin() (ORPTransaction, error) {
 	return &ORPTransactionImpl{
 		Transaction: transaction,
 	}, nil
-}
-
-func (orp ORPImpl) Migrate() error {
-	return orp.DbMap.CreateTablesIfNotExists()
 }

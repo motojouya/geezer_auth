@@ -24,3 +24,6 @@ unitt:
 singlet:
 	go test -v $(file)
 
+migration:
+	migrate create -dir ./scripts/migration -ext sql $(name)
+
