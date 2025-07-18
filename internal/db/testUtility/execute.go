@@ -4,13 +4,14 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/motojouya/geezer_auth/internal/db"
+	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 	"log"
 	"os"
 )
 
-func ExecuteDatabaseTest(run func(db.ORP) int) {
+func ExecuteDatabaseTest(pathToRoot string, run func(db.ORP) int) {
 	pool, err := dockertest.NewPool("")
 	if err != nil {
 		log.Fatalf("Could not construct pool: %s", err)
@@ -52,14 +53,14 @@ func ExecuteDatabaseTest(run func(db.ORP) int) {
 		log.Fatalf("Could not connect to docker: %s", err)
 	}
 
+	var migrateErr = utility.Migrate(database, pathToRoot)
+	if migrateErr != nil {
+		log.Fatalf("Could not migrate database: %s", migrateErr)
+	}
+
 	var orp = db.CreateDatabase(database)
 	if err != nil {
 		log.Fatalf("Could not create gorm DB from dockertest sql connection: %s", err)
-	}
-
-	err = orp.Migrate()
-	if err != nil {
-		log.Fatalf("Could not create tables: %s", err)
 	}
 
 	code := run(orp)

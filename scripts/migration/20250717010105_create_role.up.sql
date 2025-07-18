@@ -1,6 +1,6 @@
-create table role (
-  label unique
-  name
-  description
-  registered_date
+CREATE TABLE role (
+  label VARCHAR(255) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT NOT NULL,
+  register_date TIMESTAMP WITH TIME ZONE NOT NULL
 );

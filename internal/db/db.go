@@ -5,9 +5,9 @@ import (
 	"github.com/go-gorp/gorp"
 	_ "github.com/lib/pq"
 	"github.com/motojouya/geezer_auth/internal/core/essence"
-	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
+	//"github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
-	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	//"github.com/motojouya/geezer_auth/internal/db/transfer/user"
 )
 
 // FIXME Prepare関数いる？
@@ -39,16 +39,16 @@ func CreateDatabase(connection *sql.DB) ORP {
 }
 
 func registerTable(dbMap *gorp.DbMap) {
-	company.AddCompanyTable(dbMap)
-	company.AddCompanyInviteTable(dbMap)
+	//company.AddCompanyTable(dbMap)
+	//company.AddCompanyInviteTable(dbMap)
 	role.AddRoleTable(dbMap)
-	role.AddRolePermissionTable(dbMap)
-	user.AddUserTable(dbMap)
-	user.AddUserAccessTokenTable(dbMap)
-	user.AddUserCompanyRoleTable(dbMap)
-	user.AddUserEmailTable(dbMap)
-	user.AddUserPasswordTable(dbMap)
-	user.AddUserRefreshTokenTable(dbMap)
+	//role.AddRolePermissionTable(dbMap)
+	//user.AddUserTable(dbMap)
+	//user.AddUserAccessTokenTable(dbMap)
+	//user.AddUserCompanyRoleTable(dbMap)
+	//user.AddUserEmailTable(dbMap)
+	//user.AddUserPasswordTable(dbMap)
+	//user.AddUserRefreshTokenTable(dbMap)
 }
 
 type ORPImpl struct {

@@ -11,7 +11,8 @@ import (
 var now = time.Now()
 
 var records = []role.Role{
-	//           label         , name           , description                , registeredDate
+	// カラムの位置をあわせてtableっぽくしたかったがformatterが邪魔
+	//           label        , name           , description                , registeredDate
 	role.NewRole("LABEL_ADMIN", "Administrator", "administrator description", now),
 	role.NewRole("LABEL_MEMBER", "Member", "member description", now),
 }
