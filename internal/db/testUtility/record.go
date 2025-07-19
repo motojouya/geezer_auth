@@ -73,3 +73,44 @@ func AssertTable[T any](t *testing.T, orp db.ORP, expects ...T) {
 
 	assert.ElementsMatchf(t, expects, actuals, "Expected records do not match actual records in table %s", table.TableName)
 }
+
+func AssertRecords[T any](t *testing.T, expects []T, actuals []T, assertSame func(T, T) bool) {
+	if len(expects) != len(actuals) {
+		t.Fatalf("Expected %d records, got %d", len(expects), len(actuals))
+	}
+
+	for i, expect := range expects {
+		actual := actuals[i]
+		if !reflect.DeepEqual(expect, actual) {
+			t.Errorf("Record %d does not match: expected %+v, got %+v", i, expect, actual)
+		}
+	}
+
+	for _, expect := range expects {
+		var found = false
+		for _, actual := range actuals {
+			if assertSame(expect, actual) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("Expected record %+v not found in actual records", expect)
+		}
+	}
+	for i := 0; i < len(expects); i++ {
+	for vIndex := len(expects) - 1; vIndex >= 0; vIndex-- {
+		var vertical = verticalUnmatched[vIndex]
+
+		for hIndex := len(horizontalUnmatched) - 1; hIndex >= 0; hIndex-- {
+			var horizontal = horizontalUnmatched[hIndex]
+
+			if assertSame(vertical, horizontal) {
+				slices.Delete(verticalUnmatched, vIndex, vIndex+1)
+				slices.Delete(horizontalUnmatched, hIndex, hIndex+1)
+				break
+			}
+		}
+	}
+	return verticalMatched, horizontalMatched, verticalUnmatched, horizontalUnmatched
+}
