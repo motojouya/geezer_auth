@@ -26,4 +26,3 @@ singlet:
 
 migration:
 	migrate create -dir ./scripts/migration -ext sql $(name)
-

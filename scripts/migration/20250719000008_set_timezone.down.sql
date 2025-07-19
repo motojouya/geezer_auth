@@ -1,0 +1,1 @@
+ALTER DATABASE geezer_auth SET TIMEZONE TO 'UTC';

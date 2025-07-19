@@ -6,7 +6,16 @@ import (
 	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
+	"time"
 )
+
+func GetNow() time.Time {
+	jst, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+	    panic(err)
+	}
+	return time.Now().In(jst)
+}
 
 func Truncate(t *testing.T, orp db.ORP) {
 	var impl, ok = orp.(*db.ORPImpl)

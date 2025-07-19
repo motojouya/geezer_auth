@@ -5,10 +5,9 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
 
-var now = time.Now()
+var now = testUtility.GetNow()
 
 var records = []role.Role{
 	// カラムの位置をあわせてtableっぽくしたかったがformatterが邪魔

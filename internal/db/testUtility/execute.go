@@ -1,6 +1,7 @@
 package testUtility
 
 import (
+	//_ "internal/core/timezone"
 	"database/sql"
 	"fmt"
 	"github.com/motojouya/geezer_auth/internal/db"
@@ -12,6 +13,8 @@ import (
 )
 
 func ExecuteDatabaseTest(pathToRoot string, run func(db.ORP) int) {
+	os.Setenv("TZ", "Asia/Tokyo") // `internal/core/timezone`だとできんかった？
+
 	pool, err := dockertest.NewPool("")
 	if err != nil {
 		log.Fatalf("Could not construct pool: %s", err)
@@ -59,9 +62,6 @@ func ExecuteDatabaseTest(pathToRoot string, run func(db.ORP) int) {
 	}
 
 	var orp = db.CreateDatabase(database)
-	if err != nil {
-		log.Fatalf("Could not create gorm DB from dockertest sql connection: %s", err)
-	}
 
 	code := run(orp)
 
