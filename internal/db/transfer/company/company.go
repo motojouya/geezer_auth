@@ -20,11 +20,11 @@ func AddCompanyTable(dbMap *gorp.DbMap) {
 	dbMap.AddTableWithName(Company{}, "company").SetKeys(true, "PersistKey")
 }
 
-var SelectCompany = utility.Dialect.From("company").As("c").Select(
-	goqu.C("c.persist_key").As("persist_key"),
-	goqu.C("c.identifier").As("identifier"),
-	goqu.C("c.name").As("name"),
-	goqu.C("c.register_date").As("register_date"),
+var SelectCompany = utility.Dialect.From(goqu.T("company").As("c")).Select(
+	goqu.I("c.persist_key").As("persist_key"),
+	goqu.I("c.identifier").As("identifier"),
+	goqu.I("c.name").As("name"),
+	goqu.I("c.register_date").As("register_date"),
 )
 
 func FromCoreCompany(coreCompany core.UnsavedCompany) Company {

@@ -12,6 +12,7 @@ type GetUserEmailOfTokenQuery interface {
 	GetUserEmailOfToken(identifier string, email string, verifyToken string, now time.Time) (*transfer.UserEmailFull, error)
 }
 
+// FIXME time不要な気がする。identifierとemailがあれば、レコードを特定できて、それに対してverifyTokenを当てるほうがよい。
 func GetUserEmailOfToken(executer gorp.SqlExecutor, identifier string, email string, verifyToken string, now time.Time) (*transfer.UserEmailFull, error) {
 	var sql, args, sqlErr = transfer.SelectUserEmail.Where(
 		goqu.C("u.identifier").Eq(identifier),

@@ -13,8 +13,8 @@ type GetCompanyInviteQuery interface {
 
 func GetCompanyInvite(executer gorp.SqlExecutor, companyIdentifier string, verifyToken string) (*transfer.CompanyInviteFull, error) {
 	var sql, args, sqlErr = transfer.SelectCompanyInvite.Where(
-		goqu.C("c.identifier").Eq(companyIdentifier),
-		goqu.C("ci.verify_token").Eq(verifyToken),
+		goqu.I("c.identifier").Eq(companyIdentifier),
+		goqu.I("ci.verify_token").Eq(verifyToken),
 	).Prepared(true).ToSQL()
 	if sqlErr != nil {
 		return nil, sqlErr

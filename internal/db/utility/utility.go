@@ -4,6 +4,7 @@ import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
 	"github.com/motojouya/geezer_auth/internal/core/essence"
+	_ "github.com/doug-martin/goqu/v9/dialect/postgres"
 )
 
 var Dialect = goqu.Dialect("postgres")

@@ -12,7 +12,7 @@ type GetCompanyQuery interface {
 }
 
 func GetCompany(executer gorp.SqlExecutor, identifier string) (*transfer.Company, error) {
-	var sql, args, sqlErr = transfer.SelectCompany.Where(goqu.C("c.identifier").Eq(identifier)).Prepared(true).ToSQL()
+	var sql, args, sqlErr = transfer.SelectCompany.Where(goqu.I("c.identifier").Eq(identifier)).Prepared(true).ToSQL()
 	if sqlErr != nil {
 		return nil, sqlErr
 	}

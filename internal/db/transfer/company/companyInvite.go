@@ -42,25 +42,25 @@ func AddCompanyInviteTable(dbMap *gorp.DbMap) {
 // 	goqu.C("ci.expire_date").As("expire_date"),
 // )
 
-var SelectCompanyInvite = utility.Dialect.From("company_invite").As("ci").InnerJoin(
+var SelectCompanyInvite = utility.Dialect.From(goqu.T("company_invite").As("ci")).InnerJoin(
 	goqu.T("company").As("c"),
 	goqu.On(goqu.Ex{"ci.company_persist_key": goqu.I("c.persist_key")}),
 ).InnerJoin(
 	goqu.T("role").As("r"),
 	goqu.On(goqu.Ex{"ci.role_label": goqu.I("r.label")}),
 ).Select(
-	goqu.C("ci.persist_key").As("persist_key"),
-	goqu.C("ci.company_persist_key").As("company_persist_key"),
-	goqu.C("c.identifier").As("company_identifier"),
-	goqu.C("c.name").As("company_name"),
-	goqu.C("c.register_date").As("company_register_date"),
-	goqu.C("ci.verify_token").As("verify_token"),
-	goqu.C("ci.role_label").As("role_label"),
-	goqu.C("r.name").As("role_name"),
-	goqu.C("r.description").As("role_description"),
-	goqu.C("r.register_date").As("role_register_date"),
-	goqu.C("ci.register_date").As("register_date"),
-	goqu.C("ci.expire_date").As("expire_date"),
+	goqu.I("ci.persist_key").As("persist_key"),
+	goqu.I("ci.company_persist_key").As("company_persist_key"),
+	goqu.I("c.identifier").As("company_identifier"),
+	goqu.I("c.name").As("company_name"),
+	goqu.I("c.register_date").As("company_register_date"),
+	goqu.I("ci.verify_token").As("verify_token"),
+	goqu.I("ci.role_label").As("role_label"),
+	goqu.I("r.name").As("role_name"),
+	goqu.I("r.description").As("role_description"),
+	goqu.I("r.register_date").As("role_register_date"),
+	goqu.I("ci.register_date").As("register_date"),
+	goqu.I("ci.expire_date").As("expire_date"),
 )
 
 func FromCoreCompanyInvite(invite core.CompanyInvite) CompanyInvite {
