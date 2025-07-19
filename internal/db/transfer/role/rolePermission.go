@@ -21,13 +21,13 @@ func AddRolePermissionTable(dbMap *gorp.DbMap) {
 	dbMap.AddTableWithName(RolePermission{}, "role_permission")
 }
 
-var SelectRolePermission = utility.Dialect.From("role_permission").As("rp").Select(
-	goqu.C("rp.role_label").As("role_label"),
-	goqu.C("rp.self_edit").As("self_edit"),
-	goqu.C("rp.company_access").As("company_access"),
-	goqu.C("rp.company_invite").As("company_invite"),
-	goqu.C("rp.company_edit").As("company_edit"),
-	goqu.C("rp.priority").As("priority"),
+var SelectRolePermission = utility.Dialect.From(goqu.T("role_permission").As("rp")).Select(
+	goqu.I("rp.role_label").As("role_label"),
+	goqu.I("rp.self_edit").As("self_edit"),
+	goqu.I("rp.company_access").As("company_access"),
+	goqu.I("rp.company_invite").As("company_invite"),
+	goqu.I("rp.company_edit").As("company_edit"),
+	goqu.I("rp.priority").As("priority"),
 )
 
 func FromCoreRolePermission(r core.RolePermission) RolePermission {

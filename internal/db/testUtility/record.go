@@ -1,9 +1,10 @@
 package testUtility
 
 import (
+	"github.com/doug-martin/goqu/v9"
+	"github.com/doug-martin/goqu/v9/exp"
 	"github.com/motojouya/geezer_auth/internal/db"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
-	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
 	"time"
@@ -28,7 +29,7 @@ func Truncate(t *testing.T, orp db.ORP) {
 	}
 }
 
-func Ready[T any](t *testing.T, orp db.ORP, records ...T) {
+func Ready[T any](t *testing.T, orp db.ORP, records []T) {
 	var r []interface{}
 	for _, record := range records {
 		r = append(r, &record)
@@ -39,7 +40,17 @@ func Ready[T any](t *testing.T, orp db.ORP, records ...T) {
 	}
 }
 
-func AssertTable[T any](t *testing.T, orp db.ORP, expects ...T) {
+func AssertRecords[T any](t *testing.T, expects []T, actuals []T, assertSame func(*testing.T, T, T)) {
+	if len(expects) != len(actuals) {
+		t.Fatalf("Expected %d records, got %d", len(expects), len(actuals))
+	}
+
+	for i := len(expects) - 1; i >= 0; i-- {
+		assertSame(t, expects[i], actuals[i])
+	}
+}
+
+func AssertTable[T any](t *testing.T, orp db.ORP, orders []string, expects []T, assertSame func(*testing.T, T, T)) {
 	var impl, ok = orp.(*db.ORPImpl)
 	if !ok {
 		t.Fatalf("Expected db.ORPImpl, got %T", orp)
@@ -53,14 +64,19 @@ func AssertTable[T any](t *testing.T, orp db.ORP, expects ...T) {
 
 	// FIXME gorpがtableまでは判明させてくれるが、主キーは取得できない。
 	// `assert.ElementsMatch`が順序関係なく照合してくれるのでorder by句は実質不要だが、なんか気持ち悪いところ
-	// var orders []exp.OrderedExpression
+	// var orderBys []exp.OrderedExpression
 	// for _, column := range table.Columns {
 	// 	if column.isPK {
-	// 		orders = append(orders, goqu.C(column.ColumnName).Asc())
+	// 		orderBys = append(orderBys, goqu.C(column.ColumnName).Asc())
 	// 	}
 	// }
-	// var sql, args, sqlErr = utility.Dialect.From(table.TableName).Order(orders...).ToSQL()
-	var sql, args, sqlErr = utility.Dialect.From(table.TableName).ToSQL()
+	// var sql, args, sqlErr = utility.Dialect.From(table.TableName).Order(orderBys...).ToSQL()
+	var orderBys []exp.OrderedExpression
+	for _, order := range orders {
+		orderBys = append(orderBys, goqu.C(order).Asc())
+	}
+
+	var sql, args, sqlErr = utility.Dialect.From(table.TableName).Order(orderBys...).ToSQL()
 	if sqlErr != nil {
 		t.Fatalf("Could not create SQL for %T: %s", zero, sqlErr)
 	}
@@ -71,46 +87,5 @@ func AssertTable[T any](t *testing.T, orp db.ORP, expects ...T) {
 		t.Fatalf("Could not execute SQL for %T: %s", zero, execErr)
 	}
 
-	assert.ElementsMatchf(t, expects, actuals, "Expected records do not match actual records in table %s", table.TableName)
-}
-
-func AssertRecords[T any](t *testing.T, expects []T, actuals []T, assertSame func(T, T) bool) {
-	if len(expects) != len(actuals) {
-		t.Fatalf("Expected %d records, got %d", len(expects), len(actuals))
-	}
-
-	for i, expect := range expects {
-		actual := actuals[i]
-		if !reflect.DeepEqual(expect, actual) {
-			t.Errorf("Record %d does not match: expected %+v, got %+v", i, expect, actual)
-		}
-	}
-
-	for _, expect := range expects {
-		var found = false
-		for _, actual := range actuals {
-			if assertSame(expect, actual) {
-				found = true
-				break
-			}
-		}
-		if !found {
-			t.Errorf("Expected record %+v not found in actual records", expect)
-		}
-	}
-	for i := 0; i < len(expects); i++ {
-	for vIndex := len(expects) - 1; vIndex >= 0; vIndex-- {
-		var vertical = verticalUnmatched[vIndex]
-
-		for hIndex := len(horizontalUnmatched) - 1; hIndex >= 0; hIndex-- {
-			var horizontal = horizontalUnmatched[hIndex]
-
-			if assertSame(vertical, horizontal) {
-				slices.Delete(verticalUnmatched, vIndex, vIndex+1)
-				slices.Delete(horizontalUnmatched, hIndex, hIndex+1)
-				break
-			}
-		}
-	}
-	return verticalMatched, horizontalMatched, verticalUnmatched, horizontalUnmatched
+	AssertRecords(t, expects, actuals, assertSame)
 }
