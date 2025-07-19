@@ -1,9 +1,9 @@
 package timezone
 
 import (
-    "os"
+	"os"
 )
 
 func init() {
-    os.Setenv("TZ", "Asia/Tokyo")
+	os.Setenv("TZ", "Asia/Tokyo")
 }

@@ -1,8 +1,8 @@
 package role
 
 import (
-	"github.com/go-gorp/gorp"
 	"github.com/doug-martin/goqu/v9"
+	"github.com/go-gorp/gorp"
 	transfer "github.com/motojouya/geezer_auth/internal/db/transfer/role"
 )
 

@@ -2,10 +2,10 @@ package utility
 
 import (
 	"database/sql"
-	_ "github.com/lib/pq"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/lib/pq"
 )
 
 func Migrate(db *sql.DB, pathToRoot string) error {

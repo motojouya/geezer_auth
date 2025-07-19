@@ -39,7 +39,7 @@ func (l local) GenerateUUID() (uuid.UUID, error) {
 func (l local) GetNow() time.Time {
 	jst, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
-	    panic(err)
+		panic(err)
 	}
 	return time.Now().In(jst)
 }
