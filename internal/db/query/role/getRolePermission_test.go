@@ -9,10 +9,10 @@ import (
 
 func TestGetRolePermission(t *testing.T) {
 	var records = []role.RolePermission{
-		//                      label       ,self_edit ,company_access ,company_invite ,company_edit ,priority
-		role.NewRolePermission("LABEL_ADMIN", true, true, true, true, 1),
-		role.NewRolePermission("LABEL_MEMBER", true, true, true, false, 2),
-		role.NewRolePermission("LABEL_STAFF", true, true, false, false, 3),
+		//                      label             ,self_edit , company_access, company_invite, company_edit, priority
+		role.NewRolePermission("LABEL_ADMIN" /* */, true /**/, true /*     */, true /*     */, true /*   */, 1),
+		role.NewRolePermission("LABEL_MEMBER" /**/, true /**/, true /*     */, true /*     */, false /*  */, 2),
+		role.NewRolePermission("LABEL_STAFF" /* */, true /**/, true /*     */, false /*    */, false /*  */, 3),
 	}
 
 	testUtility.Truncate(t, orp)

@@ -12,11 +12,10 @@ func TestGetRole(t *testing.T) {
 	var now = testUtility.GetNow()
 
 	var records = []role.Role{
-		// カラムの位置をあわせてtableっぽくしたかったがformatterが邪魔
-		//           label        , name           , description                , registeredDate
-		role.NewRole("LABEL_ADMIN", "Administrator", "administrator description", now),
-		role.NewRole("LABEL_MEMBER", "Member", "member description", now),
-		role.NewRole("LABEL_STAFF", "Staff", "staff description", now),
+		//           label              , name           , description                , registeredDate
+		role.NewRole("LABEL_ADMIN" /* */, "Administrator", "administrator description", now),
+		role.NewRole("LABEL_MEMBER" /**/, "Member" /*  */, "member description" /*  */, now),
+		role.NewRole("LABEL_STAFF" /* */, "Staff" /*   */, "staff description" /*   */, now),
 	}
 
 	testUtility.Truncate(t, orp)

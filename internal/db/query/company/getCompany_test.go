@@ -12,10 +12,10 @@ func TestGetCompany(t *testing.T) {
 	var now = testUtility.GetNow()
 
 	var records = []company.Company{
-		//                 persist_key,identifier,name   ,register_date
-		company.NewCompany(0, "CP-TESTES", "test company", now),
-		company.NewCompany(0, "CP-TASTAS", "tast company", now),
-		company.NewCompany(0, "CP-TOSTOS", "tost company", now),
+		//                 persist_key, identifier , name          , register_date
+		company.NewCompany(0 /*     */, "CP-TESTES", "test company", now),
+		company.NewCompany(0 /*     */, "CP-TASTAS", "tast company", now),
+		company.NewCompany(0 /*     */, "CP-TOSTOS", "tost company", now),
 	}
 
 	testUtility.Truncate(t, orp)

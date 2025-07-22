@@ -14,26 +14,26 @@ func TestGetCompanyInvite(t *testing.T) {
 	testUtility.Truncate(t, orp)
 
 	var roleRecords = []role.Role{
-		//           label        , name           , description                , register_date
-		role.NewRole("LABEL_ADMIN", "Administrator", "administrator description", now),
-		role.NewRole("LABEL_MEMBER", "Member", "member description", now),
-		role.NewRole("LABEL_STAFF", "Staff", "staff description", now),
+		//           label              , name           , description                , register_date
+		role.NewRole("LABEL_ADMIN" /* */, "Administrator", "administrator description", now),
+		role.NewRole("LABEL_MEMBER" /**/, "Member" /*  */, "member description" /*  */, now),
+		role.NewRole("LABEL_STAFF" /* */, "Staff" /*   */, "staff description" /*   */, now),
 	}
 	testUtility.Ready(t, orp, roleRecords)
 
 	var companyRecords = []company.Company{
-		//                 persist_key,identifier,name   , register_date
-		company.NewCompany(0, "CP-TESTES", "test company", now),
-		company.NewCompany(0, "CP-TASTAS", "tast company", now),
-		company.NewCompany(0, "CP-TOSTOS", "tost company", now),
+		//                 persist_key, identifier , name          , register_date
+		company.NewCompany(0 /*     */, "CP-TESTES", "test company", now),
+		company.NewCompany(0 /*     */, "CP-TASTAS", "tast company", now),
+		company.NewCompany(0 /*     */, "CP-TOSTOS", "tost company", now),
 	}
 	var savedCompanyRecords = testUtility.Ready(t, orp, companyRecords)
 
 	var companyInviteRecords = []company.CompanyInvite{
-		//                       persist_key,company_persist_key,token,role_label,register_date
-		company.NewCompanyInvite(0, savedCompanyRecords[0].PersistKey, "test_token01", "LABEL_MEMBER", now, now),
-		company.NewCompanyInvite(0, savedCompanyRecords[1].PersistKey, "test_token02", "LABEL_STAFF", now, now),
-		company.NewCompanyInvite(0, savedCompanyRecords[1].PersistKey, "test_token01", "LABEL_MEMBER", now, now),
+		//                       persist_key, company_persist_key              , token         , role_label         ,register_date, expire_date
+		company.NewCompanyInvite(0 /*     */, savedCompanyRecords[0].PersistKey, "test_token01", "LABEL_MEMBER" /**/, now /*    */, now),
+		company.NewCompanyInvite(0 /*     */, savedCompanyRecords[1].PersistKey, "test_token02", "LABEL_STAFF" /* */, now /*    */, now),
+		company.NewCompanyInvite(0 /*     */, savedCompanyRecords[1].PersistKey, "test_token01", "LABEL_MEMBER" /**/, now /*    */, now),
 	}
 	var savedCompanyInviteRecords = testUtility.Ready(t, orp, companyInviteRecords)
 
