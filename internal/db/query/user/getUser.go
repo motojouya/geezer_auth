@@ -12,10 +12,10 @@ type GetUserQuery interface {
 }
 
 func GetUser(executer gorp.SqlExecutor, identifier string) (*transfer.User, error) {
-	var sql, args, sqlErr = transfer.SelectUser.Where(goqu.C("u.identifier").Eq(identifier)).Prepared(true).ToSQL()
+	var sql, args, sqlErr = transfer.SelectUser.Where(goqu.I("u.identifier").Eq(identifier)).Prepared(true).ToSQL()
 	if sqlErr != nil {
 		return nil, sqlErr
 	}
 
-	return utility.SelectSingle[transfer.User](executer, "user", map[string]string{"identifier": identifier}, sql, args...)
+	return utility.SelectSingle[transfer.User](executer, "users", map[string]string{"identifier": identifier}, sql, args...)
 }

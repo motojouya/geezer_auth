@@ -7,7 +7,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/core/essence"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
-	//"github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
 )
 
 // FIXME Prepare関数いる？
@@ -43,7 +43,7 @@ func registerTable(dbMap *gorp.DbMap) {
 	company.AddCompanyInviteTable(dbMap)
 	role.AddRoleTable(dbMap)
 	role.AddRolePermissionTable(dbMap)
-	//user.AddUserTable(dbMap)
+	user.AddUserTable(dbMap)
 	//user.AddUserAccessTokenTable(dbMap)
 	//user.AddUserCompanyRoleTable(dbMap)
 	//user.AddUserEmailTable(dbMap)

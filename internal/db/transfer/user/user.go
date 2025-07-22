@@ -20,17 +20,17 @@ type User struct {
 }
 
 func AddUserTable(dbMap *gorp.DbMap) {
-	dbMap.AddTableWithName(User{}, "user").SetKeys(true, "PersistKey")
+	dbMap.AddTableWithName(User{}, "users").SetKeys(true, "PersistKey")
 }
 
-var SelectUser = utility.Dialect.From("user").As("u").Select(
-	goqu.C("u.persist_key").As("persist_key"),
-	goqu.C("u.identifier").As("identifier"),
-	goqu.C("u.email_identifier").As("email_identifier"),
-	goqu.C("u.name").As("name"),
-	goqu.C("u.bot_flag").As("bot_flag"),
-	goqu.C("u.register_date").As("register_date"),
-	goqu.C("u.update_date").As("update_date"),
+var SelectUser = utility.Dialect.From(goqu.T("users").As("u")).Select(
+	goqu.I("u.persist_key").As("persist_key"),
+	goqu.I("u.identifier").As("identifier"),
+	goqu.I("u.email_identifier").As("email_identifier"),
+	goqu.I("u.name").As("name"),
+	goqu.I("u.bot_flag").As("bot_flag"),
+	goqu.I("u.register_date").As("register_date"),
+	goqu.I("u.update_date").As("update_date"),
 )
 
 func FromCoreUser(coreUser core.UnsavedUser) User {
