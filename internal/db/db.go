@@ -44,7 +44,7 @@ func registerTable(dbMap *gorp.DbMap) {
 	role.AddRoleTable(dbMap)
 	role.AddRolePermissionTable(dbMap)
 	user.AddUserTable(dbMap)
-	//user.AddUserAccessTokenTable(dbMap)
+	user.AddUserAccessTokenTable(dbMap)
 	//user.AddUserCompanyRoleTable(dbMap)
 	//user.AddUserEmailTable(dbMap)
 	//user.AddUserPasswordTable(dbMap)
