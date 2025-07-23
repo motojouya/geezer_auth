@@ -2,9 +2,9 @@ package user_test
 
 import (
 	"github.com/motojouya/geezer_auth/internal/db/testUtility"
-	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
+	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
+	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -42,11 +42,11 @@ func TestGetUserCompanyRole(t *testing.T) {
 	var pastExpireDate = now.AddDate(0, 0, -3)
 	var records = []*user.UserCompanyRole{
 		//                      persist_key, user_persist_key              , company_persist_key              , role_label   , register_date        , expire_date
-		user.NewUserCompanyRole(0 /*     */, savedUserRecords[2].PersistKey, savedCompanyRecords[1].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), nil), //               x user03 指定されてない
-		user.NewUserCompanyRole(0 /*     */, savedUserRecords[0].PersistKey, savedCompanyRecords[0].PersistKey, "LABEL_ADMIN" /* */, now.AddDate(0, 0, -3), nil), //               o user01 expire null
+		user.NewUserCompanyRole(0 /*     */, savedUserRecords[2].PersistKey, savedCompanyRecords[1].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), nil),               // x user03 指定されてない
+		user.NewUserCompanyRole(0 /*     */, savedUserRecords[0].PersistKey, savedCompanyRecords[0].PersistKey, "LABEL_ADMIN" /* */, now.AddDate(0, 0, -3), nil),               // o user01 expire null
 		user.NewUserCompanyRole(0 /*     */, savedUserRecords[0].PersistKey, savedCompanyRecords[0].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), &futureExpireDate), // o user01 expire 未来
-		user.NewUserCompanyRole(0 /*     */, savedUserRecords[1].PersistKey, savedCompanyRecords[1].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), nil), //               o user02
-		user.NewUserCompanyRole(0 /*     */, savedUserRecords[0].PersistKey, savedCompanyRecords[0].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), &pastExpireDate), //   x user01 expire 過去
+		user.NewUserCompanyRole(0 /*     */, savedUserRecords[1].PersistKey, savedCompanyRecords[1].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), nil),               // o user02
+		user.NewUserCompanyRole(0 /*     */, savedUserRecords[0].PersistKey, savedCompanyRecords[0].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), &pastExpireDate),   // x user01 expire 過去
 	}
 	testUtility.ReadyPointer(t, orp, records)
 

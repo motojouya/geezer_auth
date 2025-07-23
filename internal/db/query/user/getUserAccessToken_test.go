@@ -22,11 +22,11 @@ func TestGetUserAccessToken(t *testing.T) {
 
 	var records = []user.UserAccessToken{
 		//                      persist_key, user_persist_key              , access_token    , source_update_date   , register_date        , expire_date
-		user.NewUserAccessToken(0 /*     */, savedUserRecords[0].PersistKey, "access_token05", now.AddDate(0, 0, -3), now.AddDate(0, 0, -3), now.AddDate(0, 0, 7)), // user.identifierと一致しない
-		user.NewUserAccessToken(0 /*     */, savedUserRecords[1].PersistKey, "access_token04", now.AddDate(0, 0, -3), now.AddDate(0, 0, -4), now.AddDate(0, 0, 7)), // 取得対象
-		user.NewUserAccessToken(0 /*     */, savedUserRecords[1].PersistKey, "access_token03", now.AddDate(0, 0, -3), now.AddDate(0, 0, -5), now.AddDate(0, 0, 7)), // 取得対象
-		user.NewUserAccessToken(0 /*     */, savedUserRecords[1].PersistKey, "access_token02", now.AddDate(0, 0, -7), now.AddDate(0, 0, -6), now.AddDate(0, 0, 7)), // user.update_dateと一致しない
-		user.NewUserAccessToken(0 /*     */, savedUserRecords[1].PersistKey, "access_token01", now.AddDate(0, 0, -3), now.AddDate(0, 0, -7), now.AddDate(0, 0, -7)), // expire_dateが過去
+		user.NewUserAccessToken(0 /*     */, savedUserRecords[0].PersistKey, "access_token05", now.AddDate(0, 0, -3), now.AddDate(0, 0, -3), now.AddDate(0, 0, 7)),  // x user.identifierと一致しない
+		user.NewUserAccessToken(0 /*     */, savedUserRecords[1].PersistKey, "access_token04", now.AddDate(0, 0, -3), now.AddDate(0, 0, -4), now.AddDate(0, 0, 7)),  // o 取得対象
+		user.NewUserAccessToken(0 /*     */, savedUserRecords[1].PersistKey, "access_token03", now.AddDate(0, 0, -3), now.AddDate(0, 0, -5), now.AddDate(0, 0, 7)),  // o 取得対象
+		user.NewUserAccessToken(0 /*     */, savedUserRecords[1].PersistKey, "access_token02", now.AddDate(0, 0, -7), now.AddDate(0, 0, -6), now.AddDate(0, 0, 7)),  // x user.update_dateと一致しない
+		user.NewUserAccessToken(0 /*     */, savedUserRecords[1].PersistKey, "access_token01", now.AddDate(0, 0, -3), now.AddDate(0, 0, -7), now.AddDate(0, 0, -7)), // x expire_dateが過去
 	}
 	testUtility.Ready(t, orp, records)
 

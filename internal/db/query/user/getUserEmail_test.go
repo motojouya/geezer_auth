@@ -22,8 +22,8 @@ func TestGetUserEmail(t *testing.T) {
 
 	var records = []*user.UserEmail{
 		//                persist_key, user_persist_key              , email               , verify_token01  ,register_date,verify_date, expire_date
-		user.NewUserEmail(0 /*     */, savedUserRecords[1].PersistKey, "test01@example.com", "verify_token01", now /*    */, nil /*  */, nil), //  o email一致
-		user.NewUserEmail(0 /*     */, savedUserRecords[1].PersistKey, "test02@example.com", "verify_token01", now /*    */, nil /*  */, nil), //  x email不一致
+		user.NewUserEmail(0 /*     */, savedUserRecords[1].PersistKey, "test01@example.com", "verify_token01", now /*    */, nil /*  */, nil),  // o email一致
+		user.NewUserEmail(0 /*     */, savedUserRecords[1].PersistKey, "test02@example.com", "verify_token01", now /*    */, nil /*  */, nil),  // x email不一致
 		user.NewUserEmail(0 /*     */, savedUserRecords[1].PersistKey, "test01@example.com", "verify_token01", now /*    */, nil /*  */, &now), // x expired
 	}
 	testUtility.ReadyPointer(t, orp, records)
@@ -44,12 +44,12 @@ func TestGetUserEmail(t *testing.T) {
 				VerifyDate:     nil,
 				ExpireDate:     nil,
 			},
-			UserIdentifier:        "US-TESTES",
-			UserExposeEmailId:     "test02@example.com",
-			UserName:              "test name",
-			UserBotFlag:           false,
-			UserRegisteredDate:    now.AddDate(0, -1, 0),
-			UserUpdateDate:        now.AddDate(0, 0, -3),
+			UserIdentifier:     "US-TESTES",
+			UserExposeEmailId:  "test02@example.com",
+			UserName:           "test name",
+			UserBotFlag:        false,
+			UserRegisteredDate: now.AddDate(0, -1, 0),
+			UserUpdateDate:     now.AddDate(0, 0, -3),
 		},
 	}
 
