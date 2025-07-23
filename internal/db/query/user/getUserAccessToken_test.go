@@ -8,45 +8,82 @@ import (
 	"time"
 )
 
-func TestGetUser(t *testing.T) {
+func TestGetUserAccessToken(t *testing.T) {
 	var now = testUtility.GetNow()
 	testUtility.Truncate(t, orp)
 
 	var userRecords = []user.User{
 		//           persist_key, identifier , email_idetifier     , name       , bot_flag  , register_date        , update_date
-		user.NewUser(0 /*     */, "US-TASTAS", "test01@example.com", "tast name", false /**/, now.adddate(0, -1, 0), now.adddate(0, 0, -3)),
-		user.NewUser(0 /*     */, "US-TESTES", "test01@example.com", "test name", false /**/, now.adddate(0, -1, 0), now.adddate(0, 0, -3)),
-		user.NewUser(0 /*     */, "US-TOSTOS", "test01@example.com", "tost name", false /**/, now.adddate(0, -1, 0), now.adddate(0, 0, -3)),
+		user.NewUser(0 /*     */, "US-TASTAS", "test01@example.com", "tast name", false /**/, now.AddDate(0, -1, 0), now.AddDate(0, 0, -3)),
+		user.NewUser(0 /*     */, "US-TESTES", "test01@example.com", "test name", false /**/, now.AddDate(0, -1, 0), now.AddDate(0, 0, -3)),
+		user.NewUser(0 /*     */, "US-TOSTOS", "test01@example.com", "tost name", false /**/, now.AddDate(0, -1, 0), now.AddDate(0, 0, -3)),
 	}
 	var savedUserRecords = testUtility.Ready(t, orp, userRecords)
 
 	var records = []user.UserAccessToken{
 		//                      persist_key, user_persist_key              , access_token    , source_update_date   , register_date        , expire_date
-		user.NewUserAccessToken(0 /*     */, savedUserRecords[0].PersistKey, "access_token05", now.adddate(0, 0, -3), now.AddDate(0, 0, -3), now.AddDate(0, 0, 7)), // user.identifierと一致しない
-		user.NewUserAccessToken(0 /*     */, savedUserRecords[1].PersistKey, "access_token04", now.adddate(0, 0, -3), now.AddDate(0, 0, -4), now.AddDate(0, 0, 7)),
-		user.NewUserAccessToken(0 /*     */, savedUserRecords[1].PersistKey, "access_token03", now.adddate(0, 0, -3), now.AddDate(0, 0, -5), now.AddDate(0, 0, 7)),
-		user.NewUserAccessToken(0 /*     */, savedUserRecords[1].PersistKey, "access_token02", now.adddate(0, 0, -7), now.AddDate(0, 0, -6), now.AddDate(0, 0, 7)), // user.update_dateと一致しない
-		user.NewUserAccessToken(0 /*     */, savedUserRecords[1].PersistKey, "access_token01", now.adddate(0, 0, -3), now.AddDate(0, 0, -7), now.AddDate(0, 0, -7)), // expire_dateが過去
+		user.NewUserAccessToken(0 /*     */, savedUserRecords[0].PersistKey, "access_token05", now.AddDate(0, 0, -3), now.AddDate(0, 0, -3), now.AddDate(0, 0, 7)), // user.identifierと一致しない
+		user.NewUserAccessToken(0 /*     */, savedUserRecords[1].PersistKey, "access_token04", now.AddDate(0, 0, -3), now.AddDate(0, 0, -4), now.AddDate(0, 0, 7)), // 取得対象
+		user.NewUserAccessToken(0 /*     */, savedUserRecords[1].PersistKey, "access_token03", now.AddDate(0, 0, -3), now.AddDate(0, 0, -5), now.AddDate(0, 0, 7)), // 取得対象
+		user.NewUserAccessToken(0 /*     */, savedUserRecords[1].PersistKey, "access_token02", now.AddDate(0, 0, -7), now.AddDate(0, 0, -6), now.AddDate(0, 0, 7)), // user.update_dateと一致しない
+		user.NewUserAccessToken(0 /*     */, savedUserRecords[1].PersistKey, "access_token01", now.AddDate(0, 0, -3), now.AddDate(0, 0, -7), now.AddDate(0, 0, -7)), // expire_dateが過去
 	}
-	var savedRecords = testUtility.Ready(t, orp, records)
+	testUtility.Ready(t, orp, records)
 
-	var result, err = orp.GetUser("US-TESTES")
+	var result, err = orp.GetUserAccessToken("US-TESTES", now)
 	if err != nil {
 		t.Fatalf("Could not get user: %s", err)
 	}
 
-	// TODO expectの値を作る。2行目、3行目の2レコード検索できる想定
+	var expects = []user.UserAccessTokenFull{
+		user.UserAccessTokenFull{
+			UserAccessToken: user.UserAccessToken{
+				PersistKey:       1,
+				UserPersistKey:   savedUserRecords[1].PersistKey,
+				AccessToken:      "access_token04",
+				SourceUpdateDate: now.AddDate(0, 0, -3),
+				RegisterDate:     now.AddDate(0, 0, -4),
+				ExpireDate:       now.AddDate(0, 0, 7),
+			},
+			UserIdentifier:     "US-TESTES",
+			UserExposeEmailId:  "test01@example.com",
+			UserName:           "test name",
+			UserBotFlag:        false,
+			UserRegisteredDate: now.AddDate(0, -1, 0),
+			UserUpdateDate:     now.AddDate(0, 0, -3),
+		},
+		user.UserAccessTokenFull{
+			UserAccessToken: user.UserAccessToken{
+				PersistKey:       2,
+				UserPersistKey:   savedUserRecords[1].PersistKey,
+				AccessToken:      "access_token03",
+				SourceUpdateDate: now.AddDate(0, 0, -3),
+				RegisterDate:     now.AddDate(0, 0, -5),
+				ExpireDate:       now.AddDate(0, 0, 7),
+			},
+			UserIdentifier:     "US-TESTES",
+			UserExposeEmailId:  "test01@example.com",
+			UserName:           "test name",
+			UserBotFlag:        false,
+			UserRegisteredDate: now.AddDate(0, -1, 0),
+			UserUpdateDate:     now.AddDate(0, 0, -3),
+		},
+	}
 
-	assert.NotNil(t, result)
-	assertSameUserAccessToken(t, savedRecords[1], *result)
+	testUtility.AssertRecords(t, expects, result, assertSameUserAccessToken)
 }
 
-func assertSameUserAccessToken(t *testing.T, expect user.UserAccessToken, actual user.UserAccessToken) {
-	assert.Equal(t, expect.PersistKey, actual.PersistKey)
-	assert.Equal(t, expect.Identifier, actual.Identifier)
-	assert.Equal(t, expect.ExposeEmailId, actual.ExposeEmailId)
-	assert.Equal(t, expect.Name, actual.Name)
-	assert.Equal(t, expect.BotFlag, actual.BotFlag)
-	assert.WithinDuration(t, expect.RegisteredDate, actual.RegisteredDate, time.Second)
-	assert.WithinDuration(t, expect.UpdateDate, actual.UpdateDate, time.Second)
+func assertSameUserAccessToken(t *testing.T, expect user.UserAccessTokenFull, actual user.UserAccessTokenFull) {
+	assert.Equal(t, expect.UserPersistKey, actual.UserPersistKey)
+	assert.Equal(t, expect.UserIdentifier, actual.UserIdentifier)
+	assert.Equal(t, expect.AccessToken, actual.AccessToken)
+	assert.WithinDuration(t, expect.SourceUpdateDate, actual.SourceUpdateDate, time.Second)
+	assert.WithinDuration(t, expect.RegisterDate, actual.RegisterDate, time.Second)
+	assert.WithinDuration(t, expect.ExpireDate, actual.ExpireDate, time.Second)
+	assert.Equal(t, expect.UserIdentifier, actual.UserIdentifier)
+	assert.Equal(t, expect.UserExposeEmailId, actual.UserExposeEmailId)
+	assert.Equal(t, expect.UserName, actual.UserName)
+	assert.Equal(t, expect.UserBotFlag, actual.UserBotFlag)
+	assert.WithinDuration(t, expect.UserRegisteredDate, actual.UserRegisteredDate, time.Second)
+	assert.WithinDuration(t, expect.UserUpdateDate, actual.UserUpdateDate, time.Second)
 }

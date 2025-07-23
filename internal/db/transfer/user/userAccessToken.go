@@ -42,7 +42,7 @@ func AddUserAccessTokenTable(dbMap *gorp.DbMap) {
 // )
 
 var SelectUserAccessToken = utility.Dialect.From(goqu.T("user_access_token").As("uat")).InnerJoin(
-	goqu.T("user").As("u"),
+	goqu.T("users").As("u"),
 	goqu.On(goqu.Ex{"uat.user_persist_key": goqu.I("u.persist_key")}),
 ).Select(
 	goqu.I("uat.persist_key").As("persist_key"),

@@ -20,7 +20,7 @@ type UserAuthentic struct {
 	UserCompanyRole    []UserCompanyRoleFull `db:"-"`
 }
 
-var SelectUserAuthentic = utility.Dialect.From("user").As("u").LeftOuterJoin(
+var SelectUserAuthentic = utility.Dialect.From("users").As("u").LeftOuterJoin(
 	goqu.T("user_email").As("ue"),
 	goqu.On(
 		goqu.C("u.persist_key").Eq("ue.user_persist_key"),

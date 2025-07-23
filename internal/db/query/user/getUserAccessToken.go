@@ -18,9 +18,9 @@ type GetUserAccessTokenQuery interface {
  */
 func GetUserAccessToken(executer gorp.SqlExecutor, identifier string, now time.Time) ([]transfer.UserAccessTokenFull, error) {
 	var sql, args, sqlErr = transfer.SelectUserAccessToken.Where(
-		goqu.C("u.identifier").Eq(identifier),
-		goqu.C("uat.source_update_date").Between(goqu.Range(goqu.L("u.update_date + '-1 second'"), goqu.L("u.update_date + '1 second'"))),
-		goqu.C("uat.expire_date").Gte(now),
+		goqu.I("u.identifier").Eq(identifier),
+		goqu.I("uat.source_update_date").Between(goqu.Range(goqu.L("u.update_date + '-1 second'"), goqu.L("u.update_date + '1 second'"))),
+		goqu.I("uat.expire_date").Gte(now),
 	).Prepared(true).ToSQL()
 	if sqlErr != nil {
 		return nil, sqlErr

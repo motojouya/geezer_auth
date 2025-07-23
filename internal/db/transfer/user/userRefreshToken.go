@@ -40,7 +40,7 @@ func AddUserRefreshTokenTable(dbMap *gorp.DbMap) {
 // )
 
 var SelectUserRefreshToken = utility.Dialect.From("user_refresh_token").As("urt").InnerJoin(
-	goqu.T("user").As("u"),
+	goqu.T("users").As("u"),
 	goqu.On(goqu.Ex{"uat.user_persist_key": goqu.I("u.persist_key")}),
 ).Select(
 	goqu.C("urt.persist_key").As("persist_key"),

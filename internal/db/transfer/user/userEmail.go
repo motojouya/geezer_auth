@@ -45,7 +45,7 @@ func AddUserEmailTable(dbMap *gorp.DbMap) {
 // )
 
 var SelectUserEmail = utility.Dialect.From("user_email").As("ue").InnerJoin(
-	goqu.T("user").As("u"),
+	goqu.T("users").As("u"),
 	goqu.On(goqu.Ex{"uat.user_persist_key": goqu.I("u.persist_key")}),
 ).Select(
 	goqu.C("ue.persist_key").As("persist_key"),

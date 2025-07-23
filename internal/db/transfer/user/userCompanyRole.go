@@ -48,8 +48,8 @@ func AddUserCompanyRoleTable(dbMap *gorp.DbMap) {
 // 	goqu.C("ucr.expire_date").As("expire_date"),
 // )
 
-var SelectUserCompanyRole = utility.Dialect.From("user_company_role").As("ucr").InnerJoin(
-	goqu.T("user").As("u"),
+var SelectUserCompanyRole = utility.Dialect.From(goqu.T("user_company_role").As("ucr")).InnerJoin(
+	goqu.T("users").As("u"),
 	goqu.On(goqu.Ex{"uat.user_persist_key": goqu.I("u.persist_key")}),
 ).InnerJoin(
 	goqu.T("company").As("c"),
@@ -58,24 +58,24 @@ var SelectUserCompanyRole = utility.Dialect.From("user_company_role").As("ucr").
 	goqu.T("role").As("r"),
 	goqu.On(goqu.Ex{"ci.role_label": goqu.I("r.label")}),
 ).Select(
-	goqu.C("ucr.persist_key").As("persist_key"),
-	goqu.C("ucr.user_persist_key").As("user_persist_key"),
-	goqu.C("u.identifier").As("user_identifier"),
-	goqu.C("u.email_identifier").As("user_email_identifier"),
-	goqu.C("u.name").As("user_name"),
-	goqu.C("u.bot_flag").As("user_bot_flag"),
-	goqu.C("u.register_date").As("user_register_date"),
-	goqu.C("u.update_date").As("user_update_date"),
-	goqu.C("ucr.company_persist_key").As("company_persist_key"),
-	goqu.C("c.identifier").As("company_identifier"),
-	goqu.C("c.name").As("company_name"),
-	goqu.C("c.register_date").As("company_register_date"),
-	goqu.C("ucr.role_label").As("role_label"),
-	goqu.C("r.name").As("role_name"),
-	goqu.C("r.description").As("role_description"),
-	goqu.C("r.register_date").As("role_register_date"),
-	goqu.C("ucr.register_date").As("register_date"),
-	goqu.C("ucr.expire_date").As("expire_date"),
+	goqu.I("ucr.persist_key").As("persist_key"),
+	goqu.I("ucr.user_persist_key").As("user_persist_key"),
+	goqu.I("u.identifier").As("user_identifier"),
+	goqu.I("u.email_identifier").As("user_email_identifier"),
+	goqu.I("u.name").As("user_name"),
+	goqu.I("u.bot_flag").As("user_bot_flag"),
+	goqu.I("u.register_date").As("user_register_date"),
+	goqu.I("u.update_date").As("user_update_date"),
+	goqu.I("ucr.company_persist_key").As("company_persist_key"),
+	goqu.I("c.identifier").As("company_identifier"),
+	goqu.I("c.name").As("company_name"),
+	goqu.I("c.register_date").As("company_register_date"),
+	goqu.I("ucr.role_label").As("role_label"),
+	goqu.I("r.name").As("role_name"),
+	goqu.I("r.description").As("role_description"),
+	goqu.I("r.register_date").As("role_register_date"),
+	goqu.I("ucr.register_date").As("register_date"),
+	goqu.I("ucr.expire_date").As("expire_date"),
 )
 
 func FromCoreUserCompanyRole(coreUserCompanyRole *core.UnsavedUserCompanyRole) *UserCompanyRole {

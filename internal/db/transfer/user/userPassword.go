@@ -40,7 +40,7 @@ func AddUserPasswordTable(dbMap *gorp.DbMap) {
 // )
 
 var SelectUserPassword = utility.Dialect.From("user_password").As("up").InnerJoin(
-	goqu.T("user").As("u"),
+	goqu.T("users").As("u"),
 	goqu.On(goqu.Ex{"up.user_persist_key": goqu.I("u.persist_key")}),
 ).Select(
 	goqu.C("up.persist_key").As("persist_key"),
