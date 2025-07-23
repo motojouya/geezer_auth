@@ -50,6 +50,27 @@ func Ready[T any](t *testing.T, orp db.ORP, records []T) []T {
 	return ret
 }
 
+func ReadyPointer[T any](t *testing.T, orp db.ORP, records []*T) []*T {
+	var rec []interface{}
+	for _, record := range records {
+		rec = append(rec, record)
+	}
+	var err = orp.Insert(rec...)
+	if err != nil {
+		t.Fatalf("Could not insert records: %s", err)
+	}
+
+	var ret = make([]*T, len(records))
+	for i, r := range rec {
+		var result, ok = r.(*T)
+		if !ok {
+			t.Fatalf("Expected type %T, got %T", ret[i], r)
+		}
+		ret[i] = result
+	}
+	return ret
+}
+
 func AssertRecords[T any](t *testing.T, expects []T, actuals []T, assertSame func(*testing.T, T, T)) {
 	if len(expects) != len(actuals) {
 		t.Fatalf("Expected %d records, got %d", len(expects), len(actuals))

@@ -44,23 +44,23 @@ func AddUserEmailTable(dbMap *gorp.DbMap) {
 // 	goqu.C("ue.expire_date").As("expire_date"),
 // )
 
-var SelectUserEmail = utility.Dialect.From("user_email").As("ue").InnerJoin(
+var SelectUserEmail = utility.Dialect.From(goqu.T("user_email").As("ue")).InnerJoin(
 	goqu.T("users").As("u"),
-	goqu.On(goqu.Ex{"uat.user_persist_key": goqu.I("u.persist_key")}),
+	goqu.On(goqu.Ex{"ue.user_persist_key": goqu.I("u.persist_key")}),
 ).Select(
-	goqu.C("ue.persist_key").As("persist_key"),
-	goqu.C("ue.user_persist_key").As("user_persist_key"),
-	goqu.C("u.identifier").As("user_identifier"),
-	goqu.C("u.email_identifier").As("user_email_identifier"),
-	goqu.C("u.name").As("user_name"),
-	goqu.C("u.bot_flag").As("user_bot_flag"),
-	goqu.C("u.register_date").As("user_register_date"),
-	goqu.C("u.update_date").As("user_update_date"),
-	goqu.C("ue.email").As("email"),
-	goqu.C("ue.verify_token").As("verify_token"),
-	goqu.C("ue.register_date").As("register_date"),
-	goqu.C("ue.verify_date").As("verify_date"),
-	goqu.C("ue.expire_date").As("expire_date"),
+	goqu.I("ue.persist_key").As("persist_key"),
+	goqu.I("ue.user_persist_key").As("user_persist_key"),
+	goqu.I("u.identifier").As("user_identifier"),
+	goqu.I("u.email_identifier").As("user_email_identifier"),
+	goqu.I("u.name").As("user_name"),
+	goqu.I("u.bot_flag").As("user_bot_flag"),
+	goqu.I("u.register_date").As("user_register_date"),
+	goqu.I("u.update_date").As("user_update_date"),
+	goqu.I("ue.email").As("email"),
+	goqu.I("ue.verify_token").As("verify_token"),
+	goqu.I("ue.register_date").As("register_date"),
+	goqu.I("ue.verify_date").As("verify_date"),
+	goqu.I("ue.expire_date").As("expire_date"),
 )
 
 func FromCoreUserEmail(coreUserEmail *core.UnsavedUserEmail) *UserEmail {

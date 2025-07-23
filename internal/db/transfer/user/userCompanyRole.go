@@ -50,13 +50,13 @@ func AddUserCompanyRoleTable(dbMap *gorp.DbMap) {
 
 var SelectUserCompanyRole = utility.Dialect.From(goqu.T("user_company_role").As("ucr")).InnerJoin(
 	goqu.T("users").As("u"),
-	goqu.On(goqu.Ex{"uat.user_persist_key": goqu.I("u.persist_key")}),
+	goqu.On(goqu.Ex{"ucr.user_persist_key": goqu.I("u.persist_key")}),
 ).InnerJoin(
 	goqu.T("company").As("c"),
-	goqu.On(goqu.Ex{"ci.company_persist_key": goqu.I("c.persist_key")}),
+	goqu.On(goqu.Ex{"ucr.company_persist_key": goqu.I("c.persist_key")}),
 ).InnerJoin(
 	goqu.T("role").As("r"),
-	goqu.On(goqu.Ex{"ci.role_label": goqu.I("r.label")}),
+	goqu.On(goqu.Ex{"ucr.role_label": goqu.I("r.label")}),
 ).Select(
 	goqu.I("ucr.persist_key").As("persist_key"),
 	goqu.I("ucr.user_persist_key").As("user_persist_key"),

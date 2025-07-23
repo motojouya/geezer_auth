@@ -12,8 +12,8 @@ type GetUserEmailQuery interface {
 
 func GetUserEmail(executer gorp.SqlExecutor, email string) ([]transfer.UserEmailFull, error) {
 	var sql, args, sqlErr = transfer.SelectUserEmail.Where(
-		goqu.C("ue.email").Eq(email),
-		goqu.C("ue.expire_date").IsNull(),
+		goqu.I("ue.email").Eq(email),
+		goqu.I("ue.expire_date").IsNull(),
 	).Prepared(true).ToSQL()
 	if sqlErr != nil {
 		return nil, sqlErr

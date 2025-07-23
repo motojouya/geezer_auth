@@ -3,12 +3,14 @@ package user_test
 import (
 	"github.com/motojouya/geezer_auth/internal/db/testUtility"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
+	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
-func TestGetUserAccessToken(t *testing.T) {
+func TestGetUserCompanyRole(t *testing.T) {
 	var now = testUtility.GetNow()
 	testUtility.Truncate(t, orp)
 
@@ -36,17 +38,19 @@ func TestGetUserAccessToken(t *testing.T) {
 	}
 	var savedUserRecords = testUtility.Ready(t, orp, userRecords)
 
-	var records = []user.UserCompanyRole{
+	var futureExpireDate = now.AddDate(0, 0, 7)
+	var pastExpireDate = now.AddDate(0, 0, -3)
+	var records = []*user.UserCompanyRole{
 		//                      persist_key, user_persist_key              , company_persist_key              , role_label   , register_date        , expire_date
-		user.NewUserCompanyRole(0 /*     */, savedUserRecords[2].PersistKey, savedCompanyRecords[1].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), nil) //                   x user03 指定されてない
-		user.NewUserCompanyRole(0 /*     */, savedUserRecords[0].PersistKey, savedCompanyRecords[0].PersistKey, "LABEL_ADMIN" /* */, now.AddDate(0, 0, -3), nil) //                   o user01 expire null
-		user.NewUserCompanyRole(0 /*     */, savedUserRecords[0].PersistKey, savedCompanyRecords[0].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), now.AddDate(0, 0, 7)) //  o user01 expire 未来
-		user.NewUserCompanyRole(0 /*     */, savedUserRecords[1].PersistKey, savedCompanyRecords[1].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), nil) //                   o user02
-		user.NewUserCompanyRole(0 /*     */, savedUserRecords[0].PersistKey, savedCompanyRecords[0].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), now.AddDate(0, 0, -3)) // x user01 expire 過去
+		user.NewUserCompanyRole(0 /*     */, savedUserRecords[2].PersistKey, savedCompanyRecords[1].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), nil), //               x user03 指定されてない
+		user.NewUserCompanyRole(0 /*     */, savedUserRecords[0].PersistKey, savedCompanyRecords[0].PersistKey, "LABEL_ADMIN" /* */, now.AddDate(0, 0, -3), nil), //               o user01 expire null
+		user.NewUserCompanyRole(0 /*     */, savedUserRecords[0].PersistKey, savedCompanyRecords[0].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), &futureExpireDate), // o user01 expire 未来
+		user.NewUserCompanyRole(0 /*     */, savedUserRecords[1].PersistKey, savedCompanyRecords[1].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), nil), //               o user02
+		user.NewUserCompanyRole(0 /*     */, savedUserRecords[0].PersistKey, savedCompanyRecords[0].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), &pastExpireDate), //   x user01 expire 過去
 	}
-	testUtility.Ready(t, orp, records)
+	testUtility.ReadyPointer(t, orp, records)
 
-	var result, err = orp.GetUserAccessToken([]string{"US-TASTAS", "US-TESTES"}, now)
+	var result, err = orp.GetUserCompanyRole([]string{"US-TASTAS", "US-TESTES"}, now)
 	if err != nil {
 		t.Fatalf("Could not get user: %s", err)
 	}
@@ -81,7 +85,7 @@ func TestGetUserAccessToken(t *testing.T) {
 				CompanyPersistKey: savedCompanyRecords[0].PersistKey,
 				RoleLabel:         "LABEL_MEMBER",
 				RegisterDate:      now.AddDate(0, 0, -3),
-				ExpireDate:        now.AddDate(0, 0, 7),
+				ExpireDate:        &futureExpireDate,
 			},
 			UserIdentifier:        "US-TASTAS",
 			UserExposeEmailId:     "test01@example.com",
@@ -124,17 +128,28 @@ func TestGetUserAccessToken(t *testing.T) {
 }
 
 func assertSameUserCompanyRole(t *testing.T, expect user.UserCompanyRoleFull, actual user.UserCompanyRoleFull) {
-	// TODO working
 	assert.Equal(t, expect.UserPersistKey, actual.UserPersistKey)
-	assert.Equal(t, expect.UserIdentifier, actual.UserIdentifier)
-	assert.Equal(t, expect.AccessToken, actual.AccessToken)
-	assert.WithinDuration(t, expect.SourceUpdateDate, actual.SourceUpdateDate, time.Second)
+	assert.Equal(t, expect.CompanyPersistKey, actual.CompanyPersistKey)
+	assert.Equal(t, expect.RoleLabel, actual.RoleLabel)
 	assert.WithinDuration(t, expect.RegisterDate, actual.RegisterDate, time.Second)
-	assert.WithinDuration(t, expect.ExpireDate, actual.ExpireDate, time.Second)
+	if expect.ExpireDate == nil {
+		assert.Nil(t, actual.ExpireDate)
+	} else {
+		assert.WithinDuration(t, *expect.ExpireDate, *actual.ExpireDate, time.Second)
+	}
+
 	assert.Equal(t, expect.UserIdentifier, actual.UserIdentifier)
 	assert.Equal(t, expect.UserExposeEmailId, actual.UserExposeEmailId)
 	assert.Equal(t, expect.UserName, actual.UserName)
 	assert.Equal(t, expect.UserBotFlag, actual.UserBotFlag)
 	assert.WithinDuration(t, expect.UserRegisteredDate, actual.UserRegisteredDate, time.Second)
 	assert.WithinDuration(t, expect.UserUpdateDate, actual.UserUpdateDate, time.Second)
+
+	assert.Equal(t, expect.CompanyIdentifier, actual.CompanyIdentifier)
+	assert.Equal(t, expect.CompanyName, actual.CompanyName)
+	assert.WithinDuration(t, expect.CompanyRegisteredDate, actual.CompanyRegisteredDate, time.Second)
+
+	assert.Equal(t, expect.RoleName, actual.RoleName)
+	assert.Equal(t, expect.RoleDescription, actual.RoleDescription)
+	assert.WithinDuration(t, expect.RoleRegisteredDate, actual.RoleRegisteredDate, time.Second)
 }
