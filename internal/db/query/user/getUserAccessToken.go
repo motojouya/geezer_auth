@@ -21,6 +21,8 @@ func GetUserAccessToken(executer gorp.SqlExecutor, identifier string, now time.T
 		goqu.I("u.identifier").Eq(identifier),
 		goqu.I("uat.source_update_date").Between(goqu.Range(goqu.L("u.update_date + '-1 second'"), goqu.L("u.update_date + '1 second'"))),
 		goqu.I("uat.expire_date").Gte(now),
+	).Order(
+		goqu.I("uat.register_date").Desc(),
 	).Prepared(true).ToSQL()
 	if sqlErr != nil {
 		return nil, sqlErr

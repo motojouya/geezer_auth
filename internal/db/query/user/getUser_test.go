@@ -14,8 +14,8 @@ func TestGetUser(t *testing.T) {
 	var records = []user.User{
 		//           persist_key, identifier , email_idetifier     , name       , bot_flag  , register_date, update_date
 		user.NewUser(0 /*     */, "US-TASTAS", "test01@example.com", "tast name", false /**/, now /*     */, now),
-		user.NewUser(0 /*     */, "US-TESTES", "test01@example.com", "test name", false /**/, now /*     */, now),
-		user.NewUser(0 /*     */, "US-TOSTOS", "test01@example.com", "tost name", false /**/, now /*     */, now),
+		user.NewUser(0 /*     */, "US-TESTES", "test02@example.com", "test name", false /**/, now /*     */, now),
+		user.NewUser(0 /*     */, "US-TOSTOS", "test03@example.com", "tost name", false /**/, now /*     */, now),
 	}
 
 	testUtility.Truncate(t, orp)

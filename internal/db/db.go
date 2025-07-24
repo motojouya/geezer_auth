@@ -39,16 +39,16 @@ func CreateDatabase(connection *sql.DB) ORP {
 }
 
 func registerTable(dbMap *gorp.DbMap) {
-	company.AddCompanyTable(dbMap)
-	company.AddCompanyInviteTable(dbMap)
-	role.AddRoleTable(dbMap)
-	role.AddRolePermissionTable(dbMap)
-	user.AddUserTable(dbMap)
+	//user.AddUserPasswordTable(dbMap)
+	//user.AddUserRefreshTokenTable(dbMap)
 	user.AddUserAccessTokenTable(dbMap)
 	user.AddUserCompanyRoleTable(dbMap)
 	user.AddUserEmailTable(dbMap)
-	//user.AddUserPasswordTable(dbMap)
-	//user.AddUserRefreshTokenTable(dbMap)
+	company.AddCompanyInviteTable(dbMap)
+	company.AddCompanyTable(dbMap)
+	user.AddUserTable(dbMap)
+	role.AddRolePermissionTable(dbMap)
+	role.AddRoleTable(dbMap)
 }
 
 type ORPImpl struct {

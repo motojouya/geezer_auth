@@ -46,7 +46,7 @@ func TestGetUserCompanyRole(t *testing.T) {
 		user.NewUserCompanyRole(0 /*     */, savedUserRecords[0].PersistKey, savedCompanyRecords[0].PersistKey, "LABEL_ADMIN" /* */, now.AddDate(0, 0, -3), nil),               // o user01 expire null
 		user.NewUserCompanyRole(0 /*     */, savedUserRecords[0].PersistKey, savedCompanyRecords[0].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), &futureExpireDate), // o user01 expire 未来
 		user.NewUserCompanyRole(0 /*     */, savedUserRecords[1].PersistKey, savedCompanyRecords[1].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), nil),               // o user02
-		user.NewUserCompanyRole(0 /*     */, savedUserRecords[0].PersistKey, savedCompanyRecords[0].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), &pastExpireDate),   // x user01 expire 過去
+		user.NewUserCompanyRole(0 /*     */, savedUserRecords[0].PersistKey, savedCompanyRecords[0].PersistKey, "LABEL_STAFF" /* */, now.AddDate(0, 0, -3), &pastExpireDate),   // x user01 expire 過去
 	}
 	testUtility.ReadyPointer(t, orp, records)
 

@@ -18,7 +18,31 @@ func GetNow() time.Time {
 	return time.Now().In(jst)
 }
 
+// truncateの順序を決めているので、順番が重要。依存される側があとに来るようにする。
+var tables = []string{
+	"user_access_token",
+	//"user_refresh_token",
+	//"user_password",
+	"user_company_role",
+	"user_email",
+	"company_invite",
+	"users",
+	"company",
+	"role_permission",
+	"role",
+}
+
 func Truncate(t *testing.T, orp db.ORP) {
+	for _, table := range tables {
+		var _, err = orp.Exec("TRUNCATE TABLE " + table + " CASCADE")
+		if err != nil {
+			t.Fatalf("Could not truncate table %s: %s", table, err)
+		}
+	}
+}
+
+// truncateはforeign key制約のためにcascadeをつける必要があるので、独自実装で行っている。
+func oldTruncate(t *testing.T, orp db.ORP) {
 	var impl, ok = orp.(*db.ORPImpl)
 	if !ok {
 		t.Fatalf("Expected db.ORPImpl, got %T", orp)

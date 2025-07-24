@@ -24,7 +24,7 @@ func TestGetUserEmail(t *testing.T) {
 		//                persist_key, user_persist_key              , email               , verify_token01  ,register_date,verify_date, expire_date
 		user.NewUserEmail(0 /*     */, savedUserRecords[1].PersistKey, "test01@example.com", "verify_token01", now /*    */, nil /*  */, nil),  // o email一致
 		user.NewUserEmail(0 /*     */, savedUserRecords[1].PersistKey, "test02@example.com", "verify_token01", now /*    */, nil /*  */, nil),  // x email不一致
-		user.NewUserEmail(0 /*     */, savedUserRecords[1].PersistKey, "test01@example.com", "verify_token01", now /*    */, nil /*  */, &now), // x expired
+		user.NewUserEmail(0 /*     */, savedUserRecords[0].PersistKey, "test01@example.com", "verify_token01", now /*    */, nil /*  */, &now), // x expired
 	}
 	testUtility.ReadyPointer(t, orp, records)
 

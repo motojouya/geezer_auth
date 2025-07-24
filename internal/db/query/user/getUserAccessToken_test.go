@@ -15,8 +15,8 @@ func TestGetUserAccessToken(t *testing.T) {
 	var userRecords = []user.User{
 		//           persist_key, identifier , email_idetifier     , name       , bot_flag  , register_date        , update_date
 		user.NewUser(0 /*     */, "US-TASTAS", "test01@example.com", "tast name", false /**/, now.AddDate(0, -1, 0), now.AddDate(0, 0, -3)),
-		user.NewUser(0 /*     */, "US-TESTES", "test01@example.com", "test name", false /**/, now.AddDate(0, -1, 0), now.AddDate(0, 0, -3)),
-		user.NewUser(0 /*     */, "US-TOSTOS", "test01@example.com", "tost name", false /**/, now.AddDate(0, -1, 0), now.AddDate(0, 0, -3)),
+		user.NewUser(0 /*     */, "US-TESTES", "test02@example.com", "test name", false /**/, now.AddDate(0, -1, 0), now.AddDate(0, 0, -3)),
+		user.NewUser(0 /*     */, "US-TOSTOS", "test03@example.com", "tost name", false /**/, now.AddDate(0, -1, 0), now.AddDate(0, 0, -3)),
 	}
 	var savedUserRecords = testUtility.Ready(t, orp, userRecords)
 
@@ -46,7 +46,7 @@ func TestGetUserAccessToken(t *testing.T) {
 				ExpireDate:       now.AddDate(0, 0, 7),
 			},
 			UserIdentifier:     "US-TESTES",
-			UserExposeEmailId:  "test01@example.com",
+			UserExposeEmailId:  "test02@example.com",
 			UserName:           "test name",
 			UserBotFlag:        false,
 			UserRegisteredDate: now.AddDate(0, -1, 0),
@@ -62,7 +62,7 @@ func TestGetUserAccessToken(t *testing.T) {
 				ExpireDate:       now.AddDate(0, 0, 7),
 			},
 			UserIdentifier:     "US-TESTES",
-			UserExposeEmailId:  "test01@example.com",
+			UserExposeEmailId:  "test02@example.com",
 			UserName:           "test name",
 			UserBotFlag:        false,
 			UserRegisteredDate: now.AddDate(0, -1, 0),
