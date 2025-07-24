@@ -91,12 +91,12 @@ func (orp ORPTransactionImpl) GetUserCompanyRole(identifiers []string, now time.
 }
 
 /** GetUserEmailOfToken */
-func (orp ORPImpl) GetUserEmailOfToken(identifier string, email string, verifyToken string, now time.Time) (*transferUser.UserEmailFull, error) {
-	return user.GetUserEmailOfToken(orp, identifier, email, verifyToken, now)
+func (orp ORPImpl) GetUserEmailOfToken(identifier string, email string) (*transferUser.UserEmailFull, error) {
+	return user.GetUserEmailOfToken(orp, identifier, email)
 }
 
-func (orp ORPTransactionImpl) GetUserEmailOfToken(identifier string, email string, verifyToken string, now time.Time) (*transferUser.UserEmailFull, error) {
-	return user.GetUserEmailOfToken(orp, identifier, email, verifyToken, now)
+func (orp ORPTransactionImpl) GetUserEmailOfToken(identifier string, email string) (*transferUser.UserEmailFull, error) {
+	return user.GetUserEmailOfToken(orp, identifier, email)
 }
 
 /** GetUserEmail */

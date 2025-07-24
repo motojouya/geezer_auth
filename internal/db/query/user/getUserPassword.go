@@ -14,10 +14,10 @@ type GetUserPasswordQuery interface {
 
 func GetUserPassword(executer gorp.SqlExecutor, identifier string, now time.Time) (*transfer.UserPasswordFull, error) {
 	var sql, args, sqlErr = transfer.SelectUserPassword.Where(
-		goqu.C("u.identifier").Eq(identifier),
+		goqu.I("u.identifier").Eq(identifier),
 		goqu.Or(
-			goqu.C("up.expire_date").Gte(now),
-			goqu.C("up.expire_date").IsNull(),
+			goqu.I("up.expire_date").Gte(now),
+			goqu.I("up.expire_date").IsNull(),
 		),
 	).Prepared(true).ToSQL()
 	if sqlErr != nil {

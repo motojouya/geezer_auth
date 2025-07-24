@@ -39,21 +39,21 @@ func AddUserPasswordTable(dbMap *gorp.DbMap) {
 // 	goqu.C("up.expire_date").As("expire_date"),
 // )
 
-var SelectUserPassword = utility.Dialect.From("user_password").As("up").InnerJoin(
+var SelectUserPassword = utility.Dialect.From(goqu.T("user_password").As("up")).InnerJoin(
 	goqu.T("users").As("u"),
 	goqu.On(goqu.Ex{"up.user_persist_key": goqu.I("u.persist_key")}),
 ).Select(
-	goqu.C("up.persist_key").As("persist_key"),
-	goqu.C("up.user_persist_key").As("user_persist_key"),
-	goqu.C("u.identifier").As("user_identifier"),
-	goqu.C("u.email_identifier").As("user_email_identifier"),
-	goqu.C("u.name").As("user_name"),
-	goqu.C("u.bot_flag").As("user_bot_flag"),
-	goqu.C("u.register_date").As("user_register_date"),
-	goqu.C("u.update_date").As("user_update_date"),
-	goqu.C("up.password").As("password"),
-	goqu.C("up.register_date").As("register_date"),
-	goqu.C("up.expire_date").As("expire_date"),
+	goqu.I("up.persist_key").As("persist_key"),
+	goqu.I("up.user_persist_key").As("user_persist_key"),
+	goqu.I("u.identifier").As("user_identifier"),
+	goqu.I("u.email_identifier").As("user_email_identifier"),
+	goqu.I("u.name").As("user_name"),
+	goqu.I("u.bot_flag").As("user_bot_flag"),
+	goqu.I("u.register_date").As("user_register_date"),
+	goqu.I("u.update_date").As("user_update_date"),
+	goqu.I("up.password").As("password"),
+	goqu.I("up.register_date").As("register_date"),
+	goqu.I("up.expire_date").As("expire_date"),
 )
 
 func FromCoreUserPassword(coreUserPassword *core.UnsavedUserPassword) *UserPassword {

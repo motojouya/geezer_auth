@@ -5,24 +5,22 @@ import (
 	"github.com/go-gorp/gorp"
 	transfer "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
-	"time"
 )
 
 type GetUserEmailOfTokenQuery interface {
-	GetUserEmailOfToken(identifier string, email string, verifyToken string, now time.Time) (*transfer.UserEmailFull, error)
+	GetUserEmailOfToken(identifier string, email string) (*transfer.UserEmailFull, error)
 }
 
-// FIXME time不要な気がする。identifierとemailがあれば、レコードを特定できて、それに対してverifyTokenを当てるほうがよい。
-func GetUserEmailOfToken(executer gorp.SqlExecutor, identifier string, email string, verifyToken string, now time.Time) (*transfer.UserEmailFull, error) {
+func GetUserEmailOfToken(executer gorp.SqlExecutor, identifier string, email string) (*transfer.UserEmailFull, error) {
 	var sql, args, sqlErr = transfer.SelectUserEmail.Where(
-		goqu.C("u.identifier").Eq(identifier),
-		goqu.C("ue.email").Eq(email),
-		goqu.C("ue.verify_token").Eq(verifyToken),
+		goqu.I("u.identifier").Eq(identifier),
+		goqu.I("ue.email").Eq(email),
+		//goqu.C("ue.verify_token").Eq(verifyToken),
 		// goqu.C("ue.verify_date").IsNull(), すでにverifiedならば、登録されましたと返せばいいだけ
-		goqu.Or(
-			goqu.C("ue.expire_date").Gte(now),
-			goqu.C("ue.expire_date").IsNull(),
-		),
+		//goqu.Or(
+		//	goqu.C("ue.expire_date").Gte(now),
+		//	goqu.C("ue.expire_date").IsNull(),
+		//),
 	).Prepared(true).ToSQL()
 	if sqlErr != nil {
 		return nil, sqlErr
@@ -31,7 +29,6 @@ func GetUserEmailOfToken(executer gorp.SqlExecutor, identifier string, email str
 	var keys = map[string]string{
 		"identifier":  identifier,
 		"email":       email,
-		"verifyToken": verifyToken,
 	}
 	var ue, execErr = utility.SelectSingle[transfer.UserEmailFull](executer, "user_email", keys, sql, args...)
 	if execErr != nil {

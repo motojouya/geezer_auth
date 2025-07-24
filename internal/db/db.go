@@ -39,12 +39,12 @@ func CreateDatabase(connection *sql.DB) ORP {
 }
 
 func registerTable(dbMap *gorp.DbMap) {
-	//user.AddUserPasswordTable(dbMap)
-	//user.AddUserRefreshTokenTable(dbMap)
 	user.AddUserAccessTokenTable(dbMap)
+	//user.AddUserRefreshTokenTable(dbMap)
+	user.AddUserPasswordTable(dbMap)
 	user.AddUserCompanyRoleTable(dbMap)
-	user.AddUserEmailTable(dbMap)
 	company.AddCompanyInviteTable(dbMap)
+	user.AddUserEmailTable(dbMap)
 	company.AddCompanyTable(dbMap)
 	user.AddUserTable(dbMap)
 	role.AddRolePermissionTable(dbMap)
