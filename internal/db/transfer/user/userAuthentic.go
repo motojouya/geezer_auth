@@ -23,24 +23,19 @@ type UserAuthentic struct {
 var SelectUserAuthentic = utility.Dialect.From("users").As("u").LeftOuterJoin(
 	goqu.T("user_email").As("ue"),
 	goqu.On(
-		goqu.C("u.persist_key").Eq("ue.user_persist_key"),
-		goqu.C("ue.verify_date").IsNotNull(),
-		goqu.C("ue.expire_date").IsNull(),
+		goqu.I("u.persist_key").Eq("ue.user_persist_key"),
+		goqu.I("ue.verify_date").IsNotNull(),
+		goqu.I("ue.expire_date").IsNull(),
 	),
-	// goqu.On(goqu.Ex{
-	// 	"u.persist_key":  goqu.I("ue.user_persist_key"),
-	// 	"ue.verify_date": goqu.I("ue.verify_date").IsNotNull(),
-	// 	"ue.expire_date": nil,
-	// }),
 ).Select(
-	goqu.C("u.persist_key").As("persist_key"),
-	goqu.C("u.identifier").As("identifier"),
-	goqu.C("u.email_identifier").As("email_identifier"),
-	goqu.C("u.name").As("name"),
-	goqu.C("u.bot_flag").As("bot_flag"),
-	goqu.C("u.register_date").As("register_date"),
-	goqu.C("u.update_date").As("update_date"),
-	goqu.C("ue.email").As("email"),
+	goqu.I("u.persist_key").As("persist_key"),
+	goqu.I("u.identifier").As("identifier"),
+	goqu.I("u.email_identifier").As("email_identifier"),
+	goqu.I("u.name").As("name"),
+	goqu.I("u.bot_flag").As("bot_flag"),
+	goqu.I("u.register_date").As("register_date"),
+	goqu.I("u.update_date").As("update_date"),
+	goqu.I("ue.email").As("email"),
 )
 
 func UserIdentifierUserAuthentic(userAuthentic *UserAuthentic) string {

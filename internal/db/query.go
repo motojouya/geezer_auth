@@ -109,12 +109,12 @@ func (orp ORPTransactionImpl) GetUserEmail(email string) ([]transferUser.UserEma
 }
 
 /** GetUserPassword */
-func (orp ORPImpl) GetUserPassword(identifier string, now time.Time) (*transferUser.UserPasswordFull, error) {
-	return user.GetUserPassword(orp, identifier, now)
+func (orp ORPImpl) GetUserPassword(identifier string) (*transferUser.UserPasswordFull, error) {
+	return user.GetUserPassword(orp, identifier)
 }
 
-func (orp ORPTransactionImpl) GetUserPassword(identifier string, now time.Time) (*transferUser.UserPasswordFull, error) {
-	return user.GetUserPassword(orp, identifier, now)
+func (orp ORPTransactionImpl) GetUserPassword(identifier string) (*transferUser.UserPasswordFull, error) {
+	return user.GetUserPassword(orp, identifier)
 }
 
 /** GetUserRefreshToken */

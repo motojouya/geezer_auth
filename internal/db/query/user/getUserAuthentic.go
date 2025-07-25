@@ -13,7 +13,7 @@ type GetUserAuthenticQuery interface {
 }
 
 func GetUserAuthentic(executer gorp.SqlExecutor, identifier string, now time.Time) (*transfer.UserAuthentic, error) {
-	var sql, args, sqlErr = transfer.SelectUserAuthentic.Where(goqu.C("u.identifier").Eq(identifier)).Prepared(true).ToSQL()
+	var sql, args, sqlErr = transfer.SelectUserAuthentic.Where(goqu.I("u.identifier").Eq(identifier)).Prepared(true).ToSQL()
 	if sqlErr != nil {
 		return nil, sqlErr
 	}

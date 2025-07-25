@@ -39,21 +39,21 @@ func AddUserRefreshTokenTable(dbMap *gorp.DbMap) {
 // 	goqu.C("urt.expire_date").As("expire_date"),
 // )
 
-var SelectUserRefreshToken = utility.Dialect.From("user_refresh_token").As("urt").InnerJoin(
+var SelectUserRefreshToken = utility.Dialect.From(goqu.T("user_refresh_token").As("urt")).InnerJoin(
 	goqu.T("users").As("u"),
-	goqu.On(goqu.Ex{"uat.user_persist_key": goqu.I("u.persist_key")}),
+	goqu.On(goqu.Ex{"urt.user_persist_key": goqu.I("u.persist_key")}),
 ).Select(
-	goqu.C("urt.persist_key").As("persist_key"),
-	goqu.C("urt.user_persist_key").As("user_persist_key"),
-	goqu.C("u.identifier").As("user_identifier"),
-	goqu.C("u.email_identifier").As("user_email_identifier"),
-	goqu.C("u.name").As("user_name"),
-	goqu.C("u.bot_flag").As("user_bot_flag"),
-	goqu.C("u.register_date").As("user_register_date"),
-	goqu.C("u.update_date").As("user_update_date"),
-	goqu.C("urt.refresh_token").As("refresh_token"),
-	goqu.C("urt.register_date").As("register_date"),
-	goqu.C("urt.expire_date").As("expire_date"),
+	goqu.I("urt.persist_key").As("persist_key"),
+	goqu.I("urt.user_persist_key").As("user_persist_key"),
+	goqu.I("u.identifier").As("user_identifier"),
+	goqu.I("u.email_identifier").As("user_email_identifier"),
+	goqu.I("u.name").As("user_name"),
+	goqu.I("u.bot_flag").As("user_bot_flag"),
+	goqu.I("u.register_date").As("user_register_date"),
+	goqu.I("u.update_date").As("user_update_date"),
+	goqu.I("urt.refresh_token").As("refresh_token"),
+	goqu.I("urt.register_date").As("register_date"),
+	goqu.I("urt.expire_date").As("expire_date"),
 )
 
 func FromCoreUserRefreshToken(coreUserRefreshToken core.UnsavedUserRefreshToken) UserRefreshToken {

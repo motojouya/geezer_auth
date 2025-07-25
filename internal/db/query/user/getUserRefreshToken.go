@@ -14,8 +14,8 @@ type GetUserRefreshTokenQuery interface {
 
 func GetUserRefreshToken(executer gorp.SqlExecutor, identifier string, now time.Time) (*transfer.UserRefreshTokenFull, error) {
 	var sql, args, sqlErr = transfer.SelectUserRefreshToken.Where(
-		goqu.C("u.identifier").Eq(identifier),
-		goqu.C("urt.expire_date").Gte(now),
+		goqu.I("u.identifier").Eq(identifier),
+		goqu.I("urt.expire_date").Gte(now),
 	).Prepared(true).ToSQL()
 	if sqlErr != nil {
 		return nil, sqlErr
@@ -28,7 +28,3 @@ func GetUserRefreshToken(executer gorp.SqlExecutor, identifier string, now time.
 
 	return urt, nil
 }
-
-// TODO verify_date, expire_dateを見るかいなか。verification最中のemailをどう許容するのか。一つしかない状況を作るほうが健全か。
-// 当該のemailを使っていいか否かだけど、これはexpire_date is not nullならいいか。間違えて人のやつを試してみることはあり得る。
-// verification中のものが複数ある場合、どれにすべきか判断が面倒になるので。なので、新しくemail登録がなされた場合は、verification中のものはexpire_dateを設定するようにする。

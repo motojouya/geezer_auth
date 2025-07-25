@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func TestGetUserPassword(t *testing.T) {
+func TestGetUserRefreshToken(t *testing.T) {
 	var now = testUtility.GetNow()
 	testUtility.Truncate(t, orp)
 
@@ -20,26 +20,26 @@ func TestGetUserPassword(t *testing.T) {
 	}
 	var savedUserRecords = testUtility.Ready(t, orp, userRecords)
 
-	var records = []*user.UserPassword{
-		//                   persist_key, user_persist_key              , password    ,register_date,expire_date
-		user.NewUserPassword(0 /*     */, savedUserRecords[0].PersistKey, "password01", now /*    */, nil),  // x user 不一致
-		user.NewUserPassword(0 /*     */, savedUserRecords[1].PersistKey, "password02", now /*    */, nil),  // o 対象
-		user.NewUserPassword(0 /*     */, savedUserRecords[1].PersistKey, "password03", now /*    */, &now), // x expire
+	var records = []user.UserRefreshToken{
+		//                       persist_key, user_persist_key              , refresh_token    , register_date        , expire_date
+		user.NewUserRefreshToken(0 /*     */, savedUserRecords[0].PersistKey, "refresh_token01", now.AddDate(0, -1, 0), now.AddDate(0, 0, 7)),  // x user不一致
+		user.NewUserRefreshToken(0 /*     */, savedUserRecords[1].PersistKey, "refresh_token02", now.AddDate(0, -1, 0), now.AddDate(0, 0, 7)),  // o 対象
+		user.NewUserRefreshToken(0 /*     */, savedUserRecords[1].PersistKey, "refresh_token03", now.AddDate(0, -1, 0), now.AddDate(0, 0, -7)), // x expire_date過去
 	}
-	testUtility.ReadyPointer(t, orp, records)
+	testUtility.Ready(t, orp, records)
 
-	var result, err = orp.GetUserPassword("US-TESTES")
+	var result, err = orp.GetUserRefreshToken("US-TESTES", now)
 	if err != nil {
 		t.Fatalf("Could not get user: %s", err)
 	}
 
-	var expect = user.UserPasswordFull{
-		UserPassword: user.UserPassword{
+	var expect = user.UserRefreshTokenFull{
+		UserRefreshToken: user.UserRefreshToken{
 			PersistKey:     1,
 			UserPersistKey: savedUserRecords[1].PersistKey,
-			Password:       "password02",
-			RegisteredDate: now,
-			ExpireDate:     nil,
+			RefreshToken:   "refresh_token02",
+			RegisterDate:   now.AddDate(0, -1, 0),
+			ExpireDate:     now.AddDate(0, 0, 7),
 		},
 		UserIdentifier:     "US-TESTES",
 		UserExposeEmailId:  "test02@example.com",
@@ -50,18 +50,14 @@ func TestGetUserPassword(t *testing.T) {
 	}
 
 	assert.NotNil(t, result)
-	assertSameUserPassword(t, expect, *result)
+	assertSameUserRefreshToken(t, expect, *result)
 }
 
-func assertSameUserPassword(t *testing.T, expect user.UserPasswordFull, actual user.UserPasswordFull) {
+func assertSameUserRefreshToken(t *testing.T, expect user.UserRefreshTokenFull, actual user.UserRefreshTokenFull) {
 	assert.Equal(t, expect.UserPersistKey, actual.UserPersistKey)
-	assert.Equal(t, expect.Password, actual.Password)
-	assert.WithinDuration(t, expect.RegisteredDate, actual.RegisteredDate, time.Second)
-	if expect.ExpireDate == nil {
-		assert.Nil(t, actual.ExpireDate)
-	} else {
-		assert.WithinDuration(t, *expect.ExpireDate, *actual.ExpireDate, time.Second)
-	}
+	assert.Equal(t, expect.RefreshToken, actual.RefreshToken)
+	assert.WithinDuration(t, expect.RegisterDate, actual.RegisterDate, time.Second)
+	assert.WithinDuration(t, expect.ExpireDate, actual.ExpireDate, time.Second)
 
 	assert.Equal(t, expect.UserIdentifier, actual.UserIdentifier)
 	assert.Equal(t, expect.UserExposeEmailId, actual.UserExposeEmailId)
