@@ -21,8 +21,8 @@ func GetNow() time.Time {
 // truncateの順序を決めているので、順番が重要。依存される側があとに来るようにする。
 var tables = []string{
 	"user_access_token",
-	//"user_refresh_token",
-	//"user_password",
+	"user_refresh_token",
+	"user_password",
 	"user_company_role",
 	"user_email",
 	"company_invite",
@@ -112,7 +112,7 @@ func AssertTable[T any](t *testing.T, orp db.ORP, orders []string, expects []T, 
 	}
 
 	var zero T
-	var table, tableErr = impl.DbMap.TableFor(reflect.TypeOf(zero).Elem(), true)
+	var table, tableErr = impl.DbMap.TableFor(reflect.TypeOf(zero), true)
 	if tableErr != nil {
 		t.Fatalf("Could not get table for %T: %s", zero, tableErr)
 	}
