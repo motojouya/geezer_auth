@@ -27,8 +27,8 @@ func GetUserEmailOfToken(executer gorp.SqlExecutor, identifier string, email str
 	}
 
 	var keys = map[string]string{
-		"identifier":  identifier,
-		"email":       email,
+		"identifier": identifier,
+		"email":      email,
 	}
 	var ue, execErr = utility.SelectSingle[transfer.UserEmailFull](executer, "user_email", keys, sql, args...)
 	if execErr != nil {

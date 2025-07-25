@@ -1,4 +1,3 @@
-
 package user_test
 
 import (
