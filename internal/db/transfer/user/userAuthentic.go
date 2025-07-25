@@ -20,10 +20,10 @@ type UserAuthentic struct {
 	UserCompanyRole    []UserCompanyRoleFull `db:"-"`
 }
 
-var SelectUserAuthentic = utility.Dialect.From("users").As("u").LeftOuterJoin(
+var SelectUserAuthentic = utility.Dialect.From(goqu.T("users").As("u")).LeftOuterJoin(
 	goqu.T("user_email").As("ue"),
 	goqu.On(
-		goqu.I("u.persist_key").Eq("ue.user_persist_key"),
+		goqu.I("u.persist_key").Eq(goqu.I("ue.user_persist_key")),
 		goqu.I("ue.verify_date").IsNotNull(),
 		goqu.I("ue.expire_date").IsNull(),
 	),

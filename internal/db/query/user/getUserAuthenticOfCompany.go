@@ -15,21 +15,25 @@ type GetUserAuthenticOfCompanyQuery interface {
 
 func GetUserAuthenticOfCompany(executer gorp.SqlExecutor, identifier string, now time.Time) ([]transfer.UserAuthentic, error) {
 	var sql, args, sqlErr = transfer.SelectUserAuthentic.InnerJoin(
-		utility.Dialect.From("user_company_role").As("ucr").Select(goqu.Select("ucr.company_persist_key").Distinct().As("company_persist_key")),
-		goqu.On(
-			goqu.C("u.persist_key").Eq("ucr.user_persist_key"),
+		utility.Dialect.From(goqu.T("user_company_role").As("ucr")).Where(
 			goqu.Or(
-				goqu.C("ucr.expire_date").Gte(now),
-				goqu.C("ucr.expire_date").IsNull(),
+				goqu.I("ucr.expire_date").Gte(now),
+				goqu.I("ucr.expire_date").IsNull(),
 			),
+		).Select(
+			goqu.I("ucr.user_persist_key").As("user_persist_key"),
+			goqu.I("ucr.company_persist_key").As("company_persist_key"),
+		).Distinct().As("cref"),
+		goqu.On(
+			goqu.I("u.persist_key").Eq(goqu.I("cref.user_persist_key")),
 		),
 	).InnerJoin(
-		utility.Dialect.From("company").As("c"),
+		goqu.T("company").As("c"),
 		goqu.On(
-			goqu.C("c.persist_key").Eq("ucr.company_persist_key"),
-			goqu.C("c.identifier").Eq(identifier),
+			goqu.I("c.persist_key").Eq(goqu.I("cref.company_persist_key")),
+			goqu.I("c.identifier").Eq(identifier),
 		),
-	).Prepared(true).ToSQL()
+	).Order(goqu.I("u.persist_key").Asc()).Prepared(true).ToSQL()
 	if sqlErr != nil {
 		return nil, sqlErr
 	}

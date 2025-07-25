@@ -1,3 +1,4 @@
+
 package user_test
 
 import (
@@ -5,12 +6,10 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
 
-func TestGetUserAuthentic(t *testing.T) {
+func TestGetUserAuthenticOfCompany(t *testing.T) {
 	var now = testUtility.GetNow()
 	testUtility.Truncate(t, orp)
 
@@ -35,6 +34,7 @@ func TestGetUserAuthentic(t *testing.T) {
 		user.NewUser(0 /*     */, "US-TASTAS", "test01@example.com", "tast name", false /**/, now.AddDate(0, -1, 0), now.AddDate(0, 0, -3)),
 		user.NewUser(0 /*     */, "US-TESTES", "test02@example.com", "test name", false /**/, now.AddDate(0, -1, 0), now.AddDate(0, 0, -3)),
 		user.NewUser(0 /*     */, "US-TOSTOS", "test03@example.com", "tost name", false /**/, now.AddDate(0, -1, 0), now.AddDate(0, 0, -3)),
+		user.NewUser(0 /*     */, "US-TUSTUS", "test04@example.com", "tust name", false /**/, now.AddDate(0, -1, 0), now.AddDate(0, 0, -3)),
 	}
 	var savedUserRecords = testUtility.Ready(t, orp, userRecords)
 
@@ -57,89 +57,108 @@ func TestGetUserAuthentic(t *testing.T) {
 		user.NewUserCompanyRole(0 /*     */, savedUserRecords[1].PersistKey, savedCompanyRecords[1].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), &futureExpireDate), // o user02 expire 未来
 		user.NewUserCompanyRole(0 /*     */, savedUserRecords[0].PersistKey, savedCompanyRecords[0].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), nil),               // x user01
 		user.NewUserCompanyRole(0 /*     */, savedUserRecords[1].PersistKey, savedCompanyRecords[1].PersistKey, "LABEL_STAFF" /* */, now.AddDate(0, 0, -3), &pastExpireDate),   // x user02 expire 過去
+		user.NewUserCompanyRole(0 /*     */, savedUserRecords[3].PersistKey, savedCompanyRecords[1].PersistKey, "LABEL_MEMBER" /**/, now.AddDate(0, 0, -3), nil),               // o user02 expire null
 	}
 	testUtility.ReadyPointer(t, orp, records)
 
-	var result, err = orp.GetUserAuthentic("US-TESTES", now)
+	var result, err = orp.GetUserAuthenticOfCompany("CP-TESTES", now)
 	if err != nil {
 		t.Fatalf("Could not get user: %s", err)
 	}
 
 	var expectEmail = "test02@example.com"
-	var expect = user.UserAuthentic{
-		UserPersistKey:     savedUserRecords[1].PersistKey,
-		UserIdentifier:     "US-TESTES",
-		UserExposeEmailId:  "test02@example.com",
-		UserName:           "test name",
-		UserBotFlag:        false,
-		UserRegisteredDate: now.AddDate(0, -1, 0),
-		UserUpdateDate:     now.AddDate(0, 0, -3),
-		Email:              &expectEmail,
-		UserCompanyRole: []user.UserCompanyRoleFull{
-			user.UserCompanyRoleFull{
-				UserCompanyRole: user.UserCompanyRole{
-					PersistKey:        1,
-					UserPersistKey:    savedUserRecords[1].PersistKey,
-					CompanyPersistKey: savedCompanyRecords[1].PersistKey,
-					RoleLabel:         "LABEL_ADMIN",
-					RegisterDate:      now.AddDate(0, 0, -3),
-					ExpireDate:        nil,
+	var expects = []user.UserAuthentic{
+		user.UserAuthentic{
+			UserPersistKey:     savedUserRecords[1].PersistKey,
+			UserIdentifier:     "US-TESTES",
+			UserExposeEmailId:  "test02@example.com",
+			UserName:           "test name",
+			UserBotFlag:        false,
+			UserRegisteredDate: now.AddDate(0, -1, 0),
+			UserUpdateDate:     now.AddDate(0, 0, -3),
+			Email:              &expectEmail,
+			UserCompanyRole: []user.UserCompanyRoleFull{
+				user.UserCompanyRoleFull{
+					UserCompanyRole: user.UserCompanyRole{
+						PersistKey:        1,
+						UserPersistKey:    savedUserRecords[1].PersistKey,
+						CompanyPersistKey: savedCompanyRecords[1].PersistKey,
+						RoleLabel:         "LABEL_ADMIN",
+						RegisterDate:      now.AddDate(0, 0, -3),
+						ExpireDate:        nil,
+					},
+					UserIdentifier:        "US-TESTES",
+					UserExposeEmailId:     "test02@example.com",
+					UserName:              "test name",
+					UserBotFlag:           false,
+					UserRegisteredDate:    now.AddDate(0, -1, 0),
+					UserUpdateDate:        now.AddDate(0, 0, -3),
+					CompanyIdentifier:     "CP-TESTES",
+					CompanyName:           "test company",
+					CompanyRegisteredDate: now,
+					RoleName:              "Administrator",
+					RoleDescription:       "administrator description",
+					RoleRegisteredDate:    now,
 				},
-				UserIdentifier:        "US-TESTES",
-				UserExposeEmailId:     "test02@example.com",
-				UserName:              "test name",
-				UserBotFlag:           false,
-				UserRegisteredDate:    now.AddDate(0, -1, 0),
-				UserUpdateDate:        now.AddDate(0, 0, -3),
-				CompanyIdentifier:     "CP-TESTES",
-				CompanyName:           "test company",
-				CompanyRegisteredDate: now,
-				RoleName:              "Administrator",
-				RoleDescription:       "administrator description",
-				RoleRegisteredDate:    now,
+				user.UserCompanyRoleFull{
+					UserCompanyRole: user.UserCompanyRole{
+						PersistKey:        2,
+						UserPersistKey:    savedUserRecords[1].PersistKey,
+						CompanyPersistKey: savedCompanyRecords[1].PersistKey,
+						RoleLabel:         "LABEL_MEMBER",
+						RegisterDate:      now.AddDate(0, 0, -3),
+						ExpireDate:        &futureExpireDate,
+					},
+					UserIdentifier:        "US-TESTES",
+					UserExposeEmailId:     "test02@example.com",
+					UserName:              "test name",
+					UserBotFlag:           false,
+					UserRegisteredDate:    now.AddDate(0, -1, 0),
+					UserUpdateDate:        now.AddDate(0, 0, -3),
+					CompanyIdentifier:     "CP-TESTES",
+					CompanyName:           "test company",
+					CompanyRegisteredDate: now,
+					RoleName:              "Member",
+					RoleDescription:       "member description",
+					RoleRegisteredDate:    now,
+				},
 			},
-			user.UserCompanyRoleFull{
-				UserCompanyRole: user.UserCompanyRole{
-					PersistKey:        2,
-					UserPersistKey:    savedUserRecords[1].PersistKey,
-					CompanyPersistKey: savedCompanyRecords[1].PersistKey,
-					RoleLabel:         "LABEL_MEMBER",
-					RegisterDate:      now.AddDate(0, 0, -3),
-					ExpireDate:        &futureExpireDate,
+		},
+		user.UserAuthentic{
+			UserPersistKey:     savedUserRecords[3].PersistKey,
+			UserIdentifier:     "US-TUSTUS",
+			UserExposeEmailId:  "test04@example.com",
+			UserName:           "tust name",
+			UserBotFlag:        false,
+			UserRegisteredDate: now.AddDate(0, -1, 0),
+			UserUpdateDate:     now.AddDate(0, 0, -3),
+			Email:              nil,
+			UserCompanyRole: []user.UserCompanyRoleFull{
+				user.UserCompanyRoleFull{
+					UserCompanyRole: user.UserCompanyRole{
+						PersistKey:        2,
+						UserPersistKey:    savedUserRecords[3].PersistKey,
+						CompanyPersistKey: savedCompanyRecords[1].PersistKey,
+						RoleLabel:         "LABEL_MEMBER",
+						RegisterDate:      now.AddDate(0, 0, -3),
+						ExpireDate:        nil,
+					},
+					UserIdentifier:        "US-TUSTUS",
+					UserExposeEmailId:     "test04@example.com",
+					UserName:              "tust name",
+					UserBotFlag:           false,
+					UserRegisteredDate:    now.AddDate(0, -1, 0),
+					UserUpdateDate:        now.AddDate(0, 0, -3),
+					CompanyIdentifier:     "CP-TESTES",
+					CompanyName:           "test company",
+					CompanyRegisteredDate: now,
+					RoleName:              "Member",
+					RoleDescription:       "member description",
+					RoleRegisteredDate:    now,
 				},
-				UserIdentifier:        "US-TESTES",
-				UserExposeEmailId:     "test02@example.com",
-				UserName:              "test name",
-				UserBotFlag:           false,
-				UserRegisteredDate:    now.AddDate(0, -1, 0),
-				UserUpdateDate:        now.AddDate(0, 0, -3),
-				CompanyIdentifier:     "CP-TESTES",
-				CompanyName:           "test company",
-				CompanyRegisteredDate: now,
-				RoleName:              "Member",
-				RoleDescription:       "member description",
-				RoleRegisteredDate:    now,
 			},
 		},
 	}
 
-	assert.NotNil(t, result)
-	assertSameUserAuthentic(t, expect, *result)
-}
-
-func assertSameUserAuthentic(t *testing.T, expect user.UserAuthentic, actual user.UserAuthentic) {
-	assert.Equal(t, expect.UserPersistKey, actual.UserPersistKey)
-	assert.Equal(t, expect.UserIdentifier, actual.UserIdentifier)
-	assert.Equal(t, expect.UserExposeEmailId, actual.UserExposeEmailId)
-	assert.Equal(t, expect.UserName, actual.UserName)
-	assert.Equal(t, expect.UserBotFlag, actual.UserBotFlag)
-	assert.WithinDuration(t, expect.UserRegisteredDate, actual.UserRegisteredDate, time.Second)
-	assert.WithinDuration(t, expect.UserUpdateDate, actual.UserUpdateDate, time.Second)
-	assert.Equal(t, expect.Email, actual.Email)
-
-	assert.Equal(t, len(expect.UserCompanyRole), len(actual.UserCompanyRole))
-	for i, expectUCR := range expect.UserCompanyRole {
-		actualUCR := actual.UserCompanyRole[i]
-		assertSameUserCompanyRole(t, expectUCR, actualUCR)
-	}
+	testUtility.AssertRecords(t, expects, result, assertSameUserAuthentic)
 }
