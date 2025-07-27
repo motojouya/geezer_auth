@@ -2,9 +2,9 @@ package command_test
 
 import (
 	"github.com/motojouya/geezer_auth/internal/core/essence"
+	"github.com/motojouya/geezer_auth/internal/db/query/command"
 	"github.com/motojouya/geezer_auth/internal/db/testUtility"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	"github.com/motojouya/geezer_auth/internal/db/query/command"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
