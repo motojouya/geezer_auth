@@ -7,7 +7,6 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db/query/command"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
 
 func TestAddPassword(t *testing.T) {
@@ -26,36 +25,29 @@ func TestAddPassword(t *testing.T) {
 	var pastExpireDate = now.AddDate(0, -1, 0)
 	var records = []*user.UserPassword{
 		//                   persist_key,user_persist_key, password    ,register_date,expire_date
-		user.NewUserPassword(0 /*     */, savedUserRecords[0].PersistKey, "password01", now /*    */, nil),             // x user 不一致
-		user.NewUserPassword(0 /*     */, savedUserRecords[1].PersistKey, "password02", now /*    */, nil),             // o 対象
-		user.NewUserPassword(0 /*     */, savedUserRecords[1].PersistKey, "password03", now /*    */, &pastExpireDate), // x expire
+		user.NewUserPassword(0 /*     */, savedUserRecords[0].PersistKey, "password01", now /*    */, nil),             // user 不一致
+		user.NewUserPassword(0 /*     */, savedUserRecords[1].PersistKey, "password02", now /*    */, nil),             // 現行
+		user.NewUserPassword(0 /*     */, savedUserRecords[1].PersistKey, "password03", now /*    */, &pastExpireDate), // expire
 	}
 	testUtility.ReadyPointer(t, orp, records)
 
-	// TODO working
-	var err = orp.AddPassword(savedUserRecords[1].PersistKey, now)
+	var newRecord = user.NewUserPassword(0, savedUserRecords[1].PersistKey, "password04", now.AddDate(0, 0, 3), nil)
+	var savedRecord, err = command.AddPassword(orp, newRecord, now)
 	if err != nil {
 		t.Fatalf("Could not get user: %s", err)
 	}
 
+	assert.NotNil(t, savedRecord)
+	assertSameUserPassword(t, *newRecord, *savedRecord)
+
 	var expectRecords = []*user.UserPassword{
-		//                   persist_key,user_persist_key, password    ,register_date,expire_date
-		user.NewUserPassword(1 /*     */, 1 /*         */, "password01", now /*    */, nil),             // x user 不一致
-		user.NewUserPassword(2 /*     */, 2 /*         */, "password02", now /*    */, &now),            // o 対象
-		user.NewUserPassword(3 /*     */, 2 /*         */, "password03", now /*    */, &pastExpireDate), // x expire
+		//                   persist_key, user_persist_key              , password    , register_date       , expire_date
+		user.NewUserPassword(1 /*     */, savedUserRecords[0].PersistKey, "password01", now /*            */, nil),             // user 不一致
+		user.NewUserPassword(2 /*     */, savedUserRecords[1].PersistKey, "password02", now /*            */, &now),            // 旧
+		user.NewUserPassword(3 /*     */, savedUserRecords[1].PersistKey, "password03", now /*            */, &pastExpireDate), // expire
+		user.NewUserPassword(4 /*     */, savedUserRecords[1].PersistKey, "password04", now.AddDate(0, 0, 3), nil),             // 新規
 	}
 
 	var expects = essence.ToVal(expectRecords)
 	testUtility.AssertTable(t, orp, []string{"persist_key"}, expects, assertSameUserPassword)
-}
-
-func assertSameUserPassword(t *testing.T, expect user.UserPassword, actual user.UserPassword) {
-	assert.Equal(t, expect.UserPersistKey, actual.UserPersistKey)
-	assert.Equal(t, expect.Password, actual.Password)
-	assert.WithinDuration(t, expect.RegisteredDate, actual.RegisteredDate, time.Second)
-	if expect.ExpireDate == nil {
-		assert.Nil(t, actual.ExpireDate)
-	} else {
-		assert.WithinDuration(t, *expect.ExpireDate, *actual.ExpireDate, time.Second)
-	}
 }

@@ -163,6 +163,6 @@ func (orp ORPTransactionImpl) AddPassword(userPassword *transferUser.UserPasswor
 	return command.AddPassword(orp, userPassword, now)
 }
 
-func (orp ORPTransactionImpl) AddRefreshToken(userRefreshToken *transferUser.UserRefreshToken, now time.Time) (*transferUser.UserRefreshToken, error) {
+func (orp ORPTransactionImpl) AddRefreshToken(userRefreshToken transferUser.UserRefreshToken, now time.Time) (transferUser.UserRefreshToken, error) {
 	return command.AddRefreshToken(orp, userRefreshToken, now)
 }

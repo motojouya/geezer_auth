@@ -25,7 +25,7 @@ func TestExpirePassword(t *testing.T) {
 
 	var pastExpireDate = now.AddDate(0, -1, 0)
 	var records = []*user.UserPassword{
-		//                   persist_key,user_persist_key, password    ,register_date,expire_date
+		//                   persist_key, user_persist_key              , password    ,register_date,expire_date
 		user.NewUserPassword(0 /*     */, savedUserRecords[0].PersistKey, "password01", now /*    */, nil),             // x user 不一致
 		user.NewUserPassword(0 /*     */, savedUserRecords[1].PersistKey, "password02", now /*    */, nil),             // o 対象
 		user.NewUserPassword(0 /*     */, savedUserRecords[1].PersistKey, "password03", now /*    */, &pastExpireDate), // x expire
@@ -38,10 +38,10 @@ func TestExpirePassword(t *testing.T) {
 	}
 
 	var expectRecords = []*user.UserPassword{
-		//                   persist_key,user_persist_key, password    ,register_date,expire_date
-		user.NewUserPassword(1 /*     */, 1 /*         */, "password01", now /*    */, nil),             // x user 不一致
-		user.NewUserPassword(2 /*     */, 2 /*         */, "password02", now /*    */, &now),            // o 対象
-		user.NewUserPassword(3 /*     */, 2 /*         */, "password03", now /*    */, &pastExpireDate), // x expire
+		//                   persist_key, user_persist_key              , password    ,register_date,expire_date
+		user.NewUserPassword(1 /*     */, savedUserRecords[0].PersistKey, "password01", now /*    */, nil),             // x user 不一致
+		user.NewUserPassword(2 /*     */, savedUserRecords[1].PersistKey, "password02", now /*    */, &now),            // o 対象
+		user.NewUserPassword(3 /*     */, savedUserRecords[1].PersistKey, "password03", now /*    */, &pastExpireDate), // x expire
 	}
 
 	var expects = essence.ToVal(expectRecords)

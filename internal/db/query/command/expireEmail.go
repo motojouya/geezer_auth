@@ -18,7 +18,7 @@ func ExpireEmail(executer gorp.SqlExecutor, userPersistKey uint, persistKey uint
 		goqu.C("expire_date").IsNull(),
 	)
 	if ignoreVerified {
-		query = query.Where(goqu.C("ue.verify_date").IsNull())
+		query = query.Where(goqu.C("verify_date").IsNull())
 	}
 
 	var sql, args, sqlErr = query.Prepared(true).ToSQL()

@@ -14,7 +14,7 @@ type ExpireRefreshTokenQuery interface {
 func ExpireRefreshToken(executer gorp.SqlExecutor, userPersistKey uint, now time.Time) error {
 	var sql, args, sqlErr = utility.Dialect.Update("user_refresh_token").Set(goqu.Record{"expire_date": now}).Where(
 		goqu.C("user_persist_key").Eq(userPersistKey),
-		goqu.C("expire_date").IsNull(),
+		goqu.C("expire_date").Gte(now),
 	).Prepared(true).ToSQL()
 	if sqlErr != nil {
 		return sqlErr
