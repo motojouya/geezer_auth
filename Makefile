@@ -18,8 +18,13 @@ import:
 	goimports -w cmd/main.go
 
 unitt:
-	go test -v ./... -coverprofile=coverage.out
-	#go tool cover -html=coverage.out -o coverage.html
+	go test `go list ./... | grep -v internal/db/query` -v -coverprofile=coverage.out
+	# go test -v ./... -coverprofile=coverage.out
+	# go tool cover -html=coverage.out -o coverage.html
+
+dbt:
+	go test -v ./internal/db/query/... -coverprofile=coverage.out
+	# go tool cover -html=coverage.out -o coverage.html
 
 singlet:
 	go test -v $(file)

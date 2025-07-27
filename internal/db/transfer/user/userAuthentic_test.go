@@ -132,7 +132,7 @@ func TestRelateUserCompanyRole(t *testing.T) {
 
 	assert.True(t, ok1)
 	assert.Equal(t, 1, len(updatedUserAuthentic1.UserCompanyRole))
-	assert.Equal(t, userCompanyRole1, updatedUserAuthentic1.UserCompanyRole[0])
+	assert.Equal(t, *userCompanyRole1, updatedUserAuthentic1.UserCompanyRole[0])
 
 	var userPersistKey2 uint = 2
 	var userId2 = "US-TESTES"
