@@ -11,22 +11,19 @@ import (
 )
 
 // FIXME Prepare関数いる？
-// TODO migrationは、このモジュールではなく、dbモジュールを起動時に呼び出して行うので、webプロセスではしない
 // TODO defer dbMap.Db.Close() は、内部にConnectionを持っている場合、自動で呼び出せるように工夫する。これはwebのmiddlewareで行う
+
+type Transactional interface {
+	Begin() error
+	Commit() error
+	Rollback() error
+}
 
 type ORP interface {
 	gorp.SqlExecutor
-	Begin() (ORPTransaction, error)
+	Transactional
 	essence.Closable
 	Query
-}
-
-type ORPTransaction interface {
-	gorp.SqlExecutor
-	Commit() error
-	Rollback() error
-	Query
-	Command
 }
 
 func CreateDatabase(connection *sql.DB) ORP {
@@ -34,7 +31,8 @@ func CreateDatabase(connection *sql.DB) ORP {
 	registerTable(dbMap)
 
 	return &ORPImpl{
-		DbMap: dbMap,
+		SqlExecutor: dbMap,
+		dbMap: nil,
 	}
 }
 
@@ -51,25 +49,103 @@ func registerTable(dbMap *gorp.DbMap) {
 	role.AddRoleTable(dbMap)
 }
 
+// dbMapはtransactionを開始した際に、退避するためのフィールドなので、transactionが開始されていない場合はnil。
 type ORPImpl struct {
-	*gorp.DbMap
-}
-
-type ORPTransactionImpl struct {
-	*gorp.Transaction
+	gorp.SqlExecutor
+	dbMap *gorp.DbMap
 }
 
 func (orp ORPImpl) Close() error {
-	return orp.DbMap.Db.Close()
-}
+	var insideTransaction = false
 
-func (orp ORPImpl) Begin() (ORPTransaction, error) {
-	var transaction, err = orp.DbMap.Begin()
-	if err != nil {
-		return nil, err
+	if orp.dbMap != nil {
+		insideTransaction = true
 	}
 
-	return &ORPTransactionImpl{
-		Transaction: transaction,
-	}, nil
+	var dbMap, ok = orp.SqlExecutor.(*gorp.DbMap)
+	if !ok {
+		var err = orp.Rollback()
+		if err != nil {
+			return essence.CreateInsideTransactionError("transaction is not closed yet. and cannot closed transaction and connection.")
+		}
+
+		// rollbackしているので、`gorp.DbMap`になっているはず。失敗しているならいずれにしろcloseできないので、↑のreturnでerrorが返る。
+		dbMap, ok = orp.SqlExecutor.(*gorp.DbMap)
+		if !ok {
+			return essence.CreateInsideTransactionError("transaction is not closed yet. and cannot closed transaction and connection.")
+		}
+		insideTransaction = true
+	}
+
+	var err = dbMap.Db.Close()
+	if err != nil {
+		return err
+	}
+
+	// closeは基本的に強制的に行うが、transactionが開いていた場合は、関数としてはエラーとする。
+	if insideTransaction {
+		return essence.CreateExitTransactionError("transaction is not closed yet. but closed transaction and connection already.")
+	}
+
+	return nil
+}
+
+func (orp ORPImpl) Begin() error {
+	var dbMap, ok = orp.SqlExecutor.(*gorp.DbMap)
+	if !ok || orp.dbMap != nil {
+		return essence.CreateInsideTransactionError("transaction is already started")
+	}
+
+	var transaction, err = dbMap.Begin()
+	if err != nil {
+		return err
+	}
+
+	orp.SqlExecutor = transaction
+	orp.dbMap = dbMap
+
+	return nil
+}
+
+func (orp ORPImpl) Commit() error {
+	var transaction, ok = orp.SqlExecutor.(*gorp.Transaction)
+	if !ok || orp.dbMap == nil {
+		return essence.CreateOutsideTransactionError("transaction is not started")
+	}
+
+	var err = transaction.Commit()
+	if err != nil {
+		return err
+	}
+
+	orp.SqlExecutor = orp.dbMap
+	orp.dbMap = nil
+
+	return nil
+}
+
+func (orp ORPImpl) Rollback() error {
+	var transaction, ok = orp.SqlExecutor.(*gorp.Transaction)
+	if !ok || orp.dbMap == nil {
+		return essence.CreateOutsideTransactionError("transaction is not started")
+	}
+
+	var err = transaction.Rollback()
+	if err != nil {
+		return err
+	}
+
+	orp.SqlExecutor = orp.dbMap
+	orp.dbMap = nil
+
+	return nil
+}
+
+func (orp ORPImpl) checkTransaction() error {
+	var _, ok = orp.SqlExecutor.(*gorp.Transaction)
+	if !ok || orp.dbMap == nil {
+		return essence.CreateOutsideTransactionError("transaction is not started")
+	}
+
+	return nil
 }

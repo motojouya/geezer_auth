@@ -162,3 +162,52 @@ func (e DuplicateError) Unwrap() error {
 func (e DuplicateError) HttpStatus() uint {
 	return 400
 }
+
+/*
+ * TransactionError
+ */
+type TransactionError struct {
+	Inside bool
+	Exitted bool
+	error
+}
+
+func CreateExitTransactionError(message string) *TransactionError {
+	return NewTransactionError(true, true, message)
+}
+
+func CreateInsideTransactionError(message string) *TransactionError {
+	return NewTransactionError(true, false, message)
+}
+
+func CreateOutsideTransactionError(message string) *TransactionError {
+	return NewTransactionError(false, false, message)
+}
+
+func NewTransactionError(inside bool, exitted bool, message string) *TransactionError {
+	return &TransactionError{
+		Inside: inside,
+		Exitted: exitted,
+		error: errors.New(message),
+	}
+}
+
+func (e TransactionError) Error() string {
+	if e.Inside {
+		if e.Exitted {
+			return e.error.Error() + ", inside transaction, but already exitted"
+		} else {
+			return e.error.Error() + ", inside transaction, and cannot exit"
+		}
+	} else {
+		return e.error.Error() + ", outside transaction"
+	}
+}
+
+func (e TransactionError) Unwrap() error {
+	return e.error
+}
+
+func (e TransactionError) HttpStatus() uint {
+	return 500
+}

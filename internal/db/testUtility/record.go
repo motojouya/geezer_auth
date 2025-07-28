@@ -1,6 +1,7 @@
 package testUtility
 
 import (
+	"github.com/go-gorp/gorp"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/doug-martin/goqu/v9/exp"
 	"github.com/motojouya/geezer_auth/internal/db"
@@ -43,11 +44,17 @@ func Truncate(t *testing.T, orp db.ORP) {
 
 // truncateはforeign key制約のためにcascadeをつける必要があるので、独自実装で行っている。
 func oldTruncate(t *testing.T, orp db.ORP) {
-	var impl, ok = orp.(*db.ORPImpl)
-	if !ok {
+	var impl, implOk = orp.(*db.ORPImpl)
+	if !implOk {
 		t.Fatalf("Expected db.ORPImpl, got %T", orp)
 	}
-	var err = impl.DbMap.TruncateTables()
+
+	var dbMap, dbOk = impl.SqlExecutor.(*gorp.DbMap)
+	if !dbOk {
+		t.Fatalf("Expected db.ORPImpl.SqlExecutor to be not nil, got nil")
+	}
+
+	var err = dbMap.TruncateTables()
 	if err != nil {
 		t.Fatalf("Could not truncate tables: %s", err)
 	}
@@ -106,13 +113,17 @@ func AssertRecords[T any](t *testing.T, expects []T, actuals []T, assertSame fun
 }
 
 func AssertTable[T any](t *testing.T, orp db.ORP, orders []string, expects []T, assertSame func(*testing.T, T, T)) {
-	var impl, ok = orp.(*db.ORPImpl)
-	if !ok {
+	var impl, implOk = orp.(*db.ORPImpl)
+	if !implOk {
 		t.Fatalf("Expected db.ORPImpl, got %T", orp)
+	}
+	var dbMap, dbOk = impl.SqlExecutor.(*gorp.DbMap)
+	if !dbOk {
+		t.Fatalf("Expected db.ORPImpl.SqlExecutor to be not nil, got nil")
 	}
 
 	var zero T
-	var table, tableErr = impl.DbMap.TableFor(reflect.TypeOf(zero), true)
+	var table, tableErr = dbMap.TableFor(reflect.TypeOf(zero), true)
 	if tableErr != nil {
 		t.Fatalf("Could not get table for %T: %s", zero, tableErr)
 	}
