@@ -1,9 +1,9 @@
 package testUtility
 
 import (
-	"github.com/go-gorp/gorp"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/doug-martin/goqu/v9/exp"
+	"github.com/go-gorp/gorp"
 	"github.com/motojouya/geezer_auth/internal/db"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"reflect"

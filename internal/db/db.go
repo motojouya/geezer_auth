@@ -32,7 +32,7 @@ func CreateDatabase(connection *sql.DB) ORP {
 
 	return &ORPImpl{
 		SqlExecutor: dbMap,
-		dbMap: nil,
+		dbMap:       nil,
 	}
 }
 

@@ -167,7 +167,7 @@ func (e DuplicateError) HttpStatus() uint {
  * TransactionError
  */
 type TransactionError struct {
-	Inside bool
+	Inside  bool
 	Exitted bool
 	error
 }
@@ -186,9 +186,9 @@ func CreateOutsideTransactionError(message string) *TransactionError {
 
 func NewTransactionError(inside bool, exitted bool, message string) *TransactionError {
 	return &TransactionError{
-		Inside: inside,
+		Inside:  inside,
 		Exitted: exitted,
-		error: errors.New(message),
+		error:   errors.New(message),
 	}
 }
 
