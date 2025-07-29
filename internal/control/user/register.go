@@ -60,6 +60,14 @@ func RegisterExecute(control *RegisterControl, entryUser entry.UserRegisterReque
 	// TODO db checkを何回かまでretry
 	var ramdomString = control.Local.GenerateRamdomString(text.IdentifierLength, text.IdentifierChar)
 	var identifier, identifierErr = coreUser.CreateUserIdentifier(ramdomString)
+	if identifierErr != nil {
+		return nil, db.RollbackWithError(control.DB, identifierErr)
+	}
+
+	var user, getUserErr = control.DB.GetUser(identifier)
+	if getUserErr != nil {
+		return nil, db.RollbackWithError(control.DB, getUserErr)
+	}
 
 	var unsavedUser, userErr = entryUser.ToCoreUser(user.Identifier, now)
 

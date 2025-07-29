@@ -1,6 +1,7 @@
 package user
 
 import (
+	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	text "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
 )
@@ -8,9 +9,9 @@ import (
 const UserIdentifierPrefix = "US-"
 
 type UnsavedUser struct {
-	Identifier     text.Identifier
-	ExposeEmailId  text.Email
-	Name           text.Name
+	Identifier     pkgText.Identifier
+	ExposeEmailId  pkgText.Email
+	Name           pkgText.Name
 	BotFlag        bool
 	RegisteredDate time.Time
 	UpdateDate     time.Time
@@ -21,14 +22,16 @@ type User struct {
 	UnsavedUser
 }
 
-func CreateUserIdentifier(random string) (text.Identifier, error) {
-	return text.CreateIdentifier(UserIdentifierPrefix, random)
+func CreateUserIdentifier(random string) (pkgText.Identifier, error) {
+	return pkgText.CreateIdentifier(UserIdentifierPrefix, random)
 }
 
+func CreateUserIdentifierWithTimes(
+
 func CreateUser(
-	identifier text.Identifier,
-	emailId text.Email,
-	name text.Name,
+	identifier pkgText.Identifier,
+	emailId pkgText.Email,
+	name pkgText.Name,
 	botFlag bool,
 	registeredDate time.Time,
 ) UnsavedUser {
@@ -44,9 +47,9 @@ func CreateUser(
 
 func NewUser(
 	persistKey uint,
-	identifier text.Identifier,
-	name text.Name,
-	emailId text.Email,
+	identifier pkgText.Identifier,
+	name pkgText.Name,
+	emailId pkgText.Email,
 	botFlag bool,
 	registeredDate time.Time,
 	updateDate time.Time,
@@ -64,7 +67,7 @@ func NewUser(
 	}
 }
 
-func (user User) UpdateName(name text.Name, updateDate time.Time) User {
+func (user User) UpdateName(name pkgText.Name, updateDate time.Time) User {
 	return User{
 		PersistKey: user.PersistKey,
 		UnsavedUser: UnsavedUser{
