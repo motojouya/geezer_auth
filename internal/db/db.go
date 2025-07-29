@@ -153,3 +153,11 @@ func (orp ORPImpl) checkTransaction() error {
 func (orp ORPImpl) InsideTransaction() bool {
 	return orp.dbMap != nil
 }
+
+func RollbackWithError(db Transactional, err error) error {
+	if rollbackErr := db.Rollback(); rollbackErr != nil {
+		return rollbackErr
+	}
+	return err
+}
+

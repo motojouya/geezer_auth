@@ -5,6 +5,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/service"
 	"github.com/motojouya/geezer_auth/internal/io"
 	"github.com/motojouya/geezer_auth/internal/db"
+	"github.com/motojouya/geezer_auth/pkg/core/text"
 	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
@@ -27,9 +28,9 @@ type RegisterControl struct {
 	DB UserRegisterDB
 }
 
-func NewRegisterControl(db UserRegisterDB, local io.Local) *RegisterControl {
+func NewRegisterControl(database UserRegisterDB, local io.Local) *RegisterControl {
 	return &RegisterControl{
-		DB:    db,
+		DB:    database,
 		Local: local,
 	}
 }
@@ -39,15 +40,50 @@ func CreateRegisterControl() (*RegisterControl, error) {
 	var env = io.CreateEnvironment()
 
 	var loader = service.GetLoader()
-	var db, err = loader.LoadDatabase(env)
+	var database, err = loader.LoadDatabase(env)
 	if err != nil {
 		return nil, err
 	}
 
-	return NewRegisterControl(db, local), nil
+	return NewRegisterControl(database, local), nil
 }
 
 // TODO working
-func Execute(control *RegisterControl, request entry.UserRegisterRequest, user *coreUser.UserAuthentic) (*entry.UserRegisterResponse, error) {
+func RegisterExecute(control *RegisterControl, entryUser entry.UserRegisterRequest, user *coreUser.UserAuthentic) (*entry.UserRegisterResponse, error) {
+	if err := control.DB.Begin(); err != nil {
+		return nil, err
+	}
+	// db.RollbackWithError(control.DB, err)
+
+	var now = control.Local.GetNow()
+
+	// TODO db checkを何回かまでretry
+	var ramdomString = control.Local.GenerateRamdomString(text.IdentifierLength, text.IdentifierChar)
+	var identifier, identifierErr = coreUser.CreateUserIdentifier(ramdomString)
+
+	var unsavedUser, userErr = entryUser.ToCoreUser(user.Identifier, now)
+
+	var password, passwordErr = entryUser.GetPassword()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	if err := control.DB.Commit(); err != nil {
+		return nil, err
+	}
+
 	return nil, nil
 }
