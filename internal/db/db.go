@@ -149,3 +149,7 @@ func (orp ORPImpl) checkTransaction() error {
 
 	return nil
 }
+
+func (orp ORPImpl) InsideTransaction() bool {
+	return orp.dbMap != nil
+}
