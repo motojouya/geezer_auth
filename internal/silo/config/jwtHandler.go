@@ -1,18 +1,25 @@
-package service
+package config
 
 import (
-	"github.com/motojouya/geezer_auth/internal/io"
 	"github.com/motojouya/geezer_auth/pkg/core/jwt"
 	"github.com/motojouya/geezer_auth/pkg/core/text"
 	"github.com/motojouya/geezer_auth/pkg/core/user"
 	"time"
 )
 
-type JwtHandlerLoader interface {
-	LoadJwtHandler(e io.Environment) (JwtHandler, error)
+type JwtHandlingGetter interface {
+	GetJwtHandling() (jwt.JwtHandling, error)
 }
 
-type jwtHandlerLoaderImpl struct{}
+type JwtHandlerLoader struct {
+	env JwtHandlingGetter
+}
+
+func NewJwtHandlerLoader(env JwtHandlingGetter) *JwtHandlerLoader {
+	return &JwtHandlerLoader{
+		env: env,
+	}
+}
 
 type JwtHandler interface {
 	Generate(user *user.User, issueDate time.Time, id string) (*user.Authentic, text.JwtToken, error)
@@ -20,9 +27,9 @@ type JwtHandler interface {
 
 var jwtHandling *jwt.JwtHandling
 
-func (imple jwtHandlerLoaderImpl) LoadJwtHandler(e io.Environment) (JwtHandler, error) {
+func (loader *JwtHandlerLoader) LoadJwtHandler() (JwtHandler, error) {
 	if jwtHandling == nil {
-		var jwtHandlingObj, err = e.GetJwtHandling()
+		var jwtHandlingObj, err = loader.env.GetJwtHandling()
 		if err != nil {
 			return nil, err
 		}
