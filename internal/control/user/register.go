@@ -13,6 +13,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/io"
 	"github.com/motojouya/geezer_auth/internal/service"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	"time"
 )
 
 type UserRegisterDB interface {
@@ -80,42 +81,35 @@ func checkUserIdentifier(userRegisterDB UserRegisterDB) func(pkgText.Identifier)
 	}
 }
 
-func RegisterExecute(control *RegisterControl, entry entryUser.UserRegisterRequest, user *coreUser.UserAuthentic) (*entryUser.UserRegisterResponse, error) {
-	if err := control.DB.Begin(); err != nil {
-		return nil, err
-	}
-
-	var now = control.Local.GetNow()
-
+func createUser(control *RegisterControl, entry entryUser.UserRegisterRequest, now time.Time) (coreUser.User, error) {
 	userIdentifier, err := coreText.GetString(createUserIdentifier(control.Local), checkUserIdentifier(control.DB), 10)
 	if err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
+		return coreUser.User{}, err
 	}
 
 	unsavedUser, err := entry.ToCoreUser(userIdentifier, now)
 	if err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
+		return coreUser.User{}, err
 	}
 
 	var dbUserValue = dbUser.FromCoreUser(unsavedUser)
 
 	if err = control.DB.Insert(&dbUserValue); err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
+		return coreUser.User{}, err
 	}
 
-	savedUser, err := dbUserValue.ToCoreUser()
-	if err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
-	}
+	return dbUserValue.ToCoreUser()
+}
 
+func setPassword(control *RegisterControl, entry entryUser.UserRegisterRequest, now time.Time, savedUser coreUser.User) error {
 	password, err := entry.GetPassword()
 	if err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
+		return err
 	}
 
 	hashedPassword, err := coreText.HashPassword(password)
 	if err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
+		return err
 	}
 
 	userPassword := coreUser.CreateUserPassword(savedUser, hashedPassword, now)
@@ -123,71 +117,128 @@ func RegisterExecute(control *RegisterControl, entry entryUser.UserRegisterReque
 	dbUserPassword := dbUser.FromCoreUserPassword(userPassword)
 
 	if err = control.DB.Insert(dbUserPassword); err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
+		return err
+	}
+	
+	return nil
+}
+
+func setEmail(control *RegisterControl, now time.Time, savedUser coreUser.User) error {
+	verifyTokenSource, err := control.Local.GenerateUUID()
+	if err != nil {
+		return err
 	}
 
-	verifyTokenSource, err := control.Local.GenerateUUID()
 	verifyToken, err := coreText.CreateToken(verifyTokenSource)
+	if err != nil {
+		return err
+	}
 
 	userEmail := coreUser.CreateUserEmail(savedUser, savedUser.ExposeEmailId, verifyToken, now)
-	if err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
-	}
 
 	dbUserEmail := dbUser.FromCoreUserEmail(userEmail)
 
 	if _, err = control.DB.AddEmail(dbUserEmail, now); err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
+		return err
 	}
 
+	//FIXME 未実装 ここでverify tokenを当該メールアドレスに通知する処理が入る。
+	return nil
+}
+
+func getUserAuthentic(control *RegisterControl, now time.Time, savedUser coreUser.User) (*coreUser.UserAuthentic, error) {
 	dbUserAuthentic, err := control.DB.GetUserAuthentic(string(savedUser.Identifier), now)
 	if err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
+		return nil, err
 	}
 
 	if dbUserAuthentic == nil {
 		keys := map[string]string{"identifier": string(savedUser.Identifier)}
 		err = essence.NewNotFoundError("user", keys, "user not found")
-		return nil, db.RollbackWithError(control.DB, err)
+		return nil, err
 	}
 
-	userAuthentic, err := dbUserAuthentic.ToCoreUserAuthentic()
+	return dbUserAuthentic.ToCoreUserAuthentic()
+}
 
-	pkgUser := userAuthentic.ToJwtUser()
-
+func createRefreshToken(control *RegisterControl, now time.Time, savedUser coreUser.User) (coreText.Token, error) {
 	refreshTokenSource, err := control.Local.GenerateUUID()
 	if err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
+		return coreText.Token(""), err
 	}
 
 	refreshToken, err := coreText.CreateToken(refreshTokenSource)
 	if err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
+		return coreText.Token(""), err
 	}
 
 	userRefreshToken := coreUser.CreateUserRefreshToken(savedUser, refreshToken, now)
 	dbUserRefreshToken := dbUser.FromCoreUserRefreshToken(userRefreshToken)
 
 	if err := control.DB.Insert(dbUserRefreshToken); err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
+		return coreText.Token(""), err
 	}
 
+	return refreshToken, nil
+}
+
+func createAccessToken(control *RegisterControl, now time.Time, savedUser coreUser.User, userAuthentic *coreUser.UserAuthentic) (pkgText.JwtToken, error) {
 	tokenId, err := control.Local.GenerateUUID()
 	if err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
+		return pkgText.JwtToken(""), err
 	}
+
+	pkgUser := userAuthentic.ToJwtUser()
 
 	tokenData, accessToken, err := control.JWT.Generate(pkgUser, now, tokenId.String())
 	if err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
+		return pkgText.JwtToken(""), err
 	}
 
 	userAccessToken := coreUser.CreateUserAccessToken(savedUser, accessToken, now, tokenData.ExpiresAt.Time)
 	if err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
+		return pkgText.JwtToken(""), err
 	}
 
 	if err = control.DB.Insert(userAccessToken); err != nil {
+		return pkgText.JwtToken(""), err
+	}
+
+	return accessToken, nil
+}
+
+func RegisterExecute(control *RegisterControl, entry entryUser.UserRegisterRequest, user *coreUser.UserAuthentic) (*entryUser.UserRegisterResponse, error) {
+	if err := control.DB.Begin(); err != nil {
+		return nil, err
+	}
+
+	now := control.Local.GetNow()
+
+	savedUser, err := createUser(control, entry, now)
+	if err != nil {
+		return nil, db.RollbackWithError(control.DB, err)
+	}
+
+	if err = setPassword(control, entry, now, savedUser); err != nil {
+		return nil, db.RollbackWithError(control.DB, err)
+	}
+
+	if err = setEmail(control, now, savedUser); err != nil {
+		return nil, db.RollbackWithError(control.DB, err)
+	}
+
+	userAuthentic, err := getUserAuthentic(control, now, savedUser)
+	if err != nil {
+		return nil, db.RollbackWithError(control.DB, err)
+	}
+
+	refreshToken, err := createRefreshToken(control, now, savedUser)
+	if err != nil {
+		return nil, db.RollbackWithError(control.DB, err)
+	}
+
+	accessToken, err := createAccessToken(control, now, savedUser, userAuthentic)
+	if err != nil {
 		return nil, db.RollbackWithError(control.DB, err)
 	}
 
