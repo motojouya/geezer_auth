@@ -119,7 +119,7 @@ func setPassword(control *RegisterControl, entry entryUser.UserRegisterRequest, 
 	if err = control.DB.Insert(dbUserPassword); err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
