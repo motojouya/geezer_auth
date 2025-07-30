@@ -5,12 +5,12 @@ import (
 	"strconv"
 )
 
-func GetStringTimes[T any](getString func() (T, error), checkString func(T) (bool, error), times int) (T, error) {
+func GetString[T any](createString func() (T, error), checkString func(T) (bool, error), times int) (T, error) {
 	var str T
 
 	for i := 0; i < times; i++ {
 		var err error
-		str, err = getString()
+		str, err = createString()
 		if err != nil {
 			var zero T
 			return zero, err

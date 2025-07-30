@@ -2,7 +2,6 @@ package user
 
 import (
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
-	text "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
 )
 
@@ -25,8 +24,6 @@ type User struct {
 func CreateUserIdentifier(random string) (pkgText.Identifier, error) {
 	return pkgText.CreateIdentifier(UserIdentifierPrefix, random)
 }
-
-func CreateUserIdentifierWithTimes(
 
 func CreateUser(
 	identifier pkgText.Identifier,
