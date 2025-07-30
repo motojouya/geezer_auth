@@ -160,4 +160,3 @@ func RollbackWithError(db Transactional, err error) error {
 	}
 	return err
 }
-

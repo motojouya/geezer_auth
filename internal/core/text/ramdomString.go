@@ -41,7 +41,7 @@ type StringIssueError struct {
 
 func NewStringIssueError(times int, message string) *StringIssueError {
 	return &StringIssueError{
-		Times:  times,
+		Times: times,
 		error: errors.New(message),
 	}
 }

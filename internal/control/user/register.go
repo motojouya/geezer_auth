@@ -2,17 +2,17 @@ package user
 
 import (
 	"github.com/go-gorp/gorp"
-	"github.com/motojouya/geezer_auth/internal/service"
-	"github.com/motojouya/geezer_auth/internal/io"
-	"github.com/motojouya/geezer_auth/internal/db"
 	"github.com/motojouya/geezer_auth/internal/core/essence"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	coreText "github.com/motojouya/geezer_auth/internal/core/text"
 	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
-	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
+	"github.com/motojouya/geezer_auth/internal/db"
 	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
-	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
+	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
+	"github.com/motojouya/geezer_auth/internal/io"
+	"github.com/motojouya/geezer_auth/internal/service"
+	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 )
 
 type UserRegisterDB interface {
@@ -28,15 +28,15 @@ type UserRegisterDB interface {
 
 type RegisterControl struct {
 	Local io.Local
-	DB UserRegisterDB
-	JWT service.JwtHandler
+	DB    UserRegisterDB
+	JWT   service.JwtHandler
 }
 
 func NewRegisterControl(local io.Local, database UserRegisterDB, jwtHandler service.JwtHandler) *RegisterControl {
 	return &RegisterControl{
 		DB:    database,
 		Local: local,
-		JWT: jwtHandler,
+		JWT:   jwtHandler,
 	}
 }
 
@@ -59,7 +59,7 @@ func CreateRegisterControl() (*RegisterControl, error) {
 	return NewRegisterControl(local, database, jwtHandler), nil
 }
 
-func createUserIdentifier(local io.Local) func () (pkgText.Identifier, error) {
+func createUserIdentifier(local io.Local) func() (pkgText.Identifier, error) {
 	return func() (pkgText.Identifier, error) {
 		var ramdomString = local.GenerateRamdomString(pkgText.IdentifierLength, pkgText.IdentifierChar)
 		var identifier, err = coreUser.CreateUserIdentifier(ramdomString)
@@ -70,7 +70,7 @@ func createUserIdentifier(local io.Local) func () (pkgText.Identifier, error) {
 	}
 }
 
-func checkUserIdentifier(userRegisterDB UserRegisterDB) func (pkgText.Identifier) (bool, error) {
+func checkUserIdentifier(userRegisterDB UserRegisterDB) func(pkgText.Identifier) (bool, error) {
 	return func(identifier pkgText.Identifier) (bool, error) {
 		var user, err = userRegisterDB.GetUser(string(identifier))
 		if err != nil {
@@ -146,7 +146,7 @@ func RegisterExecute(control *RegisterControl, entry entryUser.UserRegisterReque
 	}
 
 	if dbUserAuthentic == nil {
-		keys := map[string]string{"identifier":string(savedUser.Identifier)}
+		keys := map[string]string{"identifier": string(savedUser.Identifier)}
 		err = essence.NewNotFoundError("user", keys, "user not found")
 		return nil, db.RollbackWithError(control.DB, err)
 	}
