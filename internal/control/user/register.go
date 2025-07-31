@@ -7,6 +7,7 @@ import (
 	configSilo "github.com/motojouya/geezer_auth/internal/silo/config"
 	userSilo "github.com/motojouya/geezer_auth/internal/silo/user"
 	pkgUser "github.com/motojouya/geezer_auth/pkg/core/user"
+	"github.com/motojouya/geezer_auth/internal/control/utility"
 )
 
 type RegisterControl struct {
@@ -59,66 +60,30 @@ func CreateRegisterControl() (*RegisterControl, error) {
 	return NewRegisterControl(database, userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer), nil
 }
 
-func RegisterExecute(control *RegisterControl, entry entryUser.UserRegisterRequest, _ *pkgUser.User) (*entryUser.UserRegisterResponse, error) {
-	if err := control.Begin(); err != nil {
-		return nil, err
-	}
+var RegisterExecute = utility.Transact(func(control *RegisterControl, entry entryUser.UserRegisterRequest, _ *pkgUser.User) (*entryUser.UserRegisterResponse, error) {
 
 	userAuthentic, err := control.userCreator.Execute(entry)
 	if err != nil {
-		return nil, db.RollbackWithError(control.TransactionalDatabase, err)
+		return nil, err
 	}
 
 	if err = control.passwordSetter.Execute(entry, userAuthentic); err != nil {
-		return nil, db.RollbackWithError(control.TransactionalDatabase, err)
+		return nil, err
 	}
 
 	if err = control.emailSetter.Execute(entry, userAuthentic); err != nil {
-		return nil, db.RollbackWithError(control.TransactionalDatabase, err)
+		return nil, err
 	}
 
 	refreshToken, err := control.refreshTokenIssuer.Execute(userAuthentic)
 	if err != nil {
-		return nil, db.RollbackWithError(control.TransactionalDatabase, err)
+		return nil, err
 	}
 
 	accessToken, err := control.accessTokenIssuer.Execute(userAuthentic)
 	if err != nil {
-		return nil, db.RollbackWithError(control.TransactionalDatabase, err)
-	}
-
-	if err := control.Commit(); err != nil {
 		return nil, err
 	}
 
 	return entryUser.FromCoreUserAuthenticToRegisterResponse(userAuthentic, refreshToken, accessToken), nil
-}
-
-// func Transact[C any, E any, R any](callback func (C, E, *pkgUser.User) (R, error)) func (C, E, *pkgUser.User) (R, error) {
-// 	return func(control C, entry E, authentic *pkgUser.User) (R, error) {
-// 		// FIXME ここの型アサーションがうまくいなかい
-// 		transactional, ok := control.(db.TransactionalDatabase)
-// 		var zero R
-// 		if ok {
-// 			if err := transactional.Begin(); err != nil {
-// 				return zero, err
-// 			}
-// 		}
-//
-// 		result, err := callback(control, entry, authentic)
-//
-// 		if ok {
-// 			if err != nil {
-// 				if err := transactional.Rollback(); err != nil {
-// 					return zero, err
-// 				}
-// 			} else {
-// 				if err := transactional.Commit(); err != nil {
-// 					return zero, err
-// 				}
-// 			}
-// 		}
-//
-// 		return result, err
-// 	}
-// }
+})
