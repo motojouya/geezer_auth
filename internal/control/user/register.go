@@ -104,9 +104,9 @@ func RegisterExecute(control *RegisterControl, entry entryUser.UserRegisterReque
 // 				return zero, err
 // 			}
 // 		}
-// 
+//
 // 		result, err := callback(control, entry, authentic)
-// 
+//
 // 		if ok {
 // 			if err != nil {
 // 				if err := transactional.Rollback(); err != nil {
@@ -118,7 +118,7 @@ func RegisterExecute(control *RegisterControl, entry entryUser.UserRegisterReque
 // 				}
 // 			}
 // 		}
-// 
+//
 // 		return result, err
 // 	}
 // }
