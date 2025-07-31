@@ -98,26 +98,27 @@ func RegisterExecute(control *RegisterControl, entry entryUser.UserRegisterReque
 // 	return func(control C, entry E, authentic *pkgUser.User) (R, error) {
 // 		// FIXME ここの型アサーションがうまくいなかい
 // 		transactional, ok := control.(db.TransactionalDatabase)
+// 		var zero R
 // 		if ok {
-// 			if err := control.Begin(); err != nil {
-// 				return nil, err
+// 			if err := transactional.Begin(); err != nil {
+// 				return zero, err
 // 			}
 // 		}
-//
+// 
 // 		result, err := callback(control, entry, authentic)
-//
+// 
 // 		if ok {
 // 			if err != nil {
-// 				if err := control.Rollback(); err != nil {
-// 					return nil, err
+// 				if err := transactional.Rollback(); err != nil {
+// 					return zero, err
 // 				}
 // 			} else {
-// 				if err := control.Commit(); err != nil {
-// 					return nil, err
+// 				if err := transactional.Commit(); err != nil {
+// 					return zero, err
 // 				}
 // 			}
 // 		}
-//
+// 
 // 		return result, err
 // 	}
 // }
