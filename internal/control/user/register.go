@@ -4,8 +4,8 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	"github.com/motojouya/geezer_auth/internal/io"
-	userSilo "github.com/motojouya/geezer_auth/internal/silo/user"
 	configSilo "github.com/motojouya/geezer_auth/internal/silo/config"
+	userSilo "github.com/motojouya/geezer_auth/internal/silo/user"
 	pkgUser "github.com/motojouya/geezer_auth/pkg/core/user"
 )
 
@@ -19,12 +19,12 @@ type RegisterControl struct {
 }
 
 func NewRegisterControl(
-	database           db.TransactionalDatabase,
-	userCreator        *userSilo.UserCreator,
-	emailSetter        *userSilo.EmailSetter,
-	passwordSetter     *userSilo.PasswordSetter,
+	database db.TransactionalDatabase,
+	userCreator *userSilo.UserCreator,
+	emailSetter *userSilo.EmailSetter,
+	passwordSetter *userSilo.PasswordSetter,
 	refreshTokenIssuer *userSilo.RefreshTokenIssuer,
-	accessTokenIssuer  *userSilo.AccessTokenIssuer,
+	accessTokenIssuer *userSilo.AccessTokenIssuer,
 ) *RegisterControl {
 	return &RegisterControl{
 		TransactionalDatabase: database,
@@ -103,9 +103,9 @@ func RegisterExecute(control *RegisterControl, entry entryUser.UserRegisterReque
 // 				return nil, err
 // 			}
 // 		}
-// 
+//
 // 		result, err := callback(control, entry, authentic)
-// 
+//
 // 		if ok {
 // 			if err != nil {
 // 				if err := control.Rollback(); err != nil {
@@ -117,7 +117,7 @@ func RegisterExecute(control *RegisterControl, entry entryUser.UserRegisterReque
 // 				}
 // 			}
 // 		}
-// 
+//
 // 		return result, err
 // 	}
 // }

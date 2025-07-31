@@ -3,8 +3,8 @@ package authorization
 import (
 	"github.com/motojouya/geezer_auth/internal/core/authorization"
 	"github.com/motojouya/geezer_auth/internal/core/role"
-	user "github.com/motojouya/geezer_auth/pkg/core/user"
 	roleQuery "github.com/motojouya/geezer_auth/internal/db/query/role"
+	user "github.com/motojouya/geezer_auth/pkg/core/user"
 )
 
 type AuthorizationLoader struct {
