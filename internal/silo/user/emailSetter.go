@@ -1,19 +1,14 @@
 package user
 
 import (
-	"github.com/go-gorp/gorp"
 	"github.com/motojouya/geezer_auth/internal/core/essence"
 	coreText "github.com/motojouya/geezer_auth/internal/core/text"
 	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
-	"github.com/motojouya/geezer_auth/internal/db"
 	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	"github.com/motojouya/geezer_auth/internal/io"
-	"github.com/motojouya/geezer_auth/internal/service"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
-	"time"
 )
 
 type EmailSetterDB interface {
@@ -34,12 +29,11 @@ func NewEmailSetter(local io.Local, database EmailSetterDB) *EmailSetter {
 }
 
 type EmailGetter interface {
-	GetEmail() (coreText.Email, error)
+	GetEmail() (pkgText.Email, error)
 }
 
-func (setter EmailSetter) SetEmail(entry EmailGetter, userAuthentic coreUser.UserAuthentic) error {
+func (setter EmailSetter) Execute(entry EmailGetter, userAuthentic *coreUser.UserAuthentic) error {
 	now := setter.local.GetNow()
-	user := userAuthentic.GetUser()
 
 	email, err := entry.GetEmail()
 	if err != nil {
@@ -53,7 +47,7 @@ func (setter EmailSetter) SetEmail(entry EmailGetter, userAuthentic coreUser.Use
 
 	if len(userEmails) > 0 {
 		keys := map[string]string{"email": string(email)}
-		return essence.DuplicateError("user_email", keys, "email already exists")
+		return essence.NewDuplicateError("user_email", keys, "email already exists")
 	}
 
 	verifyTokenSource, err := setter.local.GenerateUUID()
@@ -66,7 +60,7 @@ func (setter EmailSetter) SetEmail(entry EmailGetter, userAuthentic coreUser.Use
 		return err
 	}
 
-	userEmail := coreUser.CreateUserEmail(user, email, verifyToken, now)
+	userEmail := coreUser.CreateUserEmail(userAuthentic.GetUser(), email, verifyToken, now)
 
 	dbUserEmail := dbUser.FromCoreUserEmail(userEmail)
 

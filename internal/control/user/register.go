@@ -1,43 +1,38 @@
 package user
 
 import (
-	"github.com/go-gorp/gorp"
-	"github.com/motojouya/geezer_auth/internal/core/essence"
-	coreText "github.com/motojouya/geezer_auth/internal/core/text"
-	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
 	"github.com/motojouya/geezer_auth/internal/db"
-	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
-	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
-	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	"github.com/motojouya/geezer_auth/internal/io"
-	"github.com/motojouya/geezer_auth/internal/service"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
-	"time"
+	userSilo "github.com/motojouya/geezer_auth/internal/silo/user"
+	configSilo "github.com/motojouya/geezer_auth/internal/silo/config"
+	pkgUser "github.com/motojouya/geezer_auth/pkg/core/user"
 )
 
-type UserRegisterDB interface {
-	gorp.SqlExecutor
-	db.Transactional
-	userQuery.GetUserQuery
-	userQuery.GetUserAuthenticQuery
-	userQuery.GetUserEmailQuery
-	commandQuery.AddPasswordQuery
-	commandQuery.AddEmailQuery
-	commandQuery.AddRefreshTokenQuery
-}
-
 type RegisterControl struct {
-	Local io.Local
-	DB    UserRegisterDB
-	JWT   service.JwtHandler
+	db.TransactionalDatabase
+	userCreator        *userSilo.UserCreator
+	emailSetter        *userSilo.EmailSetter
+	passwordSetter     *userSilo.PasswordSetter
+	refreshTokenIssuer *userSilo.RefreshTokenIssuer
+	accessTokenIssuer  *userSilo.AccessTokenIssuer
 }
 
-func NewRegisterControl(local io.Local, database UserRegisterDB, jwtHandler service.JwtHandler) *RegisterControl {
+func NewRegisterControl(
+	database           db.TransactionalDatabase,
+	userCreator        *userSilo.UserCreator,
+	emailSetter        *userSilo.EmailSetter,
+	passwordSetter     *userSilo.PasswordSetter,
+	refreshTokenIssuer *userSilo.RefreshTokenIssuer,
+	accessTokenIssuer  *userSilo.AccessTokenIssuer,
+) *RegisterControl {
 	return &RegisterControl{
-		DB:    database,
-		Local: local,
-		JWT:   jwtHandler,
+		TransactionalDatabase: database,
+		userCreator:           userCreator,
+		emailSetter:           emailSetter,
+		passwordSetter:        passwordSetter,
+		refreshTokenIssuer:    refreshTokenIssuer,
+		accessTokenIssuer:     accessTokenIssuer,
 	}
 }
 
@@ -45,208 +40,84 @@ func CreateRegisterControl() (*RegisterControl, error) {
 	var local = io.CreateLocal()
 	var env = io.CreateEnvironment()
 
-	var loader = service.GetLoader()
-
-	database, err := loader.LoadDatabase(env)
+	database, err := configSilo.NewDatabaseLoader(env).LoadDatabase()
 	if err != nil {
 		return nil, err
 	}
 
-	jwtHandler, err := loader.LoadJwtHandler(env)
+	jwtHandler, err := configSilo.NewJwtHandlerLoader(env).LoadJwtHandler()
 	if err != nil {
 		return nil, err
 	}
 
-	return NewRegisterControl(local, database, jwtHandler), nil
+	userCreator := userSilo.NewUserCreator(local, database)
+	emailSetter := userSilo.NewEmailSetter(local, database)
+	passwordSetter := userSilo.NewPasswordSetter(local, database)
+	refreshTokenIssuer := userSilo.NewRefreshTokenIssuer(local, database)
+	accessTokenIssuer := userSilo.NewAccessTokenIssuer(local, database, jwtHandler)
+
+	return NewRegisterControl(database, userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer), nil
 }
 
-func createUserIdentifier(local io.Local) func() (pkgText.Identifier, error) {
-	return func() (pkgText.Identifier, error) {
-		var ramdomString = local.GenerateRamdomString(pkgText.IdentifierLength, pkgText.IdentifierChar)
-		var identifier, err = coreUser.CreateUserIdentifier(ramdomString)
-		if err != nil {
-			return pkgText.Identifier(""), err
-		}
-		return identifier, nil
-	}
-}
-
-func checkUserIdentifier(userRegisterDB UserRegisterDB) func(pkgText.Identifier) (bool, error) {
-	return func(identifier pkgText.Identifier) (bool, error) {
-		var user, err = userRegisterDB.GetUser(string(identifier))
-		if err != nil {
-			return false, err
-		}
-		return user == nil, nil
-	}
-}
-
-func createUser(control *RegisterControl, entry entryUser.UserRegisterRequest, now time.Time) (coreUser.User, error) {
-	userIdentifier, err := coreText.GetString(createUserIdentifier(control.Local), checkUserIdentifier(control.DB), 10)
-	if err != nil {
-		return coreUser.User{}, err
-	}
-
-	unsavedUser, err := entry.ToCoreUser(userIdentifier, now)
-	if err != nil {
-		return coreUser.User{}, err
-	}
-
-	var dbUserValue = dbUser.FromCoreUser(unsavedUser)
-
-	if err = control.DB.Insert(&dbUserValue); err != nil {
-		return coreUser.User{}, err
-	}
-
-	return dbUserValue.ToCoreUser()
-}
-
-func setPassword(control *RegisterControl, entry entryUser.UserRegisterRequest, now time.Time, savedUser coreUser.User) error {
-	password, err := entry.GetPassword()
-	if err != nil {
-		return err
-	}
-
-	hashedPassword, err := coreText.HashPassword(password)
-	if err != nil {
-		return err
-	}
-
-	userPassword := coreUser.CreateUserPassword(savedUser, hashedPassword, now)
-
-	dbUserPassword := dbUser.FromCoreUserPassword(userPassword)
-
-	if err = control.DB.Insert(dbUserPassword); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func setEmail(control *RegisterControl, now time.Time, savedUser coreUser.User) error {
-	verifyTokenSource, err := control.Local.GenerateUUID()
-	if err != nil {
-		return err
-	}
-
-	verifyToken, err := coreText.CreateToken(verifyTokenSource)
-	if err != nil {
-		return err
-	}
-
-	userEmail := coreUser.CreateUserEmail(savedUser, savedUser.ExposeEmailId, verifyToken, now)
-
-	dbUserEmail := dbUser.FromCoreUserEmail(userEmail)
-
-	if _, err = control.DB.AddEmail(dbUserEmail, now); err != nil {
-		return err
-	}
-
-	//FIXME 未実装 ここでverify tokenを当該メールアドレスに通知する処理が入る。
-	return nil
-}
-
-func getUserAuthentic(control *RegisterControl, now time.Time, savedUser coreUser.User) (*coreUser.UserAuthentic, error) {
-	dbUserAuthentic, err := control.DB.GetUserAuthentic(string(savedUser.Identifier), now)
-	if err != nil {
+func RegisterExecute(control *RegisterControl, entry entryUser.UserRegisterRequest, _ *pkgUser.User) (*entryUser.UserRegisterResponse, error) {
+	if err := control.Begin(); err != nil {
 		return nil, err
 	}
 
-	if dbUserAuthentic == nil {
-		keys := map[string]string{"identifier": string(savedUser.Identifier)}
-		err = essence.NewNotFoundError("user", keys, "user not found")
+	userAuthentic, err := control.userCreator.Execute(entry)
+	if err != nil {
+		return nil, db.RollbackWithError(control.TransactionalDatabase, err)
+	}
+
+	if err = control.passwordSetter.Execute(entry, userAuthentic); err != nil {
+		return nil, db.RollbackWithError(control.TransactionalDatabase, err)
+	}
+
+	if err = control.emailSetter.Execute(entry, userAuthentic); err != nil {
+		return nil, db.RollbackWithError(control.TransactionalDatabase, err)
+	}
+
+	refreshToken, err := control.refreshTokenIssuer.Execute(userAuthentic)
+	if err != nil {
+		return nil, db.RollbackWithError(control.TransactionalDatabase, err)
+	}
+
+	accessToken, err := control.accessTokenIssuer.Execute(userAuthentic)
+	if err != nil {
+		return nil, db.RollbackWithError(control.TransactionalDatabase, err)
+	}
+
+	if err := control.Commit(); err != nil {
 		return nil, err
 	}
 
-	return dbUserAuthentic.ToCoreUserAuthentic()
+	return entryUser.FromCoreUserAuthenticToRegisterResponse(userAuthentic, refreshToken, accessToken), nil
 }
 
-func createRefreshToken(control *RegisterControl, now time.Time, savedUser coreUser.User) (coreText.Token, error) {
-	refreshTokenSource, err := control.Local.GenerateUUID()
-	if err != nil {
-		return coreText.Token(""), err
-	}
-
-	refreshToken, err := coreText.CreateToken(refreshTokenSource)
-	if err != nil {
-		return coreText.Token(""), err
-	}
-
-	userRefreshToken := coreUser.CreateUserRefreshToken(savedUser, refreshToken, now)
-	dbUserRefreshToken := dbUser.FromCoreUserRefreshToken(userRefreshToken)
-
-	if err := control.DB.Insert(dbUserRefreshToken); err != nil {
-		return coreText.Token(""), err
-	}
-
-	return refreshToken, nil
-}
-
-func createAccessToken(control *RegisterControl, now time.Time, savedUser coreUser.User, userAuthentic *coreUser.UserAuthentic) (pkgText.JwtToken, error) {
-	tokenId, err := control.Local.GenerateUUID()
-	if err != nil {
-		return pkgText.JwtToken(""), err
-	}
-
-	pkgUser := userAuthentic.ToJwtUser()
-
-	tokenData, accessToken, err := control.JWT.Generate(pkgUser, now, tokenId.String())
-	if err != nil {
-		return pkgText.JwtToken(""), err
-	}
-
-	userAccessToken := coreUser.CreateUserAccessToken(savedUser, accessToken, now, tokenData.ExpiresAt.Time)
-	if err != nil {
-		return pkgText.JwtToken(""), err
-	}
-
-	if err = control.DB.Insert(userAccessToken); err != nil {
-		return pkgText.JwtToken(""), err
-	}
-
-	return accessToken, nil
-}
-
-func RegisterExecute(control *RegisterControl, entry entryUser.UserRegisterRequest, user *coreUser.UserAuthentic) (*entryUser.UserRegisterResponse, error) {
-	if err := control.DB.Begin(); err != nil {
-		return nil, err
-	}
-
-	now := control.Local.GetNow()
-
-	savedUser, err := createUser(control, entry, now)
-	if err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
-	}
-
-	if err = setPassword(control, entry, now, savedUser); err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
-	}
-
-	if err = setEmail(control, now, savedUser); err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
-	}
-
-	userAuthentic, err := getUserAuthentic(control, now, savedUser)
-	if err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
-	}
-
-	refreshToken, err := createRefreshToken(control, now, savedUser)
-	if err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
-	}
-
-	accessToken, err := createAccessToken(control, now, savedUser, userAuthentic)
-	if err != nil {
-		return nil, db.RollbackWithError(control.DB, err)
-	}
-
-	response := entryUser.FromCoreUserAuthenticToRegisterResponse(userAuthentic, refreshToken, accessToken)
-
-	if err := control.DB.Commit(); err != nil {
-		return nil, err
-	}
-
-	return response, nil
-}
+// func Transact[C any, E any, R any](callback func (C, E, *pkgUser.User) (R, error)) func (C, E, *pkgUser.User) (R, error) {
+// 	return func(control C, entry E, authentic *pkgUser.User) (R, error) {
+// 		// FIXME ここの型アサーションがうまくいなかい
+// 		transactional, ok := control.(db.TransactionalDatabase)
+// 		if ok {
+// 			if err := control.Begin(); err != nil {
+// 				return nil, err
+// 			}
+// 		}
+// 
+// 		result, err := callback(control, entry, authentic)
+// 
+// 		if ok {
+// 			if err != nil {
+// 				if err := control.Rollback(); err != nil {
+// 					return nil, err
+// 				}
+// 			} else {
+// 				if err := control.Commit(); err != nil {
+// 					return nil, err
+// 				}
+// 			}
+// 		}
+// 
+// 		return result, err
+// 	}
+// }

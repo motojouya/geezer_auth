@@ -64,3 +64,7 @@ func (user *UserAuthentic) ToJwtUser() *pkg.User {
 		user.UpdateDate,
 	)
 }
+
+func (user *UserAuthentic) GetUser() User {
+	return user.User
+}

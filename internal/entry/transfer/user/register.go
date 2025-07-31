@@ -35,3 +35,7 @@ func (u UserRegisterRequest) ToCoreUser(identifier pkgText.Identifier, registerD
 func (u UserRegisterRequest) GetPassword() (text.Password, error) {
 	return text.NewPassword(u.UserRegister.Password)
 }
+
+func (u UserRegisterRequest) GetEmail() (pkgText.Email, error) {
+	return pkgText.NewEmail(u.UserRegister.Email)
+}

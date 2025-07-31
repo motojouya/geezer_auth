@@ -5,13 +5,9 @@ import (
 	"github.com/motojouya/geezer_auth/internal/core/essence"
 	coreText "github.com/motojouya/geezer_auth/internal/core/text"
 	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
-	"github.com/motojouya/geezer_auth/internal/db"
-	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	"github.com/motojouya/geezer_auth/internal/io"
-	"github.com/motojouya/geezer_auth/internal/service"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 	"time"
 )
@@ -28,9 +24,9 @@ type UserCreator struct {
 }
 
 func NewUserCreator(local io.Local, db UserCreatorDB) *UserCreator {
-	return &RegisterControl{
+	return &UserCreator{
 		local: local,
-		db:    database,
+		db:    db,
 	}
 }
 
@@ -59,32 +55,32 @@ type UserGetter interface {
 	ToCoreUser(pkgText.Identifier, time.Time) (coreUser.UnsavedUser, error)
 }
 
-func (creator UserCreator) Create(entry UserGetter) (*coreUser.UserAuthentic, error) {
+func (creator UserCreator) Execute(entry UserGetter) (*coreUser.UserAuthentic, error) {
 	now := creator.local.GetNow()
 
-	userIdentifier, err := coreText.GetString(createUserIdentifier(creator.local), checkUserIdentifier(creator.local), 10)
+	userIdentifier, err := coreText.GetString(createUserIdentifier(creator.local), checkUserIdentifier(creator.db), 10)
 	if err != nil {
-		return coreUser.User{}, err
+		return nil, err
 	}
 
 	unsavedUser, err := entry.ToCoreUser(userIdentifier, now)
 	if err != nil {
-		return coreUser.User{}, err
+		return nil, err
 	}
 
 	var dbUserValue = dbUser.FromCoreUser(unsavedUser)
 
-	if err = creator.local.Insert(&dbUserValue); err != nil {
-		return coreUser.User{}, err
+	if err = creator.db.Insert(&dbUserValue); err != nil {
+		return nil, err
 	}
 
-	dbUserAuthentic, err := creator.local.GetUserAuthentic(dbUserValue.Identifier, now)
+	dbUserAuthentic, err := creator.db.GetUserAuthentic(dbUserValue.Identifier, now)
 	if err != nil {
 		return nil, err
 	}
 
 	if dbUserAuthentic == nil {
-		keys := map[string]string{"identifier": string(savedUser.Identifier)}
+		keys := map[string]string{"identifier": dbUserValue.Identifier}
 		err = essence.NewNotFoundError("user", keys, "user not found")
 		return nil, err
 	}

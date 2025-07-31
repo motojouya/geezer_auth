@@ -19,10 +19,14 @@ type Transactional interface {
 	Rollback() error
 }
 
-type ORP interface {
-	gorp.SqlExecutor
+type TransactionalDatabase interface {
 	Transactional
 	essence.Closable
+}
+
+type ORP interface {
+	TransactionalDatabase
+	gorp.SqlExecutor
 	Query
 }
 
