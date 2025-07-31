@@ -1,13 +1,13 @@
 package user
 
 import (
+	"github.com/motojouya/geezer_auth/internal/control/utility"
 	"github.com/motojouya/geezer_auth/internal/db"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	"github.com/motojouya/geezer_auth/internal/io"
 	configSilo "github.com/motojouya/geezer_auth/internal/silo/config"
 	userSilo "github.com/motojouya/geezer_auth/internal/silo/user"
 	pkgUser "github.com/motojouya/geezer_auth/pkg/core/user"
-	"github.com/motojouya/geezer_auth/internal/control/utility"
 )
 
 type RegisterControl struct {
