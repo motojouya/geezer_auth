@@ -8,36 +8,27 @@ import (
 
 func TestChangePassword(t *testing.T) {
 	var next = "testpassnext"
-	var now = "testpassnow"
 	var userChangePasswordRequest = user.UserChangePasswordRequest{
 		UserChangePassword: user.UserChangePassword{
-			NextPassword: next,
-			NowPassword:  now,
+			Password: next,
 		},
 	}
 
-	var nextPassword, nextErr = userChangePasswordRequest.GetNextPassword()
-	var nowPassword, nowErr = userChangePasswordRequest.GetNowPassword()
+	var nextPassword, nextErr = userChangePasswordRequest.GetPassword()
 
 	assert.Nil(t, nextErr)
-	assert.Nil(t, nowErr)
 	assert.Equal(t, next, string(nextPassword))
-	assert.Equal(t, now, string(nowPassword))
 }
 
 func TestChangePasswordError(t *testing.T) {
 	var next = "test_pass_next"
-	var now = "test_pass_now"
 	var userChangePasswordRequest = user.UserChangePasswordRequest{
 		UserChangePassword: user.UserChangePassword{
-			NextPassword: next,
-			NowPassword:  now,
+			Password: next,
 		},
 	}
 
-	var _, nextErr = userChangePasswordRequest.GetNextPassword()
-	var _, nowErr = userChangePasswordRequest.GetNowPassword()
+	var _, nextErr = userChangePasswordRequest.GetPassword()
 
 	assert.Error(t, nextErr)
-	assert.Error(t, nowErr)
 }

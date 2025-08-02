@@ -16,19 +16,23 @@ type RefreshTokenIssuerDB interface {
 	commandQuery.AddRefreshTokenQuery
 }
 
-type RefreshTokenIssuer struct {
+type RefreshTokenIssuer interface {
+	Execute(userAuthentic *coreUser.UserAuthentic) (coreText.Token, error)
+}
+
+type RefreshTokenIssue struct {
 	local io.Local
 	db    RefreshTokenIssuerDB
 }
 
-func NewRefreshTokenIssuer(local io.Local, database RefreshTokenIssuerDB) *RefreshTokenIssuer {
-	return &RefreshTokenIssuer{
+func NewRefreshTokenIssue(local io.Local, database RefreshTokenIssuerDB) *RefreshTokenIssue {
+	return &RefreshTokenIssue{
 		db:    database,
 		local: local,
 	}
 }
 
-func (issuer RefreshTokenIssuer) Execute(userAuthentic *coreUser.UserAuthentic) (coreText.Token, error) {
+func (issuer RefreshTokenIssue) Execute(userAuthentic *coreUser.UserAuthentic) (coreText.Token, error) {
 	now := issuer.local.GetNow()
 
 	refreshTokenSource, err := issuer.local.GenerateUUID()

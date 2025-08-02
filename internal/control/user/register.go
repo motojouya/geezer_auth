@@ -12,20 +12,20 @@ import (
 
 type RegisterControl struct {
 	db.TransactionalDatabase
-	userCreator        *userSilo.UserCreator
-	emailSetter        *userSilo.EmailSetter
-	passwordSetter     *userSilo.PasswordSetter
-	refreshTokenIssuer *userSilo.RefreshTokenIssuer
-	accessTokenIssuer  *userSilo.AccessTokenIssuer
+	userCreator        userSilo.UserCreator
+	emailSetter        userSilo.EmailSetter
+	passwordSetter     userSilo.PasswordSetter
+	refreshTokenIssuer userSilo.RefreshTokenIssuer
+	accessTokenIssuer  userSilo.AccessTokenIssuer
 }
 
 func NewRegisterControl(
 	database db.TransactionalDatabase,
-	userCreator *userSilo.UserCreator,
-	emailSetter *userSilo.EmailSetter,
-	passwordSetter *userSilo.PasswordSetter,
-	refreshTokenIssuer *userSilo.RefreshTokenIssuer,
-	accessTokenIssuer *userSilo.AccessTokenIssuer,
+	userCreator userSilo.UserCreator,
+	emailSetter userSilo.EmailSetter,
+	passwordSetter userSilo.PasswordSetter,
+	refreshTokenIssuer userSilo.RefreshTokenIssuer,
+	accessTokenIssuer userSilo.AccessTokenIssuer,
 ) *RegisterControl {
 	return &RegisterControl{
 		TransactionalDatabase: database,
@@ -51,11 +51,11 @@ func CreateRegisterControl() (*RegisterControl, error) {
 		return nil, err
 	}
 
-	userCreator := userSilo.NewUserCreator(local, database)
-	emailSetter := userSilo.NewEmailSetter(local, database)
-	passwordSetter := userSilo.NewPasswordSetter(local, database)
-	refreshTokenIssuer := userSilo.NewRefreshTokenIssuer(local, database)
-	accessTokenIssuer := userSilo.NewAccessTokenIssuer(local, database, jwtHandler)
+	userCreator := userSilo.NewUserCreate(local, database)
+	emailSetter := userSilo.NewEmailSet(local, database)
+	passwordSetter := userSilo.NewPasswordSet(local, database)
+	refreshTokenIssuer := userSilo.NewRefreshTokenIssue(local, database)
+	accessTokenIssuer := userSilo.NewAccessTokenIssue(local, database, jwtHandler)
 
 	return NewRegisterControl(database, userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer), nil
 }

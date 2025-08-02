@@ -16,21 +16,25 @@ type AccessTokenIssuerDB interface {
 	userQuery.GetUserAccessTokenQuery
 }
 
-type AccessTokenIssuer struct {
+type AccessTokenIssuer interface {
+	Execute(userAuthentic *coreUser.UserAuthentic) (pkgText.JwtToken, error)
+}
+
+type AccessTokenIssue struct {
 	local io.Local
 	db    AccessTokenIssuerDB
 	jwt   jwt.JwtHandler
 }
 
-func NewAccessTokenIssuer(local io.Local, database AccessTokenIssuerDB, jwtHandler jwt.JwtHandler) *AccessTokenIssuer {
-	return &AccessTokenIssuer{
+func NewAccessTokenIssue(local io.Local, database AccessTokenIssuerDB, jwtHandler jwt.JwtHandler) *AccessTokenIssue {
+	return &AccessTokenIssue{
 		local: local,
 		db:    database,
 		jwt:   jwtHandler,
 	}
 }
 
-func (issuer AccessTokenIssuer) Execute(userAuthentic *coreUser.UserAuthentic) (pkgText.JwtToken, error) {
+func (issuer AccessTokenIssue) Execute(userAuthentic *coreUser.UserAuthentic) (pkgText.JwtToken, error) {
 	now := issuer.local.GetNow()
 
 	dbAccessTokens, err := issuer.db.GetUserAccessToken(string(userAuthentic.Identifier), now)

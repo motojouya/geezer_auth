@@ -7,8 +7,8 @@ import (
 	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	"github.com/motojouya/geezer_auth/internal/io"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 )
 
 type EmailSetterDB interface {
@@ -16,23 +16,23 @@ type EmailSetterDB interface {
 	commandQuery.AddEmailQuery
 }
 
-type EmailSetter struct {
+type EmailSetter interface {
+	Execute(entry entryUser.EmailGetter, userAuthentic *coreUser.UserAuthentic) error
+}
+
+type EmailSet struct {
 	local io.Local
 	db    EmailSetterDB
 }
 
-func NewEmailSetter(local io.Local, database EmailSetterDB) *EmailSetter {
-	return &EmailSetter{
+func NewEmailSet(local io.Local, database EmailSetterDB) *EmailSet {
+	return &EmailSet{
 		db:    database,
 		local: local,
 	}
 }
 
-type EmailGetter interface {
-	GetEmail() (pkgText.Email, error)
-}
-
-func (setter EmailSetter) Execute(entry EmailGetter, userAuthentic *coreUser.UserAuthentic) error {
+func (setter EmailSet) Execute(entry entryUser.EmailGetter, userAuthentic *coreUser.UserAuthentic) error {
 	now := setter.local.GetNow()
 
 	email, err := entry.GetEmail()

@@ -7,6 +7,14 @@ import (
 	"time"
 )
 
+type UserGetter interface {
+	ToCoreUser(pkgText.Identifier, time.Time) (core.UnsavedUser, error)
+}
+
+type EmailGetter interface {
+	GetEmail() (pkgText.Email, error)
+}
+
 type UserRegister struct {
 	Email    string `json:"email"`
 	Name     string `json:"name"`

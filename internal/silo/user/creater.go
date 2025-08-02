@@ -7,9 +7,9 @@ import (
 	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	"github.com/motojouya/geezer_auth/internal/io"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
-	"time"
 )
 
 type UserCreatorDB interface {
@@ -18,13 +18,17 @@ type UserCreatorDB interface {
 	userQuery.GetUserAuthenticQuery
 }
 
-type UserCreator struct {
+type UserCreator interface {
+	Execute(entry entryUser.UserGetter) (*coreUser.UserAuthentic, error)
+}
+
+type UserCreate struct {
 	local io.Local
 	db    UserCreatorDB
 }
 
-func NewUserCreator(local io.Local, db UserCreatorDB) *UserCreator {
-	return &UserCreator{
+func NewUserCreate(local io.Local, db UserCreatorDB) *UserCreate {
+	return &UserCreate{
 		local: local,
 		db:    db,
 	}
@@ -51,11 +55,7 @@ func checkUserIdentifier(userCreatorDB UserCreatorDB) func(pkgText.Identifier) (
 	}
 }
 
-type UserGetter interface {
-	ToCoreUser(pkgText.Identifier, time.Time) (coreUser.UnsavedUser, error)
-}
-
-func (creator UserCreator) Execute(entry UserGetter) (*coreUser.UserAuthentic, error) {
+func (creator UserCreate) Execute(entry entryUser.UserGetter) (*coreUser.UserAuthentic, error) {
 	now := creator.local.GetNow()
 
 	userIdentifier, err := coreText.GetString(createUserIdentifier(creator.local), checkUserIdentifier(creator.db), 10)

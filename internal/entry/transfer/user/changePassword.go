@@ -4,19 +4,18 @@ import (
 	"github.com/motojouya/geezer_auth/internal/core/text"
 )
 
+type PasswordGetter interface {
+	GetPassword() (text.Password, error)
+}
+
 type UserChangePassword struct {
-	NextPassword string `json:"next_password"`
-	NowPassword  string `json:"now_password"`
+	Password string `json:"password"`
 }
 
 type UserChangePasswordRequest struct {
 	UserChangePassword UserChangePassword `http:"body"`
 }
 
-func (u UserChangePasswordRequest) GetNextPassword() (text.Password, error) {
-	return text.NewPassword(u.UserChangePassword.NextPassword)
-}
-
-func (u UserChangePasswordRequest) GetNowPassword() (text.Password, error) {
-	return text.NewPassword(u.UserChangePassword.NowPassword)
+func (u UserChangePasswordRequest) GetPassword() (text.Password, error) {
+	return text.NewPassword(u.UserChangePassword.Password)
 }

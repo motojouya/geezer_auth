@@ -43,19 +43,19 @@ func (getter AuthorizationGet) GetAuthorization() (*authorization.Authorization,
 	return authorizationSingleton, nil
 }
 
-	// var EmployeeLabel, employeeLabelErr = text.NewLabel("EMPLOYEE")
-	// if employeeLabelErr != nil {
-	// 	panic(employeeLabelErr)
-	// }
-	// var EmployeePermission = role.NewRolePermission(EmployeeLabel, true, true, false, false, 5)
+// var EmployeeLabel, employeeLabelErr = text.NewLabel("EMPLOYEE")
+// if employeeLabelErr != nil {
+// 	panic(employeeLabelErr)
+// }
+// var EmployeePermission = role.NewRolePermission(EmployeeLabel, true, true, false, false, 5)
 
-	// var ManagerLabel, managerLabelErr = text.NewLabel("MANAGER")
-	// if managerLabelErr != nil {
-	// 	panic(managerLabelErr)
-	// }
-	// var ManagerPermission = role.NewRolePermission(ManagerLabel, true, true, true, true, 9)
+// var ManagerLabel, managerLabelErr = text.NewLabel("MANAGER")
+// if managerLabelErr != nil {
+// 	panic(managerLabelErr)
+// }
+// var ManagerPermission = role.NewRolePermission(ManagerLabel, true, true, true, true, 9)
 
-	// var permissions = []role.RolePermission{
-	// 	EmployeePermission,
-	// 	ManagerPermission,
-	// }
+// var permissions = []role.RolePermission{
+// 	EmployeePermission,
+// 	ManagerPermission,
+// }

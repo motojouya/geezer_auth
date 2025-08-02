@@ -6,6 +6,7 @@ import (
 	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
 	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	"github.com/motojouya/geezer_auth/internal/io"
 )
 
@@ -14,23 +15,23 @@ type PasswordSetterDB interface {
 	commandQuery.AddPasswordQuery
 }
 
-type PasswordSetter struct {
+type PasswordSetter interface {
+	Execute(entry entryUser.PasswordGetter, userAuthentic *coreUser.UserAuthentic) error
+}
+
+type PasswordSet struct {
 	local io.Local
 	db    PasswordSetterDB
 }
 
-func NewPasswordSetter(local io.Local, db PasswordSetterDB) *PasswordSetter {
-	return &PasswordSetter{
+func NewPasswordSet(local io.Local, db PasswordSetterDB) *PasswordSet {
+	return &PasswordSet{
 		local: local,
 		db:    db,
 	}
 }
 
-type PasswordGetter interface {
-	GetPassword() (coreText.Password, error)
-}
-
-func (setter PasswordSetter) Execute(entry PasswordGetter, userAuthentic *coreUser.UserAuthentic) error {
+func (setter PasswordSet) Execute(entry entryUser.PasswordGetter, userAuthentic *coreUser.UserAuthentic) error {
 	now := setter.local.GetNow()
 
 	password, err := entry.GetPassword()
