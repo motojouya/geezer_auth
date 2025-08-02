@@ -14,18 +14,18 @@ type JwtHandler interface {
 type JwtHandle struct {
 	Audience              []string `env:"JWT_AUDIENCE,notEmpty"`
 	ValidityPeriodMinutes uint     `env:"JWT_VALIDITY_PERIOD_MINUTES,notEmpty"`
-	JwtParsing
+	JwtParse
 }
 
 func NewJwtHandle(
 	audience []string,
-	jwtParsing JwtParsing,
+	jwtParse JwtParse,
 	validityPeriodMinutes uint,
 ) JwtHandle {
 	return JwtHandle{
 		Audience:              audience,
 		ValidityPeriodMinutes: validityPeriodMinutes,
-		JwtParsing:            jwtParsing,
+		JwtParse:              jwtParse,
 	}
 }
 

@@ -67,7 +67,7 @@ func TestHandleJwt(t *testing.T) {
 	var validityPeriodMinutes uint = 60
 	var expiresAt = issuedAt.Add(time.Duration(validityPeriodMinutes) * time.Minute)
 
-	var jwtParsing = jwt.NewJwtParsing(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
+	var jwtParsing = jwt.NewJwtParse(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
 	var jwtHandle = jwt.NewJwtHandle(audience, jwtParsing, validityPeriodMinutes)
 
 	var _, tokenString, generateErr = jwtHandle.Generate(userValue, issuedAt, id)
@@ -145,7 +145,7 @@ func TestHandleJwtFailureIssuer(t *testing.T) {
 	var oldSecret = "TestOldSecret"
 	var validityPeriodMinutes uint = 60
 
-	var parserServer = jwt.NewJwtParsing(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
+	var parserServer = jwt.NewJwtParse(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
 	var jwtHandle = jwt.NewJwtHandle(audience, parserServer, validityPeriodMinutes)
 
 	var _, tokenString, generateErr = jwtHandle.Generate(user, issuedAt, id)
@@ -155,7 +155,7 @@ func TestHandleJwtFailureIssuer(t *testing.T) {
 	}
 
 	var wrongIssuer = "WrongIssuer"
-	var parserClient = jwt.NewJwtParsing(wrongIssuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
+	var parserClient = jwt.NewJwtParse(wrongIssuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
 
 	var _, parseErr = parserClient.Parse(string(tokenString))
 	if parseErr == nil {
@@ -179,7 +179,7 @@ func TestHandleJwtFailureAudience(t *testing.T) {
 	var oldSecret = "TestOldSecret"
 	var validityPeriodMinutes uint = 60
 
-	var parserServer = jwt.NewJwtParsing(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
+	var parserServer = jwt.NewJwtParse(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
 	var jwtHandle = jwt.NewJwtHandle(audience, parserServer, validityPeriodMinutes)
 
 	var _, tokenString, generateErr = jwtHandle.Generate(user, issuedAt, id)
@@ -189,7 +189,7 @@ func TestHandleJwtFailureAudience(t *testing.T) {
 	}
 
 	var wrongApplication = "WrongApplication"
-	var parserClient = jwt.NewJwtParsing(issuer, wrongApplication, latestKeyId, latestSecret, oldKeyId, oldSecret)
+	var parserClient = jwt.NewJwtParse(issuer, wrongApplication, latestKeyId, latestSecret, oldKeyId, oldSecret)
 
 	var _, parseErr = parserClient.Parse(string(tokenString))
 	if parseErr == nil {
@@ -213,7 +213,7 @@ func TestHandleJwtFailureSecret(t *testing.T) {
 	var oldSecret = "TestOldSecret"
 	var validityPeriodMinutes uint = 60
 
-	var parserServer = jwt.NewJwtParsing(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
+	var parserServer = jwt.NewJwtParse(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
 	var jwtHandle = jwt.NewJwtHandle(audience, parserServer, validityPeriodMinutes)
 
 	var _, tokenString, generateErr = jwtHandle.Generate(user, issuedAt, id)
@@ -222,7 +222,7 @@ func TestHandleJwtFailureSecret(t *testing.T) {
 		return
 	}
 
-	var parserClient = jwt.NewJwtParsing(issuer, application, "WrongKey", latestSecret, "", "")
+	var parserClient = jwt.NewJwtParse(issuer, application, "WrongKey", latestSecret, "", "")
 
 	var _, parseErr = parserClient.Parse(string(tokenString))
 	if parseErr == nil {

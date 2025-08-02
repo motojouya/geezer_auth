@@ -60,7 +60,7 @@ func CreateRegisterControl() (*RegisterControl, error) {
 	return NewRegisterControl(database, userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer), nil
 }
 
-var RegisterExecute = utility.Transact(func(control *RegisterControl, entry entryUser.UserRegisterRequest, _ *pkgUser.User) (*entryUser.UserRegisterResponse, error) {
+var RegisterExecute = utility.Transact(func(control *RegisterControl, entry entryUser.UserRegisterRequest, _ *pkgUser.Authentic) (*entryUser.UserRegisterResponse, error) {
 
 	userAuthentic, err := control.userCreator.Execute(entry)
 	if err != nil {

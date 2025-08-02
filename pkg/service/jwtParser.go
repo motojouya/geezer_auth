@@ -7,21 +7,21 @@ import (
 	"os"
 )
 
-type JwtParserLoader interface {
-	LoadJwtParser() (JwtParser, error)
+type JwtParserGetter interface {
+	GetJwtParser() (*jwt.JwtParse, error)
 }
 
-type jwtParserLoaderImpl struct{}
+type JwtParserGet struct{}
 
 type JwtParser interface {
 	Parse(tokenString string) (*user.Authentic, error)
 }
 
-var jwtParser *jwt.JwtParsing
+var jwtParser *jwt.JwtParse
 
 // FIXME 本来はinternal/io/localのGetEnvを使って環境変数を取得すべきだが、ioパッケージを共通部品として使うのは不自然なので、ここではosパッケージを直接使う形
 // また、osパッケージ自体がローカルマシンに依存したものではあるので、引数で受け取ってコントローラブルにすべき
-func (impl jwtParserLoaderImpl) LoadJwtParser() (JwtParser, error) {
+func (getter JwtParserGet) GetJwtParser() (*jwt.JwtParse, error) {
 	if jwtParser != nil {
 		return jwtParser, nil
 	}
@@ -56,7 +56,7 @@ func (impl jwtParserLoaderImpl) LoadJwtParser() (JwtParser, error) {
 		return nil, essence.NewSystemConfigError("JWT_OLD_SECRET", "JWT_OLD_SECRET is not set on env")
 	}
 
-	var jwtParsing = jwt.NewJwtParsing(
+	var jwtParsing = jwt.NewJwtParse(
 		issuer,
 		myself,
 		latestKeyId,
