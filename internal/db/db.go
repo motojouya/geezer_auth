@@ -24,17 +24,17 @@ type TransactionalDatabase interface {
 	essence.Closable
 }
 
-type ORP interface {
+type ORPer interface {
 	TransactionalDatabase
 	gorp.SqlExecutor
 	Query
 }
 
-func CreateDatabase(connection *sql.DB) ORP {
+func CreateDatabase(connection *sql.DB) *ORP {
 	var dbMap = &gorp.DbMap{Db: connection, Dialect: gorp.PostgresDialect{}}
 	registerTable(dbMap)
 
-	return &ORPImpl{
+	return &ORP{
 		SqlExecutor: dbMap,
 		dbMap:       nil,
 	}
@@ -54,12 +54,12 @@ func registerTable(dbMap *gorp.DbMap) {
 }
 
 // dbMapはtransactionを開始した際に、退避するためのフィールドなので、transactionが開始されていない場合はnil。
-type ORPImpl struct {
+type ORP struct {
 	gorp.SqlExecutor
 	dbMap *gorp.DbMap
 }
 
-func (orp ORPImpl) Close() error {
+func (orp ORP) Close() error {
 	var insideTransaction = false
 
 	if orp.dbMap != nil {
@@ -94,7 +94,7 @@ func (orp ORPImpl) Close() error {
 	return nil
 }
 
-func (orp ORPImpl) Begin() error {
+func (orp ORP) Begin() error {
 	var dbMap, ok = orp.SqlExecutor.(*gorp.DbMap)
 	if !ok || orp.dbMap != nil {
 		return essence.CreateInsideTransactionError("transaction is already started")
@@ -111,7 +111,7 @@ func (orp ORPImpl) Begin() error {
 	return nil
 }
 
-func (orp ORPImpl) Commit() error {
+func (orp ORP) Commit() error {
 	var transaction, ok = orp.SqlExecutor.(*gorp.Transaction)
 	if !ok || orp.dbMap == nil {
 		return essence.CreateOutsideTransactionError("transaction is not started")
@@ -128,7 +128,7 @@ func (orp ORPImpl) Commit() error {
 	return nil
 }
 
-func (orp ORPImpl) Rollback() error {
+func (orp ORP) Rollback() error {
 	var transaction, ok = orp.SqlExecutor.(*gorp.Transaction)
 	if !ok || orp.dbMap == nil {
 		return essence.CreateOutsideTransactionError("transaction is not started")
@@ -145,7 +145,7 @@ func (orp ORPImpl) Rollback() error {
 	return nil
 }
 
-func (orp ORPImpl) checkTransaction() error {
+func (orp ORP) checkTransaction() error {
 	var _, ok = orp.SqlExecutor.(*gorp.Transaction)
 	if !ok || orp.dbMap == nil {
 		return essence.CreateOutsideTransactionError("transaction is not started")
@@ -154,6 +154,6 @@ func (orp ORPImpl) checkTransaction() error {
 	return nil
 }
 
-func (orp ORPImpl) InsideTransaction() bool {
+func (orp ORP) InsideTransaction() bool {
 	return orp.dbMap != nil
 }

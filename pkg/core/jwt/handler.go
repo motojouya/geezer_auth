@@ -7,30 +7,34 @@ import (
 	"time"
 )
 
-type JwtHandling struct {
+type JwtHandler interface {
+	Generate(user *user.User, issueDate time.Time, id string) (*user.Authentic, text.JwtToken, error)
+}
+
+type JwtHandle struct {
 	Audience              []string `env:"JWT_AUDIENCE,notEmpty"`
 	ValidityPeriodMinutes uint     `env:"JWT_VALIDITY_PERIOD_MINUTES,notEmpty"`
 	JwtParsing
 }
 
-func NewJwtHandling(
+func NewJwtHandle(
 	audience []string,
 	jwtParsing JwtParsing,
 	validityPeriodMinutes uint,
-) JwtHandling {
-	return JwtHandling{
+) JwtHandle {
+	return JwtHandle{
 		Audience:              audience,
 		ValidityPeriodMinutes: validityPeriodMinutes,
 		JwtParsing:            jwtParsing,
 	}
 }
 
-func (jwtHandling *JwtHandling) getToken(claims *GeezerClaims) (text.JwtToken, error) {
+func (jwtHandle *JwtHandle) getToken(claims *GeezerClaims) (text.JwtToken, error) {
 
 	var token = gojwt.NewWithClaims(gojwt.SigningMethodHS256, claims)
-	token.Header["kid"] = jwtHandling.LatestKeyId
+	token.Header["kid"] = jwtHandle.LatestKeyId
 
-	tokenString, err := token.SignedString([]byte(jwtHandling.LatestSecret))
+	tokenString, err := token.SignedString([]byte(jwtHandle.LatestSecret))
 	if err != nil {
 		return text.JwtToken(""), err
 	}
@@ -39,19 +43,19 @@ func (jwtHandling *JwtHandling) getToken(claims *GeezerClaims) (text.JwtToken, e
 }
 
 // idはuuidを想定
-func (jwtHandling *JwtHandling) Generate(userValue *user.User, issueDate time.Time, id string) (*user.Authentic, text.JwtToken, error) {
+func (jwtHandle *JwtHandle) Generate(userValue *user.User, issueDate time.Time, id string) (*user.Authentic, text.JwtToken, error) {
 	var authentic = user.CreateAuthentic(
-		jwtHandling.Issuer,
-		jwtHandling.Audience,
+		jwtHandle.Issuer,
+		jwtHandle.Audience,
 		issueDate,
-		jwtHandling.ValidityPeriodMinutes,
+		jwtHandle.ValidityPeriodMinutes,
 		id,
 		userValue,
 	)
 
 	var claims = FromAuthentic(authentic)
 
-	var token, err = jwtHandling.getToken(claims)
+	var token, err = jwtHandle.getToken(claims)
 	if err != nil {
 		return nil, text.JwtToken(""), err
 	}

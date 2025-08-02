@@ -7,7 +7,7 @@ import (
 )
 
 type Environment interface {
-	GetJwtHandling() (jwt.JwtHandling, error)
+	GetJwtHandle() (jwt.JwtHandle, error)
 	GetDBAccess() (config.DBAccess, error)
 }
 
@@ -17,8 +17,16 @@ func CreateEnvironment() Environment {
 	return &environment{}
 }
 
-func (e environment) GetJwtHandling() (jwt.JwtHandling, error) {
-	return env.ParseAs[jwt.JwtHandling]()
+type JwtHandleGetter interface {
+	GetJwtHandle() (jwt.JwtHandle, error)
+}
+
+func (e environment) GetJwtHandle() (jwt.JwtHandle, error) {
+	return env.ParseAs[jwt.JwtHandle]()
+}
+
+type DBAccessGetter interface {
+	GetDBAccess() (config.DBAccess, error)
 }
 
 func (e environment) GetDBAccess() (config.DBAccess, error) {

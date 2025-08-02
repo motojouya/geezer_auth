@@ -3,28 +3,29 @@ package config
 import (
 	coreConfig "github.com/motojouya/geezer_auth/internal/core/config"
 	"github.com/motojouya/geezer_auth/internal/db"
+	"github.com/motojouya/geezer_auth/internal/io"
 )
 
-type DBAccessGetter interface {
-	GetDBAccess() (coreConfig.DBAccess, error)
+type DatabaseGetter interface {
+	GetDatabase() (*db.ORP, error)
 }
 
-type DatabaseLoader struct {
-	env DBAccessGetter
+type DatabaseGet struct {
+	env io.DBAccessGetter
 }
 
-func NewDatabaseLoader(env DBAccessGetter) *DatabaseLoader {
-	return &DatabaseLoader{
+func NewDatabaseGet(env io.DBAccessGetter) *DatabaseGet {
+	return &DatabaseGet{
 		env: env,
 	}
 }
 
 var dbAccess *coreConfig.DBAccess
 
-func (loader DatabaseLoader) LoadDatabase() (db.ORP, error) {
+func (getter DatabaseGet) GetDatabase() (*db.ORP, error) {
 	// access 情報はcacheするが、connectionはcacheしない
 	if dbAccess == nil {
-		var dbAccessData, err = loader.env.GetDBAccess()
+		var dbAccessData, err = getter.env.GetDBAccess()
 		if err != nil {
 			return nil, err
 		}

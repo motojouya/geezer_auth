@@ -12,7 +12,7 @@ import (
 	"os"
 )
 
-func ExecuteDatabaseTest(pathToRoot string, run func(db.ORP) int) {
+func ExecuteDatabaseTest(pathToRoot string, run func(db.ORPer) int) {
 	os.Setenv("TZ", "Asia/Tokyo") // `internal/core/timezone`だとできんかった？
 
 	pool, err := dockertest.NewPool("")

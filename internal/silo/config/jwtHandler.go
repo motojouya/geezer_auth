@@ -1,43 +1,37 @@
 package config
 
 import (
+	"github.com/motojouya/geezer_auth/internal/io"
 	"github.com/motojouya/geezer_auth/pkg/core/jwt"
-	"github.com/motojouya/geezer_auth/pkg/core/text"
-	"github.com/motojouya/geezer_auth/pkg/core/user"
-	"time"
 )
 
-type JwtHandlingGetter interface {
-	GetJwtHandling() (jwt.JwtHandling, error)
+type JwtHandlerGetter interface {
+	GetJwtHandler() (jwt.JwtHandler, error)
 }
 
-type JwtHandlerLoader struct {
-	env JwtHandlingGetter
+type JwtHandlerGet struct {
+	env io.JwtHandleGetter
 }
 
-func NewJwtHandlerLoader(env JwtHandlingGetter) *JwtHandlerLoader {
-	return &JwtHandlerLoader{
+func NewJwtHandlerGet(env io.JwtHandleGetter) *JwtHandlerGet {
+	return &JwtHandlerGet{
 		env: env,
 	}
 }
 
-type JwtHandler interface {
-	Generate(user *user.User, issueDate time.Time, id string) (*user.Authentic, text.JwtToken, error)
-}
+var jwtHandle *jwt.JwtHandle
 
-var jwtHandling *jwt.JwtHandling
-
-func (loader *JwtHandlerLoader) LoadJwtHandler() (JwtHandler, error) {
-	if jwtHandling == nil {
-		var jwtHandlingObj, err = loader.env.GetJwtHandling()
+func (getter *JwtHandlerGet) GetJwtHandler() (*jwt.JwtHandle, error) {
+	if jwtHandle == nil {
+		var jwtHandleObj, err = getter.env.GetJwtHandle()
 		if err != nil {
 			return nil, err
 		}
 
-		jwtHandling = &jwtHandlingObj
+		jwtHandle = &jwtHandleObj
 	}
 
-	return jwtHandling, nil
+	return jwtHandle, nil
 }
 
 // !old code!

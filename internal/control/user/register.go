@@ -41,12 +41,12 @@ func CreateRegisterControl() (*RegisterControl, error) {
 	var local = io.CreateLocal()
 	var env = io.CreateEnvironment()
 
-	database, err := configSilo.NewDatabaseLoader(env).LoadDatabase()
+	database, err := configSilo.NewDatabaseGet(env).GetDatabase()
 	if err != nil {
 		return nil, err
 	}
 
-	jwtHandler, err := configSilo.NewJwtHandlerLoader(env).LoadJwtHandler()
+	jwtHandler, err := configSilo.NewJwtHandlerGet(env).GetJwtHandler()
 	if err != nil {
 		return nil, err
 	}

@@ -6,7 +6,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db"
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	"github.com/motojouya/geezer_auth/internal/io"
-	"github.com/motojouya/geezer_auth/internal/silo/config"
+	"github.com/motojouya/geezer_auth/pkg/core/jwt"
 	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
 )
 
@@ -19,10 +19,10 @@ type AccessTokenIssuerDB interface {
 type AccessTokenIssuer struct {
 	local io.Local
 	db    AccessTokenIssuerDB
-	jwt   config.JwtHandler
+	jwt   jwt.JwtHandler
 }
 
-func NewAccessTokenIssuer(local io.Local, database AccessTokenIssuerDB, jwtHandler config.JwtHandler) *AccessTokenIssuer {
+func NewAccessTokenIssuer(local io.Local, database AccessTokenIssuerDB, jwtHandler jwt.JwtHandler) *AccessTokenIssuer {
 	return &AccessTokenIssuer{
 		local: local,
 		db:    database,

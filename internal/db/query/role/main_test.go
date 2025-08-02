@@ -6,10 +6,10 @@ import (
 	"testing"
 )
 
-var orp db.ORP
+var orp db.ORPer
 
 func TestMain(m *testing.M) {
-	testUtility.ExecuteDatabaseTest("../../../../", func(orpArg db.ORP) int {
+	testUtility.ExecuteDatabaseTest("../../../../", func(orpArg db.ORPer) int {
 		orp = orpArg
 		return m.Run()
 	})

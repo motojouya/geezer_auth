@@ -4,29 +4,28 @@ import (
 	"github.com/motojouya/geezer_auth/internal/core/authorization"
 	"github.com/motojouya/geezer_auth/internal/core/role"
 	roleQuery "github.com/motojouya/geezer_auth/internal/db/query/role"
-	user "github.com/motojouya/geezer_auth/pkg/core/user"
 )
 
-type AuthorizationLoader struct {
+type AuthorizationGetter interface {
+	GetAuthorization() (*authorization.Authorization, error)
+}
+
+type AuthorizationGet struct {
 	db roleQuery.GetRolePermissionQuery
 }
 
-func NewAuthorizationLoader(db roleQuery.GetRolePermissionQuery) *AuthorizationLoader {
-	return &AuthorizationLoader{db: db}
-}
-
-type Authorizer interface {
-	Authorize(require role.RequirePermission, authentic *user.Authentic) error
+func NewAuthorizationGet(db roleQuery.GetRolePermissionQuery) *AuthorizationGet {
+	return &AuthorizationGet{db: db}
 }
 
 var authorizationSingleton *authorization.Authorization
 
-func (loader AuthorizationLoader) LoadAuthorization() (Authorizer, error) {
+func (getter AuthorizationGet) GetAuthorization() (*authorization.Authorization, error) {
 	if authorizationSingleton != nil {
 		return authorizationSingleton, nil
 	}
 
-	dbRolePermissions, err := loader.db.GetRolePermission()
+	dbRolePermissions, err := getter.db.GetRolePermission()
 	if err != nil {
 		return nil, err
 	}
@@ -39,6 +38,10 @@ func (loader AuthorizationLoader) LoadAuthorization() (Authorizer, error) {
 		}
 		permissions = append(permissions, rolePermission)
 	}
+
+	authorizationSingleton = authorization.CreateAuthorization(permissions)
+	return authorizationSingleton, nil
+}
 
 	// var EmployeeLabel, employeeLabelErr = text.NewLabel("EMPLOYEE")
 	// if employeeLabelErr != nil {
@@ -56,7 +59,3 @@ func (loader AuthorizationLoader) LoadAuthorization() (Authorizer, error) {
 	// 	EmployeePermission,
 	// 	ManagerPermission,
 	// }
-
-	authorizationSingleton = authorization.CreateAuthorization(permissions)
-	return authorizationSingleton, nil
-}

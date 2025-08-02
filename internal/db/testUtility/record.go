@@ -33,7 +33,7 @@ var tables = []string{
 	"role",
 }
 
-func Truncate(t *testing.T, orp db.ORP) {
+func Truncate(t *testing.T, orp db.ORPer) {
 	for _, table := range tables {
 		var _, err = orp.Exec("TRUNCATE TABLE " + table + " CASCADE")
 		if err != nil {
@@ -43,8 +43,8 @@ func Truncate(t *testing.T, orp db.ORP) {
 }
 
 // truncateはforeign key制約のためにcascadeをつける必要があるので、独自実装で行っている。
-func oldTruncate(t *testing.T, orp db.ORP) {
-	var impl, implOk = orp.(*db.ORPImpl)
+func oldTruncate(t *testing.T, orp db.ORPer) {
+	var impl, implOk = orp.(*db.ORP)
 	if !implOk {
 		t.Fatalf("Expected db.ORPImpl, got %T", orp)
 	}
@@ -60,7 +60,7 @@ func oldTruncate(t *testing.T, orp db.ORP) {
 	}
 }
 
-func Ready[T any](t *testing.T, orp db.ORP, records []T) []T {
+func Ready[T any](t *testing.T, orp db.ORPer, records []T) []T {
 	var rec []interface{}
 	for _, record := range records {
 		rec = append(rec, &record)
@@ -81,7 +81,7 @@ func Ready[T any](t *testing.T, orp db.ORP, records []T) []T {
 	return ret
 }
 
-func ReadyPointer[T any](t *testing.T, orp db.ORP, records []*T) []*T {
+func ReadyPointer[T any](t *testing.T, orp db.ORPer, records []*T) []*T {
 	var rec []interface{}
 	for _, record := range records {
 		rec = append(rec, record)
@@ -112,8 +112,8 @@ func AssertRecords[T any](t *testing.T, expects []T, actuals []T, assertSame fun
 	}
 }
 
-func AssertTable[T any](t *testing.T, orp db.ORP, orders []string, expects []T, assertSame func(*testing.T, T, T)) {
-	var impl, implOk = orp.(*db.ORPImpl)
+func AssertTable[T any](t *testing.T, orp db.ORPer, orders []string, expects []T, assertSame func(*testing.T, T, T)) {
+	var impl, implOk = orp.(*db.ORP)
 	if !implOk {
 		t.Fatalf("Expected db.ORPImpl, got %T", orp)
 	}

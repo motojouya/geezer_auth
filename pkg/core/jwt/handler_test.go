@@ -68,15 +68,15 @@ func TestHandleJwt(t *testing.T) {
 	var expiresAt = issuedAt.Add(time.Duration(validityPeriodMinutes) * time.Minute)
 
 	var jwtParsing = jwt.NewJwtParsing(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
-	var jwtHandling = jwt.NewJwtHandling(audience, jwtParsing, validityPeriodMinutes)
+	var jwtHandle = jwt.NewJwtHandle(audience, jwtParsing, validityPeriodMinutes)
 
-	var _, tokenString, generateErr = jwtHandling.Generate(userValue, issuedAt, id)
+	var _, tokenString, generateErr = jwtHandle.Generate(userValue, issuedAt, id)
 	if generateErr != nil {
 		t.Errorf("failed to generate token: %v", generateErr)
 		return
 	}
 
-	var authentic, parseErr = jwtHandling.Parse(string(tokenString))
+	var authentic, parseErr = jwtHandle.Parse(string(tokenString))
 	if parseErr != nil {
 		t.Errorf("failed to create token: %v", parseErr)
 		return
@@ -146,9 +146,9 @@ func TestHandleJwtFailureIssuer(t *testing.T) {
 	var validityPeriodMinutes uint = 60
 
 	var parserServer = jwt.NewJwtParsing(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
-	var jwtHandling = jwt.NewJwtHandling(audience, parserServer, validityPeriodMinutes)
+	var jwtHandle = jwt.NewJwtHandle(audience, parserServer, validityPeriodMinutes)
 
-	var _, tokenString, generateErr = jwtHandling.Generate(user, issuedAt, id)
+	var _, tokenString, generateErr = jwtHandle.Generate(user, issuedAt, id)
 	if generateErr != nil {
 		t.Errorf("failed to generate token: %v", generateErr)
 		return
@@ -180,9 +180,9 @@ func TestHandleJwtFailureAudience(t *testing.T) {
 	var validityPeriodMinutes uint = 60
 
 	var parserServer = jwt.NewJwtParsing(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
-	var jwtHandling = jwt.NewJwtHandling(audience, parserServer, validityPeriodMinutes)
+	var jwtHandle = jwt.NewJwtHandle(audience, parserServer, validityPeriodMinutes)
 
-	var _, tokenString, generateErr = jwtHandling.Generate(user, issuedAt, id)
+	var _, tokenString, generateErr = jwtHandle.Generate(user, issuedAt, id)
 	if generateErr != nil {
 		t.Errorf("failed to generate token: %v", generateErr)
 		return
@@ -214,9 +214,9 @@ func TestHandleJwtFailureSecret(t *testing.T) {
 	var validityPeriodMinutes uint = 60
 
 	var parserServer = jwt.NewJwtParsing(issuer, application, latestKeyId, latestSecret, oldKeyId, oldSecret)
-	var jwtHandling = jwt.NewJwtHandling(audience, parserServer, validityPeriodMinutes)
+	var jwtHandle = jwt.NewJwtHandle(audience, parserServer, validityPeriodMinutes)
 
-	var _, tokenString, generateErr = jwtHandling.Generate(user, issuedAt, id)
+	var _, tokenString, generateErr = jwtHandle.Generate(user, issuedAt, id)
 	if generateErr != nil {
 		t.Errorf("failed to generate token: %v", generateErr)
 		return
