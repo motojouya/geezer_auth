@@ -4,7 +4,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/control/utility"
 	"github.com/motojouya/geezer_auth/internal/db"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
-	"github.com/motojouya/geezer_auth/internal/local"
+	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
 	userBehavior "github.com/motojouya/geezer_auth/internal/behavior/user"
 	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
@@ -38,8 +38,8 @@ func NewRegisterControl(
 }
 
 func CreateRegisterControl() (*RegisterControl, error) {
-	var local = local.CreateLocal()
-	var env = local.CreateEnvironment()
+	var local = localPkg.CreateLocal()
+	var env = localPkg.CreateEnvironment()
 
 	database, err := configBehavior.NewDatabaseGet(env).GetDatabase()
 	if err != nil {

@@ -8,7 +8,7 @@ import (
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
-	"github.com/motojouya/geezer_auth/internal/local"
+	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
@@ -23,18 +23,18 @@ type UserCreator interface {
 }
 
 type UserCreate struct {
-	local local.Local
+	local localPkg.Local
 	db    UserCreatorDB
 }
 
-func NewUserCreate(local local.Local, db UserCreatorDB) *UserCreate {
+func NewUserCreate(local localPkg.Local, db UserCreatorDB) *UserCreate {
 	return &UserCreate{
 		local: local,
 		db:    db,
 	}
 }
 
-func createUserIdentifier(local local.Local) func() (pkgText.Identifier, error) {
+func createUserIdentifier(local localPkg.Local) func() (pkgText.Identifier, error) {
 	return func() (pkgText.Identifier, error) {
 		var ramdomString = local.GenerateRamdomString(pkgText.IdentifierLength, pkgText.IdentifierChar)
 		var identifier, err = shelterUser.CreateUserIdentifier(ramdomString)
