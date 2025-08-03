@@ -2,11 +2,11 @@ package company_test
 
 import (
 	"github.com/google/uuid"
-	core "github.com/motojouya/geezer_auth/internal/core/company"
-	"github.com/motojouya/geezer_auth/internal/core/role"
-	"github.com/motojouya/geezer_auth/internal/core/text"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/company"
+	"github.com/motojouya/geezer_auth/internal/shelter/role"
+	"github.com/motojouya/geezer_auth/internal/shelter/text"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -24,8 +24,8 @@ func TestFromCoreCompanyInvite(t *testing.T) {
 	var registerDate = time.Now()
 	var expireDate = registerDate.Add(50 * time.Hour)
 
-	var coreCompanyInvite = core.NewCompanyInvite(persistKey, companyValue, token, role, registerDate, expireDate)
-	var companyInvite = company.FromCoreCompanyInvite(coreCompanyInvite)
+	var shelterCompanyInvite = shelter.NewCompanyInvite(persistKey, companyValue, token, role, registerDate, expireDate)
+	var companyInvite = company.FromCoreCompanyInvite(shelterCompanyInvite)
 
 	assert.Equal(t, uint(0), companyInvite.PersistKey)
 	assert.Equal(t, string(label), companyInvite.RoleLabel)
@@ -68,16 +68,16 @@ func TestToCoreCompanyInvite(t *testing.T) {
 		RoleRegisteredDate:    role.RegisteredDate,
 	}
 
-	var coreCompanyInvite, err = companyInviteFull.ToCoreCompanyInvite()
+	var shelterCompanyInvite, err = companyInviteFull.ToCoreCompanyInvite()
 
 	assert.Nil(t, err)
-	assert.Equal(t, companyValue.Identifier, coreCompanyInvite.Company.Identifier)
-	assert.Equal(t, label, coreCompanyInvite.Role.Label)
-	assert.Equal(t, token, coreCompanyInvite.Token)
-	assert.Equal(t, registerDate, coreCompanyInvite.RegisterDate)
-	assert.Equal(t, expireDate, coreCompanyInvite.ExpireDate)
+	assert.Equal(t, companyValue.Identifier, shelterCompanyInvite.Company.Identifier)
+	assert.Equal(t, label, shelterCompanyInvite.Role.Label)
+	assert.Equal(t, token, shelterCompanyInvite.Token)
+	assert.Equal(t, registerDate, shelterCompanyInvite.RegisterDate)
+	assert.Equal(t, expireDate, shelterCompanyInvite.ExpireDate)
 
-	t.Logf("coreCompanyInvite: %+v", coreCompanyInvite)
+	t.Logf("shelterCompanyInvite: %+v", shelterCompanyInvite)
 }
 
 func TestToCoreCompanyInviteError(t *testing.T) {
@@ -115,15 +115,15 @@ func TestToCoreCompanyInviteError(t *testing.T) {
 
 	assert.NotNil(t, err)
 
-	t.Logf("coreCompanyInvite error: %v", err)
+	t.Logf("shelterCompanyInvite error: %v", err)
 }
 
-func getCompany(persistKey uint) core.Company {
+func getCompany(persistKey uint) shelter.Company {
 	var identifier, _ = pkgText.NewIdentifier("CP-TESTES")
 	var name, _ = pkgText.NewName("TestRole")
 	var registeredDate = time.Now()
 
-	return core.NewCompany(persistKey, identifier, name, registeredDate)
+	return shelter.NewCompany(persistKey, identifier, name, registeredDate)
 }
 
 func getRole(label pkgText.Label) role.Role {

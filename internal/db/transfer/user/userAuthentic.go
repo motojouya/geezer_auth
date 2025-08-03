@@ -2,9 +2,9 @@ package user
 
 import (
 	"github.com/doug-martin/goqu/v9"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
-	text "github.com/motojouya/geezer_auth/pkg/core/text"
+	text "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"time"
 )
 
@@ -51,7 +51,7 @@ func RelateUserCompanyRole(ua *UserAuthentic, ucr UserCompanyRoleFull) (*UserAut
 	}
 }
 
-func (ua UserAuthentic) ToCoreUserAuthentic() (*core.UserAuthentic, error) {
+func (ua UserAuthentic) ToCoreUserAuthentic() (*shelter.UserAuthentic, error) {
 	var user, userErr = (User{
 		PersistKey:     ua.UserPersistKey,
 		Identifier:     ua.UserIdentifier,
@@ -62,33 +62,33 @@ func (ua UserAuthentic) ToCoreUserAuthentic() (*core.UserAuthentic, error) {
 		UpdateDate:     ua.UserUpdateDate,
 	}).ToCoreUser()
 	if userErr != nil {
-		return &core.UserAuthentic{}, userErr
+		return &shelter.UserAuthentic{}, userErr
 	}
 
 	var email *text.Email = nil
 	if ua.Email != nil {
 		var emailResult, emailErr = text.NewEmail(*ua.Email)
 		if emailErr != nil {
-			return &core.UserAuthentic{}, emailErr
+			return &shelter.UserAuthentic{}, emailErr
 		}
 		email = &emailResult
 	}
 
-	var coreUserCompanyRoles = make([]core.UserCompanyRole, 0, len(ua.UserCompanyRole))
+	var shelterUserCompanyRoles = make([]shelter.UserCompanyRole, 0, len(ua.UserCompanyRole))
 	for _, ucr := range ua.UserCompanyRole {
-		var coreUserCompanyRole, companyRoleErr = ucr.ToCoreUserCompanyRole()
+		var shelterUserCompanyRole, companyRoleErr = ucr.ToCoreUserCompanyRole()
 		if companyRoleErr != nil {
-			return &core.UserAuthentic{}, companyRoleErr
+			return &shelter.UserAuthentic{}, companyRoleErr
 		}
-		coreUserCompanyRoles = append(coreUserCompanyRoles, *coreUserCompanyRole)
+		shelterUserCompanyRoles = append(shelterUserCompanyRoles, *shelterUserCompanyRole)
 	}
 
-	var companyRole, companyRoleErr = core.ListToCompanyRole(user, coreUserCompanyRoles)
+	var companyRole, companyRoleErr = shelter.ListToCompanyRole(user, shelterUserCompanyRoles)
 	if companyRoleErr != nil {
-		return &core.UserAuthentic{}, companyRoleErr
+		return &shelter.UserAuthentic{}, companyRoleErr
 	}
 
-	return core.NewUserAuthentic(
+	return shelter.NewUserAuthentic(
 		user,
 		companyRole,
 		email,

@@ -2,8 +2,8 @@ package user
 
 import (
 	"github.com/go-gorp/gorp"
-	coreText "github.com/motojouya/geezer_auth/internal/core/text"
-	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
+	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
@@ -16,7 +16,7 @@ type PasswordSetterDB interface {
 }
 
 type PasswordSetter interface {
-	Execute(entry entryUser.PasswordGetter, userAuthentic *coreUser.UserAuthentic) error
+	Execute(entry entryUser.PasswordGetter, userAuthentic *shelterUser.UserAuthentic) error
 }
 
 type PasswordSet struct {
@@ -31,7 +31,7 @@ func NewPasswordSet(local io.Local, db PasswordSetterDB) *PasswordSet {
 	}
 }
 
-func (setter PasswordSet) Execute(entry entryUser.PasswordGetter, userAuthentic *coreUser.UserAuthentic) error {
+func (setter PasswordSet) Execute(entry entryUser.PasswordGetter, userAuthentic *shelterUser.UserAuthentic) error {
 	now := setter.local.GetNow()
 
 	password, err := entry.GetPassword()
@@ -39,12 +39,12 @@ func (setter PasswordSet) Execute(entry entryUser.PasswordGetter, userAuthentic 
 		return err
 	}
 
-	hashedPassword, err := coreText.HashPassword(password)
+	hashedPassword, err := shelterText.HashPassword(password)
 	if err != nil {
 		return err
 	}
 
-	userPassword := coreUser.CreateUserPassword(userAuthentic.GetUser(), hashedPassword, now)
+	userPassword := shelterUser.CreateUserPassword(userAuthentic.GetUser(), hashedPassword, now)
 
 	dbUserPassword := dbUser.FromCoreUserPassword(userPassword)
 

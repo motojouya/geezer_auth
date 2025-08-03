@@ -3,7 +3,7 @@ package user
 import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
@@ -78,17 +78,17 @@ var SelectUserCompanyRole = utility.Dialect.From(goqu.T("user_company_role").As(
 	goqu.I("ucr.expire_date").As("expire_date"),
 )
 
-func FromCoreUserCompanyRole(coreUserCompanyRole *core.UnsavedUserCompanyRole) *UserCompanyRole {
+func FromCoreUserCompanyRole(shelterUserCompanyRole *shelter.UnsavedUserCompanyRole) *UserCompanyRole {
 	return &UserCompanyRole{
-		UserPersistKey:    coreUserCompanyRole.User.PersistKey,
-		CompanyPersistKey: coreUserCompanyRole.Company.PersistKey,
-		RoleLabel:         string(coreUserCompanyRole.Role.Label),
-		RegisterDate:      coreUserCompanyRole.RegisterDate,
-		ExpireDate:        coreUserCompanyRole.ExpireDate,
+		UserPersistKey:    shelterUserCompanyRole.User.PersistKey,
+		CompanyPersistKey: shelterUserCompanyRole.Company.PersistKey,
+		RoleLabel:         string(shelterUserCompanyRole.Role.Label),
+		RegisterDate:      shelterUserCompanyRole.RegisterDate,
+		ExpireDate:        shelterUserCompanyRole.ExpireDate,
 	}
 }
 
-func (u UserCompanyRoleFull) ToCoreUserCompanyRole() (*core.UserCompanyRole, error) {
+func (u UserCompanyRoleFull) ToCoreUserCompanyRole() (*shelter.UserCompanyRole, error) {
 	var user, userErr = (User{
 		PersistKey:     u.UserPersistKey,
 		Identifier:     u.UserIdentifier,
@@ -99,7 +99,7 @@ func (u UserCompanyRoleFull) ToCoreUserCompanyRole() (*core.UserCompanyRole, err
 		UpdateDate:     u.UserUpdateDate,
 	}).ToCoreUser()
 	if userErr != nil {
-		return &core.UserCompanyRole{}, userErr
+		return &shelter.UserCompanyRole{}, userErr
 	}
 
 	var companyValue, companyErr = (company.Company{
@@ -109,7 +109,7 @@ func (u UserCompanyRoleFull) ToCoreUserCompanyRole() (*core.UserCompanyRole, err
 		RegisteredDate: u.CompanyRegisteredDate,
 	}).ToCoreCompany()
 	if companyErr != nil {
-		return &core.UserCompanyRole{}, companyErr
+		return &shelter.UserCompanyRole{}, companyErr
 	}
 
 	var roleValue, roleErr = (role.Role{
@@ -119,10 +119,10 @@ func (u UserCompanyRoleFull) ToCoreUserCompanyRole() (*core.UserCompanyRole, err
 		RegisteredDate: u.RoleRegisteredDate,
 	}).ToCoreRole()
 	if roleErr != nil {
-		return &core.UserCompanyRole{}, roleErr
+		return &shelter.UserCompanyRole{}, roleErr
 	}
 
-	return core.NewUserCompanyRole(
+	return shelter.NewUserCompanyRole(
 		u.PersistKey,
 		user,
 		companyValue,

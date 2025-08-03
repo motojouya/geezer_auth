@@ -56,27 +56,27 @@ func TestToCoreUserAuthentic(t *testing.T) {
 		UserCompanyRole:    userCompanyRoles,
 	}
 
-	var coreUserAuthentic, err = userAuthentic.ToCoreUserAuthentic()
+	var shelterUserAuthentic, err = userAuthentic.ToCoreUserAuthentic()
 
 	assert.Nil(t, err)
 
-	assert.Equal(t, uint(1), coreUserAuthentic.PersistKey)
-	assert.Equal(t, userId, string(coreUserAuthentic.Identifier))
-	assert.Equal(t, "test02@example.com", string(coreUserAuthentic.ExposeEmailId))
-	assert.Equal(t, "TestUserName", string(coreUserAuthentic.Name))
-	assert.Equal(t, false, coreUserAuthentic.BotFlag)
-	assert.Equal(t, now, coreUserAuthentic.RegisteredDate)
-	assert.Equal(t, now.Add(1*time.Hour), coreUserAuthentic.UpdateDate)
+	assert.Equal(t, uint(1), shelterUserAuthentic.PersistKey)
+	assert.Equal(t, userId, string(shelterUserAuthentic.Identifier))
+	assert.Equal(t, "test02@example.com", string(shelterUserAuthentic.ExposeEmailId))
+	assert.Equal(t, "TestUserName", string(shelterUserAuthentic.Name))
+	assert.Equal(t, false, shelterUserAuthentic.BotFlag)
+	assert.Equal(t, now, shelterUserAuthentic.RegisteredDate)
+	assert.Equal(t, now.Add(1*time.Hour), shelterUserAuthentic.UpdateDate)
 
-	assert.Equal(t, email, string(*coreUserAuthentic.Email))
-	assert.Equal(t, companyId, string(coreUserAuthentic.CompanyRole.Company.Identifier))
-	assert.Equal(t, 2, len(coreUserAuthentic.CompanyRole.Roles))
-	assert.Equal(t, "TEST_ROLE", string(coreUserAuthentic.CompanyRole.Roles[0].Label))
-	assert.Equal(t, "TOST_ROLE", string(coreUserAuthentic.CompanyRole.Roles[1].Label))
+	assert.Equal(t, email, string(*shelterUserAuthentic.Email))
+	assert.Equal(t, companyId, string(shelterUserAuthentic.CompanyRole.Company.Identifier))
+	assert.Equal(t, 2, len(shelterUserAuthentic.CompanyRole.Roles))
+	assert.Equal(t, "TEST_ROLE", string(shelterUserAuthentic.CompanyRole.Roles[0].Label))
+	assert.Equal(t, "TOST_ROLE", string(shelterUserAuthentic.CompanyRole.Roles[1].Label))
 
-	t.Logf("coreUserAuthentic: %+v", coreUserAuthentic)
-	t.Logf("coreUserAuthentic.Email: %s", *coreUserAuthentic.Email)
-	t.Logf("coreUserAuthentic.CompanyRole: %v", *coreUserAuthentic.CompanyRole)
+	t.Logf("shelterUserAuthentic: %+v", shelterUserAuthentic)
+	t.Logf("shelterUserAuthentic.Email: %s", *shelterUserAuthentic.Email)
+	t.Logf("shelterUserAuthentic.CompanyRole: %v", *shelterUserAuthentic.CompanyRole)
 }
 
 func TestToCoreUserAuthenticError(t *testing.T) {

@@ -3,10 +3,10 @@ package user
 import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
-	text "github.com/motojouya/geezer_auth/internal/core/text"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	text "github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
-	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkg "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"time"
 )
 
@@ -63,18 +63,18 @@ var SelectUserEmail = utility.Dialect.From(goqu.T("user_email").As("ue")).InnerJ
 	goqu.I("ue.expire_date").As("expire_date"),
 )
 
-func FromCoreUserEmail(coreUserEmail *core.UnsavedUserEmail) *UserEmail {
+func FromCoreUserEmail(shelterUserEmail *shelter.UnsavedUserEmail) *UserEmail {
 	return &UserEmail{
-		UserPersistKey: coreUserEmail.User.PersistKey,
-		Email:          string(coreUserEmail.Email),
-		VerifyToken:    string(coreUserEmail.VerifyToken),
-		RegisterDate:   coreUserEmail.RegisterDate,
-		VerifyDate:     coreUserEmail.VerifyDate,
-		ExpireDate:     coreUserEmail.ExpireDate,
+		UserPersistKey: shelterUserEmail.User.PersistKey,
+		Email:          string(shelterUserEmail.Email),
+		VerifyToken:    string(shelterUserEmail.VerifyToken),
+		RegisterDate:   shelterUserEmail.RegisterDate,
+		VerifyDate:     shelterUserEmail.VerifyDate,
+		ExpireDate:     shelterUserEmail.ExpireDate,
 	}
 }
 
-func (u UserEmailFull) ToCoreUserEmail() (*core.UserEmail, error) {
+func (u UserEmailFull) ToCoreUserEmail() (*shelter.UserEmail, error) {
 	var user, userErr = (User{
 		PersistKey:     u.UserPersistKey,
 		Identifier:     u.UserIdentifier,
@@ -85,20 +85,20 @@ func (u UserEmailFull) ToCoreUserEmail() (*core.UserEmail, error) {
 		UpdateDate:     u.UserUpdateDate,
 	}).ToCoreUser()
 	if userErr != nil {
-		return &core.UserEmail{}, userErr
+		return &shelter.UserEmail{}, userErr
 	}
 
 	var email, emailErr = pkg.NewEmail(u.Email)
 	if emailErr != nil {
-		return &core.UserEmail{}, emailErr
+		return &shelter.UserEmail{}, emailErr
 	}
 
 	var verifyToken, tokenErr = text.NewToken(u.VerifyToken)
 	if tokenErr != nil {
-		return &core.UserEmail{}, tokenErr
+		return &shelter.UserEmail{}, tokenErr
 	}
 
-	return core.NewUserEmail(
+	return shelter.NewUserEmail(
 		u.PersistKey,
 		user,
 		email,

@@ -3,9 +3,9 @@ package company
 import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
-	core "github.com/motojouya/geezer_auth/internal/core/company"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/company"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
-	text "github.com/motojouya/geezer_auth/pkg/core/text"
+	text "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"time"
 )
 
@@ -27,27 +27,27 @@ var SelectCompany = utility.Dialect.From(goqu.T("company").As("c")).Select(
 	goqu.I("c.register_date").As("register_date"),
 )
 
-func FromCoreCompany(coreCompany core.UnsavedCompany) Company {
+func FromCoreCompany(shelterCompany shelter.UnsavedCompany) Company {
 	// PersistKey is zero value
 	return Company{
-		Identifier:     string(coreCompany.Identifier),
-		Name:           string(coreCompany.Name),
-		RegisteredDate: coreCompany.RegisteredDate,
+		Identifier:     string(shelterCompany.Identifier),
+		Name:           string(shelterCompany.Name),
+		RegisteredDate: shelterCompany.RegisteredDate,
 	}
 }
 
-func (c Company) ToCoreCompany() (core.Company, error) {
+func (c Company) ToCoreCompany() (shelter.Company, error) {
 	var identifier, idErr = text.NewIdentifier(c.Identifier)
 	if idErr != nil {
-		return core.Company{}, idErr
+		return shelter.Company{}, idErr
 	}
 
 	var name, nameErr = text.NewName(c.Name)
 	if nameErr != nil {
-		return core.Company{}, nameErr
+		return shelter.Company{}, nameErr
 	}
 
-	return core.NewCompany(
+	return shelter.NewCompany(
 		c.PersistKey,
 		identifier,
 		name,

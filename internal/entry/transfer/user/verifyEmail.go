@@ -1,9 +1,9 @@
 package user
 
 import (
-	text "github.com/motojouya/geezer_auth/internal/core/text"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	text "github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"time"
 )
 
@@ -16,16 +16,16 @@ type UserVerifyEmailRequest struct {
 	UserVerifyEmail UserVerifyEmail `http:"body"`
 }
 
-func (u UserVerifyEmailRequest) ToCoreUserEmail(user core.User, registerDate time.Time) (*core.UnsavedUserEmail, error) {
+func (u UserVerifyEmailRequest) ToCoreUserEmail(user shelter.User, registerDate time.Time) (*shelter.UnsavedUserEmail, error) {
 	var email, emailErr = pkgText.NewEmail(u.UserVerifyEmail.Email)
 	if emailErr != nil {
-		return &core.UnsavedUserEmail{}, emailErr
+		return &shelter.UnsavedUserEmail{}, emailErr
 	}
 
 	var verifyToken, tokenErr = text.NewToken(u.UserVerifyEmail.VerifyToken)
 	if tokenErr != nil {
-		return &core.UnsavedUserEmail{}, tokenErr
+		return &shelter.UnsavedUserEmail{}, tokenErr
 	}
 
-	return core.CreateUserEmail(user, email, verifyToken, registerDate), nil
+	return shelter.CreateUserEmail(user, email, verifyToken, registerDate), nil
 }

@@ -3,9 +3,9 @@ package role
 import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
-	core "github.com/motojouya/geezer_auth/internal/core/role"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/role"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
-	text "github.com/motojouya/geezer_auth/pkg/core/text"
+	text "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
 type RolePermission struct {
@@ -30,7 +30,7 @@ var SelectRolePermission = utility.Dialect.From(goqu.T("role_permission").As("rp
 	goqu.I("rp.priority").As("priority"),
 )
 
-func FromCoreRolePermission(r core.RolePermission) RolePermission {
+func FromCoreRolePermission(r shelter.RolePermission) RolePermission {
 	return RolePermission{
 		RoleLabel:     string(r.RoleLabel),
 		SelfEdit:      r.SelfEdit,
@@ -41,13 +41,13 @@ func FromCoreRolePermission(r core.RolePermission) RolePermission {
 	}
 }
 
-func (r RolePermission) ToCoreRolePermission() (core.RolePermission, error) {
+func (r RolePermission) ToCoreRolePermission() (shelter.RolePermission, error) {
 	var label, err = text.NewLabel(r.RoleLabel)
 	if err != nil {
-		return core.RolePermission{}, err
+		return shelter.RolePermission{}, err
 	}
 
-	return core.NewRolePermission(
+	return shelter.NewRolePermission(
 		label,
 		r.SelfEdit,
 		r.CompanyAccess,

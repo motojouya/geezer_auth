@@ -1,16 +1,16 @@
 package user_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/text"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
-func getUserForPassword(persistKey uint) core.User {
+func getUserForPassword(persistKey uint) shelter.User {
 	var identifier, _ = pkgText.NewIdentifier("TestIdentifier")
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
 	var name, _ = pkgText.NewName("TestName")
@@ -18,7 +18,7 @@ func getUserForPassword(persistKey uint) core.User {
 	var registeredDate = time.Now()
 	var updateDate = time.Now()
 
-	return core.NewUser(persistKey, identifier, name, emailId, botFlag, registeredDate, updateDate)
+	return shelter.NewUser(persistKey, identifier, name, emailId, botFlag, registeredDate, updateDate)
 }
 
 func TestFromCoreUserPassword(t *testing.T) {
@@ -28,9 +28,9 @@ func TestFromCoreUserPassword(t *testing.T) {
 	var password = text.NewHashedPassword("TestPassword")
 	var registerDate = time.Now()
 
-	var coreUserPassword = core.CreateUserPassword(userValue, password, registerDate)
+	var shelterUserPassword = shelter.CreateUserPassword(userValue, password, registerDate)
 
-	var userPassword = user.FromCoreUserPassword(coreUserPassword)
+	var userPassword = user.FromCoreUserPassword(shelterUserPassword)
 
 	assert.Equal(t, uint(0), userPassword.PersistKey)
 	assert.Equal(t, persistKey, userPassword.UserPersistKey)
@@ -60,17 +60,17 @@ func TestToCoreUserPassword(t *testing.T) {
 		UserUpdateDate:     now.Add(2 * time.Hour),
 	}
 
-	var coreUserPassword, err = userPasswordFull.ToCoreUserPassword()
+	var shelterUserPassword, err = userPasswordFull.ToCoreUserPassword()
 	assert.NoError(t, err)
 
-	assert.Equal(t, userPasswordFull.PersistKey, coreUserPassword.PersistKey)
-	assert.Equal(t, userPasswordFull.UserPersistKey, coreUserPassword.User.PersistKey)
-	assert.Equal(t, string(userPasswordFull.Password), string(coreUserPassword.Password))
-	assert.Equal(t, userPasswordFull.RegisteredDate, coreUserPassword.RegisteredDate)
-	assert.Equal(t, *userPasswordFull.ExpireDate, *coreUserPassword.ExpireDate)
+	assert.Equal(t, userPasswordFull.PersistKey, shelterUserPassword.PersistKey)
+	assert.Equal(t, userPasswordFull.UserPersistKey, shelterUserPassword.User.PersistKey)
+	assert.Equal(t, string(userPasswordFull.Password), string(shelterUserPassword.Password))
+	assert.Equal(t, userPasswordFull.RegisteredDate, shelterUserPassword.RegisteredDate)
+	assert.Equal(t, *userPasswordFull.ExpireDate, *shelterUserPassword.ExpireDate)
 
-	t.Logf("coreUserPassword: %+v", coreUserPassword)
-	t.Logf("coreUserPassword.ExpireDate: %s", *coreUserPassword.ExpireDate)
+	t.Logf("shelterUserPassword: %+v", shelterUserPassword)
+	t.Logf("shelterUserPassword.ExpireDate: %s", *shelterUserPassword.ExpireDate)
 }
 
 func TestToCoreUserPasswordError(t *testing.T) {

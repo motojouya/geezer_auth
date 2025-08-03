@@ -1,9 +1,9 @@
 package user
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/essence"
-	coreText "github.com/motojouya/geezer_auth/internal/core/text"
-	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/shelter/essence"
+	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
@@ -17,7 +17,7 @@ type EmailSetterDB interface {
 }
 
 type EmailSetter interface {
-	Execute(entry entryUser.EmailGetter, userAuthentic *coreUser.UserAuthentic) error
+	Execute(entry entryUser.EmailGetter, userAuthentic *shelterUser.UserAuthentic) error
 }
 
 type EmailSet struct {
@@ -32,7 +32,7 @@ func NewEmailSet(local io.Local, database EmailSetterDB) *EmailSet {
 	}
 }
 
-func (setter EmailSet) Execute(entry entryUser.EmailGetter, userAuthentic *coreUser.UserAuthentic) error {
+func (setter EmailSet) Execute(entry entryUser.EmailGetter, userAuthentic *shelterUser.UserAuthentic) error {
 	now := setter.local.GetNow()
 
 	email, err := entry.GetEmail()
@@ -55,12 +55,12 @@ func (setter EmailSet) Execute(entry entryUser.EmailGetter, userAuthentic *coreU
 		return err
 	}
 
-	verifyToken, err := coreText.CreateToken(verifyTokenSource)
+	verifyToken, err := shelterText.CreateToken(verifyTokenSource)
 	if err != nil {
 		return err
 	}
 
-	userEmail := coreUser.CreateUserEmail(userAuthentic.GetUser(), email, verifyToken, now)
+	userEmail := shelterUser.CreateUserEmail(userAuthentic.GetUser(), email, verifyToken, now)
 
 	dbUserEmail := dbUser.FromCoreUserEmail(userEmail)
 

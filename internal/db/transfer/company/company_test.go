@@ -1,9 +1,9 @@
 package company_test
 
 import (
-	core "github.com/motojouya/geezer_auth/internal/core/company"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/company"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
-	"github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -14,9 +14,9 @@ func TestFromCoreCompany(t *testing.T) {
 	var name, _ = text.NewName("TestRole")
 	var registeredDate = time.Now()
 
-	var coreCompany = core.CreateCompany(identifier, name, registeredDate)
+	var shelterCompany = shelter.CreateCompany(identifier, name, registeredDate)
 
-	var company = company.FromCoreCompany(coreCompany)
+	var company = company.FromCoreCompany(shelterCompany)
 
 	assert.Equal(t, uint(0), company.PersistKey)
 	assert.Equal(t, string(name), company.Name)
@@ -38,15 +38,15 @@ func TestToCoreCompany(t *testing.T) {
 		RegisteredDate: registeredDate,
 	}
 
-	coreCompany, err := company.ToCoreCompany()
+	shelterCompany, err := company.ToCoreCompany()
 	assert.NoError(t, err)
 
-	assert.Equal(t, uint(1), coreCompany.PersistKey)
-	assert.Equal(t, name, string(coreCompany.Name))
-	assert.Equal(t, identifier, string(coreCompany.Identifier))
-	assert.Equal(t, registeredDate, coreCompany.RegisteredDate)
+	assert.Equal(t, uint(1), shelterCompany.PersistKey)
+	assert.Equal(t, name, string(shelterCompany.Name))
+	assert.Equal(t, identifier, string(shelterCompany.Identifier))
+	assert.Equal(t, registeredDate, shelterCompany.RegisteredDate)
 
-	t.Logf("coreCompany: %+v", coreCompany)
+	t.Logf("shelterCompany: %+v", shelterCompany)
 }
 
 func TestToCoreCompanyError(t *testing.T) {

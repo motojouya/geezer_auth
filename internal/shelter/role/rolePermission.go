@@ -1,7 +1,7 @@
 package role
 
 import (
-	text "github.com/motojouya/geezer_auth/pkg/core/text"
+	text "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
 // SelfEditがないと、自身の情報を編集するのがだれでもできるとか、権限で管理ができなくなるので

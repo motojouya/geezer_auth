@@ -3,9 +3,9 @@ package user
 import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
-	"github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"time"
 )
 
@@ -33,34 +33,34 @@ var SelectUser = utility.Dialect.From(goqu.T("users").As("u")).Select(
 	goqu.I("u.update_date").As("update_date"),
 )
 
-func FromCoreUser(coreUser core.UnsavedUser) User {
+func FromCoreUser(shelterUser shelter.UnsavedUser) User {
 	return User{
-		Identifier:     string(coreUser.Identifier),
-		ExposeEmailId:  string(coreUser.ExposeEmailId),
-		Name:           string(coreUser.Name),
-		BotFlag:        coreUser.BotFlag,
-		RegisteredDate: coreUser.RegisteredDate,
-		UpdateDate:     coreUser.UpdateDate,
+		Identifier:     string(shelterUser.Identifier),
+		ExposeEmailId:  string(shelterUser.ExposeEmailId),
+		Name:           string(shelterUser.Name),
+		BotFlag:        shelterUser.BotFlag,
+		RegisteredDate: shelterUser.RegisteredDate,
+		UpdateDate:     shelterUser.UpdateDate,
 	}
 }
 
-func (u User) ToCoreUser() (core.User, error) {
+func (u User) ToCoreUser() (shelter.User, error) {
 	var identifier, idErr = text.NewIdentifier(u.Identifier)
 	if idErr != nil {
-		return core.User{}, idErr
+		return shelter.User{}, idErr
 	}
 
 	var emailId, emailErr = text.NewEmail(u.ExposeEmailId)
 	if emailErr != nil {
-		return core.User{}, emailErr
+		return shelter.User{}, emailErr
 	}
 
 	var name, nameErr = text.NewName(u.Name)
 	if nameErr != nil {
-		return core.User{}, nameErr
+		return shelter.User{}, nameErr
 	}
 
-	return core.NewUser(
+	return shelter.NewUser(
 		u.PersistKey,
 		identifier,
 		name,

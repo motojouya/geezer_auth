@@ -1,9 +1,9 @@
 package user_test
 
 import (
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/user"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -19,21 +19,21 @@ func TestChangeNameToCoreUser(t *testing.T) {
 
 	var userIdentifier, _ = pkgText.NewIdentifier("US-TESTES")
 	var userName, _ = pkgText.NewName("different_name")
-	var coreUser = getUserForChangeName(userIdentifier, userName)
+	var shelterUser = getUserForChangeName(userIdentifier, userName)
 
-	var coreUserNameChanged, err = userChangeNameRequest.ToCoreUser(coreUser, time.Now())
+	var shelterUserNameChanged, err = userChangeNameRequest.ToCoreUser(shelterUser, time.Now())
 
 	assert.Nil(t, err)
-	assert.NotNil(t, coreUserNameChanged)
-	assert.Equal(t, coreUser.Identifier, coreUserNameChanged.Identifier)
-	assert.Equal(t, name, string(coreUserNameChanged.Name))
+	assert.NotNil(t, shelterUserNameChanged)
+	assert.Equal(t, shelterUser.Identifier, shelterUserNameChanged.Identifier)
+	assert.Equal(t, name, string(shelterUserNameChanged.Name))
 }
 
-func getUserForChangeName(identifier pkgText.Identifier, name pkgText.Name) core.User {
+func getUserForChangeName(identifier pkgText.Identifier, name pkgText.Name) shelter.User {
 	var userId uint = 1
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
 	var botFlag = false
 	var userRegisteredDate = time.Now()
 	var updateDate = time.Now()
-	return core.NewUser(userId, identifier, name, emailId, botFlag, userRegisteredDate, updateDate)
+	return shelter.NewUser(userId, identifier, name, emailId, botFlag, userRegisteredDate, updateDate)
 }

@@ -1,9 +1,9 @@
 package user_test
 
 import (
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/user"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -20,15 +20,15 @@ func TestVerifyEmailToCoreUserEmail(t *testing.T) {
 	}
 
 	var userIdentifier, _ = pkgText.NewIdentifier("US-TESTES")
-	var coreUser = getUserForVerifyEmail(userIdentifier)
+	var shelterUser = getUserForVerifyEmail(userIdentifier)
 
-	var coreUserEmail, err = userVerifyEmailRequest.ToCoreUserEmail(coreUser, time.Now())
+	var shelterUserEmail, err = userVerifyEmailRequest.ToCoreUserEmail(shelterUser, time.Now())
 
 	assert.Nil(t, err)
-	assert.NotNil(t, coreUserEmail)
-	assert.Equal(t, coreUser.Identifier, coreUserEmail.User.Identifier)
-	assert.Equal(t, email, string(coreUserEmail.Email))
-	assert.Equal(t, verifyToken, string(coreUserEmail.VerifyToken))
+	assert.NotNil(t, shelterUserEmail)
+	assert.Equal(t, shelterUser.Identifier, shelterUserEmail.User.Identifier)
+	assert.Equal(t, email, string(shelterUserEmail.Email))
+	assert.Equal(t, verifyToken, string(shelterUserEmail.VerifyToken))
 }
 
 func TestVerifyEmailToCoreUserEmailError(t *testing.T) {
@@ -42,19 +42,19 @@ func TestVerifyEmailToCoreUserEmailError(t *testing.T) {
 	}
 
 	var userIdentifier, _ = pkgText.NewIdentifier("US-TESTES")
-	var coreUser = getUserForVerifyEmail(userIdentifier)
+	var shelterUser = getUserForVerifyEmail(userIdentifier)
 
-	var _, err = userVerifyEmailRequest.ToCoreUserEmail(coreUser, time.Now())
+	var _, err = userVerifyEmailRequest.ToCoreUserEmail(shelterUser, time.Now())
 
 	assert.Error(t, err)
 }
 
-func getUserForVerifyEmail(identifier pkgText.Identifier) core.User {
+func getUserForVerifyEmail(identifier pkgText.Identifier) shelter.User {
 	var userId uint = 1
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
 	var userName, _ = pkgText.NewName("TestName")
 	var botFlag = false
 	var userRegisteredDate = time.Now()
 	var updateDate = time.Now()
-	return core.NewUser(userId, identifier, userName, emailId, botFlag, userRegisteredDate, updateDate)
+	return shelter.NewUser(userId, identifier, userName, emailId, botFlag, userRegisteredDate, updateDate)
 }

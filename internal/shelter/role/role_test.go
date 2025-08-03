@@ -1,9 +1,9 @@
 package role_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/role"
-	"github.com/motojouya/geezer_auth/internal/core/text"
-	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/motojouya/geezer_auth/internal/shelter/role"
+	"github.com/motojouya/geezer_auth/internal/shelter/text"
+	pkg "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"

@@ -1,7 +1,7 @@
 package common
 
 import (
-	core "github.com/motojouya/geezer_auth/internal/core/company"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/company"
 )
 
 type Company struct {
@@ -9,7 +9,7 @@ type Company struct {
 	Name       string
 }
 
-func FromCoreCompany(c core.Company) Company {
+func FromCoreCompany(c shelter.Company) Company {
 	return Company{
 		Identifier: string(c.Identifier),
 		Name:       string(c.Name),

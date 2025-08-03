@@ -5,27 +5,27 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	"github.com/motojouya/geezer_auth/internal/io"
-	configSilo "github.com/motojouya/geezer_auth/internal/silo/config"
-	userSilo "github.com/motojouya/geezer_auth/internal/silo/user"
-	pkgUser "github.com/motojouya/geezer_auth/pkg/core/user"
+	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
+	userBehavior "github.com/motojouya/geezer_auth/internal/behavior/user"
+	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 )
 
 type RegisterControl struct {
 	db.TransactionalDatabase
-	userCreator        userSilo.UserCreator
-	emailSetter        userSilo.EmailSetter
-	passwordSetter     userSilo.PasswordSetter
-	refreshTokenIssuer userSilo.RefreshTokenIssuer
-	accessTokenIssuer  userSilo.AccessTokenIssuer
+	userCreator        userBehavior.UserCreator
+	emailSetter        userBehavior.EmailSetter
+	passwordSetter     userBehavior.PasswordSetter
+	refreshTokenIssuer userBehavior.RefreshTokenIssuer
+	accessTokenIssuer  userBehavior.AccessTokenIssuer
 }
 
 func NewRegisterControl(
 	database db.TransactionalDatabase,
-	userCreator userSilo.UserCreator,
-	emailSetter userSilo.EmailSetter,
-	passwordSetter userSilo.PasswordSetter,
-	refreshTokenIssuer userSilo.RefreshTokenIssuer,
-	accessTokenIssuer userSilo.AccessTokenIssuer,
+	userCreator userBehavior.UserCreator,
+	emailSetter userBehavior.EmailSetter,
+	passwordSetter userBehavior.PasswordSetter,
+	refreshTokenIssuer userBehavior.RefreshTokenIssuer,
+	accessTokenIssuer userBehavior.AccessTokenIssuer,
 ) *RegisterControl {
 	return &RegisterControl{
 		TransactionalDatabase: database,
@@ -41,21 +41,21 @@ func CreateRegisterControl() (*RegisterControl, error) {
 	var local = io.CreateLocal()
 	var env = io.CreateEnvironment()
 
-	database, err := configSilo.NewDatabaseGet(env).GetDatabase()
+	database, err := configBehavior.NewDatabaseGet(env).GetDatabase()
 	if err != nil {
 		return nil, err
 	}
 
-	jwtHandler, err := configSilo.NewJwtHandlerGet(env).GetJwtHandler()
+	jwtHandler, err := configBehavior.NewJwtHandlerGet(env).GetJwtHandler()
 	if err != nil {
 		return nil, err
 	}
 
-	userCreator := userSilo.NewUserCreate(local, database)
-	emailSetter := userSilo.NewEmailSet(local, database)
-	passwordSetter := userSilo.NewPasswordSet(local, database)
-	refreshTokenIssuer := userSilo.NewRefreshTokenIssue(local, database)
-	accessTokenIssuer := userSilo.NewAccessTokenIssue(local, database, jwtHandler)
+	userCreator := userBehavior.NewUserCreate(local, database)
+	emailSetter := userBehavior.NewEmailSet(local, database)
+	passwordSetter := userBehavior.NewPasswordSet(local, database)
+	refreshTokenIssuer := userBehavior.NewRefreshTokenIssue(local, database)
+	accessTokenIssuer := userBehavior.NewAccessTokenIssue(local, database, jwtHandler)
 
 	return NewRegisterControl(database, userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer), nil
 }

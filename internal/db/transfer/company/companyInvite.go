@@ -3,8 +3,8 @@ package company
 import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
-	core "github.com/motojouya/geezer_auth/internal/core/company"
-	"github.com/motojouya/geezer_auth/internal/core/text"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/company"
+	"github.com/motojouya/geezer_auth/internal/shelter/text"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"time"
@@ -63,7 +63,7 @@ var SelectCompanyInvite = utility.Dialect.From(goqu.T("company_invite").As("ci")
 	goqu.I("ci.expire_date").As("expire_date"),
 )
 
-func FromCoreCompanyInvite(invite core.CompanyInvite) CompanyInvite {
+func FromCoreCompanyInvite(invite shelter.CompanyInvite) CompanyInvite {
 	return CompanyInvite{
 		CompanyPersistKey: invite.Company.PersistKey,
 		Token:             string(invite.Token),
@@ -73,7 +73,7 @@ func FromCoreCompanyInvite(invite core.CompanyInvite) CompanyInvite {
 	}
 }
 
-func (c CompanyInviteFull) ToCoreCompanyInvite() (core.CompanyInvite, error) {
+func (c CompanyInviteFull) ToCoreCompanyInvite() (shelter.CompanyInvite, error) {
 	var company, companyErr = (Company{
 		PersistKey:     c.CompanyPersistKey,
 		Identifier:     c.CompanyIdentifier,
@@ -81,7 +81,7 @@ func (c CompanyInviteFull) ToCoreCompanyInvite() (core.CompanyInvite, error) {
 		RegisteredDate: c.CompanyRegisteredDate,
 	}).ToCoreCompany()
 	if companyErr != nil {
-		return core.CompanyInvite{}, companyErr
+		return shelter.CompanyInvite{}, companyErr
 	}
 
 	var role, roleErr = (role.Role{
@@ -91,15 +91,15 @@ func (c CompanyInviteFull) ToCoreCompanyInvite() (core.CompanyInvite, error) {
 		RegisteredDate: c.RoleRegisteredDate,
 	}).ToCoreRole()
 	if roleErr != nil {
-		return core.CompanyInvite{}, roleErr
+		return shelter.CompanyInvite{}, roleErr
 	}
 
 	var token, tokenErr = text.NewToken(c.Token)
 	if tokenErr != nil {
-		return core.CompanyInvite{}, tokenErr
+		return shelter.CompanyInvite{}, tokenErr
 	}
 
-	return core.NewCompanyInvite(
+	return shelter.NewCompanyInvite(
 		c.PersistKey,
 		company,
 		token,

@@ -1,7 +1,7 @@
 package authorization_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/authorization"
+	"github.com/motojouya/geezer_auth/internal/shelter/authorization"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"

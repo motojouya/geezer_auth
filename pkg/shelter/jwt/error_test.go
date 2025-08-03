@@ -1,7 +1,7 @@
 package jwt_test
 
 import (
-	"github.com/motojouya/geezer_auth/pkg/core/jwt"
+	"github.com/motojouya/geezer_auth/pkg/shelter/jwt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

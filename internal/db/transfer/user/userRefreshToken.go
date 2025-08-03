@@ -3,8 +3,8 @@ package user
 import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
-	"github.com/motojouya/geezer_auth/internal/core/text"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"time"
 )
@@ -56,16 +56,16 @@ var SelectUserRefreshToken = utility.Dialect.From(goqu.T("user_refresh_token").A
 	goqu.I("urt.expire_date").As("expire_date"),
 )
 
-func FromCoreUserRefreshToken(coreUserRefreshToken core.UnsavedUserRefreshToken) UserRefreshToken {
+func FromCoreUserRefreshToken(shelterUserRefreshToken shelter.UnsavedUserRefreshToken) UserRefreshToken {
 	return UserRefreshToken{
-		UserPersistKey: coreUserRefreshToken.User.PersistKey,
-		RefreshToken:   string(coreUserRefreshToken.RefreshToken),
-		RegisterDate:   coreUserRefreshToken.RegisterDate,
-		ExpireDate:     coreUserRefreshToken.ExpireDate,
+		UserPersistKey: shelterUserRefreshToken.User.PersistKey,
+		RefreshToken:   string(shelterUserRefreshToken.RefreshToken),
+		RegisterDate:   shelterUserRefreshToken.RegisterDate,
+		ExpireDate:     shelterUserRefreshToken.ExpireDate,
 	}
 }
 
-func (u UserRefreshTokenFull) ToCoreUserRefreshToken() (core.UserRefreshToken, error) {
+func (u UserRefreshTokenFull) ToCoreUserRefreshToken() (shelter.UserRefreshToken, error) {
 	var user, userErr = (User{
 		PersistKey:     u.UserPersistKey,
 		Identifier:     u.UserIdentifier,
@@ -76,15 +76,15 @@ func (u UserRefreshTokenFull) ToCoreUserRefreshToken() (core.UserRefreshToken, e
 		UpdateDate:     u.UserUpdateDate,
 	}).ToCoreUser()
 	if userErr != nil {
-		return core.UserRefreshToken{}, userErr
+		return shelter.UserRefreshToken{}, userErr
 	}
 
 	var token, tokenErr = text.NewToken(u.RefreshToken)
 	if tokenErr != nil {
-		return core.UserRefreshToken{}, tokenErr
+		return shelter.UserRefreshToken{}, tokenErr
 	}
 
-	return core.NewUserRefreshToken(
+	return shelter.NewUserRefreshToken(
 		u.PersistKey,
 		user,
 		token,

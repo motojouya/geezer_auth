@@ -2,14 +2,14 @@ package user
 
 import (
 	"github.com/go-gorp/gorp"
-	"github.com/motojouya/geezer_auth/internal/core/essence"
-	coreText "github.com/motojouya/geezer_auth/internal/core/text"
-	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/shelter/essence"
+	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	"github.com/motojouya/geezer_auth/internal/io"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
 type UserCreatorDB interface {
@@ -19,7 +19,7 @@ type UserCreatorDB interface {
 }
 
 type UserCreator interface {
-	Execute(entry entryUser.UserGetter) (*coreUser.UserAuthentic, error)
+	Execute(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error)
 }
 
 type UserCreate struct {
@@ -37,7 +37,7 @@ func NewUserCreate(local io.Local, db UserCreatorDB) *UserCreate {
 func createUserIdentifier(local io.Local) func() (pkgText.Identifier, error) {
 	return func() (pkgText.Identifier, error) {
 		var ramdomString = local.GenerateRamdomString(pkgText.IdentifierLength, pkgText.IdentifierChar)
-		var identifier, err = coreUser.CreateUserIdentifier(ramdomString)
+		var identifier, err = shelterUser.CreateUserIdentifier(ramdomString)
 		if err != nil {
 			return pkgText.Identifier(""), err
 		}
@@ -55,10 +55,10 @@ func checkUserIdentifier(userCreatorDB UserCreatorDB) func(pkgText.Identifier) (
 	}
 }
 
-func (creator UserCreate) Execute(entry entryUser.UserGetter) (*coreUser.UserAuthentic, error) {
+func (creator UserCreate) Execute(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error) {
 	now := creator.local.GetNow()
 
-	userIdentifier, err := coreText.GetString(createUserIdentifier(creator.local), checkUserIdentifier(creator.db), 10)
+	userIdentifier, err := shelterText.GetString(createUserIdentifier(creator.local), checkUserIdentifier(creator.db), 10)
 	if err != nil {
 		return nil, err
 	}

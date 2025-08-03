@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"github.com/go-gorp/gorp"
 	_ "github.com/lib/pq"
-	"github.com/motojouya/geezer_auth/internal/core/essence"
+	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/user"

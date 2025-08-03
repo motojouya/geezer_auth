@@ -1,7 +1,7 @@
 package common
 
 import (
-	core "github.com/motojouya/geezer_auth/internal/core/role"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/role"
 )
 
 type Role struct {
@@ -10,7 +10,7 @@ type Role struct {
 	Description string
 }
 
-func FromCoreRole(r core.Role) Role {
+func FromCoreRole(r shelter.Role) Role {
 	return Role{
 		Label:       string(r.Label),
 		Name:        string(r.Name),

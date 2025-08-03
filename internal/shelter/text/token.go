@@ -2,7 +2,7 @@ package text
 
 import (
 	"github.com/google/uuid"
-	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkg "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
 /*

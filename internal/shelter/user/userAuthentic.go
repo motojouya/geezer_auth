@@ -1,10 +1,10 @@
 package user
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/company"
-	"github.com/motojouya/geezer_auth/internal/core/role"
-	text "github.com/motojouya/geezer_auth/pkg/core/text"
-	pkg "github.com/motojouya/geezer_auth/pkg/core/user"
+	"github.com/motojouya/geezer_auth/internal/shelter/company"
+	"github.com/motojouya/geezer_auth/internal/shelter/role"
+	text "github.com/motojouya/geezer_auth/pkg/shelter/text"
+	pkg "github.com/motojouya/geezer_auth/pkg/shelter/user"
 )
 
 type CompanyRole struct {

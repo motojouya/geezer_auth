@@ -1,8 +1,8 @@
 package company
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/role"
-	"github.com/motojouya/geezer_auth/internal/core/text"
+	"github.com/motojouya/geezer_auth/internal/shelter/role"
+	"github.com/motojouya/geezer_auth/internal/shelter/text"
 	"time"
 )
 

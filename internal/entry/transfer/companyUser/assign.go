@@ -2,7 +2,7 @@ package companyUser
 
 import (
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/company"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
 type RoleAssign struct {

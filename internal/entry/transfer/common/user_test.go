@@ -1,12 +1,12 @@
 package common_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/company"
-	"github.com/motojouya/geezer_auth/internal/core/role"
-	"github.com/motojouya/geezer_auth/internal/core/text"
-	"github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/shelter/company"
+	"github.com/motojouya/geezer_auth/internal/shelter/role"
+	"github.com/motojouya/geezer_auth/internal/shelter/text"
+	"github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -47,13 +47,13 @@ func TestFromCoreUser(t *testing.T) {
 	var botFlag = false
 	var userRegisteredDate = time.Now()
 	var updateDate = time.Now()
-	var coreUser = user.NewUser(userId, userIdentifier, userName, emailId, botFlag, userRegisteredDate, updateDate)
+	var shelterUser = user.NewUser(userId, userIdentifier, userName, emailId, botFlag, userRegisteredDate, updateDate)
 
 	var email, _ = pkgText.NewEmail("test2@gmail.com")
 
-	var coreUserAuthentic = user.NewUserAuthentic(coreUser, companyRole, &email)
+	var shelterUserAuthentic = user.NewUserAuthentic(shelterUser, companyRole, &email)
 
-	var transferUser = common.FromCoreUser(coreUserAuthentic)
+	var transferUser = common.FromCoreUser(shelterUserAuthentic)
 
 	assert.Equal(t, string(userIdentifier), transferUser.Identifier)
 	assert.Equal(t, string(emailId), transferUser.IdentifierEmail)

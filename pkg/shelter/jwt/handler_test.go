@@ -2,9 +2,9 @@ package jwt_test
 
 import (
 	gojwt "github.com/golang-jwt/jwt/v5"
-	"github.com/motojouya/geezer_auth/pkg/core/jwt"
-	"github.com/motojouya/geezer_auth/pkg/core/text"
-	"github.com/motojouya/geezer_auth/pkg/core/user"
+	"github.com/motojouya/geezer_auth/pkg/shelter/jwt"
+	"github.com/motojouya/geezer_auth/pkg/shelter/text"
+	"github.com/motojouya/geezer_auth/pkg/shelter/user"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"

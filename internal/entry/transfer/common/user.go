@@ -1,8 +1,8 @@
 package common
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/essence"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/shelter/essence"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"time"
 )
 
@@ -21,7 +21,7 @@ type User struct {
 	Email           *string
 }
 
-func FromCoreUser(u *core.UserAuthentic) *User {
+func FromCoreUser(u *shelter.UserAuthentic) *User {
 	var companyRole *CompanyRole = nil
 	if u.CompanyRole != nil {
 		companyRole = &CompanyRole{

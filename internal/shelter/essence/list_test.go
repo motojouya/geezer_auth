@@ -2,7 +2,7 @@ package essence_test
 
 import (
 	"errors"
-	"github.com/motojouya/geezer_auth/internal/core/essence"
+	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	"github.com/stretchr/testify/assert"
 	"sort"
 	"testing"

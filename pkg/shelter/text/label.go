@@ -28,7 +28,7 @@ func NewLabel(label string) (Label, error) {
 
 	var result = re.MatchString(trimmed)
 	if !result {
-		return Label(""), NewFormatError("label", "label", label, "label must start and end with an uppercase letter and can contain underscores in between")
+		return Label(""), NewFormatError("label", "label", label, "label must start and end with an uppercase letter and can contain undersshelters in between")
 	}
 
 	return Label(trimmed), nil

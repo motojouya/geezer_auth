@@ -1,10 +1,10 @@
 package role_test
 
 import (
-	coreRole "github.com/motojouya/geezer_auth/internal/core/role"
-	"github.com/motojouya/geezer_auth/internal/core/text"
+	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
+	"github.com/motojouya/geezer_auth/internal/shelter/text"
 	role "github.com/motojouya/geezer_auth/internal/db/transfer/role"
-	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkg "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -16,8 +16,8 @@ func TestFromCoreRole(t *testing.T) {
 	var description, _ = text.NewText("Role for testing")
 	var registeredDate = time.Now()
 
-	var coreRoleValue = coreRole.NewRole(name, label, description, registeredDate)
-	var roleValue = role.FromCoreRole(coreRoleValue)
+	var shelterRoleValue = shelterRole.NewRole(name, label, description, registeredDate)
+	var roleValue = role.FromCoreRole(shelterRoleValue)
 
 	assert.Equal(t, string(name), roleValue.Name)
 	assert.Equal(t, string(label), roleValue.Label)
@@ -40,15 +40,15 @@ func TestToCoreRole(t *testing.T) {
 		RegisteredDate: registeredDate,
 	}
 
-	var coreRoleValue, err = roleValue.ToCoreRole()
+	var shelterRoleValue, err = roleValue.ToCoreRole()
 	assert.NoError(t, err)
 
-	assert.Equal(t, name, string(coreRoleValue.Name))
-	assert.Equal(t, label, string(coreRoleValue.Label))
-	assert.Equal(t, description, string(coreRoleValue.Description))
-	assert.Equal(t, registeredDate, coreRoleValue.RegisteredDate)
+	assert.Equal(t, name, string(shelterRoleValue.Name))
+	assert.Equal(t, label, string(shelterRoleValue.Label))
+	assert.Equal(t, description, string(shelterRoleValue.Description))
+	assert.Equal(t, registeredDate, shelterRoleValue.RegisteredDate)
 
-	t.Logf("coreRoleValue: %+v", coreRoleValue)
+	t.Logf("shelterRoleValue: %+v", shelterRoleValue)
 }
 
 func TestToCoreRoleErrors(t *testing.T) {

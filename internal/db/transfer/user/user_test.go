@@ -1,9 +1,9 @@
 package user_test
 
 import (
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	"github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -16,8 +16,8 @@ func TestFromCoreUser(t *testing.T) {
 	var botFlag = false
 	var registeredDate = time.Now()
 
-	var coreUser = core.CreateUser(identifier, emailId, name, botFlag, registeredDate)
-	var transferUser = user.FromCoreUser(coreUser)
+	var shelterUser = shelter.CreateUser(identifier, emailId, name, botFlag, registeredDate)
+	var transferUser = user.FromCoreUser(shelterUser)
 
 	assert.Equal(t, uint(0), transferUser.PersistKey)
 	assert.Equal(t, string(identifier), string(transferUser.Identifier))
@@ -49,18 +49,18 @@ func TestToCoreUser(t *testing.T) {
 		UpdateDate:     updateDate,
 	}
 
-	var coreUser, err = user.ToCoreUser()
+	var shelterUser, err = user.ToCoreUser()
 
 	assert.NoError(t, err)
-	assert.Equal(t, persistKey, coreUser.PersistKey)
-	assert.Equal(t, identifier, string(coreUser.Identifier))
-	assert.Equal(t, emailId, string(coreUser.ExposeEmailId))
-	assert.Equal(t, name, string(coreUser.Name))
-	assert.Equal(t, botFlag, coreUser.BotFlag)
-	assert.Equal(t, registeredDate, coreUser.RegisteredDate)
-	assert.Equal(t, updateDate, coreUser.UpdateDate)
+	assert.Equal(t, persistKey, shelterUser.PersistKey)
+	assert.Equal(t, identifier, string(shelterUser.Identifier))
+	assert.Equal(t, emailId, string(shelterUser.ExposeEmailId))
+	assert.Equal(t, name, string(shelterUser.Name))
+	assert.Equal(t, botFlag, shelterUser.BotFlag)
+	assert.Equal(t, registeredDate, shelterUser.RegisteredDate)
+	assert.Equal(t, updateDate, shelterUser.UpdateDate)
 
-	t.Logf("coreUser: %+v", coreUser)
+	t.Logf("shelterUser: %+v", shelterUser)
 }
 
 func TestToCoreUserErr(t *testing.T) {

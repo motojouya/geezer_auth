@@ -1,7 +1,7 @@
 package user
 
 import (
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"time"
 )
 

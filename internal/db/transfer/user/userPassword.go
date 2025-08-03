@@ -3,8 +3,8 @@ package user
 import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
-	"github.com/motojouya/geezer_auth/internal/core/text"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"time"
 )
@@ -56,16 +56,16 @@ var SelectUserPassword = utility.Dialect.From(goqu.T("user_password").As("up")).
 	goqu.I("up.expire_date").As("expire_date"),
 )
 
-func FromCoreUserPassword(coreUserPassword *core.UnsavedUserPassword) *UserPassword {
+func FromCoreUserPassword(shelterUserPassword *shelter.UnsavedUserPassword) *UserPassword {
 	return &UserPassword{
-		UserPersistKey: coreUserPassword.User.PersistKey,
-		Password:       string(coreUserPassword.Password),
-		RegisteredDate: coreUserPassword.RegisteredDate,
-		ExpireDate:     coreUserPassword.ExpireDate,
+		UserPersistKey: shelterUserPassword.User.PersistKey,
+		Password:       string(shelterUserPassword.Password),
+		RegisteredDate: shelterUserPassword.RegisteredDate,
+		ExpireDate:     shelterUserPassword.ExpireDate,
 	}
 }
 
-func (u UserPasswordFull) ToCoreUserPassword() (*core.UserPassword, error) {
+func (u UserPasswordFull) ToCoreUserPassword() (*shelter.UserPassword, error) {
 	var user, userErr = (User{
 		PersistKey:     u.UserPersistKey,
 		Identifier:     u.UserIdentifier,
@@ -76,10 +76,10 @@ func (u UserPasswordFull) ToCoreUserPassword() (*core.UserPassword, error) {
 		UpdateDate:     u.UserUpdateDate,
 	}).ToCoreUser()
 	if userErr != nil {
-		return &core.UserPassword{}, userErr
+		return &shelter.UserPassword{}, userErr
 	}
 
-	return core.NewUserPassword(
+	return shelter.NewUserPassword(
 		u.PersistKey,
 		user,
 		text.NewHashedPassword(u.Password),

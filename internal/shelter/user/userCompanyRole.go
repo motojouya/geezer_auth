@@ -1,9 +1,9 @@
 package user
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/company"
-	"github.com/motojouya/geezer_auth/internal/core/essence"
-	"github.com/motojouya/geezer_auth/internal/core/role"
+	"github.com/motojouya/geezer_auth/internal/shelter/company"
+	"github.com/motojouya/geezer_auth/internal/shelter/essence"
+	"github.com/motojouya/geezer_auth/internal/shelter/role"
 	"time"
 )
 

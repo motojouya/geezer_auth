@@ -1,7 +1,7 @@
 package text
 
 import (
-	pkg "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkg "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"strings"
 )
 

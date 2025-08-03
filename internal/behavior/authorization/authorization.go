@@ -1,8 +1,8 @@
 package authorization
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/authorization"
-	"github.com/motojouya/geezer_auth/internal/core/role"
+	"github.com/motojouya/geezer_auth/internal/shelter/authorization"
+	"github.com/motojouya/geezer_auth/internal/shelter/role"
 	roleQuery "github.com/motojouya/geezer_auth/internal/db/query/role"
 )
 

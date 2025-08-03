@@ -1,16 +1,16 @@
 package user_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/text"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
-func getUserForUserEmail(persistKey uint) core.User {
+func getUserForUserEmail(persistKey uint) shelter.User {
 	var identifier, _ = pkgText.NewIdentifier("US-TESTES")
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
 	var name, _ = pkgText.NewName("TestName")
@@ -18,7 +18,7 @@ func getUserForUserEmail(persistKey uint) core.User {
 	var registeredDate = time.Now()
 	var updateDate = time.Now()
 
-	return core.NewUser(persistKey, identifier, name, emailId, botFlag, registeredDate, updateDate)
+	return shelter.NewUser(persistKey, identifier, name, emailId, botFlag, registeredDate, updateDate)
 }
 
 func TestFromCoreUserEmail(t *testing.T) {
@@ -29,8 +29,8 @@ func TestFromCoreUserEmail(t *testing.T) {
 	var verifyToken, _ = text.NewToken("TestVerifyToken")
 	var registerDate = time.Now()
 
-	var coreUserEmail = core.CreateUserEmail(userValue, email, verifyToken, registerDate)
-	var userEmail = user.FromCoreUserEmail(coreUserEmail)
+	var shelterUserEmail = shelter.CreateUserEmail(userValue, email, verifyToken, registerDate)
+	var userEmail = user.FromCoreUserEmail(shelterUserEmail)
 
 	assert.Equal(t, uint(0), userEmail.PersistKey)
 	assert.Equal(t, persistKey, userEmail.UserPersistKey)
@@ -63,26 +63,26 @@ func TestToCoreUserEmail(t *testing.T) {
 		UserUpdateDate:     now.Add(3 * time.Hour),
 	}
 
-	var coreUserEmail, err = userEmail.ToCoreUserEmail()
+	var shelterUserEmail, err = userEmail.ToCoreUserEmail()
 
 	assert.NoError(t, err)
-	assert.Equal(t, userEmail.PersistKey, coreUserEmail.PersistKey)
-	assert.Equal(t, userEmail.UserPersistKey, coreUserEmail.User.PersistKey)
-	assert.Equal(t, string(userEmail.Email), string(coreUserEmail.Email))
-	assert.Equal(t, string(userEmail.VerifyToken), string(coreUserEmail.VerifyToken))
-	assert.Equal(t, userEmail.RegisterDate, coreUserEmail.RegisterDate)
-	assert.Equal(t, userEmail.VerifyDate, coreUserEmail.VerifyDate)
-	assert.Equal(t, userEmail.ExpireDate, coreUserEmail.ExpireDate)
-	assert.Equal(t, userEmail.UserIdentifier, string(coreUserEmail.User.Identifier))
-	assert.Equal(t, userEmail.UserExposeEmailId, string(coreUserEmail.User.ExposeEmailId))
-	assert.Equal(t, userEmail.UserName, string(coreUserEmail.User.Name))
-	assert.Equal(t, userEmail.UserBotFlag, coreUserEmail.User.BotFlag)
-	assert.Equal(t, userEmail.UserRegisteredDate, coreUserEmail.User.RegisteredDate)
-	assert.Equal(t, userEmail.UserUpdateDate, coreUserEmail.User.UpdateDate)
+	assert.Equal(t, userEmail.PersistKey, shelterUserEmail.PersistKey)
+	assert.Equal(t, userEmail.UserPersistKey, shelterUserEmail.User.PersistKey)
+	assert.Equal(t, string(userEmail.Email), string(shelterUserEmail.Email))
+	assert.Equal(t, string(userEmail.VerifyToken), string(shelterUserEmail.VerifyToken))
+	assert.Equal(t, userEmail.RegisterDate, shelterUserEmail.RegisterDate)
+	assert.Equal(t, userEmail.VerifyDate, shelterUserEmail.VerifyDate)
+	assert.Equal(t, userEmail.ExpireDate, shelterUserEmail.ExpireDate)
+	assert.Equal(t, userEmail.UserIdentifier, string(shelterUserEmail.User.Identifier))
+	assert.Equal(t, userEmail.UserExposeEmailId, string(shelterUserEmail.User.ExposeEmailId))
+	assert.Equal(t, userEmail.UserName, string(shelterUserEmail.User.Name))
+	assert.Equal(t, userEmail.UserBotFlag, shelterUserEmail.User.BotFlag)
+	assert.Equal(t, userEmail.UserRegisteredDate, shelterUserEmail.User.RegisteredDate)
+	assert.Equal(t, userEmail.UserUpdateDate, shelterUserEmail.User.UpdateDate)
 
-	t.Logf("coreUserEmail: %+v", coreUserEmail)
-	t.Logf("coreUserEmail.VerifyDate: %s", *coreUserEmail.VerifyDate)
-	t.Logf("coreUserEmail.ExpireDate: %s", *coreUserEmail.ExpireDate)
+	t.Logf("shelterUserEmail: %+v", shelterUserEmail)
+	t.Logf("shelterUserEmail.VerifyDate: %s", *shelterUserEmail.VerifyDate)
+	t.Logf("shelterUserEmail.ExpireDate: %s", *shelterUserEmail.ExpireDate)
 }
 
 func TestToCoreUserEmailError(t *testing.T) {

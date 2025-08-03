@@ -1,7 +1,7 @@
 package essence_test
 
 import (
-	"github.com/motojouya/geezer_auth/pkg/core/essence"
+	"github.com/motojouya/geezer_auth/pkg/shelter/essence"
 	"github.com/stretchr/testify/assert"
 	"strconv"
 	"testing"

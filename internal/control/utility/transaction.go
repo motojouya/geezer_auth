@@ -2,7 +2,7 @@ package utility
 
 import (
 	"github.com/motojouya/geezer_auth/internal/db"
-	pkgUser "github.com/motojouya/geezer_auth/pkg/core/user"
+	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 )
 
 func RollbackWithError(database db.Transactional, err error) error {

@@ -1,10 +1,10 @@
 package user_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/text"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/user"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -19,15 +19,15 @@ func TestChangeEmailToCoreUserEmail(t *testing.T) {
 	}
 
 	var userIdentifier, _ = pkgText.NewIdentifier("US-TESTES")
-	var coreUser = getUserForChangeEmail(userIdentifier)
+	var shelterUser = getUserForChangeEmail(userIdentifier)
 	var verifyToken, _ = text.NewToken("verify_token_example")
 
-	var coreUserEmail, err = userChangeEmailRequest.ToCoreUserEmail(coreUser, verifyToken, time.Now())
+	var shelterUserEmail, err = userChangeEmailRequest.ToCoreUserEmail(shelterUser, verifyToken, time.Now())
 
 	assert.Nil(t, err)
-	assert.NotNil(t, coreUserEmail)
-	assert.Equal(t, coreUser.Identifier, coreUserEmail.User.Identifier)
-	assert.Equal(t, email, string(coreUserEmail.Email))
+	assert.NotNil(t, shelterUserEmail)
+	assert.Equal(t, shelterUser.Identifier, shelterUserEmail.User.Identifier)
+	assert.Equal(t, email, string(shelterUserEmail.Email))
 }
 
 func TestChangeEmailToCoreUserEmailError(t *testing.T) {
@@ -39,20 +39,20 @@ func TestChangeEmailToCoreUserEmailError(t *testing.T) {
 	}
 
 	var userIdentifier, _ = pkgText.NewIdentifier("US-TESTES")
-	var coreUser = getUserForChangeEmail(userIdentifier)
+	var shelterUser = getUserForChangeEmail(userIdentifier)
 	var verifyToken, _ = text.NewToken("verify_token_example")
 
-	var _, err = userChangeEmailRequest.ToCoreUserEmail(coreUser, verifyToken, time.Now())
+	var _, err = userChangeEmailRequest.ToCoreUserEmail(shelterUser, verifyToken, time.Now())
 
 	assert.Error(t, err)
 }
 
-func getUserForChangeEmail(identifier pkgText.Identifier) core.User {
+func getUserForChangeEmail(identifier pkgText.Identifier) shelter.User {
 	var userId uint = 1
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
 	var userName, _ = pkgText.NewName("TestName")
 	var botFlag = false
 	var userRegisteredDate = time.Now()
 	var updateDate = time.Now()
-	return core.NewUser(userId, identifier, userName, emailId, botFlag, userRegisteredDate, updateDate)
+	return shelter.NewUser(userId, identifier, userName, emailId, botFlag, userRegisteredDate, updateDate)
 }

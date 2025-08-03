@@ -2,12 +2,12 @@ package user
 
 import (
 	"github.com/go-gorp/gorp"
-	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
+	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/db"
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	"github.com/motojouya/geezer_auth/internal/io"
-	"github.com/motojouya/geezer_auth/pkg/core/jwt"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/motojouya/geezer_auth/pkg/shelter/jwt"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
 type AccessTokenIssuerDB interface {
@@ -17,7 +17,7 @@ type AccessTokenIssuerDB interface {
 }
 
 type AccessTokenIssuer interface {
-	Execute(userAuthentic *coreUser.UserAuthentic) (pkgText.JwtToken, error)
+	Execute(userAuthentic *shelterUser.UserAuthentic) (pkgText.JwtToken, error)
 }
 
 type AccessTokenIssue struct {
@@ -34,7 +34,7 @@ func NewAccessTokenIssue(local io.Local, database AccessTokenIssuerDB, jwtHandle
 	}
 }
 
-func (issuer AccessTokenIssue) Execute(userAuthentic *coreUser.UserAuthentic) (pkgText.JwtToken, error) {
+func (issuer AccessTokenIssue) Execute(userAuthentic *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
 	now := issuer.local.GetNow()
 
 	dbAccessTokens, err := issuer.db.GetUserAccessToken(string(userAuthentic.Identifier), now)
@@ -64,7 +64,7 @@ func (issuer AccessTokenIssue) Execute(userAuthentic *coreUser.UserAuthentic) (p
 		return pkgText.JwtToken(""), err
 	}
 
-	userAccessToken := coreUser.CreateUserAccessToken(userAuthentic.GetUser(), accessToken, now, tokenData.ExpiresAt.Time)
+	userAccessToken := shelterUser.CreateUserAccessToken(userAuthentic.GetUser(), accessToken, now, tokenData.ExpiresAt.Time)
 	if err != nil {
 		return pkgText.JwtToken(""), err
 	}

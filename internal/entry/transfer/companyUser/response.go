@@ -1,10 +1,10 @@
 package companyUser
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/essence"
-	coreRole "github.com/motojouya/geezer_auth/internal/core/role"
-	"github.com/motojouya/geezer_auth/internal/core/text"
-	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/shelter/essence"
+	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
+	"github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 )
@@ -21,15 +21,15 @@ type RoleGetResponse struct {
 	Roles []common.Role `json:"roles"`
 }
 
-func FromCoreRoles(coreRoles []coreRole.Role) RoleGetResponse {
-	var roles = essence.Map(coreRoles, common.FromCoreRole)
+func FromCoreRoles(shelterRoles []shelterRole.Role) RoleGetResponse {
+	var roles = essence.Map(shelterRoles, common.FromCoreRole)
 	return RoleGetResponse{
 		Roles: roles,
 	}
 }
 
-func FromCoreUserAuthenticToGetResponse(coreUser *coreUser.UserAuthentic) *CompanyUserResponse {
-	var commonUser = common.FromCoreUser(coreUser)
+func FromCoreUserAuthenticToGetResponse(shelterUser *shelterUser.UserAuthentic) *CompanyUserResponse {
+	var commonUser = common.FromCoreUser(shelterUser)
 	return &CompanyUserResponse{
 		UserGetResponse: user.UserGetResponse{
 			User: *commonUser,

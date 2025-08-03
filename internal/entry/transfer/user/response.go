@@ -1,10 +1,10 @@
 package user
 
 import (
-	text "github.com/motojouya/geezer_auth/internal/core/text"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	text "github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
 type UserGetResponse struct {
@@ -21,23 +21,23 @@ type UserRegisterResponse struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-func FromCoreUserAuthenticToGetResponse(coreUser *core.UserAuthentic) *UserGetResponse {
-	var commonUser = common.FromCoreUser(coreUser)
+func FromCoreUserAuthenticToGetResponse(shelterUser *shelter.UserAuthentic) *UserGetResponse {
+	var commonUser = common.FromCoreUser(shelterUser)
 	return &UserGetResponse{
 		User: *commonUser,
 	}
 }
 
-func FromCoreUserAuthenticToUpdateResponse(coreUser *core.UserAuthentic, accessToken pkgText.JwtToken) *UserUpdateResponse {
-	var userGetResponse = FromCoreUserAuthenticToGetResponse(coreUser)
+func FromCoreUserAuthenticToUpdateResponse(shelterUser *shelter.UserAuthentic, accessToken pkgText.JwtToken) *UserUpdateResponse {
+	var userGetResponse = FromCoreUserAuthenticToGetResponse(shelterUser)
 	return &UserUpdateResponse{
 		UserGetResponse: *userGetResponse,
 		AccessToken:     string(accessToken),
 	}
 }
 
-func FromCoreUserAuthenticToRegisterResponse(coreUser *core.UserAuthentic, refreshToken text.Token, accessToken pkgText.JwtToken) *UserRegisterResponse {
-	var userUpdateResponse = FromCoreUserAuthenticToUpdateResponse(coreUser, accessToken)
+func FromCoreUserAuthenticToRegisterResponse(shelterUser *shelter.UserAuthentic, refreshToken text.Token, accessToken pkgText.JwtToken) *UserRegisterResponse {
+	var userUpdateResponse = FromCoreUserAuthenticToUpdateResponse(shelterUser, accessToken)
 	return &UserRegisterResponse{
 		UserUpdateResponse: *userUpdateResponse,
 		RefreshToken:       string(refreshToken),

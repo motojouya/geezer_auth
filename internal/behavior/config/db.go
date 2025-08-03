@@ -1,7 +1,7 @@
 package config
 
 import (
-	coreConfig "github.com/motojouya/geezer_auth/internal/core/config"
+	shelterConfig "github.com/motojouya/geezer_auth/internal/shelter/config"
 	"github.com/motojouya/geezer_auth/internal/db"
 	"github.com/motojouya/geezer_auth/internal/io"
 )
@@ -20,7 +20,7 @@ func NewDatabaseGet(env io.DBAccessGetter) *DatabaseGet {
 	}
 }
 
-var dbAccess *coreConfig.DBAccess
+var dbAccess *shelterConfig.DBAccess
 
 func (getter DatabaseGet) GetDatabase() (*db.ORP, error) {
 	// access 情報はcacheするが、connectionはcacheしない

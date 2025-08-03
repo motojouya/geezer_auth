@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/motojouya/geezer_auth/internal/io"
-	"github.com/motojouya/geezer_auth/pkg/core/jwt"
+	"github.com/motojouya/geezer_auth/pkg/shelter/jwt"
 )
 
 type JwtHandlerGetter interface {

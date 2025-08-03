@@ -1,16 +1,16 @@
 package user_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/text"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
-func getUserForRefreshToken(persistKey uint) core.User {
+func getUserForRefreshToken(persistKey uint) shelter.User {
 	var identifier, _ = pkgText.NewIdentifier("TestIdentifier")
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
 	var name, _ = pkgText.NewName("TestName")
@@ -18,7 +18,7 @@ func getUserForRefreshToken(persistKey uint) core.User {
 	var registeredDate = time.Now()
 	var updateDate = time.Now()
 
-	return core.NewUser(persistKey, identifier, name, emailId, botFlag, registeredDate, updateDate)
+	return shelter.NewUser(persistKey, identifier, name, emailId, botFlag, registeredDate, updateDate)
 }
 
 func TestFromCoreUserRefreshToken(t *testing.T) {
@@ -27,11 +27,11 @@ func TestFromCoreUserRefreshToken(t *testing.T) {
 
 	var token, _ = text.NewToken("TestPassword")
 	var registerDate = time.Now()
-	var expireDate = registerDate.AddDate(0, 0, core.TokenValidityPeriodDays)
+	var expireDate = registerDate.AddDate(0, 0, shelter.TokenValidityPeriodDays)
 
-	var coreUserRefreshToken = core.CreateUserRefreshToken(userValue, token, registerDate)
+	var shelterUserRefreshToken = shelter.CreateUserRefreshToken(userValue, token, registerDate)
 
-	var userRefreshToken = user.FromCoreUserRefreshToken(coreUserRefreshToken)
+	var userRefreshToken = user.FromCoreUserRefreshToken(shelterUserRefreshToken)
 
 	assert.Equal(t, uint(0), userRefreshToken.PersistKey)
 	assert.Equal(t, persistKey, userRefreshToken.UserPersistKey)
@@ -60,16 +60,16 @@ func TestToCoreUserRefreshToken(t *testing.T) {
 		UserUpdateDate:     now.Add(2 * time.Hour),
 	}
 
-	var coreUserRefreshToken, err = userRefreshTokenFull.ToCoreUserRefreshToken()
+	var shelterUserRefreshToken, err = userRefreshTokenFull.ToCoreUserRefreshToken()
 	assert.NoError(t, err)
 
-	assert.Equal(t, userRefreshTokenFull.PersistKey, coreUserRefreshToken.PersistKey)
-	assert.Equal(t, userRefreshTokenFull.UserPersistKey, coreUserRefreshToken.User.PersistKey)
-	assert.Equal(t, userRefreshTokenFull.RefreshToken, string(coreUserRefreshToken.RefreshToken))
-	assert.Equal(t, userRefreshTokenFull.RegisterDate, coreUserRefreshToken.RegisterDate)
-	assert.Equal(t, userRefreshTokenFull.ExpireDate, coreUserRefreshToken.ExpireDate)
+	assert.Equal(t, userRefreshTokenFull.PersistKey, shelterUserRefreshToken.PersistKey)
+	assert.Equal(t, userRefreshTokenFull.UserPersistKey, shelterUserRefreshToken.User.PersistKey)
+	assert.Equal(t, userRefreshTokenFull.RefreshToken, string(shelterUserRefreshToken.RefreshToken))
+	assert.Equal(t, userRefreshTokenFull.RegisterDate, shelterUserRefreshToken.RegisterDate)
+	assert.Equal(t, userRefreshTokenFull.ExpireDate, shelterUserRefreshToken.ExpireDate)
 
-	t.Logf("coreUserRefreshToken: %+v", coreUserRefreshToken)
+	t.Logf("shelterUserRefreshToken: %+v", shelterUserRefreshToken)
 }
 
 func TestToCoreUserRefreshTokenError(t *testing.T) {

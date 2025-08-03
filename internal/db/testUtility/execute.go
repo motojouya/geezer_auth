@@ -1,7 +1,7 @@
 package testUtility
 
 import (
-	//_ "internal/core/timezone"
+	//_ "internal/shelter/timezone"
 	"database/sql"
 	"fmt"
 	"github.com/motojouya/geezer_auth/internal/db"
@@ -13,7 +13,7 @@ import (
 )
 
 func ExecuteDatabaseTest(pathToRoot string, run func(db.ORPer) int) {
-	os.Setenv("TZ", "Asia/Tokyo") // `internal/core/timezone`だとできんかった？
+	os.Setenv("TZ", "Asia/Tokyo") // `internal/shelter/timezone`だとできんかった？
 
 	pool, err := dockertest.NewPool("")
 	if err != nil {

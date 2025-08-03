@@ -3,9 +3,9 @@ package user
 import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/db/utility"
-	"github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"time"
 )
 
@@ -59,17 +59,17 @@ var SelectUserAccessToken = utility.Dialect.From(goqu.T("user_access_token").As(
 	goqu.I("uat.expire_date").As("expire_date"),
 )
 
-func FromCoreUserAccessToken(coreUserAccessToken core.UnsavedUserAccessToken) UserAccessToken {
+func FromCoreUserAccessToken(shelterUserAccessToken shelter.UnsavedUserAccessToken) UserAccessToken {
 	return UserAccessToken{
-		UserPersistKey:   coreUserAccessToken.User.PersistKey,
-		AccessToken:      string(coreUserAccessToken.AccessToken),
-		SourceUpdateDate: coreUserAccessToken.SourceUpdateDate,
-		RegisterDate:     coreUserAccessToken.RegisterDate,
-		ExpireDate:       coreUserAccessToken.ExpireDate,
+		UserPersistKey:   shelterUserAccessToken.User.PersistKey,
+		AccessToken:      string(shelterUserAccessToken.AccessToken),
+		SourceUpdateDate: shelterUserAccessToken.SourceUpdateDate,
+		RegisterDate:     shelterUserAccessToken.RegisterDate,
+		ExpireDate:       shelterUserAccessToken.ExpireDate,
 	}
 }
 
-func (ua UserAccessTokenFull) ToCoreUserAccessToken() (core.UserAccessToken, error) {
+func (ua UserAccessTokenFull) ToCoreUserAccessToken() (shelter.UserAccessToken, error) {
 	var user, userErr = (User{
 		PersistKey:     ua.UserPersistKey,
 		Identifier:     ua.UserIdentifier,
@@ -80,10 +80,10 @@ func (ua UserAccessTokenFull) ToCoreUserAccessToken() (core.UserAccessToken, err
 		UpdateDate:     ua.UserUpdateDate,
 	}).ToCoreUser()
 	if userErr != nil {
-		return core.UserAccessToken{}, userErr
+		return shelter.UserAccessToken{}, userErr
 	}
 
-	return core.NewUserAccessToken(
+	return shelter.NewUserAccessToken(
 		ua.PersistKey,
 		user,
 		text.NewJwtToken(ua.AccessToken),

@@ -1,15 +1,15 @@
 package user_test
 
 import (
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
-func getUserForAccessToken(persistKey uint) core.User {
+func getUserForAccessToken(persistKey uint) shelter.User {
 	var identifier, _ = pkgText.NewIdentifier("TestIdentifier")
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
 	var name, _ = pkgText.NewName("TestName")
@@ -17,20 +17,20 @@ func getUserForAccessToken(persistKey uint) core.User {
 	var registeredDate = time.Now()
 	var updateDate = time.Now()
 
-	return core.NewUser(persistKey, identifier, name, emailId, botFlag, registeredDate, updateDate)
+	return shelter.NewUser(persistKey, identifier, name, emailId, botFlag, registeredDate, updateDate)
 }
 
 func TestFromCoreUserAccessToken(t *testing.T) {
 	var persistKey uint = 1
-	var coreUser = getUserForAccessToken(persistKey)
+	var shelterUser = getUserForAccessToken(persistKey)
 
 	var accessToken = pkgText.NewJwtToken("test.jwt.token")
 	var registerDate = time.Now()
 	var expireDate = time.Now().Add(24 * time.Hour)
 
-	var coreUserAccessToken = core.CreateUserAccessToken(coreUser, accessToken, registerDate, expireDate)
+	var shelterUserAccessToken = shelter.CreateUserAccessToken(shelterUser, accessToken, registerDate, expireDate)
 
-	var userAccessToken = user.FromCoreUserAccessToken(coreUserAccessToken)
+	var userAccessToken = user.FromCoreUserAccessToken(shelterUserAccessToken)
 
 	assert.Equal(t, uint(0), userAccessToken.PersistKey)
 	assert.Equal(t, persistKey, userAccessToken.UserPersistKey)
@@ -74,21 +74,21 @@ func TestToCoreUserAccessToken(t *testing.T) {
 		UserUpdateDate:     userUpdateDate,
 	}
 
-	var coreUserAccessToken, err = userAccessToken.ToCoreUserAccessToken()
+	var shelterUserAccessToken, err = userAccessToken.ToCoreUserAccessToken()
 
 	assert.NoError(t, err)
-	assert.Equal(t, persistKey, coreUserAccessToken.PersistKey)
-	assert.Equal(t, string(accessToken), string(coreUserAccessToken.AccessToken))
-	assert.Equal(t, sourceUpdateDate, coreUserAccessToken.SourceUpdateDate)
-	assert.Equal(t, registerDate, coreUserAccessToken.RegisterDate)
-	assert.Equal(t, expireDate, coreUserAccessToken.ExpireDate)
-	assert.Equal(t, userPersistKey, coreUserAccessToken.User.PersistKey)
-	assert.Equal(t, userIdentifier, string(coreUserAccessToken.User.Identifier))
-	assert.Equal(t, userEmailId, string(coreUserAccessToken.User.ExposeEmailId))
-	assert.Equal(t, userName, string(coreUserAccessToken.User.Name))
-	assert.Equal(t, userBotFlag, coreUserAccessToken.User.BotFlag)
-	assert.Equal(t, userRegisteredDate, coreUserAccessToken.User.RegisteredDate)
-	assert.Equal(t, userUpdateDate, coreUserAccessToken.User.UpdateDate)
+	assert.Equal(t, persistKey, shelterUserAccessToken.PersistKey)
+	assert.Equal(t, string(accessToken), string(shelterUserAccessToken.AccessToken))
+	assert.Equal(t, sourceUpdateDate, shelterUserAccessToken.SourceUpdateDate)
+	assert.Equal(t, registerDate, shelterUserAccessToken.RegisterDate)
+	assert.Equal(t, expireDate, shelterUserAccessToken.ExpireDate)
+	assert.Equal(t, userPersistKey, shelterUserAccessToken.User.PersistKey)
+	assert.Equal(t, userIdentifier, string(shelterUserAccessToken.User.Identifier))
+	assert.Equal(t, userEmailId, string(shelterUserAccessToken.User.ExposeEmailId))
+	assert.Equal(t, userName, string(shelterUserAccessToken.User.Name))
+	assert.Equal(t, userBotFlag, shelterUserAccessToken.User.BotFlag)
+	assert.Equal(t, userRegisteredDate, shelterUserAccessToken.User.RegisteredDate)
+	assert.Equal(t, userUpdateDate, shelterUserAccessToken.User.UpdateDate)
 
-	t.Logf("coreUserAccessToken: %+v", coreUserAccessToken)
+	t.Logf("shelterUserAccessToken: %+v", shelterUserAccessToken)
 }

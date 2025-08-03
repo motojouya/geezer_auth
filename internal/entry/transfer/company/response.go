@@ -1,9 +1,9 @@
 package company
 
 import (
-	coreCompany "github.com/motojouya/geezer_auth/internal/core/company"
-	"github.com/motojouya/geezer_auth/internal/core/essence"
-	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
+	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
+	"github.com/motojouya/geezer_auth/internal/shelter/essence"
+	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 )
 
@@ -15,15 +15,15 @@ type CompanyUserResponse struct {
 	Users []*common.User `json:"users"`
 }
 
-func FromCoreCompany(coreCompany coreCompany.Company) CompanyGetResponse {
-	var commonUser = common.FromCoreCompany(coreCompany)
+func FromCoreCompany(shelterCompany shelterCompany.Company) CompanyGetResponse {
+	var commonUser = common.FromCoreCompany(shelterCompany)
 	return CompanyGetResponse{
 		Company: commonUser,
 	}
 }
 
-func FromCoreUserAuthentic(coreUsers []*coreUser.UserAuthentic) *CompanyUserResponse {
-	var users []*common.User = essence.Map(coreUsers, common.FromCoreUser)
+func FromCoreUserAuthentic(shelterUsers []*shelterUser.UserAuthentic) *CompanyUserResponse {
+	var users []*common.User = essence.Map(shelterUsers, common.FromCoreUser)
 	return &CompanyUserResponse{
 		Users: users,
 	}

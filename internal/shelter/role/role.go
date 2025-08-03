@@ -1,9 +1,9 @@
 package role
 
 import (
-	text "github.com/motojouya/geezer_auth/internal/core/text"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
-	user "github.com/motojouya/geezer_auth/pkg/core/user"
+	text "github.com/motojouya/geezer_auth/internal/shelter/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
+	user "github.com/motojouya/geezer_auth/pkg/shelter/user"
 	"time"
 )
 

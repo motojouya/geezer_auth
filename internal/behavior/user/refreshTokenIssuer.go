@@ -2,8 +2,8 @@ package user
 
 import (
 	"github.com/go-gorp/gorp"
-	coreText "github.com/motojouya/geezer_auth/internal/core/text"
-	coreUser "github.com/motojouya/geezer_auth/internal/core/user"
+	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/db"
 	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
@@ -17,7 +17,7 @@ type RefreshTokenIssuerDB interface {
 }
 
 type RefreshTokenIssuer interface {
-	Execute(userAuthentic *coreUser.UserAuthentic) (coreText.Token, error)
+	Execute(userAuthentic *shelterUser.UserAuthentic) (shelterText.Token, error)
 }
 
 type RefreshTokenIssue struct {
@@ -32,24 +32,24 @@ func NewRefreshTokenIssue(local io.Local, database RefreshTokenIssuerDB) *Refres
 	}
 }
 
-func (issuer RefreshTokenIssue) Execute(userAuthentic *coreUser.UserAuthentic) (coreText.Token, error) {
+func (issuer RefreshTokenIssue) Execute(userAuthentic *shelterUser.UserAuthentic) (shelterText.Token, error) {
 	now := issuer.local.GetNow()
 
 	refreshTokenSource, err := issuer.local.GenerateUUID()
 	if err != nil {
-		return coreText.Token(""), err
+		return shelterText.Token(""), err
 	}
 
-	refreshToken, err := coreText.CreateToken(refreshTokenSource)
+	refreshToken, err := shelterText.CreateToken(refreshTokenSource)
 	if err != nil {
-		return coreText.Token(""), err
+		return shelterText.Token(""), err
 	}
 
-	userRefreshToken := coreUser.CreateUserRefreshToken(userAuthentic.GetUser(), refreshToken, now)
+	userRefreshToken := shelterUser.CreateUserRefreshToken(userAuthentic.GetUser(), refreshToken, now)
 	dbUserRefreshToken := dbUser.FromCoreUserRefreshToken(userRefreshToken)
 
 	if err := issuer.db.Insert(dbUserRefreshToken); err != nil {
-		return coreText.Token(""), err
+		return shelterText.Token(""), err
 	}
 
 	return refreshToken, nil

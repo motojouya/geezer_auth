@@ -1,8 +1,8 @@
 package user
 
 import (
-	core "github.com/motojouya/geezer_auth/internal/core/user"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"time"
 )
 
@@ -14,10 +14,10 @@ type UserChangeNameRequest struct {
 	UserChangeName UserChangeName `http:"body"`
 }
 
-func (u UserChangeNameRequest) ToCoreUser(user core.User, updateDate time.Time) (core.User, error) {
+func (u UserChangeNameRequest) ToCoreUser(user shelter.User, updateDate time.Time) (shelter.User, error) {
 	var name, nameErr = pkgText.NewName(u.UserChangeName.Name)
 	if nameErr != nil {
-		return core.User{}, nameErr
+		return shelter.User{}, nameErr
 	}
 
 	return user.UpdateName(name, updateDate), nil

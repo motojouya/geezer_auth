@@ -1,9 +1,9 @@
 package common_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/company"
+	"github.com/motojouya/geezer_auth/internal/shelter/company"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
-	"github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -15,9 +15,9 @@ func TestFromCoreCompany(t *testing.T) {
 	var name, _ = text.NewName("TestRole")
 	var registeredDate = time.Now()
 
-	var coreCompany = company.NewCompany(persistKey, identifier, name, registeredDate)
+	var shelterCompany = company.NewCompany(persistKey, identifier, name, registeredDate)
 
-	var transferCompany = common.FromCoreCompany(coreCompany)
+	var transferCompany = common.FromCoreCompany(shelterCompany)
 
 	assert.Equal(t, string(identifier), transferCompany.Identifier)
 	assert.Equal(t, string(name), transferCompany.Name)

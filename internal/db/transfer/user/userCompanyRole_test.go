@@ -1,18 +1,18 @@
 package user_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/core/company"
-	"github.com/motojouya/geezer_auth/internal/core/role"
-	"github.com/motojouya/geezer_auth/internal/core/text"
-	core "github.com/motojouya/geezer_auth/internal/core/user"
+	"github.com/motojouya/geezer_auth/internal/shelter/company"
+	"github.com/motojouya/geezer_auth/internal/shelter/role"
+	"github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	pkgText "github.com/motojouya/geezer_auth/pkg/core/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
-func getUserForCompanyRole(persistKey uint) core.User {
+func getUserForCompanyRole(persistKey uint) shelter.User {
 	var identifier, _ = pkgText.NewIdentifier("TestIdentifier")
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
 	var name, _ = pkgText.NewName("TestName")
@@ -20,7 +20,7 @@ func getUserForCompanyRole(persistKey uint) core.User {
 	var registeredDate = time.Now()
 	var updateDate = time.Now()
 
-	return core.NewUser(persistKey, identifier, name, emailId, botFlag, registeredDate, updateDate)
+	return shelter.NewUser(persistKey, identifier, name, emailId, botFlag, registeredDate, updateDate)
 }
 
 func getCompanyForCompanyRole(persistKey uint) company.Company {
@@ -51,8 +51,8 @@ func TestFromCoreUserCompanyRole(t *testing.T) {
 
 	var registerDate = time.Now()
 
-	var coreUserCompanyRole = core.CreateUserCompanyRole(userValue, company, role, registerDate)
-	var userCompanyRole = user.FromCoreUserCompanyRole(coreUserCompanyRole)
+	var shelterUserCompanyRole = shelter.CreateUserCompanyRole(userValue, company, role, registerDate)
+	var userCompanyRole = user.FromCoreUserCompanyRole(shelterUserCompanyRole)
 
 	assert.Equal(t, uint(0), userCompanyRole.PersistKey)
 	assert.Equal(t, userPersistKey, userCompanyRole.UserPersistKey)
@@ -90,18 +90,18 @@ func TestToCoreUserCompanyRole(t *testing.T) {
 		RoleRegisteredDate:    now.Add(5 * time.Hour),
 	}
 
-	var coreUserCompanyRole, err = userCompanyRoleFull.ToCoreUserCompanyRole()
+	var shelterUserCompanyRole, err = userCompanyRoleFull.ToCoreUserCompanyRole()
 
 	assert.NoError(t, err)
-	assert.Equal(t, userCompanyRoleFull.PersistKey, coreUserCompanyRole.PersistKey)
-	assert.Equal(t, userCompanyRoleFull.UserPersistKey, coreUserCompanyRole.User.PersistKey)
-	assert.Equal(t, userCompanyRoleFull.CompanyPersistKey, coreUserCompanyRole.Company.PersistKey)
-	assert.Equal(t, userCompanyRoleFull.RoleLabel, string(coreUserCompanyRole.Role.Label))
-	assert.Equal(t, userCompanyRoleFull.RegisterDate, coreUserCompanyRole.RegisterDate)
-	assert.Equal(t, userCompanyRoleFull.ExpireDate, coreUserCompanyRole.ExpireDate)
+	assert.Equal(t, userCompanyRoleFull.PersistKey, shelterUserCompanyRole.PersistKey)
+	assert.Equal(t, userCompanyRoleFull.UserPersistKey, shelterUserCompanyRole.User.PersistKey)
+	assert.Equal(t, userCompanyRoleFull.CompanyPersistKey, shelterUserCompanyRole.Company.PersistKey)
+	assert.Equal(t, userCompanyRoleFull.RoleLabel, string(shelterUserCompanyRole.Role.Label))
+	assert.Equal(t, userCompanyRoleFull.RegisterDate, shelterUserCompanyRole.RegisterDate)
+	assert.Equal(t, userCompanyRoleFull.ExpireDate, shelterUserCompanyRole.ExpireDate)
 
-	t.Logf("coreUserCompanyRole: %+v", coreUserCompanyRole)
-	t.Logf("coreUserCompanyRole.ExpireDate: %s", *coreUserCompanyRole.ExpireDate)
+	t.Logf("shelterUserCompanyRole: %+v", shelterUserCompanyRole)
+	t.Logf("shelterUserCompanyRole.ExpireDate: %s", *shelterUserCompanyRole.ExpireDate)
 }
 
 func TestToCoreUserCompanyRoleError(t *testing.T) {

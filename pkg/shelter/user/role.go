@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/motojouya/geezer_auth/pkg/core/text"
+	"github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
 type Role struct {
