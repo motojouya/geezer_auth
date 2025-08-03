@@ -6,19 +6,19 @@ import (
 	"time"
 )
 
-type Local interface {
+type Localer interface {
 	GenerateRamdomString(length int, source string) string
 	GenerateUUID() (uuid.UUID, error)
 	GetNow() time.Time
 }
 
-type local struct{}
+type Local struct{}
 
 func CreateLocal() Local {
-	return &local{}
+	return &Local{}
 }
 
-func (l local) GenerateRamdomString(length int, source string) string {
+func (l Local) GenerateRamdomString(length int, source string) string {
 	b := make([]byte, length)
 	for i := range b {
 		b[i] = source[rand.Intn(len(source))]
@@ -26,7 +26,7 @@ func (l local) GenerateRamdomString(length int, source string) string {
 	return string(b)
 }
 
-func (l local) GenerateUUID() (uuid.UUID, error) {
+func (l Local) GenerateUUID() (uuid.UUID, error) {
 	var uuidValue, err = uuid.NewUUID()
 	if err != nil {
 		var zero = uuid.UUID{}
@@ -36,7 +36,7 @@ func (l local) GenerateUUID() (uuid.UUID, error) {
 	return uuidValue, nil
 }
 
-func (l local) GetNow() time.Time {
+func (l Local) GetNow() time.Time {
 	jst, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
 		panic(err)

@@ -21,11 +21,11 @@ type EmailSetter interface {
 }
 
 type EmailSet struct {
-	local localPkg.Local
+	local localPkg.Localer
 	db    EmailSetterDB
 }
 
-func NewEmailSet(local localPkg.Local, database EmailSetterDB) *EmailSet {
+func NewEmailSet(local localPkg.Localer, database EmailSetterDB) *EmailSet {
 	return &EmailSet{
 		db:    database,
 		local: local,

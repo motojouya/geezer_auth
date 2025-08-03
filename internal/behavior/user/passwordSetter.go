@@ -20,11 +20,11 @@ type PasswordSetter interface {
 }
 
 type PasswordSet struct {
-	local localPkg.Local
+	local localPkg.Localer
 	db    PasswordSetterDB
 }
 
-func NewPasswordSet(local localPkg.Local, db PasswordSetterDB) *PasswordSet {
+func NewPasswordSet(local localPkg.Localer, db PasswordSetterDB) *PasswordSet {
 	return &PasswordSet{
 		local: local,
 		db:    db,

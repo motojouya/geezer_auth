@@ -21,11 +21,11 @@ type RefreshTokenIssuer interface {
 }
 
 type RefreshTokenIssue struct {
-	local localPkg.Local
+	local localPkg.Localer
 	db    RefreshTokenIssuerDB
 }
 
-func NewRefreshTokenIssue(local localPkg.Local, database RefreshTokenIssuerDB) *RefreshTokenIssue {
+func NewRefreshTokenIssue(local localPkg.Localer, database RefreshTokenIssuerDB) *RefreshTokenIssue {
 	return &RefreshTokenIssue{
 		db:    database,
 		local: local,

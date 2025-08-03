@@ -23,18 +23,18 @@ type UserCreator interface {
 }
 
 type UserCreate struct {
-	local localPkg.Local
+	local localPkg.Localer
 	db    UserCreatorDB
 }
 
-func NewUserCreate(local localPkg.Local, db UserCreatorDB) *UserCreate {
+func NewUserCreate(local localPkg.Localer, db UserCreatorDB) *UserCreate {
 	return &UserCreate{
 		local: local,
 		db:    db,
 	}
 }
 
-func createUserIdentifier(local localPkg.Local) func() (pkgText.Identifier, error) {
+func createUserIdentifier(local localPkg.Localer) func() (pkgText.Identifier, error) {
 	return func() (pkgText.Identifier, error) {
 		var ramdomString = local.GenerateRamdomString(pkgText.IdentifierLength, pkgText.IdentifierChar)
 		var identifier, err = shelterUser.CreateUserIdentifier(ramdomString)

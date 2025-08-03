@@ -21,12 +21,12 @@ type AccessTokenIssuer interface {
 }
 
 type AccessTokenIssue struct {
-	local localPkg.Local
+	local localPkg.Localer
 	db    AccessTokenIssuerDB
 	jwt   jwt.JwtHandler
 }
 
-func NewAccessTokenIssue(local localPkg.Local, database AccessTokenIssuerDB, jwtHandler jwt.JwtHandler) *AccessTokenIssue {
+func NewAccessTokenIssue(local localPkg.Localer, database AccessTokenIssuerDB, jwtHandler jwt.JwtHandler) *AccessTokenIssue {
 	return &AccessTokenIssue{
 		local: local,
 		db:    database,

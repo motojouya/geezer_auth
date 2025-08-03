@@ -6,22 +6,22 @@ import (
 	"github.com/motojouya/geezer_auth/pkg/shelter/jwt"
 )
 
-type Environment interface {
-	GetJwtHandle() (jwt.JwtHandle, error)
-	GetDBAccess() (config.DBAccess, error)
+type Environmenter interface {
+	JwtHandleGetter
+	DBAccessGetter
 }
 
-type environment struct{}
+type Environment struct{}
 
 func CreateEnvironment() Environment {
-	return &environment{}
+	return &Environment{}
 }
 
 type JwtHandleGetter interface {
 	GetJwtHandle() (jwt.JwtHandle, error)
 }
 
-func (e environment) GetJwtHandle() (jwt.JwtHandle, error) {
+func (e Environment) GetJwtHandle() (jwt.JwtHandle, error) {
 	return env.ParseAs[jwt.JwtHandle]()
 }
 
@@ -29,6 +29,6 @@ type DBAccessGetter interface {
 	GetDBAccess() (config.DBAccess, error)
 }
 
-func (e environment) GetDBAccess() (config.DBAccess, error) {
+func (e Environment) GetDBAccess() (config.DBAccess, error) {
 	return env.ParseAs[config.DBAccess]()
 }
