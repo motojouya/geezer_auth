@@ -8,7 +8,7 @@ import (
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
-	"github.com/motojouya/geezer_auth/internal/io"
+	"github.com/motojouya/geezer_auth/internal/local"
 )
 
 type EmailSetterDB interface {
@@ -21,11 +21,11 @@ type EmailSetter interface {
 }
 
 type EmailSet struct {
-	local io.Local
+	local local.Local
 	db    EmailSetterDB
 }
 
-func NewEmailSet(local io.Local, database EmailSetterDB) *EmailSet {
+func NewEmailSet(local local.Local, database EmailSetterDB) *EmailSet {
 	return &EmailSet{
 		db:    database,
 		local: local,

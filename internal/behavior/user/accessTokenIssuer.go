@@ -5,7 +5,7 @@ import (
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/db"
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
-	"github.com/motojouya/geezer_auth/internal/io"
+	"github.com/motojouya/geezer_auth/internal/local"
 	"github.com/motojouya/geezer_auth/pkg/shelter/jwt"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
@@ -21,12 +21,12 @@ type AccessTokenIssuer interface {
 }
 
 type AccessTokenIssue struct {
-	local io.Local
+	local local.Local
 	db    AccessTokenIssuerDB
 	jwt   jwt.JwtHandler
 }
 
-func NewAccessTokenIssue(local io.Local, database AccessTokenIssuerDB, jwtHandler jwt.JwtHandler) *AccessTokenIssue {
+func NewAccessTokenIssue(local local.Local, database AccessTokenIssuerDB, jwtHandler jwt.JwtHandler) *AccessTokenIssue {
 	return &AccessTokenIssue{
 		local: local,
 		db:    database,

@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/motojouya/geezer_auth/internal/io"
+	"github.com/motojouya/geezer_auth/internal/local"
 	"github.com/motojouya/geezer_auth/pkg/shelter/jwt"
 )
 
@@ -10,10 +10,10 @@ type JwtHandlerGetter interface {
 }
 
 type JwtHandlerGet struct {
-	env io.JwtHandleGetter
+	env local.JwtHandleGetter
 }
 
-func NewJwtHandlerGet(env io.JwtHandleGetter) *JwtHandlerGet {
+func NewJwtHandlerGet(env local.JwtHandleGetter) *JwtHandlerGet {
 	return &JwtHandlerGet{
 		env: env,
 	}

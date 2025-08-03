@@ -7,7 +7,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db"
 	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	"github.com/motojouya/geezer_auth/internal/io"
+	"github.com/motojouya/geezer_auth/internal/local"
 )
 
 type RefreshTokenIssuerDB interface {
@@ -21,11 +21,11 @@ type RefreshTokenIssuer interface {
 }
 
 type RefreshTokenIssue struct {
-	local io.Local
+	local local.Local
 	db    RefreshTokenIssuerDB
 }
 
-func NewRefreshTokenIssue(local io.Local, database RefreshTokenIssuerDB) *RefreshTokenIssue {
+func NewRefreshTokenIssue(local local.Local, database RefreshTokenIssuerDB) *RefreshTokenIssue {
 	return &RefreshTokenIssue{
 		db:    database,
 		local: local,

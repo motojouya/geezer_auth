@@ -7,7 +7,7 @@ import (
 	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
-	"github.com/motojouya/geezer_auth/internal/io"
+	"github.com/motojouya/geezer_auth/internal/local"
 )
 
 type PasswordSetterDB interface {
@@ -20,11 +20,11 @@ type PasswordSetter interface {
 }
 
 type PasswordSet struct {
-	local io.Local
+	local local.Local
 	db    PasswordSetterDB
 }
 
-func NewPasswordSet(local io.Local, db PasswordSetterDB) *PasswordSet {
+func NewPasswordSet(local local.Local, db PasswordSetterDB) *PasswordSet {
 	return &PasswordSet{
 		local: local,
 		db:    db,

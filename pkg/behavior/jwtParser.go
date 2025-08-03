@@ -19,7 +19,7 @@ type JwtParser interface {
 
 var jwtParser *jwt.JwtParse
 
-// FIXME 本来はinternal/io/localのGetEnvを使って環境変数を取得すべきだが、ioパッケージを共通部品として使うのは不自然なので、ここではosパッケージを直接使う形
+// FIXME 本来はinternal/local/localのGetEnvを使って環境変数を取得すべきだが、localパッケージを共通部品として使うのは不自然なので、ここではosパッケージを直接使う形
 // また、osパッケージ自体がローカルマシンに依存したものではあるので、引数で受け取ってコントローラブルにすべき
 func (getter JwtParserGet) GetJwtParser() (*jwt.JwtParse, error) {
 	if jwtParser != nil {

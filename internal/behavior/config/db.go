@@ -3,7 +3,7 @@ package config
 import (
 	shelterConfig "github.com/motojouya/geezer_auth/internal/shelter/config"
 	"github.com/motojouya/geezer_auth/internal/db"
-	"github.com/motojouya/geezer_auth/internal/io"
+	"github.com/motojouya/geezer_auth/internal/local"
 )
 
 type DatabaseGetter interface {
@@ -11,10 +11,10 @@ type DatabaseGetter interface {
 }
 
 type DatabaseGet struct {
-	env io.DBAccessGetter
+	env local.DBAccessGetter
 }
 
-func NewDatabaseGet(env io.DBAccessGetter) *DatabaseGet {
+func NewDatabaseGet(env local.DBAccessGetter) *DatabaseGet {
 	return &DatabaseGet{
 		env: env,
 	}
