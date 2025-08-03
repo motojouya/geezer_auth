@@ -14,7 +14,7 @@ type Localer interface {
 
 type Local struct{}
 
-func CreateLocal() Local {
+func CreateLocal() *Local {
 	return &Local{}
 }
 

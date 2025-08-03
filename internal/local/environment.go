@@ -13,7 +13,7 @@ type Environmenter interface {
 
 type Environment struct{}
 
-func CreateEnvironment() Environment {
+func CreateEnvironment() *Environment {
 	return &Environment{}
 }
 
