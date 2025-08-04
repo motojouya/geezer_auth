@@ -1,6 +1,7 @@
 package user_test
 
 import (
+	"github.com/google/uuid"
 	"github.com/go-gorp/gorp"
 	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
@@ -14,18 +15,69 @@ import (
 	"github.com/motojouya/geezer_auth/internal/behavior/testUtility"
 )
 
+type UserCreatorDB struct {
+	testUtility.SqlExecutorMock
+	t *testing.T
+	expectIdentifier string
+	resultUser *dbUser.User
+	resultAuthentic *dbUser.UserAuthentic
+}
 
-func getLocalerMock(t *testing.T, randomString string, expectLength int, expectSource string, uuid uuid.UUID, uuidErr error, now time.Time) localPkg.Localer {
-	return testUtility.NewLocalerMock(t, randomString, expectLength, expectSource, uuid, uuidErr, now)
+func (db UserCreatorDB) GetUser(identifier string) (*dbUser.User, error) {
+	if db.expectIdentifier != "" && identifier != db.expectIdentifier {
+		db.t.Errorf("Expected identifier %s, got %s", db.expectIdentifier, identifier)
+		return nil, nil
+	}
+
+	return db.resultUser, nil
+}
+
+func (db UserCreatorDB) GetUserAuthentic(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+	if db.expectIdentifier != "" && identifier != db.expectIdentifier {
+		db.t.Errorf("Expected identifier %s, got %s", db.expectIdentifier, identifier)
+		return nil, nil
+	}
+
+	return db.resultAuthentic, nil
+}
+
+type userEntry struct {
+}
+
+func (ue userEntry) ToCoreUser(identifier pkgText.Identifier, now time.Time) (*shelterUser.UnsavedUser, error) {
+	return &shelterUser.UnsavedUser{
+		Identifier: identifier,
+		Name:       "Test User",
+		CreatedAt:  now,
+		UpdatedAt:  now,
+	}, nil
 }
 
 func TestUserCreate(t *testing.T) {
-	// Mock dependencies
-	local := &localPkg.MockLocaler{}
-	db := &userQuery.MockUserCreatorDB{}
+	now := time.Now()
+	localMock := testUtility.NewLocalerMock(t, "TESTES", pkgText.IdentifierLength, pkgText.IdentifierChar, uuid.UUID("UUIDTESTuuidtestUUIDTESTuuidtest"), nil, now)
+	resultUser := &dbUser.User{
+		Identifier: "US-TESTES",
+		Name: "Test User",
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+	resultAuthentic := &dbUser.UserAuthentic{
+		Identifier: "US-TESTES",
+		Name: "Test User",
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+	dbMock := UserCreatorDB{
+		SqlExecutorMock: testUtility.SqlExecutorMock{},
+		t: t,
+		expectIdentifier: "US-TESTES",
+		resultUser: resultUser,
+		resultAuthentic: resultAuthentic,
+	}
 
-	// Create a UserCreate instance
-	creator := user.NewUserCreate(local, db)
+	creator := user.NewUserCreate(localMock, dbMock)
+	result := creator.Execute(userEntry{})
 
 	// Mock the local time
 	local.On("GetNow").Return(time.Now())
