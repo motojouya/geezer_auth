@@ -13,92 +13,105 @@ import (
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/motojouya/geezer_auth/internal/behavior/user"
 	"github.com/motojouya/geezer_auth/internal/behavior/testUtility"
+	"time"
+	"testing"
+	"github.com/stretchr/testify/assert"
 )
 
-type UserCreatorDB struct {
+type userCreatorDBMock struct {
+	getUser func(identifier string) (*dbUser.User, error)
+	getUserAuthentic func(identifier string, now time.Time) (*dbUser.UserAuthentic, error)
 	testUtility.SqlExecutorMock
-	t *testing.T
-	expectIdentifier string
-	resultUser *dbUser.User
-	resultAuthentic *dbUser.UserAuthentic
 }
 
-func (db UserCreatorDB) GetUser(identifier string) (*dbUser.User, error) {
-	if db.expectIdentifier != "" && identifier != db.expectIdentifier {
-		db.t.Errorf("Expected identifier %s, got %s", db.expectIdentifier, identifier)
-		return nil, nil
-	}
-
-	return db.resultUser, nil
+func (mock userCreatorDBMock) GetUser(identifier string) (*dbUser.User, error) {
+	return mock.getUser(identifier)
 }
 
-func (db UserCreatorDB) GetUserAuthentic(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
-	if db.expectIdentifier != "" && identifier != db.expectIdentifier {
-		db.t.Errorf("Expected identifier %s, got %s", db.expectIdentifier, identifier)
-		return nil, nil
-	}
-
-	return db.resultAuthentic, nil
+func (mock userCreatorDBMock) GetUserAuthentic(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+	return mock.getUserAuthentic(identifier, now)
 }
 
-type userEntry struct {
+type userEntryMock struct {
+	toCoreUser func(identifier pkgText.Identifier, now time.Time) (*shelterUser.UnsavedUser, error)
 }
 
-func (ue userEntry) ToCoreUser(identifier pkgText.Identifier, now time.Time) (*shelterUser.UnsavedUser, error) {
-	return &shelterUser.UnsavedUser{
-		Identifier: identifier,
-		Name:       "Test User",
-		CreatedAt:  now,
-		UpdatedAt:  now,
-	}, nil
+func (mock userEntryMock) ToCoreUser(identifier pkgText.Identifier, now time.Time) (*shelterUser.UnsavedUser, error) {
+	return mock.toCoreUser(identifier, now)
 }
 
 func TestUserCreate(t *testing.T) {
-	now := time.Now()
-	localMock := testUtility.NewLocalerMock(t, "TESTES", pkgText.IdentifierLength, pkgText.IdentifierChar, uuid.UUID("UUIDTESTuuidtestUUIDTESTuuidtest"), nil, now)
-	resultUser := &dbUser.User{
-		Identifier: "US-TESTES",
-		Name: "Test User",
-		CreatedAt: now,
-		UpdatedAt: now,
+	var firstNow = time.Now()
+	var getNow = func() time.Time {
+		return firstNow
 	}
-	resultAuthentic := &dbUser.UserAuthentic{
-		Identifier: "US-TESTES",
-		Name: "Test User",
-		CreatedAt: now,
-		UpdatedAt: now,
+	var generateRamdomString = func(length int, charSet string) string {
+		return "TESTES"
 	}
-	dbMock := UserCreatorDB{
-		SqlExecutorMock: testUtility.SqlExecutorMock{},
-		t: t,
-		expectIdentifier: "US-TESTES",
-		resultUser: resultUser,
-		resultAuthentic: resultAuthentic,
+	var localerMock = &testUtility.LocalerMock{
+		FakeGenerateRamdomString: generateRamdomString,
+		FakeGetNow: getNow,
+	}
+
+	var getUser = func(identifier string) (*dbUser.User, error) {
+		assert.Equal(t, "US-TESTES", identifier, "Expected identifier 'US-TESTES'")
+		return &dbUser.User{}, nil
+	}
+	var insert = func(args ...interface{}) error {
+		assert.Equal(t, 1, len(args), "Expected 1 argument")
+
+		user, ok := args[0].(*dbUser.User)
+		if !ok {
+			t.Errorf("Expected first argument to be of type *dbUser.User, got %T", args[0])
+		}
+
+		assert.NotNil(t, user, "Expected user to be not nil")
+		assert.Equal(t, "US-TESTES", user.Identifier, "Expected user identifier 'US-TESTES'")
+
+		return nil
+	}
+	var dbUserAuthentic = &dbUser.UserAuthentic{
+		User
+		CompanyRole *CompanyRole
+		Email       *text.Email
+	} // TODO
+	var getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+		assert.Equal(t, "US-TESTES", identifier, "Expected identifier 'US-TESTES'")
+		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
+		return dbUserAuthentic, nil
+	}
+	var dBMock = userCreatorDBMock{
+		SqlExecutorMock: testUtility.SqlExecutorMock{
+			FakeInsert: insert,
+		},
+		getUserAuthentic: getUserAuthentic,
+		getUser: getUser,
+	}
+
+	var user = &shelterUser.UnsavedUser{
+		Identifier     pkgText.Identifier
+		ExposeEmailId  pkgText.Email
+		Name           pkgText.Name
+		BotFlag        bool
+		RegisteredDate time.Time
+		UpdateDate     time.Time
+	} // TODO
+	var toCoreUser = func(identifier pkgText.Identifier, now time.Time) (*shelterUser.UnsavedUser, error) {
+		assert.Equal(t, "US-TESTES", string(identifier), "Expected identifier 'US-TESTES'")
+		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
+		return user, nil
+	}
+	var entryMock = userEntryMock{
+		toCoreUser: toCoreUser,
 	}
 
 	creator := user.NewUserCreate(localMock, dbMock)
-	result := creator.Execute(userEntry{})
+	result, err := creator.Execute(entryMock)
 
-	// Mock the local time
-	local.On("GetNow").Return(time.Now())
-
-	// Mock the user identifier creation
-	local.On("GenerateRamdomString", pkgText.IdentifierLength, pkgText.IdentifierChar).Return("randomString")
-
-	// Mock the database interactions
-	db.On("GetUser", "randomString").Return(nil, nil)
-
-	// Create a user entry
-	entry := &entryUser.UserGetter{
-		Name: "Test User",
-	}
-
-	// Execute the user creation
-	userAuthentic, err := creator.Execute(entry)
-
-	// Assertions
 	assert.NoError(t, err)
 	assert.NotNil(t, userAuthentic)
-	assert.Equal(t, "Test User", userAuthentic.Name)
+	assert.Equal(t, "US-TESTES", string(userAuthentic.Identifier), "Expected user identifier 'US-TESTES'")
+
+	t.Logf("User created: %+v", userAuthentic)
 }
 

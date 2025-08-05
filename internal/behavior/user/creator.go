@@ -86,5 +86,4 @@ func (creator UserCreate) Execute(entry entryUser.UserGetter) (*shelterUser.User
 	}
 
 	return dbUserAuthentic.ToCoreUserAuthentic()
-
 }

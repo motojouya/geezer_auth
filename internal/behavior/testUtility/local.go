@@ -1,51 +1,41 @@
 package testUtility
 
 import (
-	"testing"
 	"time"
 	"github.com/google/uuid"
 )
 
 type LocalerMock struct {
-	t *testing.T
-	randomString string
-	expectLength int
-	expectSource string
-	uuid         uuid.UUID
-	uuidErr      error
-	now          time.Time
-}
-
-func NewLocalerMock(t *testing.T, randomString string, expectLength int, expectSource string, uuid uuid.UUID, uuidErr error, now time.Time) LocalerMock {
-	return LocalerMock{
-		t:            t,
-		randomString: randomString,
-		expectLength: expectLength,
-		expectSource: expectSource,
-		uuid:         uuid,
-		uuidErr:      uuidErr,
-		now:          now,
-	}
+	FakeGenerateRamdomString func(length int, source string) string
+	FakeGenerateUUID func() (uuid.UUID, error)
+	FakeGetNow func() time.Time
 }
 
 func (mock LocalerMock) GenerateRamdomString(length int, source string) string {
-	if mock.expectLength != 0 && length != mock.expectLength {
-		mock.t.Errorf("Expected length %d, got %d", mock.expectLength, length)
-	}
-	if mock.expectSource != "" && source != mock.expectSource {
-		mock.t.Errorf("Expected source %s, got %s", mock.expectSource, source)
-	}
-	return mock.randomString
+	return mock.FakeGenerateRamdomString(length, source)
 }
 
 func (mock LocalerMock) GenerateUUID() (uuid.UUID, error) {
-	if mock.uuidErr != nil {
-		return uuid.UUID{}, mock.uuidErr
-	} else {
-		return mock.uuid, nil
-	}
+	return mock.FakeGenerateUUID()
 }
 
 func (mock LocalerMock) GetNow() time.Time {
-	return mock.now
+	return mock.FakeGetNow()
 }
+
+// func CreateLocalerMock() *LocalerMock {
+// 	var generateRamdomString = func(length int, source string) string {
+// 		return "mockedRandomString"
+// 	}
+// 	var generateUUID = func() (uuid.UUID, error) {
+// 		return uuid.UUID{}, nil
+// 	}
+// 	var getNow = func() time.Time {
+// 		return time.Now()
+// 	}
+// 	return &LocalerMock{
+// 		generateRamdomString: generateRamdomString,
+// 		generateUUID:         generateUUID,
+// 		getNow:               getNow,
+// 	}
+// }
