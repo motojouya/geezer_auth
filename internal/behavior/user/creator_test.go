@@ -1,15 +1,8 @@
 package user_test
 
 import (
-	"github.com/google/uuid"
-	"github.com/go-gorp/gorp"
-	"github.com/motojouya/geezer_auth/internal/shelter/essence"
-	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
-	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
-	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/motojouya/geezer_auth/internal/behavior/user"
 	"github.com/motojouya/geezer_auth/internal/behavior/testUtility"
@@ -33,14 +26,68 @@ func (mock userCreatorDBMock) GetUserAuthentic(identifier string, now time.Time)
 }
 
 type userEntryMock struct {
-	toCoreUser func(identifier pkgText.Identifier, now time.Time) (*shelterUser.UnsavedUser, error)
+	toCoreUser func(identifier pkgText.Identifier, now time.Time) (shelterUser.UnsavedUser, error)
 }
 
-func (mock userEntryMock) ToCoreUser(identifier pkgText.Identifier, now time.Time) (*shelterUser.UnsavedUser, error) {
+func (mock userEntryMock) ToCoreUser(identifier pkgText.Identifier, now time.Time) (shelterUser.UnsavedUser, error) {
 	return mock.toCoreUser(identifier, now)
 }
 
+func getDbUserAuthentic(id string) *dbUser.UserAuthentic {
+	var companyId = "CP-TESTES"
+	var now = time.Now()
+	var expireDate = now.Add(1 * time.Hour)
+
+	var userCompanyRole1 =  &dbUser.UserCompanyRoleFull{
+		UserCompanyRole: dbUser.UserCompanyRole{
+			PersistKey:        1,
+			UserPersistKey:    2,
+			CompanyPersistKey: 3,
+			RoleLabel:         "TEST_ROLE",
+			RegisterDate:      now,
+			ExpireDate:        &expireDate,
+		},
+		UserIdentifier:        id,
+		UserExposeEmailId:     "test02@example.com",
+		UserName:              "TestUserName",
+		UserBotFlag:           false,
+		UserRegisteredDate:    now.Add(2 * time.Hour),
+		UserUpdateDate:        now.Add(3 * time.Hour),
+		CompanyIdentifier:     companyId,
+		CompanyName:           "TestCompanyName",
+		CompanyRegisteredDate: now.Add(4 * time.Hour),
+		RoleName:              "TestRoleName",
+		RoleDescription:       "TestRoleDescription",
+		RoleRegisteredDate:    now.Add(5 * time.Hour),
+	}
+	var userCompanyRoles = []dbUser.UserCompanyRoleFull{*userCompanyRole1}
+
+	var email = "test01@example.com"
+	return &dbUser.UserAuthentic{
+		UserPersistKey:     2,
+		UserIdentifier:     id,
+		UserExposeEmailId:  "test02@example.com",
+		UserName:           "TestUserName",
+		UserBotFlag:        false,
+		UserRegisteredDate: now,
+		UserUpdateDate:     now.Add(1 * time.Hour),
+		Email:              &email,
+		UserCompanyRole:    userCompanyRoles,
+	}
+}
+
+func getShelterUser(id string) shelterUser.UnsavedUser {
+	var identifier, _ = pkgText.NewIdentifier(id)
+	var emailId, _ = pkgText.NewEmail("test@gmail.com")
+	var name, _ = pkgText.NewName("TestName")
+	var botFlag = false
+	var registeredDate = time.Now()
+
+	return shelterUser.CreateUser(identifier, emailId, name, botFlag, registeredDate)
+}
+
 func TestUserCreate(t *testing.T) {
+	var idStr = "US-TESTES"
 	var firstNow = time.Now()
 	var getNow = func() time.Time {
 		return firstNow
@@ -70,17 +117,13 @@ func TestUserCreate(t *testing.T) {
 
 		return nil
 	}
-	var dbUserAuthentic = &dbUser.UserAuthentic{
-		User
-		CompanyRole *CompanyRole
-		Email       *text.Email
-	} // TODO
+	var dbUserAuthentic = getDbUserAuthentic(idStr)
 	var getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
 		assert.Equal(t, "US-TESTES", identifier, "Expected identifier 'US-TESTES'")
 		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
 		return dbUserAuthentic, nil
 	}
-	var dBMock = userCreatorDBMock{
+	var dbMock = userCreatorDBMock{
 		SqlExecutorMock: testUtility.SqlExecutorMock{
 			FakeInsert: insert,
 		},
@@ -88,30 +131,22 @@ func TestUserCreate(t *testing.T) {
 		getUser: getUser,
 	}
 
-	var user = &shelterUser.UnsavedUser{
-		Identifier     pkgText.Identifier
-		ExposeEmailId  pkgText.Email
-		Name           pkgText.Name
-		BotFlag        bool
-		RegisteredDate time.Time
-		UpdateDate     time.Time
-	} // TODO
-	var toCoreUser = func(identifier pkgText.Identifier, now time.Time) (*shelterUser.UnsavedUser, error) {
+	var shelterUserVal = getShelterUser(idStr)
+	var toCoreUser = func(identifier pkgText.Identifier, now time.Time) (shelterUser.UnsavedUser, error) {
 		assert.Equal(t, "US-TESTES", string(identifier), "Expected identifier 'US-TESTES'")
 		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
-		return user, nil
+		return shelterUserVal, nil
 	}
 	var entryMock = userEntryMock{
 		toCoreUser: toCoreUser,
 	}
 
-	creator := user.NewUserCreate(localMock, dbMock)
+	creator := user.NewUserCreate(localerMock, dbMock)
 	result, err := creator.Execute(entryMock)
 
 	assert.NoError(t, err)
-	assert.NotNil(t, userAuthentic)
-	assert.Equal(t, "US-TESTES", string(userAuthentic.Identifier), "Expected user identifier 'US-TESTES'")
+	assert.NotNil(t, result)
+	assert.Equal(t, "US-TESTES", string(result.Identifier), "Expected user identifier 'US-TESTES'")
 
-	t.Logf("User created: %+v", userAuthentic)
+	t.Logf("User created: %+v", result)
 }
-
