@@ -2,10 +2,10 @@ package company_test
 
 import (
 	"github.com/google/uuid"
+	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	shelter "github.com/motojouya/geezer_auth/internal/shelter/company"
 	"github.com/motojouya/geezer_auth/internal/shelter/role"
 	"github.com/motojouya/geezer_auth/internal/shelter/text"
-	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"

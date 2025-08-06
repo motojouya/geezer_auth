@@ -1,14 +1,14 @@
 package testUtility
 
 import (
-	"time"
 	"github.com/google/uuid"
+	"time"
 )
 
 type LocalerMock struct {
 	FakeGenerateRamdomString func(length int, source string) string
-	FakeGenerateUUID func() (uuid.UUID, error)
-	FakeGetNow func() time.Time
+	FakeGenerateUUID         func() (uuid.UUID, error)
+	FakeGetNow               func() time.Time
 }
 
 func (mock LocalerMock) GenerateRamdomString(length int, source string) string {

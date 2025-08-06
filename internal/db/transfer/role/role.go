@@ -3,9 +3,9 @@ package role
 import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
+	"github.com/motojouya/geezer_auth/internal/db/utility"
 	shelter "github.com/motojouya/geezer_auth/internal/shelter/role"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
-	"github.com/motojouya/geezer_auth/internal/db/utility"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"time"
 )

@@ -1,9 +1,9 @@
 package auth
 
 import (
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	text "github.com/motojouya/geezer_auth/internal/shelter/text"
 	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
-	"github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 

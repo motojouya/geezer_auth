@@ -1,10 +1,10 @@
 package company
 
 import (
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
-	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 )
 
 type CompanyGetResponse struct {

@@ -3,9 +3,9 @@ package user
 import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-gorp/gorp"
+	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"github.com/motojouya/geezer_auth/internal/shelter/text"
 	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
-	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"time"
 )
 

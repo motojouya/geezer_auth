@@ -2,10 +2,10 @@ package user
 
 import (
 	"github.com/go-gorp/gorp"
-	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/db"
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
+	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	"github.com/motojouya/geezer_auth/pkg/shelter/jwt"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )

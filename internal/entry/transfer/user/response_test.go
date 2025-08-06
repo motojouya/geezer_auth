@@ -1,11 +1,11 @@
 package user_test
 
 import (
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	shelter "github.com/motojouya/geezer_auth/internal/shelter/company"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	"github.com/motojouya/geezer_auth/internal/shelter/text"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
-	"github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"

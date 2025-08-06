@@ -1,9 +1,9 @@
 package authorization
 
 import (
+	roleQuery "github.com/motojouya/geezer_auth/internal/db/query/role"
 	"github.com/motojouya/geezer_auth/internal/shelter/authorization"
 	"github.com/motojouya/geezer_auth/internal/shelter/role"
-	roleQuery "github.com/motojouya/geezer_auth/internal/db/query/role"
 )
 
 type AuthorizationGetter interface {

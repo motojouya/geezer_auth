@@ -7,22 +7,22 @@ import (
 )
 
 type SqlExecutorMock struct {
-	FakeWithContext func(ctx context.Context) gorp.SqlExecutor
-	FakeGet func(i interface{}, keys ...interface{}) (interface{}, error)
-	FakeInsert func(list ...interface{}) error
-	FakeUpdate func(list ...interface{}) (int64, error)
-	FakeDelete func(list ...interface{}) (int64, error)
-	FakeExec func(query string, args ...interface{}) (sql.Result, error)
-	FakeSelect func(i interface{}, query string, args ...interface{}) ([]interface{}, error)
-	FakeSelectInt func(query string, args ...interface{}) (int64, error)
-	FakeSelectNullInt func(query string, args ...interface{}) (sql.NullInt64, error)
-	FakeSelectFloat func(query string, args ...interface{}) (float64, error)
+	FakeWithContext     func(ctx context.Context) gorp.SqlExecutor
+	FakeGet             func(i interface{}, keys ...interface{}) (interface{}, error)
+	FakeInsert          func(list ...interface{}) error
+	FakeUpdate          func(list ...interface{}) (int64, error)
+	FakeDelete          func(list ...interface{}) (int64, error)
+	FakeExec            func(query string, args ...interface{}) (sql.Result, error)
+	FakeSelect          func(i interface{}, query string, args ...interface{}) ([]interface{}, error)
+	FakeSelectInt       func(query string, args ...interface{}) (int64, error)
+	FakeSelectNullInt   func(query string, args ...interface{}) (sql.NullInt64, error)
+	FakeSelectFloat     func(query string, args ...interface{}) (float64, error)
 	FakeSelectNullFloat func(query string, args ...interface{}) (sql.NullFloat64, error)
-	FakeSelectStr func(query string, args ...interface{}) (string, error)
-	FakeSelectNullStr func(query string, args ...interface{}) (sql.NullString, error)
-	FakeSelectOne func(holder interface{}, query string, args ...interface{}) error
-	FakeQuery func(query string, args ...interface{}) (*sql.Rows, error)
-	FakeQueryRow func(query string, args ...interface{}) *sql.Row
+	FakeSelectStr       func(query string, args ...interface{}) (string, error)
+	FakeSelectNullStr   func(query string, args ...interface{}) (sql.NullString, error)
+	FakeSelectOne       func(holder interface{}, query string, args ...interface{}) error
+	FakeQuery           func(query string, args ...interface{}) (*sql.Rows, error)
+	FakeQueryRow        func(query string, args ...interface{}) *sql.Row
 }
 
 func (mock SqlExecutorMock) WithContext(ctx context.Context) gorp.SqlExecutor {

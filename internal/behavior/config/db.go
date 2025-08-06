@@ -1,9 +1,9 @@
 package config
 
 import (
-	shelterConfig "github.com/motojouya/geezer_auth/internal/shelter/config"
 	"github.com/motojouya/geezer_auth/internal/db"
 	"github.com/motojouya/geezer_auth/internal/local"
+	shelterConfig "github.com/motojouya/geezer_auth/internal/shelter/config"
 )
 
 type DatabaseGetter interface {

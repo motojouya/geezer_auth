@@ -1,18 +1,18 @@
 package user_test
 
 import (
-	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
-	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
-	"github.com/motojouya/geezer_auth/internal/behavior/user"
 	"github.com/motojouya/geezer_auth/internal/behavior/testUtility"
-	"time"
-	"testing"
+	"github.com/motojouya/geezer_auth/internal/behavior/user"
+	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
+	"testing"
+	"time"
 )
 
 type userCreatorDBMock struct {
-	getUser func(identifier string) (*dbUser.User, error)
+	getUser          func(identifier string) (*dbUser.User, error)
 	getUserAuthentic func(identifier string, now time.Time) (*dbUser.UserAuthentic, error)
 	testUtility.SqlExecutorMock
 }
@@ -38,7 +38,7 @@ func getDbUserAuthentic(id string) *dbUser.UserAuthentic {
 	var now = time.Now()
 	var expireDate = now.Add(1 * time.Hour)
 
-	var userCompanyRole1 =  &dbUser.UserCompanyRoleFull{
+	var userCompanyRole1 = &dbUser.UserCompanyRoleFull{
 		UserCompanyRole: dbUser.UserCompanyRole{
 			PersistKey:        1,
 			UserPersistKey:    2,
@@ -97,7 +97,7 @@ func TestUserCreate(t *testing.T) {
 	}
 	var localerMock = &testUtility.LocalerMock{
 		FakeGenerateRamdomString: generateRamdomString,
-		FakeGetNow: getNow,
+		FakeGetNow:               getNow,
 	}
 
 	var getUser = func(identifier string) (*dbUser.User, error) {
@@ -128,7 +128,7 @@ func TestUserCreate(t *testing.T) {
 			FakeInsert: insert,
 		},
 		getUserAuthentic: getUserAuthentic,
-		getUser: getUser,
+		getUser:          getUser,
 	}
 
 	var shelterUserVal = getShelterUser(idStr)

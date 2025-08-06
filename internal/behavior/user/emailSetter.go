@@ -1,14 +1,14 @@
 package user
 
 import (
-	"github.com/motojouya/geezer_auth/internal/shelter/essence"
-	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
-	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
+	"github.com/motojouya/geezer_auth/internal/shelter/essence"
+	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 )
 
 type EmailSetterDB interface {
