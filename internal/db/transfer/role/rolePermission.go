@@ -30,7 +30,7 @@ var SelectRolePermission = utility.Dialect.From(goqu.T("role_permission").As("rp
 	goqu.I("rp.priority").As("priority"),
 )
 
-func FromCoreRolePermission(r shelter.RolePermission) RolePermission {
+func FromShelterRolePermission(r shelter.RolePermission) RolePermission {
 	return RolePermission{
 		RoleLabel:     string(r.RoleLabel),
 		SelfEdit:      r.SelfEdit,
@@ -41,7 +41,7 @@ func FromCoreRolePermission(r shelter.RolePermission) RolePermission {
 	}
 }
 
-func (r RolePermission) ToCoreRolePermission() (shelter.RolePermission, error) {
+func (r RolePermission) ToShelterRolePermission() (shelter.RolePermission, error) {
 	var label, err = text.NewLabel(r.RoleLabel)
 	if err != nil {
 		return shelter.RolePermission{}, err

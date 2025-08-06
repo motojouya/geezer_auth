@@ -10,14 +10,14 @@ import (
 	"time"
 )
 
-func TestFromCoreRole(t *testing.T) {
+func TestFromShelterRole(t *testing.T) {
 	var name, _ = pkg.NewName("TestRole")
 	var label, _ = pkg.NewLabel("TEST_ROLE")
 	var description, _ = text.NewText("Role for testing")
 	var registeredDate = time.Now()
 
 	var shelterRoleValue = shelterRole.NewRole(name, label, description, registeredDate)
-	var roleValue = role.FromCoreRole(shelterRoleValue)
+	var roleValue = role.FromShelterRole(shelterRoleValue)
 
 	assert.Equal(t, string(name), roleValue.Name)
 	assert.Equal(t, string(label), roleValue.Label)
@@ -27,7 +27,7 @@ func TestFromCoreRole(t *testing.T) {
 	t.Logf("roleValue: %+v", roleValue)
 }
 
-func TestToCoreRole(t *testing.T) {
+func TestToShelterRole(t *testing.T) {
 	var name = "TestRole"
 	var label = "TEST_ROLE"
 	var description = "Role for testing"
@@ -40,7 +40,7 @@ func TestToCoreRole(t *testing.T) {
 		RegisteredDate: registeredDate,
 	}
 
-	var shelterRoleValue, err = roleValue.ToCoreRole()
+	var shelterRoleValue, err = roleValue.ToShelterRole()
 	assert.NoError(t, err)
 
 	assert.Equal(t, name, string(shelterRoleValue.Name))
@@ -51,7 +51,7 @@ func TestToCoreRole(t *testing.T) {
 	t.Logf("shelterRoleValue: %+v", shelterRoleValue)
 }
 
-func TestToCoreRoleErrors(t *testing.T) {
+func TestToShelterRoleErrors(t *testing.T) {
 	var name = "TestRole"
 	var label = "invalid_role"
 	var description = "Role for testing"
@@ -64,6 +64,6 @@ func TestToCoreRoleErrors(t *testing.T) {
 		RegisteredDate: registeredDate,
 	}
 
-	var _, err = roleValue.ToCoreRole()
+	var _, err = roleValue.ToShelterRole()
 	assert.Error(t, err, "Expected error for invalid label")
 }

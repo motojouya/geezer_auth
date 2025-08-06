@@ -51,7 +51,7 @@ func RelateUserCompanyRole(ua *UserAuthentic, ucr UserCompanyRoleFull) (*UserAut
 	}
 }
 
-func (ua UserAuthentic) ToCoreUserAuthentic() (*shelter.UserAuthentic, error) {
+func (ua UserAuthentic) ToShelterUserAuthentic() (*shelter.UserAuthentic, error) {
 	var user, userErr = (User{
 		PersistKey:     ua.UserPersistKey,
 		Identifier:     ua.UserIdentifier,
@@ -60,7 +60,7 @@ func (ua UserAuthentic) ToCoreUserAuthentic() (*shelter.UserAuthentic, error) {
 		BotFlag:        ua.UserBotFlag,
 		RegisteredDate: ua.UserRegisteredDate,
 		UpdateDate:     ua.UserUpdateDate,
-	}).ToCoreUser()
+	}).ToShelterUser()
 	if userErr != nil {
 		return &shelter.UserAuthentic{}, userErr
 	}
@@ -76,7 +76,7 @@ func (ua UserAuthentic) ToCoreUserAuthentic() (*shelter.UserAuthentic, error) {
 
 	var shelterUserCompanyRoles = make([]shelter.UserCompanyRole, 0, len(ua.UserCompanyRole))
 	for _, ucr := range ua.UserCompanyRole {
-		var shelterUserCompanyRole, companyRoleErr = ucr.ToCoreUserCompanyRole()
+		var shelterUserCompanyRole, companyRoleErr = ucr.ToShelterUserCompanyRole()
 		if companyRoleErr != nil {
 			return &shelter.UserAuthentic{}, companyRoleErr
 		}

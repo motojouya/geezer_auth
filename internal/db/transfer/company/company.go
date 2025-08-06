@@ -27,7 +27,7 @@ var SelectCompany = utility.Dialect.From(goqu.T("company").As("c")).Select(
 	goqu.I("c.register_date").As("register_date"),
 )
 
-func FromCoreCompany(shelterCompany shelter.UnsavedCompany) Company {
+func FromShelterCompany(shelterCompany shelter.UnsavedCompany) Company {
 	// PersistKey is zero value
 	return Company{
 		Identifier:     string(shelterCompany.Identifier),
@@ -36,7 +36,7 @@ func FromCoreCompany(shelterCompany shelter.UnsavedCompany) Company {
 	}
 }
 
-func (c Company) ToCoreCompany() (shelter.Company, error) {
+func (c Company) ToShelterCompany() (shelter.Company, error) {
 	var identifier, idErr = text.NewIdentifier(c.Identifier)
 	if idErr != nil {
 		return shelter.Company{}, idErr

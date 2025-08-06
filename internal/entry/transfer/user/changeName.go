@@ -14,7 +14,7 @@ type UserChangeNameRequest struct {
 	UserChangeName UserChangeName `http:"body"`
 }
 
-func (u UserChangeNameRequest) ToCoreUser(user shelter.User, updateDate time.Time) (shelter.User, error) {
+func (u UserChangeNameRequest) ToShelterUser(user shelter.User, updateDate time.Time) (shelter.User, error) {
 	var name, nameErr = pkgText.NewName(u.UserChangeName.Name)
 	if nameErr != nil {
 		return shelter.User{}, nameErr

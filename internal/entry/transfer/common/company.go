@@ -9,7 +9,7 @@ type Company struct {
 	Name       string
 }
 
-func FromCoreCompany(c shelter.Company) Company {
+func FromShelterCompany(c shelter.Company) Company {
 	return Company{
 		Identifier: string(c.Identifier),
 		Name:       string(c.Name),

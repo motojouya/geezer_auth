@@ -21,15 +21,15 @@ type RoleGetResponse struct {
 	Roles []common.Role `json:"roles"`
 }
 
-func FromCoreRoles(shelterRoles []shelterRole.Role) RoleGetResponse {
-	var roles = essence.Map(shelterRoles, common.FromCoreRole)
+func FromShelterRoles(shelterRoles []shelterRole.Role) RoleGetResponse {
+	var roles = essence.Map(shelterRoles, common.FromShelterRole)
 	return RoleGetResponse{
 		Roles: roles,
 	}
 }
 
-func FromCoreUserAuthenticToGetResponse(shelterUser *shelterUser.UserAuthentic) *CompanyUserResponse {
-	var commonUser = common.FromCoreUser(shelterUser)
+func FromShelterUserAuthenticToGetResponse(shelterUser *shelterUser.UserAuthentic) *CompanyUserResponse {
+	var commonUser = common.FromShelterUser(shelterUser)
 	return &CompanyUserResponse{
 		UserGetResponse: user.UserGetResponse{
 			User: *commonUser,

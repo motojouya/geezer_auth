@@ -56,7 +56,7 @@ var SelectUserRefreshToken = utility.Dialect.From(goqu.T("user_refresh_token").A
 	goqu.I("urt.expire_date").As("expire_date"),
 )
 
-func FromCoreUserRefreshToken(shelterUserRefreshToken shelter.UnsavedUserRefreshToken) UserRefreshToken {
+func FromShelterUserRefreshToken(shelterUserRefreshToken shelter.UnsavedUserRefreshToken) UserRefreshToken {
 	return UserRefreshToken{
 		UserPersistKey: shelterUserRefreshToken.User.PersistKey,
 		RefreshToken:   string(shelterUserRefreshToken.RefreshToken),
@@ -65,7 +65,7 @@ func FromCoreUserRefreshToken(shelterUserRefreshToken shelter.UnsavedUserRefresh
 	}
 }
 
-func (u UserRefreshTokenFull) ToCoreUserRefreshToken() (shelter.UserRefreshToken, error) {
+func (u UserRefreshTokenFull) ToShelterUserRefreshToken() (shelter.UserRefreshToken, error) {
 	var user, userErr = (User{
 		PersistKey:     u.UserPersistKey,
 		Identifier:     u.UserIdentifier,
@@ -74,7 +74,7 @@ func (u UserRefreshTokenFull) ToCoreUserRefreshToken() (shelter.UserRefreshToken
 		BotFlag:        u.UserBotFlag,
 		RegisteredDate: u.UserRegisteredDate,
 		UpdateDate:     u.UserUpdateDate,
-	}).ToCoreUser()
+	}).ToShelterUser()
 	if userErr != nil {
 		return shelter.UserRefreshToken{}, userErr
 	}

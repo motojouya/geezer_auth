@@ -63,7 +63,7 @@ var SelectCompanyInvite = utility.Dialect.From(goqu.T("company_invite").As("ci")
 	goqu.I("ci.expire_date").As("expire_date"),
 )
 
-func FromCoreCompanyInvite(invite shelter.CompanyInvite) CompanyInvite {
+func FromShelterCompanyInvite(invite shelter.CompanyInvite) CompanyInvite {
 	return CompanyInvite{
 		CompanyPersistKey: invite.Company.PersistKey,
 		Token:             string(invite.Token),
@@ -73,13 +73,13 @@ func FromCoreCompanyInvite(invite shelter.CompanyInvite) CompanyInvite {
 	}
 }
 
-func (c CompanyInviteFull) ToCoreCompanyInvite() (shelter.CompanyInvite, error) {
+func (c CompanyInviteFull) ToShelterCompanyInvite() (shelter.CompanyInvite, error) {
 	var company, companyErr = (Company{
 		PersistKey:     c.CompanyPersistKey,
 		Identifier:     c.CompanyIdentifier,
 		Name:           c.CompanyName,
 		RegisteredDate: c.CompanyRegisteredDate,
-	}).ToCoreCompany()
+	}).ToShelterCompany()
 	if companyErr != nil {
 		return shelter.CompanyInvite{}, companyErr
 	}
@@ -89,7 +89,7 @@ func (c CompanyInviteFull) ToCoreCompanyInvite() (shelter.CompanyInvite, error) 
 		Name:           c.RoleName,
 		Description:    c.RoleDescription,
 		RegisteredDate: c.RoleRegisteredDate,
-	}).ToCoreRole()
+	}).ToShelterRole()
 	if roleErr != nil {
 		return shelter.CompanyInvite{}, roleErr
 	}

@@ -21,7 +21,7 @@ func getUserForUserEmail(persistKey uint) shelter.User {
 	return shelter.NewUser(persistKey, identifier, name, emailId, botFlag, registeredDate, updateDate)
 }
 
-func TestFromCoreUserEmail(t *testing.T) {
+func TestFromShelterUserEmail(t *testing.T) {
 	var persistKey uint = 1
 	var userValue = getUserForUserEmail(persistKey)
 
@@ -30,7 +30,7 @@ func TestFromCoreUserEmail(t *testing.T) {
 	var registerDate = time.Now()
 
 	var shelterUserEmail = shelter.CreateUserEmail(userValue, email, verifyToken, registerDate)
-	var userEmail = user.FromCoreUserEmail(shelterUserEmail)
+	var userEmail = user.FromShelterUserEmail(shelterUserEmail)
 
 	assert.Equal(t, uint(0), userEmail.PersistKey)
 	assert.Equal(t, persistKey, userEmail.UserPersistKey)
@@ -41,7 +41,7 @@ func TestFromCoreUserEmail(t *testing.T) {
 	assert.Nil(t, userEmail.ExpireDate)
 }
 
-func TestToCoreUserEmail(t *testing.T) {
+func TestToShelterUserEmail(t *testing.T) {
 	var now = time.Now()
 	var verifiyDate = now.Add(1 * time.Hour)
 	var expireDate = now.Add(1 * time.Hour)
@@ -63,7 +63,7 @@ func TestToCoreUserEmail(t *testing.T) {
 		UserUpdateDate:     now.Add(3 * time.Hour),
 	}
 
-	var shelterUserEmail, err = userEmail.ToCoreUserEmail()
+	var shelterUserEmail, err = userEmail.ToShelterUserEmail()
 
 	assert.NoError(t, err)
 	assert.Equal(t, userEmail.PersistKey, shelterUserEmail.PersistKey)
@@ -85,7 +85,7 @@ func TestToCoreUserEmail(t *testing.T) {
 	t.Logf("shelterUserEmail.ExpireDate: %s", *shelterUserEmail.ExpireDate)
 }
 
-func TestToCoreUserEmailError(t *testing.T) {
+func TestToShelterUserEmailError(t *testing.T) {
 	var now = time.Now()
 	var verifiyDate = now.Add(1 * time.Hour)
 	var expireDate = now.Add(1 * time.Hour)
@@ -107,7 +107,7 @@ func TestToCoreUserEmailError(t *testing.T) {
 		UserUpdateDate:     now.Add(3 * time.Hour),
 	}
 
-	var _, err = userEmail.ToCoreUserEmail()
+	var _, err = userEmail.ToShelterUserEmail()
 
 	assert.Error(t, err)
 

@@ -26,7 +26,7 @@ func getRoles(label pkgText.Label) []shelterRole.Role {
 	return []shelterRole.Role{shelterRole.NewRole(roleName, label, description, registeredDate)}
 }
 
-func TestFromCoreUserAuthenticToRefreshResponse(t *testing.T) {
+func TestFromShelterUserAuthenticToRefreshResponse(t *testing.T) {
 	var userId uint = 1
 	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
@@ -49,14 +49,14 @@ func TestFromCoreUserAuthenticToRefreshResponse(t *testing.T) {
 
 	var accessToken = pkgText.NewJwtToken("access_token")
 
-	var refreshTokenResponse = auth.FromCoreUserAuthenticToRefreshResponse(shelterUserObj, accessToken)
+	var refreshTokenResponse = auth.FromShelterUserAuthenticToRefreshResponse(shelterUserObj, accessToken)
 
 	assert.NotNil(t, refreshTokenResponse)
 	assert.Equal(t, string(userIdentifier), refreshTokenResponse.User.Identifier)
 	assert.Equal(t, string(accessToken), refreshTokenResponse.AccessToken)
 }
 
-func TestFromCoreUserAuthenticToLoginResponse(t *testing.T) {
+func TestFromShelterUserAuthenticToLoginResponse(t *testing.T) {
 	var userId uint = 1
 	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
@@ -80,7 +80,7 @@ func TestFromCoreUserAuthenticToLoginResponse(t *testing.T) {
 	var accessToken = pkgText.NewJwtToken("access_token")
 	var refreshToken, _ = text.NewToken("refresh_token")
 
-	var refreshTokenResponse = auth.FromCoreUserAuthenticToLoginResponse(shelterUserObj, refreshToken, accessToken)
+	var refreshTokenResponse = auth.FromShelterUserAuthenticToLoginResponse(shelterUserObj, refreshToken, accessToken)
 
 	assert.NotNil(t, refreshTokenResponse)
 	assert.Equal(t, string(userIdentifier), refreshTokenResponse.User.Identifier)

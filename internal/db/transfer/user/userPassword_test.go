@@ -21,7 +21,7 @@ func getUserForPassword(persistKey uint) shelter.User {
 	return shelter.NewUser(persistKey, identifier, name, emailId, botFlag, registeredDate, updateDate)
 }
 
-func TestFromCoreUserPassword(t *testing.T) {
+func TestFromShelterUserPassword(t *testing.T) {
 	var persistKey uint = 1
 	var userValue = getUserForPassword(persistKey)
 
@@ -30,7 +30,7 @@ func TestFromCoreUserPassword(t *testing.T) {
 
 	var shelterUserPassword = shelter.CreateUserPassword(userValue, password, registerDate)
 
-	var userPassword = user.FromCoreUserPassword(shelterUserPassword)
+	var userPassword = user.FromShelterUserPassword(shelterUserPassword)
 
 	assert.Equal(t, uint(0), userPassword.PersistKey)
 	assert.Equal(t, persistKey, userPassword.UserPersistKey)
@@ -41,7 +41,7 @@ func TestFromCoreUserPassword(t *testing.T) {
 	t.Logf("userPassword: %+v", userPassword)
 }
 
-func TestToCoreUserPassword(t *testing.T) {
+func TestToShelterUserPassword(t *testing.T) {
 	var now = time.Now()
 	var expireDate = now.Add(1 * time.Hour)
 	var userPasswordFull = user.UserPasswordFull{
@@ -60,7 +60,7 @@ func TestToCoreUserPassword(t *testing.T) {
 		UserUpdateDate:     now.Add(2 * time.Hour),
 	}
 
-	var shelterUserPassword, err = userPasswordFull.ToCoreUserPassword()
+	var shelterUserPassword, err = userPasswordFull.ToShelterUserPassword()
 	assert.NoError(t, err)
 
 	assert.Equal(t, userPasswordFull.PersistKey, shelterUserPassword.PersistKey)
@@ -73,7 +73,7 @@ func TestToCoreUserPassword(t *testing.T) {
 	t.Logf("shelterUserPassword.ExpireDate: %s", *shelterUserPassword.ExpireDate)
 }
 
-func TestToCoreUserPasswordError(t *testing.T) {
+func TestToShelterUserPasswordError(t *testing.T) {
 	var now = time.Now()
 	var expireDate = now.Add(1 * time.Hour)
 	var userPasswordFull = user.UserPasswordFull{
@@ -92,7 +92,7 @@ func TestToCoreUserPasswordError(t *testing.T) {
 		UserUpdateDate:     now.Add(2 * time.Hour),
 	}
 
-	var _, err = userPasswordFull.ToCoreUserPassword()
+	var _, err = userPasswordFull.ToShelterUserPassword()
 
 	assert.Error(t, err, "Expected error due to invalid user data")
 

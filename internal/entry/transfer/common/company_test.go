@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func TestFromCoreCompany(t *testing.T) {
+func TestFromShelterCompany(t *testing.T) {
 	var persistKey uint = 1
 	var identifier, _ = text.NewIdentifier("CP-TESTES")
 	var name, _ = text.NewName("TestRole")
@@ -17,7 +17,7 @@ func TestFromCoreCompany(t *testing.T) {
 
 	var shelterCompany = company.NewCompany(persistKey, identifier, name, registeredDate)
 
-	var transferCompany = common.FromCoreCompany(shelterCompany)
+	var transferCompany = common.FromShelterCompany(shelterCompany)
 
 	assert.Equal(t, string(identifier), transferCompany.Identifier)
 	assert.Equal(t, string(name), transferCompany.Name)

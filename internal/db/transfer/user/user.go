@@ -33,7 +33,7 @@ var SelectUser = utility.Dialect.From(goqu.T("users").As("u")).Select(
 	goqu.I("u.update_date").As("update_date"),
 )
 
-func FromCoreUser(shelterUser shelter.UnsavedUser) User {
+func FromShelterUser(shelterUser shelter.UnsavedUser) User {
 	return User{
 		Identifier:     string(shelterUser.Identifier),
 		ExposeEmailId:  string(shelterUser.ExposeEmailId),
@@ -44,7 +44,7 @@ func FromCoreUser(shelterUser shelter.UnsavedUser) User {
 	}
 }
 
-func (u User) ToCoreUser() (shelter.User, error) {
+func (u User) ToShelterUser() (shelter.User, error) {
 	var identifier, idErr = text.NewIdentifier(u.Identifier)
 	if idErr != nil {
 		return shelter.User{}, idErr

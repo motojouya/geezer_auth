@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func TestToCoreCompany(t *testing.T) {
+func TestToShelterCompany(t *testing.T) {
 	var name = "TestCompany"
 
 	var request = company.CompanyCreateRequest{
@@ -20,7 +20,7 @@ func TestToCoreCompany(t *testing.T) {
 	var identifier, _ = text.NewIdentifier("CP-TESTES")
 	var registerDate = time.Now()
 
-	shelterCompany, err := request.ToCoreCompany(identifier, registerDate)
+	shelterCompany, err := request.ToShelterCompany(identifier, registerDate)
 	assert.Nil(t, err)
 
 	assert.Equal(t, identifier, shelterCompany.Identifier)

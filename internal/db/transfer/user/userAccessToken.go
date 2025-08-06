@@ -59,7 +59,7 @@ var SelectUserAccessToken = utility.Dialect.From(goqu.T("user_access_token").As(
 	goqu.I("uat.expire_date").As("expire_date"),
 )
 
-func FromCoreUserAccessToken(shelterUserAccessToken shelter.UnsavedUserAccessToken) UserAccessToken {
+func FromShelterUserAccessToken(shelterUserAccessToken shelter.UnsavedUserAccessToken) UserAccessToken {
 	return UserAccessToken{
 		UserPersistKey:   shelterUserAccessToken.User.PersistKey,
 		AccessToken:      string(shelterUserAccessToken.AccessToken),
@@ -69,7 +69,7 @@ func FromCoreUserAccessToken(shelterUserAccessToken shelter.UnsavedUserAccessTok
 	}
 }
 
-func (ua UserAccessTokenFull) ToCoreUserAccessToken() (shelter.UserAccessToken, error) {
+func (ua UserAccessTokenFull) ToShelterUserAccessToken() (shelter.UserAccessToken, error) {
 	var user, userErr = (User{
 		PersistKey:     ua.UserPersistKey,
 		Identifier:     ua.UserIdentifier,
@@ -78,7 +78,7 @@ func (ua UserAccessTokenFull) ToCoreUserAccessToken() (shelter.UserAccessToken, 
 		BotFlag:        ua.UserBotFlag,
 		RegisteredDate: ua.UserRegisteredDate,
 		UpdateDate:     ua.UserUpdateDate,
-	}).ToCoreUser()
+	}).ToShelterUser()
 	if userErr != nil {
 		return shelter.UserAccessToken{}, userErr
 	}

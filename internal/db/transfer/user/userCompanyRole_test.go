@@ -39,7 +39,7 @@ func getRole(label pkgText.Label) role.Role {
 	return role.NewRole(name, label, description, registeredDate)
 }
 
-func TestFromCoreUserCompanyRole(t *testing.T) {
+func TestFromShelterUserCompanyRole(t *testing.T) {
 	var userPersistKey uint = 1
 	var userValue = getUserForCompanyRole(userPersistKey)
 
@@ -52,7 +52,7 @@ func TestFromCoreUserCompanyRole(t *testing.T) {
 	var registerDate = time.Now()
 
 	var shelterUserCompanyRole = shelter.CreateUserCompanyRole(userValue, company, role, registerDate)
-	var userCompanyRole = user.FromCoreUserCompanyRole(shelterUserCompanyRole)
+	var userCompanyRole = user.FromShelterUserCompanyRole(shelterUserCompanyRole)
 
 	assert.Equal(t, uint(0), userCompanyRole.PersistKey)
 	assert.Equal(t, userPersistKey, userCompanyRole.UserPersistKey)
@@ -64,7 +64,7 @@ func TestFromCoreUserCompanyRole(t *testing.T) {
 	t.Logf("userCompanyRole: %+v", userCompanyRole)
 }
 
-func TestToCoreUserCompanyRole(t *testing.T) {
+func TestToShelterUserCompanyRole(t *testing.T) {
 	var now = time.Now()
 	var expireDate = now.Add(1 * time.Hour)
 	var userCompanyRoleFull = &user.UserCompanyRoleFull{
@@ -90,7 +90,7 @@ func TestToCoreUserCompanyRole(t *testing.T) {
 		RoleRegisteredDate:    now.Add(5 * time.Hour),
 	}
 
-	var shelterUserCompanyRole, err = userCompanyRoleFull.ToCoreUserCompanyRole()
+	var shelterUserCompanyRole, err = userCompanyRoleFull.ToShelterUserCompanyRole()
 
 	assert.NoError(t, err)
 	assert.Equal(t, userCompanyRoleFull.PersistKey, shelterUserCompanyRole.PersistKey)
@@ -104,7 +104,7 @@ func TestToCoreUserCompanyRole(t *testing.T) {
 	t.Logf("shelterUserCompanyRole.ExpireDate: %s", *shelterUserCompanyRole.ExpireDate)
 }
 
-func TestToCoreUserCompanyRoleError(t *testing.T) {
+func TestToShelterUserCompanyRoleError(t *testing.T) {
 	var now = time.Now()
 	var expireDate = now.Add(1 * time.Hour)
 	var userCompanyRoleFull = &user.UserCompanyRoleFull{
@@ -130,7 +130,7 @@ func TestToCoreUserCompanyRoleError(t *testing.T) {
 		RoleRegisteredDate:    now.Add(5 * time.Hour),
 	}
 
-	var _, err = userCompanyRoleFull.ToCoreUserCompanyRole()
+	var _, err = userCompanyRoleFull.ToShelterUserCompanyRole()
 
 	assert.Error(t, err)
 

@@ -44,7 +44,7 @@ func (issuer AccessTokenIssue) Execute(userAuthentic *shelterUser.UserAuthentic)
 
 	// token期限切れ間近の場合に再発行したいという要件がありそうなので、2つまで発行する
 	if len(dbAccessTokens) > 1 {
-		userAccessToken, err := dbAccessTokens[0].ToCoreUserAccessToken()
+		userAccessToken, err := dbAccessTokens[0].ToShelterUserAccessToken()
 		if err != nil {
 			return pkgText.JwtToken(""), err
 		}

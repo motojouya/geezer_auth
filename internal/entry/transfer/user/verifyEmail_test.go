@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func TestVerifyEmailToCoreUserEmail(t *testing.T) {
+func TestVerifyEmailToShelterUserEmail(t *testing.T) {
 	var email = "test@example.com"
 	var verifyToken = "verify_token_example"
 	var userVerifyEmailRequest = user.UserVerifyEmailRequest{
@@ -22,7 +22,7 @@ func TestVerifyEmailToCoreUserEmail(t *testing.T) {
 	var userIdentifier, _ = pkgText.NewIdentifier("US-TESTES")
 	var shelterUser = getUserForVerifyEmail(userIdentifier)
 
-	var shelterUserEmail, err = userVerifyEmailRequest.ToCoreUserEmail(shelterUser, time.Now())
+	var shelterUserEmail, err = userVerifyEmailRequest.ToShelterUserEmail(shelterUser, time.Now())
 
 	assert.Nil(t, err)
 	assert.NotNil(t, shelterUserEmail)
@@ -31,7 +31,7 @@ func TestVerifyEmailToCoreUserEmail(t *testing.T) {
 	assert.Equal(t, verifyToken, string(shelterUserEmail.VerifyToken))
 }
 
-func TestVerifyEmailToCoreUserEmailError(t *testing.T) {
+func TestVerifyEmailToShelterUserEmailError(t *testing.T) {
 	var email = "testexample.com"
 	var verifyToken = "verify_token_example"
 	var userVerifyEmailRequest = user.UserVerifyEmailRequest{
@@ -44,7 +44,7 @@ func TestVerifyEmailToCoreUserEmailError(t *testing.T) {
 	var userIdentifier, _ = pkgText.NewIdentifier("US-TESTES")
 	var shelterUser = getUserForVerifyEmail(userIdentifier)
 
-	var _, err = userVerifyEmailRequest.ToCoreUserEmail(shelterUser, time.Now())
+	var _, err = userVerifyEmailRequest.ToShelterUserEmail(shelterUser, time.Now())
 
 	assert.Error(t, err)
 }

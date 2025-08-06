@@ -32,7 +32,7 @@ func (getter AuthorizationGet) GetAuthorization() (*authorization.Authorization,
 
 	permissions := make([]role.RolePermission, len(dbRolePermissions))
 	for _, dbRolePermission := range dbRolePermissions {
-		rolePermission, err := dbRolePermission.ToCoreRolePermission()
+		rolePermission, err := dbRolePermission.ToShelterRolePermission()
 		if err != nil {
 			return nil, err
 		}

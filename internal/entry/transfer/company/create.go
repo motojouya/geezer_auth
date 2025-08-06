@@ -14,7 +14,7 @@ type CompanyCreateRequest struct {
 	CompanyCreate CompanyCreate `http:"body"`
 }
 
-func (c CompanyCreateRequest) ToCoreCompany(identifier pkgText.Identifier, registerDate time.Time) (shelter.UnsavedCompany, error) {
+func (c CompanyCreateRequest) ToShelterCompany(identifier pkgText.Identifier, registerDate time.Time) (shelter.UnsavedCompany, error) {
 	var name, nameErr = pkgText.NewName(c.CompanyCreate.Name)
 	if nameErr != nil {
 		return shelter.UnsavedCompany{}, nameErr

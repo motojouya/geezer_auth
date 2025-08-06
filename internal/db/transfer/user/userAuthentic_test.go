@@ -34,7 +34,7 @@ func getUserCompanyRoleFull(persistKey uint, userPersistKey uint, userId string,
 	}
 }
 
-func TestToCoreUserAuthentic(t *testing.T) {
+func TestToShelterUserAuthentic(t *testing.T) {
 
 	var userId = "US-TESTES"
 	var companyId = "CP-TESTES"
@@ -56,7 +56,7 @@ func TestToCoreUserAuthentic(t *testing.T) {
 		UserCompanyRole:    userCompanyRoles,
 	}
 
-	var shelterUserAuthentic, err = userAuthentic.ToCoreUserAuthentic()
+	var shelterUserAuthentic, err = userAuthentic.ToShelterUserAuthentic()
 
 	assert.Nil(t, err)
 
@@ -79,7 +79,7 @@ func TestToCoreUserAuthentic(t *testing.T) {
 	t.Logf("shelterUserAuthentic.CompanyRole: %v", *shelterUserAuthentic.CompanyRole)
 }
 
-func TestToCoreUserAuthenticError(t *testing.T) {
+func TestToShelterUserAuthenticError(t *testing.T) {
 
 	var userId = "US-TESTES"
 	var companyId = "CP-TESTES"
@@ -101,7 +101,7 @@ func TestToCoreUserAuthenticError(t *testing.T) {
 		UserCompanyRole:    userCompanyRoles,
 	}
 
-	var _, err = userAuthentic.ToCoreUserAuthentic()
+	var _, err = userAuthentic.ToShelterUserAuthentic()
 
 	assert.Error(t, err)
 

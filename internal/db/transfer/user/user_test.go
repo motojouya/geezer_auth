@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func TestFromCoreUser(t *testing.T) {
+func TestFromShelterUser(t *testing.T) {
 	var identifier, _ = text.NewIdentifier("US-TESTES")
 	var emailId, _ = text.NewEmail("test@gmail.com")
 	var name, _ = text.NewName("TestName")
@@ -17,7 +17,7 @@ func TestFromCoreUser(t *testing.T) {
 	var registeredDate = time.Now()
 
 	var shelterUser = shelter.CreateUser(identifier, emailId, name, botFlag, registeredDate)
-	var transferUser = user.FromCoreUser(shelterUser)
+	var transferUser = user.FromShelterUser(shelterUser)
 
 	assert.Equal(t, uint(0), transferUser.PersistKey)
 	assert.Equal(t, string(identifier), string(transferUser.Identifier))
@@ -30,7 +30,7 @@ func TestFromCoreUser(t *testing.T) {
 	t.Logf("transferUser: %+v", transferUser)
 }
 
-func TestToCoreUser(t *testing.T) {
+func TestToShelterUser(t *testing.T) {
 	var persistKey uint = 1
 	var identifier = "US-TESTES"
 	var emailId = "test@gmail.com"
@@ -49,7 +49,7 @@ func TestToCoreUser(t *testing.T) {
 		UpdateDate:     updateDate,
 	}
 
-	var shelterUser, err = user.ToCoreUser()
+	var shelterUser, err = user.ToShelterUser()
 
 	assert.NoError(t, err)
 	assert.Equal(t, persistKey, shelterUser.PersistKey)
@@ -63,7 +63,7 @@ func TestToCoreUser(t *testing.T) {
 	t.Logf("shelterUser: %+v", shelterUser)
 }
 
-func TestToCoreUserErr(t *testing.T) {
+func TestToShelterUserErr(t *testing.T) {
 	var persistKey uint = 1
 	var identifier = "invalid-identifier"
 	var emailId = "test@gmail.com"
@@ -82,7 +82,7 @@ func TestToCoreUserErr(t *testing.T) {
 		UpdateDate:     updateDate,
 	}
 
-	var _, err = user.ToCoreUser()
+	var _, err = user.ToShelterUser()
 	assert.Error(t, err)
 
 	t.Logf("error: %v", err)

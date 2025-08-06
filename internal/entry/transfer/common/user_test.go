@@ -26,7 +26,7 @@ func getRole(label pkgText.Label) role.Role {
 	return role.NewRole(roleName, label, description, registeredDate)
 }
 
-func TestFromCoreUser(t *testing.T) {
+func TestFromShelterUser(t *testing.T) {
 	var identifier, _ = pkgText.NewIdentifier("CP-TESTES")
 	var company = getCompany(identifier)
 
@@ -53,7 +53,7 @@ func TestFromCoreUser(t *testing.T) {
 
 	var shelterUserAuthentic = user.NewUserAuthentic(shelterUser, companyRole, &email)
 
-	var transferUser = common.FromCoreUser(shelterUserAuthentic)
+	var transferUser = common.FromShelterUser(shelterUserAuthentic)
 
 	assert.Equal(t, string(userIdentifier), transferUser.Identifier)
 	assert.Equal(t, string(emailId), transferUser.IdentifierEmail)

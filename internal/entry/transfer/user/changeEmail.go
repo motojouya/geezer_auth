@@ -15,7 +15,7 @@ type UserChangeEmailRequest struct {
 	UserChangeEmail UserChangeEmail `http:"body"`
 }
 
-func (u UserChangeEmailRequest) ToCoreUserEmail(user shelter.User, verifyToken text.Token, registerDate time.Time) (*shelter.UnsavedUserEmail, error) {
+func (u UserChangeEmailRequest) ToShelterUserEmail(user shelter.User, verifyToken text.Token, registerDate time.Time) (*shelter.UnsavedUserEmail, error) {
 	var email, emailErr = pkgText.NewEmail(u.UserChangeEmail.Email)
 	if emailErr != nil {
 		return &shelter.UnsavedUserEmail{}, emailErr

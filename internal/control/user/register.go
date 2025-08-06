@@ -85,5 +85,5 @@ var RegisterExecute = utility.Transact(func(control *RegisterControl, entry entr
 		return nil, err
 	}
 
-	return entryUser.FromCoreUserAuthenticToRegisterResponse(userAuthentic, refreshToken, accessToken), nil
+	return entryUser.FromShelterUserAuthenticToRegisterResponse(userAuthentic, refreshToken, accessToken), nil
 })

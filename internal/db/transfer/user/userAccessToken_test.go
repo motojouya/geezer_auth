@@ -20,7 +20,7 @@ func getUserForAccessToken(persistKey uint) shelter.User {
 	return shelter.NewUser(persistKey, identifier, name, emailId, botFlag, registeredDate, updateDate)
 }
 
-func TestFromCoreUserAccessToken(t *testing.T) {
+func TestFromShelterUserAccessToken(t *testing.T) {
 	var persistKey uint = 1
 	var shelterUser = getUserForAccessToken(persistKey)
 
@@ -30,7 +30,7 @@ func TestFromCoreUserAccessToken(t *testing.T) {
 
 	var shelterUserAccessToken = shelter.CreateUserAccessToken(shelterUser, accessToken, registerDate, expireDate)
 
-	var userAccessToken = user.FromCoreUserAccessToken(shelterUserAccessToken)
+	var userAccessToken = user.FromShelterUserAccessToken(shelterUserAccessToken)
 
 	assert.Equal(t, uint(0), userAccessToken.PersistKey)
 	assert.Equal(t, persistKey, userAccessToken.UserPersistKey)
@@ -42,7 +42,7 @@ func TestFromCoreUserAccessToken(t *testing.T) {
 	t.Logf("userAccessToken: %+v", userAccessToken)
 }
 
-func TestToCoreUserAccessToken(t *testing.T) {
+func TestToShelterUserAccessToken(t *testing.T) {
 	var userPersistKey uint = 1
 	var userIdentifier = "US-TESTES"
 	var userEmailId = "test@gmail.com"
@@ -74,7 +74,7 @@ func TestToCoreUserAccessToken(t *testing.T) {
 		UserUpdateDate:     userUpdateDate,
 	}
 
-	var shelterUserAccessToken, err = userAccessToken.ToCoreUserAccessToken()
+	var shelterUserAccessToken, err = userAccessToken.ToShelterUserAccessToken()
 
 	assert.NoError(t, err)
 	assert.Equal(t, persistKey, shelterUserAccessToken.PersistKey)

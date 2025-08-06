@@ -26,7 +26,7 @@ func getRoles(label pkgText.Label) []shelterRole.Role {
 	return []shelterRole.Role{shelterRole.NewRole(roleName, label, description, registeredDate)}
 }
 
-func TestFromCoreUserAuthenticToGetResponse(t *testing.T) {
+func TestFromShelterUserAuthenticToGetResponse(t *testing.T) {
 	var userId uint = 1
 	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
@@ -47,13 +47,13 @@ func TestFromCoreUserAuthenticToGetResponse(t *testing.T) {
 	var email, _ = pkgText.NewEmail("test_2@gmail.com")
 	var shelterUserObj = shelterUser.NewUserAuthentic(userValue, companyRole, &email)
 
-	var getResponse = user.FromCoreUserAuthenticToGetResponse(shelterUserObj)
+	var getResponse = user.FromShelterUserAuthenticToGetResponse(shelterUserObj)
 
 	assert.NotNil(t, getResponse)
 	assert.Equal(t, string(userIdentifier), getResponse.User.Identifier)
 }
 
-func TestFromCoreUserAuthenticToUpdateResponse(t *testing.T) {
+func TestFromShelterUserAuthenticToUpdateResponse(t *testing.T) {
 	var userId uint = 1
 	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
@@ -76,14 +76,14 @@ func TestFromCoreUserAuthenticToUpdateResponse(t *testing.T) {
 
 	var accessToken = pkgText.NewJwtToken("access_token")
 
-	var updateResponse = user.FromCoreUserAuthenticToUpdateResponse(shelterUserObj, accessToken)
+	var updateResponse = user.FromShelterUserAuthenticToUpdateResponse(shelterUserObj, accessToken)
 
 	assert.NotNil(t, updateResponse)
 	assert.Equal(t, string(userIdentifier), updateResponse.User.Identifier)
 	assert.Equal(t, string(accessToken), updateResponse.AccessToken)
 }
 
-func TestFromCoreUserAuthenticToRegisterResponse(t *testing.T) {
+func TestFromShelterUserAuthenticToRegisterResponse(t *testing.T) {
 	var userId uint = 1
 	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
@@ -107,7 +107,7 @@ func TestFromCoreUserAuthenticToRegisterResponse(t *testing.T) {
 	var accessToken = pkgText.NewJwtToken("access_token")
 	var refreshToken, _ = text.NewToken("refresh_token")
 
-	var registerResponse = user.FromCoreUserAuthenticToRegisterResponse(shelterUserObj, refreshToken, accessToken)
+	var registerResponse = user.FromShelterUserAuthenticToRegisterResponse(shelterUserObj, refreshToken, accessToken)
 
 	assert.NotNil(t, registerResponse)
 	assert.Equal(t, string(userIdentifier), registerResponse.User.Identifier)

@@ -26,11 +26,11 @@ func (mock userCreatorDBMock) GetUserAuthentic(identifier string, now time.Time)
 }
 
 type userEntryMock struct {
-	toCoreUser func(identifier pkgText.Identifier, now time.Time) (shelterUser.UnsavedUser, error)
+	toShelterUser func(identifier pkgText.Identifier, now time.Time) (shelterUser.UnsavedUser, error)
 }
 
-func (mock userEntryMock) ToCoreUser(identifier pkgText.Identifier, now time.Time) (shelterUser.UnsavedUser, error) {
-	return mock.toCoreUser(identifier, now)
+func (mock userEntryMock) ToShelterUser(identifier pkgText.Identifier, now time.Time) (shelterUser.UnsavedUser, error) {
+	return mock.toShelterUser(identifier, now)
 }
 
 func getDbUserAuthentic(id string) *dbUser.UserAuthentic {
@@ -132,13 +132,13 @@ func TestUserCreate(t *testing.T) {
 	}
 
 	var shelterUserVal = getShelterUser(idStr)
-	var toCoreUser = func(identifier pkgText.Identifier, now time.Time) (shelterUser.UnsavedUser, error) {
+	var toShelterUser = func(identifier pkgText.Identifier, now time.Time) (shelterUser.UnsavedUser, error) {
 		assert.Equal(t, "US-TESTES", string(identifier), "Expected identifier 'US-TESTES'")
 		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
 		return shelterUserVal, nil
 	}
 	var entryMock = userEntryMock{
-		toCoreUser: toCoreUser,
+		toShelterUser: toShelterUser,
 	}
 
 	creator := user.NewUserCreate(localerMock, dbMock)

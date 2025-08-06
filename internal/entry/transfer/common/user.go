@@ -21,12 +21,12 @@ type User struct {
 	Email           *string
 }
 
-func FromCoreUser(u *shelter.UserAuthentic) *User {
+func FromShelterUser(u *shelter.UserAuthentic) *User {
 	var companyRole *CompanyRole = nil
 	if u.CompanyRole != nil {
 		companyRole = &CompanyRole{
-			Company: FromCoreCompany(u.CompanyRole.Company),
-			Roles:   essence.Map(u.CompanyRole.Roles, FromCoreRole),
+			Company: FromShelterCompany(u.CompanyRole.Company),
+			Roles:   essence.Map(u.CompanyRole.Roles, FromShelterRole),
 		}
 	}
 

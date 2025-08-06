@@ -46,7 +46,7 @@ func (issuer RefreshTokenIssue) Execute(userAuthentic *shelterUser.UserAuthentic
 	}
 
 	userRefreshToken := shelterUser.CreateUserRefreshToken(userAuthentic.GetUser(), refreshToken, now)
-	dbUserRefreshToken := dbUser.FromCoreUserRefreshToken(userRefreshToken)
+	dbUserRefreshToken := dbUser.FromShelterUserRefreshToken(userRefreshToken)
 
 	if err := issuer.db.Insert(dbUserRefreshToken); err != nil {
 		return shelterText.Token(""), err

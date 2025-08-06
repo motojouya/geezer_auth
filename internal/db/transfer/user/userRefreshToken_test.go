@@ -21,7 +21,7 @@ func getUserForRefreshToken(persistKey uint) shelter.User {
 	return shelter.NewUser(persistKey, identifier, name, emailId, botFlag, registeredDate, updateDate)
 }
 
-func TestFromCoreUserRefreshToken(t *testing.T) {
+func TestFromShelterUserRefreshToken(t *testing.T) {
 	var persistKey uint = 1
 	var userValue = getUserForRefreshToken(persistKey)
 
@@ -31,7 +31,7 @@ func TestFromCoreUserRefreshToken(t *testing.T) {
 
 	var shelterUserRefreshToken = shelter.CreateUserRefreshToken(userValue, token, registerDate)
 
-	var userRefreshToken = user.FromCoreUserRefreshToken(shelterUserRefreshToken)
+	var userRefreshToken = user.FromShelterUserRefreshToken(shelterUserRefreshToken)
 
 	assert.Equal(t, uint(0), userRefreshToken.PersistKey)
 	assert.Equal(t, persistKey, userRefreshToken.UserPersistKey)
@@ -42,7 +42,7 @@ func TestFromCoreUserRefreshToken(t *testing.T) {
 	t.Logf("userRefreshToken: %+v", userRefreshToken)
 }
 
-func TestToCoreUserRefreshToken(t *testing.T) {
+func TestToShelterUserRefreshToken(t *testing.T) {
 	var now = time.Now()
 	var userRefreshTokenFull = user.UserRefreshTokenFull{
 		UserRefreshToken: user.UserRefreshToken{
@@ -60,7 +60,7 @@ func TestToCoreUserRefreshToken(t *testing.T) {
 		UserUpdateDate:     now.Add(2 * time.Hour),
 	}
 
-	var shelterUserRefreshToken, err = userRefreshTokenFull.ToCoreUserRefreshToken()
+	var shelterUserRefreshToken, err = userRefreshTokenFull.ToShelterUserRefreshToken()
 	assert.NoError(t, err)
 
 	assert.Equal(t, userRefreshTokenFull.PersistKey, shelterUserRefreshToken.PersistKey)
@@ -72,7 +72,7 @@ func TestToCoreUserRefreshToken(t *testing.T) {
 	t.Logf("shelterUserRefreshToken: %+v", shelterUserRefreshToken)
 }
 
-func TestToCoreUserRefreshTokenError(t *testing.T) {
+func TestToShelterUserRefreshTokenError(t *testing.T) {
 	var now = time.Now()
 	var userRefreshTokenFull = user.UserRefreshTokenFull{
 		UserRefreshToken: user.UserRefreshToken{
@@ -90,7 +90,7 @@ func TestToCoreUserRefreshTokenError(t *testing.T) {
 		UserUpdateDate:     now.Add(2 * time.Hour),
 	}
 
-	var _, err = userRefreshTokenFull.ToCoreUserRefreshToken()
+	var _, err = userRefreshTokenFull.ToShelterUserRefreshToken()
 
 	assert.Error(t, err)
 

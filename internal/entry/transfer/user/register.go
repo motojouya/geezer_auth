@@ -8,7 +8,7 @@ import (
 )
 
 type UserGetter interface {
-	ToCoreUser(pkgText.Identifier, time.Time) (shelter.UnsavedUser, error)
+	ToShelterUser(pkgText.Identifier, time.Time) (shelter.UnsavedUser, error)
 }
 
 type EmailGetter interface {
@@ -26,7 +26,7 @@ type UserRegisterRequest struct {
 	UserRegister UserRegister `http:"body"`
 }
 
-func (u UserRegisterRequest) ToCoreUser(identifier pkgText.Identifier, registerDate time.Time) (shelter.UnsavedUser, error) {
+func (u UserRegisterRequest) ToShelterUser(identifier pkgText.Identifier, registerDate time.Time) (shelter.UnsavedUser, error) {
 	var emailId, emailErr = pkgText.NewEmail(u.UserRegister.Email)
 	if emailErr != nil {
 		return shelter.UnsavedUser{}, emailErr

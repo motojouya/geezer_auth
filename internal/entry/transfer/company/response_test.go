@@ -26,18 +26,18 @@ func getRoles(label pkgText.Label) []shelterRole.Role {
 	return []shelterRole.Role{shelterRole.NewRole(roleName, label, description, registeredDate)}
 }
 
-func TestFromCoreCompany(t *testing.T) {
+func TestFromShelterCompany(t *testing.T) {
 	var identifier, _ = pkgText.NewIdentifier("CP-TESTES")
 	var shelterCompany = getCompany(identifier)
 
-	var response = company.FromCoreCompany(shelterCompany)
+	var response = company.FromShelterCompany(shelterCompany)
 
 	assert.Equal(t, string(shelterCompany.Identifier), response.Company.Identifier)
 
 	t.Logf("Response: %+v", response)
 }
 
-func TestFromCoreUserAuthentic(t *testing.T) {
+func TestFromShelterUserAuthentic(t *testing.T) {
 	var userId uint = 1
 	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
@@ -60,7 +60,7 @@ func TestFromCoreUserAuthentic(t *testing.T) {
 
 	var shelterUsers = []*shelterUser.UserAuthentic{shelterUserObj}
 
-	var response = company.FromCoreUserAuthentic(shelterUsers)
+	var response = company.FromShelterUserAuthentic(shelterUsers)
 
 	assert.Len(t, response.Users, 1)
 	assert.Equal(t, string(shelterUsers[0].Identifier), response.Users[0].Identifier)

@@ -28,7 +28,7 @@ var SelectRole = utility.Dialect.From(goqu.T("role").As("r")).Select(
 	goqu.I("r.register_date").As("register_date"),
 )
 
-func FromCoreRole(role shelter.Role) Role {
+func FromShelterRole(role shelter.Role) Role {
 	return Role{
 		Label:          string(role.Label),
 		Name:           string(role.Name),
@@ -37,7 +37,7 @@ func FromCoreRole(role shelter.Role) Role {
 	}
 }
 
-func (r Role) ToCoreRole() (shelter.Role, error) {
+func (r Role) ToShelterRole() (shelter.Role, error) {
 	var label, labelErr = pkgText.NewLabel(r.Label)
 	if labelErr != nil {
 		return shelter.Role{}, labelErr

@@ -78,7 +78,7 @@ var SelectUserCompanyRole = utility.Dialect.From(goqu.T("user_company_role").As(
 	goqu.I("ucr.expire_date").As("expire_date"),
 )
 
-func FromCoreUserCompanyRole(shelterUserCompanyRole *shelter.UnsavedUserCompanyRole) *UserCompanyRole {
+func FromShelterUserCompanyRole(shelterUserCompanyRole *shelter.UnsavedUserCompanyRole) *UserCompanyRole {
 	return &UserCompanyRole{
 		UserPersistKey:    shelterUserCompanyRole.User.PersistKey,
 		CompanyPersistKey: shelterUserCompanyRole.Company.PersistKey,
@@ -88,7 +88,7 @@ func FromCoreUserCompanyRole(shelterUserCompanyRole *shelter.UnsavedUserCompanyR
 	}
 }
 
-func (u UserCompanyRoleFull) ToCoreUserCompanyRole() (*shelter.UserCompanyRole, error) {
+func (u UserCompanyRoleFull) ToShelterUserCompanyRole() (*shelter.UserCompanyRole, error) {
 	var user, userErr = (User{
 		PersistKey:     u.UserPersistKey,
 		Identifier:     u.UserIdentifier,
@@ -97,7 +97,7 @@ func (u UserCompanyRoleFull) ToCoreUserCompanyRole() (*shelter.UserCompanyRole, 
 		BotFlag:        u.UserBotFlag,
 		RegisteredDate: u.UserRegisteredDate,
 		UpdateDate:     u.UserUpdateDate,
-	}).ToCoreUser()
+	}).ToShelterUser()
 	if userErr != nil {
 		return &shelter.UserCompanyRole{}, userErr
 	}
@@ -107,7 +107,7 @@ func (u UserCompanyRoleFull) ToCoreUserCompanyRole() (*shelter.UserCompanyRole, 
 		Identifier:     u.CompanyIdentifier,
 		Name:           u.CompanyName,
 		RegisteredDate: u.CompanyRegisteredDate,
-	}).ToCoreCompany()
+	}).ToShelterCompany()
 	if companyErr != nil {
 		return &shelter.UserCompanyRole{}, companyErr
 	}
@@ -117,7 +117,7 @@ func (u UserCompanyRoleFull) ToCoreUserCompanyRole() (*shelter.UserCompanyRole, 
 		Name:           u.RoleName,
 		Description:    u.RoleDescription,
 		RegisteredDate: u.RoleRegisteredDate,
-	}).ToCoreRole()
+	}).ToShelterRole()
 	if roleErr != nil {
 		return &shelter.UserCompanyRole{}, roleErr
 	}

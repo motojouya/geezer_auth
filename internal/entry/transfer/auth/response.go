@@ -15,8 +15,8 @@ type AuthLoginResponse struct {
 	user.UserRegisterResponse
 }
 
-func FromCoreUserAuthenticToRefreshResponse(shelterUser *shelter.UserAuthentic, accessToken pkgText.JwtToken) *AuthRefreshResponse {
-	var userGetResponse = user.FromCoreUserAuthenticToGetResponse(shelterUser)
+func FromShelterUserAuthenticToRefreshResponse(shelterUser *shelter.UserAuthentic, accessToken pkgText.JwtToken) *AuthRefreshResponse {
+	var userGetResponse = user.FromShelterUserAuthenticToGetResponse(shelterUser)
 	return &AuthRefreshResponse{
 		UserUpdateResponse: user.UserUpdateResponse{
 			UserGetResponse: *userGetResponse,
@@ -25,8 +25,8 @@ func FromCoreUserAuthenticToRefreshResponse(shelterUser *shelter.UserAuthentic, 
 	}
 }
 
-func FromCoreUserAuthenticToLoginResponse(shelterUser *shelter.UserAuthentic, refreshToken text.Token, accessToken pkgText.JwtToken) *AuthLoginResponse {
-	var userUpdateResponse = user.FromCoreUserAuthenticToUpdateResponse(shelterUser, accessToken)
+func FromShelterUserAuthenticToLoginResponse(shelterUser *shelter.UserAuthentic, refreshToken text.Token, accessToken pkgText.JwtToken) *AuthLoginResponse {
+	var userUpdateResponse = user.FromShelterUserAuthenticToUpdateResponse(shelterUser, accessToken)
 	return &AuthLoginResponse{
 		UserRegisterResponse: user.UserRegisterResponse{
 			UserUpdateResponse: *userUpdateResponse,

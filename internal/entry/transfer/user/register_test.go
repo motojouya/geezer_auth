@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func TestRegisterToCoreUser(t *testing.T) {
+func TestRegisterToShelterUser(t *testing.T) {
 	var email = "test@example.com"
 	var name = "Test_User"
 	var bot = false
@@ -24,7 +24,7 @@ func TestRegisterToCoreUser(t *testing.T) {
 
 	var userIdentifier, _ = pkgText.NewIdentifier("US-TESTES")
 	var userRegisterDate = time.Now()
-	var unsavedUser, err = userRegisterRequest.ToCoreUser(userIdentifier, userRegisterDate)
+	var unsavedUser, err = userRegisterRequest.ToShelterUser(userIdentifier, userRegisterDate)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, unsavedUser)
@@ -45,7 +45,7 @@ func TestRegisterToCoreUser(t *testing.T) {
 	t.Logf("password: %+s", passwordText)
 }
 
-func TestRegisterToCoreUserError(t *testing.T) {
+func TestRegisterToShelterUserError(t *testing.T) {
 	var email = "testexample.com"
 	var name = "Test_User"
 	var bot = false
@@ -61,7 +61,7 @@ func TestRegisterToCoreUserError(t *testing.T) {
 
 	var userIdentifier, _ = pkgText.NewIdentifier("US-TESTES")
 	var userRegisterDate = time.Now()
-	var _, err = userRegisterRequest.ToCoreUser(userIdentifier, userRegisterDate)
+	var _, err = userRegisterRequest.ToShelterUser(userIdentifier, userRegisterDate)
 
 	assert.Error(t, err)
 	t.Logf("Error: %v", err)

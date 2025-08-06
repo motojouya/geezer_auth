@@ -15,15 +15,15 @@ type CompanyUserResponse struct {
 	Users []*common.User `json:"users"`
 }
 
-func FromCoreCompany(shelterCompany shelterCompany.Company) CompanyGetResponse {
-	var commonUser = common.FromCoreCompany(shelterCompany)
+func FromShelterCompany(shelterCompany shelterCompany.Company) CompanyGetResponse {
+	var commonUser = common.FromShelterCompany(shelterCompany)
 	return CompanyGetResponse{
 		Company: commonUser,
 	}
 }
 
-func FromCoreUserAuthentic(shelterUsers []*shelterUser.UserAuthentic) *CompanyUserResponse {
-	var users []*common.User = essence.Map(shelterUsers, common.FromCoreUser)
+func FromShelterUserAuthentic(shelterUsers []*shelterUser.UserAuthentic) *CompanyUserResponse {
+	var users []*common.User = essence.Map(shelterUsers, common.FromShelterUser)
 	return &CompanyUserResponse{
 		Users: users,
 	}

@@ -26,7 +26,7 @@ func getRoles(label pkgText.Label) []shelterRole.Role {
 	return []shelterRole.Role{shelterRole.NewRole(roleName, label, description, registeredDate)}
 }
 
-func TestFromCoreUserAuthenticToGetResponse(t *testing.T) {
+func TestFromShelterUserAuthenticToGetResponse(t *testing.T) {
 	var userId uint = 1
 	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
 	var emailId, _ = pkgText.NewEmail("test@gmail.com")
@@ -47,17 +47,17 @@ func TestFromCoreUserAuthenticToGetResponse(t *testing.T) {
 	var email, _ = pkgText.NewEmail("test_2@gmail.com")
 	var shelterUserObj = shelterUser.NewUserAuthentic(userValue, companyRole, &email)
 
-	var getResponse = companyUser.FromCoreUserAuthenticToGetResponse(shelterUserObj)
+	var getResponse = companyUser.FromShelterUserAuthenticToGetResponse(shelterUserObj)
 
 	assert.NotNil(t, getResponse)
 	assert.Equal(t, string(userIdentifier), getResponse.User.Identifier)
 }
 
-func TestFromCoreRoles(t *testing.T) {
+func TestFromShelterRoles(t *testing.T) {
 	var label, _ = pkgText.NewLabel("TEST_ROLE")
 	var roles = getRoles(label)
 
-	var response = companyUser.FromCoreRoles(roles)
+	var response = companyUser.FromShelterRoles(roles)
 
 	assert.NotNil(t, response)
 	assert.Len(t, response.Roles, 1)

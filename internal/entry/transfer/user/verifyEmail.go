@@ -16,7 +16,7 @@ type UserVerifyEmailRequest struct {
 	UserVerifyEmail UserVerifyEmail `http:"body"`
 }
 
-func (u UserVerifyEmailRequest) ToCoreUserEmail(user shelter.User, registerDate time.Time) (*shelter.UnsavedUserEmail, error) {
+func (u UserVerifyEmailRequest) ToShelterUserEmail(user shelter.User, registerDate time.Time) (*shelter.UnsavedUserEmail, error) {
 	var email, emailErr = pkgText.NewEmail(u.UserVerifyEmail.Email)
 	if emailErr != nil {
 		return &shelter.UnsavedUserEmail{}, emailErr

@@ -62,7 +62,7 @@ func (setter EmailSet) Execute(entry entryUser.EmailGetter, userAuthentic *shelt
 
 	userEmail := shelterUser.CreateUserEmail(userAuthentic.GetUser(), email, verifyToken, now)
 
-	dbUserEmail := dbUser.FromCoreUserEmail(userEmail)
+	dbUserEmail := dbUser.FromShelterUserEmail(userEmail)
 
 	if _, err = setter.db.AddEmail(dbUserEmail, now); err != nil {
 		return err

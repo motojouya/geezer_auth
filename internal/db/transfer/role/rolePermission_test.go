@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestFromCoreRolePermission(t *testing.T) {
+func TestFromShelterRolePermission(t *testing.T) {
 	var roleLabel, _ = pkg.NewLabel("TEST_ROLE")
 	var shelterRolePermission = shelter.NewRolePermission(
 		roleLabel,
@@ -19,7 +19,7 @@ func TestFromCoreRolePermission(t *testing.T) {
 		1,
 	)
 
-	var rolePermission = role.FromCoreRolePermission(shelterRolePermission)
+	var rolePermission = role.FromShelterRolePermission(shelterRolePermission)
 
 	assert.Equal(t, string(roleLabel), rolePermission.RoleLabel)
 	assert.Equal(t, rolePermission.SelfEdit, rolePermission.SelfEdit)
@@ -31,7 +31,7 @@ func TestFromCoreRolePermission(t *testing.T) {
 	t.Logf("rolePermission: %+v", rolePermission)
 }
 
-func TestToCoreRolePermission(t *testing.T) {
+func TestToShelterRolePermission(t *testing.T) {
 	var roleLabel, _ = pkg.NewLabel("TEST_ROLE")
 	var rolePermission = role.RolePermission{
 		RoleLabel:     string(roleLabel),
@@ -42,7 +42,7 @@ func TestToCoreRolePermission(t *testing.T) {
 		Priority:      1,
 	}
 
-	var shelterRolePermission, err = rolePermission.ToCoreRolePermission()
+	var shelterRolePermission, err = rolePermission.ToShelterRolePermission()
 	assert.NoError(t, err)
 
 	assert.Equal(t, roleLabel, shelterRolePermission.RoleLabel)
@@ -55,7 +55,7 @@ func TestToCoreRolePermission(t *testing.T) {
 	t.Logf("shelterRolePermission: %+v", shelterRolePermission)
 }
 
-func TestToCoreRolePermissionError(t *testing.T) {
+func TestToShelterRolePermissionError(t *testing.T) {
 	var rolePermission = role.RolePermission{
 		RoleLabel:     "invalid_role",
 		SelfEdit:      true,
@@ -65,7 +65,7 @@ func TestToCoreRolePermissionError(t *testing.T) {
 		Priority:      1,
 	}
 
-	var _, err = rolePermission.ToCoreRolePermission()
+	var _, err = rolePermission.ToShelterRolePermission()
 	assert.Error(t, err, "Expected error when creating shelter role permission with invalid label")
 
 	t.Logf("Error: %v", err)

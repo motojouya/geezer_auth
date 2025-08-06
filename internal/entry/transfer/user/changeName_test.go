@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func TestChangeNameToCoreUser(t *testing.T) {
+func TestChangeNameToShelterUser(t *testing.T) {
 	var name = "test_name"
 	var userChangeNameRequest = user.UserChangeNameRequest{
 		UserChangeName: user.UserChangeName{
@@ -21,7 +21,7 @@ func TestChangeNameToCoreUser(t *testing.T) {
 	var userName, _ = pkgText.NewName("different_name")
 	var shelterUser = getUserForChangeName(userIdentifier, userName)
 
-	var shelterUserNameChanged, err = userChangeNameRequest.ToCoreUser(shelterUser, time.Now())
+	var shelterUserNameChanged, err = userChangeNameRequest.ToShelterUser(shelterUser, time.Now())
 
 	assert.Nil(t, err)
 	assert.NotNil(t, shelterUserNameChanged)

@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func TestChangeEmailToCoreUserEmail(t *testing.T) {
+func TestChangeEmailToShelterUserEmail(t *testing.T) {
 	var email = "test@example.com"
 	var userChangeEmailRequest = user.UserChangeEmailRequest{
 		UserChangeEmail: user.UserChangeEmail{
@@ -22,7 +22,7 @@ func TestChangeEmailToCoreUserEmail(t *testing.T) {
 	var shelterUser = getUserForChangeEmail(userIdentifier)
 	var verifyToken, _ = text.NewToken("verify_token_example")
 
-	var shelterUserEmail, err = userChangeEmailRequest.ToCoreUserEmail(shelterUser, verifyToken, time.Now())
+	var shelterUserEmail, err = userChangeEmailRequest.ToShelterUserEmail(shelterUser, verifyToken, time.Now())
 
 	assert.Nil(t, err)
 	assert.NotNil(t, shelterUserEmail)
@@ -30,7 +30,7 @@ func TestChangeEmailToCoreUserEmail(t *testing.T) {
 	assert.Equal(t, email, string(shelterUserEmail.Email))
 }
 
-func TestChangeEmailToCoreUserEmailError(t *testing.T) {
+func TestChangeEmailToShelterUserEmailError(t *testing.T) {
 	var email = "testexample.com"
 	var userChangeEmailRequest = user.UserChangeEmailRequest{
 		UserChangeEmail: user.UserChangeEmail{
@@ -42,7 +42,7 @@ func TestChangeEmailToCoreUserEmailError(t *testing.T) {
 	var shelterUser = getUserForChangeEmail(userIdentifier)
 	var verifyToken, _ = text.NewToken("verify_token_example")
 
-	var _, err = userChangeEmailRequest.ToCoreUserEmail(shelterUser, verifyToken, time.Now())
+	var _, err = userChangeEmailRequest.ToShelterUserEmail(shelterUser, verifyToken, time.Now())
 
 	assert.Error(t, err)
 }

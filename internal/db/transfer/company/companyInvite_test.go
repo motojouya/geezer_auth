@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func TestFromCoreCompanyInvite(t *testing.T) {
+func TestFromShelterCompanyInvite(t *testing.T) {
 	var persistKey uint = 1
 	var companyValue = getCompany(persistKey)
 
@@ -25,7 +25,7 @@ func TestFromCoreCompanyInvite(t *testing.T) {
 	var expireDate = registerDate.Add(50 * time.Hour)
 
 	var shelterCompanyInvite = shelter.NewCompanyInvite(persistKey, companyValue, token, role, registerDate, expireDate)
-	var companyInvite = company.FromCoreCompanyInvite(shelterCompanyInvite)
+	var companyInvite = company.FromShelterCompanyInvite(shelterCompanyInvite)
 
 	assert.Equal(t, uint(0), companyInvite.PersistKey)
 	assert.Equal(t, string(label), companyInvite.RoleLabel)
@@ -37,7 +37,7 @@ func TestFromCoreCompanyInvite(t *testing.T) {
 	t.Logf("companyInvite: %+v", companyInvite)
 }
 
-func TestToCoreCompanyInvite(t *testing.T) {
+func TestToShelterCompanyInvite(t *testing.T) {
 	var companyInvitePersistKey uint = 1
 
 	var companyPersistKey uint = 1
@@ -68,7 +68,7 @@ func TestToCoreCompanyInvite(t *testing.T) {
 		RoleRegisteredDate:    role.RegisteredDate,
 	}
 
-	var shelterCompanyInvite, err = companyInviteFull.ToCoreCompanyInvite()
+	var shelterCompanyInvite, err = companyInviteFull.ToShelterCompanyInvite()
 
 	assert.Nil(t, err)
 	assert.Equal(t, companyValue.Identifier, shelterCompanyInvite.Company.Identifier)
@@ -80,7 +80,7 @@ func TestToCoreCompanyInvite(t *testing.T) {
 	t.Logf("shelterCompanyInvite: %+v", shelterCompanyInvite)
 }
 
-func TestToCoreCompanyInviteError(t *testing.T) {
+func TestToShelterCompanyInviteError(t *testing.T) {
 	var companyInvitePersistKey uint = 1
 
 	var companyPersistKey uint = 1
@@ -111,7 +111,7 @@ func TestToCoreCompanyInviteError(t *testing.T) {
 		RoleRegisteredDate:    role.RegisteredDate,
 	}
 
-	var _, err = companyInviteFull.ToCoreCompanyInvite()
+	var _, err = companyInviteFull.ToShelterCompanyInvite()
 
 	assert.NotNil(t, err)
 

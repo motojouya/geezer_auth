@@ -21,23 +21,23 @@ type UserRegisterResponse struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-func FromCoreUserAuthenticToGetResponse(shelterUser *shelter.UserAuthentic) *UserGetResponse {
-	var commonUser = common.FromCoreUser(shelterUser)
+func FromShelterUserAuthenticToGetResponse(shelterUser *shelter.UserAuthentic) *UserGetResponse {
+	var commonUser = common.FromShelterUser(shelterUser)
 	return &UserGetResponse{
 		User: *commonUser,
 	}
 }
 
-func FromCoreUserAuthenticToUpdateResponse(shelterUser *shelter.UserAuthentic, accessToken pkgText.JwtToken) *UserUpdateResponse {
-	var userGetResponse = FromCoreUserAuthenticToGetResponse(shelterUser)
+func FromShelterUserAuthenticToUpdateResponse(shelterUser *shelter.UserAuthentic, accessToken pkgText.JwtToken) *UserUpdateResponse {
+	var userGetResponse = FromShelterUserAuthenticToGetResponse(shelterUser)
 	return &UserUpdateResponse{
 		UserGetResponse: *userGetResponse,
 		AccessToken:     string(accessToken),
 	}
 }
 
-func FromCoreUserAuthenticToRegisterResponse(shelterUser *shelter.UserAuthentic, refreshToken text.Token, accessToken pkgText.JwtToken) *UserRegisterResponse {
-	var userUpdateResponse = FromCoreUserAuthenticToUpdateResponse(shelterUser, accessToken)
+func FromShelterUserAuthenticToRegisterResponse(shelterUser *shelter.UserAuthentic, refreshToken text.Token, accessToken pkgText.JwtToken) *UserRegisterResponse {
+	var userUpdateResponse = FromShelterUserAuthenticToUpdateResponse(shelterUser, accessToken)
 	return &UserRegisterResponse{
 		UserUpdateResponse: *userUpdateResponse,
 		RefreshToken:       string(refreshToken),

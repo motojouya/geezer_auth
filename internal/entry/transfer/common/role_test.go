@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func TestFromCoreRole(t *testing.T) {
+func TestFromShelterRole(t *testing.T) {
 	var name, _ = pkg.NewName("TestRole")
 	var label, _ = pkg.NewLabel("TEST_ROLE")
 	var description, _ = text.NewText("Role for testing")
@@ -18,7 +18,7 @@ func TestFromCoreRole(t *testing.T) {
 
 	var shelterRole = role.NewRole(name, label, description, registeredDate)
 
-	var transferRole = common.FromCoreRole(shelterRole)
+	var transferRole = common.FromShelterRole(shelterRole)
 
 	assert.Equal(t, string(name), transferRole.Name)
 	assert.Equal(t, string(label), transferRole.Label)

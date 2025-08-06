@@ -9,14 +9,14 @@ import (
 	"time"
 )
 
-func TestFromCoreCompany(t *testing.T) {
+func TestFromShelterCompany(t *testing.T) {
 	var identifier, _ = text.NewIdentifier("CP-TESTES")
 	var name, _ = text.NewName("TestRole")
 	var registeredDate = time.Now()
 
 	var shelterCompany = shelter.CreateCompany(identifier, name, registeredDate)
 
-	var company = company.FromCoreCompany(shelterCompany)
+	var company = company.FromShelterCompany(shelterCompany)
 
 	assert.Equal(t, uint(0), company.PersistKey)
 	assert.Equal(t, string(name), company.Name)
@@ -26,7 +26,7 @@ func TestFromCoreCompany(t *testing.T) {
 	t.Logf("company: %+v", company)
 }
 
-func TestToCoreCompany(t *testing.T) {
+func TestToShelterCompany(t *testing.T) {
 	var identifier = "CP-TESTES"
 	var name = "TestRole"
 	var registeredDate = time.Now()
@@ -38,7 +38,7 @@ func TestToCoreCompany(t *testing.T) {
 		RegisteredDate: registeredDate,
 	}
 
-	shelterCompany, err := company.ToCoreCompany()
+	shelterCompany, err := company.ToShelterCompany()
 	assert.NoError(t, err)
 
 	assert.Equal(t, uint(1), shelterCompany.PersistKey)
@@ -49,7 +49,7 @@ func TestToCoreCompany(t *testing.T) {
 	t.Logf("shelterCompany: %+v", shelterCompany)
 }
 
-func TestToCoreCompanyError(t *testing.T) {
+func TestToShelterCompanyError(t *testing.T) {
 	var company = company.Company{
 		PersistKey:     1,
 		Identifier:     "cp-testes",
@@ -57,7 +57,7 @@ func TestToCoreCompanyError(t *testing.T) {
 		RegisteredDate: time.Now(),
 	}
 
-	var _, err = company.ToCoreCompany()
+	var _, err = company.ToShelterCompany()
 	assert.Error(t, err)
 
 	t.Logf("error: %v", err)

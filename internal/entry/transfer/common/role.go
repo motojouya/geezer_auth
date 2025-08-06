@@ -10,7 +10,7 @@ type Role struct {
 	Description string
 }
 
-func FromCoreRole(r shelter.Role) Role {
+func FromShelterRole(r shelter.Role) Role {
 	return Role{
 		Label:       string(r.Label),
 		Name:        string(r.Name),

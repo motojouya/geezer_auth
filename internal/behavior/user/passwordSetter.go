@@ -46,7 +46,7 @@ func (setter PasswordSet) Execute(entry entryUser.PasswordGetter, userAuthentic 
 
 	userPassword := shelterUser.CreateUserPassword(userAuthentic.GetUser(), hashedPassword, now)
 
-	dbUserPassword := dbUser.FromCoreUserPassword(userPassword)
+	dbUserPassword := dbUser.FromShelterUserPassword(userPassword)
 
 	if err = setter.db.Insert(dbUserPassword); err != nil {
 		return err

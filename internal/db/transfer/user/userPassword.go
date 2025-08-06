@@ -56,7 +56,7 @@ var SelectUserPassword = utility.Dialect.From(goqu.T("user_password").As("up")).
 	goqu.I("up.expire_date").As("expire_date"),
 )
 
-func FromCoreUserPassword(shelterUserPassword *shelter.UnsavedUserPassword) *UserPassword {
+func FromShelterUserPassword(shelterUserPassword *shelter.UnsavedUserPassword) *UserPassword {
 	return &UserPassword{
 		UserPersistKey: shelterUserPassword.User.PersistKey,
 		Password:       string(shelterUserPassword.Password),
@@ -65,7 +65,7 @@ func FromCoreUserPassword(shelterUserPassword *shelter.UnsavedUserPassword) *Use
 	}
 }
 
-func (u UserPasswordFull) ToCoreUserPassword() (*shelter.UserPassword, error) {
+func (u UserPasswordFull) ToShelterUserPassword() (*shelter.UserPassword, error) {
 	var user, userErr = (User{
 		PersistKey:     u.UserPersistKey,
 		Identifier:     u.UserIdentifier,
@@ -74,7 +74,7 @@ func (u UserPasswordFull) ToCoreUserPassword() (*shelter.UserPassword, error) {
 		BotFlag:        u.UserBotFlag,
 		RegisteredDate: u.UserRegisteredDate,
 		UpdateDate:     u.UserUpdateDate,
-	}).ToCoreUser()
+	}).ToShelterUser()
 	if userErr != nil {
 		return &shelter.UserPassword{}, userErr
 	}
