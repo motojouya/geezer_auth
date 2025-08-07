@@ -5,6 +5,7 @@ import (
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	"github.com/motojouya/geezer_auth/pkg/shelter/jwt"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
@@ -67,7 +68,9 @@ func (issuer AccessTokenIssue) Execute(userAuthentic *shelterUser.UserAuthentic)
 		return pkgText.JwtToken(""), err
 	}
 
-	if err = issuer.db.Insert(userAccessToken); err != nil {
+	dbUserAccessToken := dbUser.FromShelterUserAccessToken(userAccessToken)
+
+	if err = issuer.db.Insert(dbUserAccessToken); err != nil {
 		return pkgText.JwtToken(""), err
 	}
 

@@ -1,6 +1,7 @@
 package user_test
 
 import (
+	gojwt "github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/motojouya/geezer_auth/internal/behavior/testUtility"
 	"github.com/motojouya/geezer_auth/internal/behavior/user"
@@ -14,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
-	//"errors"
+	"errors"
 )
 
 type accessTokenIssuerDBMock struct {
@@ -26,9 +27,9 @@ func (mock accessTokenIssuerDBMock) GetUserAccessToken(identifier string, now ti
 	return mock.getUserAccessToken(identifier, now)
 }
 
-func getShelterUserAuthenticForAccToken() *shelterUser.UserAuthentic {
+func getShelterUserAuthenticForAccToken(expectId string) *shelterUser.UserAuthentic {
 	var userId uint = 1
-	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
+	var userIdentifier, _ = pkgText.NewIdentifier(expectId)
 	var emailId, _ = pkgText.NewEmail("test@example.com")
 	var userName, _ = pkgText.NewName("TestName")
 	var botFlag = false
@@ -69,8 +70,14 @@ func getLocalerMockForAccToken(t *testing.T, expectUUID uuid.UUID, now time.Time
 
 func getAccessTokenIssueDbMock(t *testing.T, expectId string, expectToken string, firstNow time.Time) accessTokenIssuerDBMock {
 	var insert = func(userAccessTokens ...interface{}) error {
-		assert.Equal(t, userAccessTokens[0].AccessToken, expectToken, "Expected token to match")
-		return userRefreshToken, nil
+		userAccessToken, ok := userAccessTokens[0].(dbUser.UserAccessToken)
+		if !ok {
+			t.Errorf("Expected userAccessTokens[0] to be of type dbUser.UserAccessToken, got %T", userAccessTokens[0])
+			return nil
+		}
+		assert.Equal(t, userAccessToken.AccessToken, expectToken, "Expected token to match")
+		assert.WithinDuration(t, userAccessToken.ExpireDate, firstNow.AddDate(0, 0, 7), time.Second, "Expected expiration date to be 7 days from now")
+		return nil
 	}
 	var getUserAccessToken = func(identifier string, now time.Time) ([]dbUser.UserAccessTokenFull, error) {
 		assert.Equal(t, expectId, identifier, "Expected identifier to match")
@@ -86,12 +93,14 @@ func getAccessTokenIssueDbMock(t *testing.T, expectId string, expectToken string
 }
 
 func getJwtHandlerMock(t *testing.T, expectId string, expectToken string, expectUUID string, firstNow time.Time) *testUtility.JwtHandlerMock {
-	var generate = func(user pkgUser.User, now time.Time, tokenId string) (pkgUser.Authentic, pkgText.JwtToken, error) {
-		assert.Equal(t, expectId, user.Identifier, "Expected token ID to match")
+	var generate = func(user *pkgUser.User, now time.Time, tokenId string) (*pkgUser.Authentic, pkgText.JwtToken, error) {
+		assert.Equal(t, expectId, string(user.Identifier), "Expected token ID to match")
 		assert.Equal(t, expectUUID, tokenId, "Expected token ID to match")
 		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
-		return shelterUser.TokenData{
-			ExpiresAt: shelterUser.NewExpiresAt(now.Add(time.Hour)),
+		return &pkgUser.Authentic{
+			RegisteredClaims: gojwt.RegisteredClaims{
+				ExpiresAt: gojwt.NewNumericDate(firstNow.AddDate(0, 0, 7)),
+			},
 		}, pkgText.JwtToken(expectToken), nil
 	}
 	return &testUtility.JwtHandlerMock{
@@ -99,17 +108,183 @@ func getJwtHandlerMock(t *testing.T, expectId string, expectToken string, expect
 	}
 }
 
-func TestRefreshTokenIssuer(t *testing.T) {
+func getDbUserAccessTokenFull(persistKey uint, expectId string, expectToken string) dbUser.UserAccessTokenFull {
+	return dbUser.UserAccessTokenFull{
+		UserAccessToken: dbUser.UserAccessToken{
+			PersistKey:       persistKey,
+			UserPersistKey:   1,
+			AccessToken:      expectToken,
+			SourceUpdateDate: time.Now(),
+			RegisterDate:     time.Now(),
+			ExpireDate:       time.Now(),
+		},
+		UserIdentifier:     expectId,
+		UserExposeEmailId:  "test@gmail.com",
+		UserName:           "TestName",
+		UserBotFlag:        false,
+		UserRegisteredDate: time.Now(),
+		UserUpdateDate:     time.Now(),
+	}
+}
+
+func TestAccessTokenIssuer(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
 	var expectUUID, _ = uuid.NewUUID()
+	var expectToken = "test-access-token"
 	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForAccToken()
+	var userAuthentic = getShelterUserAuthenticForAccToken(expectIdentifier)
 
 	var localerMock = getLocalerMockForAccToken(t, expectUUID, firstNow)
-	var dbMock = getRefreshTokenIssueDbMock(t, expectUUID.String(), firstNow)
+	var dbMock = getAccessTokenIssueDbMock(t, expectIdentifier, expectToken, firstNow)
+	var jwtHandlerMock = getJwtHandlerMock(t, expectIdentifier, expectToken, expectUUID.String(), firstNow)
 
-	setter := user.NewRefreshTokenIssue(localerMock, dbMock)
-	refreshToken, err := setter.Execute(userAuthentic)
+	issuer := user.NewAccessTokenIssue(localerMock, dbMock, jwtHandlerMock)
+	accessToken, err := issuer.Execute(userAuthentic)
 
 	assert.NoError(t, err)
-	assert.Equal(t, expectUUID.String(), string(refreshToken), "Expected refresh token to match generated UUID")
+	assert.Equal(t, expectToken, string(accessToken), "Expected refresh token to match generated UUID")
+}
+
+func TestAccessTokenIssuerExistOne(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectUUID, _ = uuid.NewUUID()
+	var expectToken = "test-access-token"
+	var firstNow = time.Now()
+	var userAuthentic = getShelterUserAuthenticForAccToken(expectIdentifier)
+
+	var localerMock = getLocalerMockForAccToken(t, expectUUID, firstNow)
+	var dbMock = getAccessTokenIssueDbMock(t, expectIdentifier, expectToken, firstNow)
+	var jwtHandlerMock = getJwtHandlerMock(t, expectIdentifier, expectToken, expectUUID.String(), firstNow)
+
+	dbMock.getUserAccessToken = func(identifier string, now time.Time) ([]dbUser.UserAccessTokenFull, error) {
+		return []dbUser.UserAccessTokenFull{
+			dbUser.UserAccessTokenFull{},
+		}, nil
+	}
+
+	issuer := user.NewAccessTokenIssue(localerMock, dbMock, jwtHandlerMock)
+	accessToken, err := issuer.Execute(userAuthentic)
+
+	assert.NoError(t, err)
+	assert.Equal(t, expectToken, string(accessToken), "Expected refresh token to match generated UUID")
+}
+
+func TestAccessTokenIssuerExistOverOne(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectUUID, _ = uuid.NewUUID()
+	var expectToken = "test-access-token"
+	var firstNow = time.Now()
+	var userAuthentic = getShelterUserAuthenticForAccToken(expectIdentifier)
+
+	var localerMock = getLocalerMockForAccToken(t, expectUUID, firstNow)
+	var dbMock = getAccessTokenIssueDbMock(t, expectIdentifier, expectToken, firstNow)
+	var jwtHandlerMock = getJwtHandlerMock(t, expectIdentifier, expectToken, expectUUID.String(), firstNow)
+
+	var userAccessTokenFull1 = getDbUserAccessTokenFull(1, expectIdentifier, expectToken)
+	var userAccessTokenFull2 = getDbUserAccessTokenFull(2, expectIdentifier, "some-string")
+	dbMock.getUserAccessToken = func(identifier string, now time.Time) ([]dbUser.UserAccessTokenFull, error) {
+		return []dbUser.UserAccessTokenFull{userAccessTokenFull1, userAccessTokenFull2}, nil
+	}
+
+	localerMock.FakeGenerateUUID = func() (uuid.UUID, error) {
+		t.Error("GenerateUUID should not be called when there is an existing access token")
+		return uuid.UUID{}, nil
+	}
+
+	issuer := user.NewAccessTokenIssue(localerMock, dbMock, jwtHandlerMock)
+	accessToken, err := issuer.Execute(userAuthentic)
+
+	assert.NoError(t, err)
+	assert.Equal(t, expectToken, string(accessToken), "Expected refresh token to match generated UUID")
+}
+
+func TestAccessTokenIssuerExistOverOneErr(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectUUID, _ = uuid.NewUUID()
+	var expectToken = "test-access-token"
+	var firstNow = time.Now()
+	var userAuthentic = getShelterUserAuthenticForAccToken(expectIdentifier)
+
+	var localerMock = getLocalerMockForAccToken(t, expectUUID, firstNow)
+	var dbMock = getAccessTokenIssueDbMock(t, expectIdentifier, expectToken, firstNow)
+	var jwtHandlerMock = getJwtHandlerMock(t, expectIdentifier, expectToken, expectUUID.String(), firstNow)
+
+	// var userAccessTokenFull1 = getDbUserAccessTokenFull(1, expectIdentifier, expectToken)
+	var userAccessTokenFull2 = getDbUserAccessTokenFull(2, expectIdentifier, "some-string")
+	dbMock.getUserAccessToken = func(identifier string, now time.Time) ([]dbUser.UserAccessTokenFull, error) {
+		return []dbUser.UserAccessTokenFull{dbUser.UserAccessTokenFull{}, userAccessTokenFull2}, nil
+	}
+
+	localerMock.FakeGenerateUUID = func() (uuid.UUID, error) {
+		t.Error("GenerateUUID should not be called when there is an existing access token")
+		return uuid.UUID{}, nil
+	}
+
+	issuer := user.NewAccessTokenIssue(localerMock, dbMock, jwtHandlerMock)
+	_, err := issuer.Execute(userAuthentic)
+
+	assert.Error(t, err)
+}
+
+func TestAccessTokenIssuerErrGetUserAccessToken(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectUUID, _ = uuid.NewUUID()
+	var expectToken = "test-access-token"
+	var firstNow = time.Now()
+	var userAuthentic = getShelterUserAuthenticForAccToken(expectIdentifier)
+
+	var localerMock = getLocalerMockForAccToken(t, expectUUID, firstNow)
+	var dbMock = getAccessTokenIssueDbMock(t, expectIdentifier, expectToken, firstNow)
+	var jwtHandlerMock = getJwtHandlerMock(t, expectIdentifier, expectToken, expectUUID.String(), firstNow)
+
+	dbMock.getUserAccessToken = func(identifier string, now time.Time) ([]dbUser.UserAccessTokenFull, error) {
+		return []dbUser.UserAccessTokenFull{}, errors.New("test error")
+	}
+
+	issuer := user.NewAccessTokenIssue(localerMock, dbMock, jwtHandlerMock)
+	_, err := issuer.Execute(userAuthentic)
+
+	assert.Error(t, err)
+}
+
+func TestAccessTokenIssuerErrGenerateUUID(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectUUID, _ = uuid.NewUUID()
+	var expectToken = "test-access-token"
+	var firstNow = time.Now()
+	var userAuthentic = getShelterUserAuthenticForAccToken(expectIdentifier)
+
+	var localerMock = getLocalerMockForAccToken(t, expectUUID, firstNow)
+	var dbMock = getAccessTokenIssueDbMock(t, expectIdentifier, expectToken, firstNow)
+	var jwtHandlerMock = getJwtHandlerMock(t, expectIdentifier, expectToken, expectUUID.String(), firstNow)
+
+	localerMock.FakeGenerateUUID = func() (uuid.UUID, error) {
+		return uuid.UUID{}, errors.New("test error")
+	}
+
+	issuer := user.NewAccessTokenIssue(localerMock, dbMock, jwtHandlerMock)
+	_, err := issuer.Execute(userAuthentic)
+
+	assert.Error(t, err)
+}
+
+func TestAccessTokenIssuerErrInsert(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectUUID, _ = uuid.NewUUID()
+	var expectToken = "test-access-token"
+	var firstNow = time.Now()
+	var userAuthentic = getShelterUserAuthenticForAccToken(expectIdentifier)
+
+	var localerMock = getLocalerMockForAccToken(t, expectUUID, firstNow)
+	var dbMock = getAccessTokenIssueDbMock(t, expectIdentifier, expectToken, firstNow)
+	var jwtHandlerMock = getJwtHandlerMock(t, expectIdentifier, expectToken, expectUUID.String(), firstNow)
+
+	dbMock.FakeInsert = func(userAccessTokens ...interface{}) error {
+		return errors.New("test error")
+	}
+
+	issuer := user.NewAccessTokenIssue(localerMock, dbMock, jwtHandlerMock)
+	_, err := issuer.Execute(userAuthentic)
+
+	assert.Error(t, err)
 }
