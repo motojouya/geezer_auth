@@ -81,8 +81,7 @@ func (creator UserCreate) Execute(entry entryUser.UserGetter) (*shelterUser.User
 
 	if dbUserAuthentic == nil {
 		keys := map[string]string{"identifier": dbUserValue.Identifier}
-		err = essence.NewNotFoundError("user", keys, "user not found")
-		return nil, err
+		return nil, essence.NewNotFoundError("user", keys, "user not found")
 	}
 
 	return dbUserAuthentic.ToShelterUserAuthentic()

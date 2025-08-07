@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+	"errors"
 )
 
 type userCreatorDBMock struct {
@@ -33,7 +34,7 @@ func (mock userEntryMock) ToShelterUser(identifier pkgText.Identifier, now time.
 	return mock.toShelterUser(identifier, now)
 }
 
-func getDbUserAuthentic(id string) *dbUser.UserAuthentic {
+func getDbUserAuthenticForCreator(id string) *dbUser.UserAuthentic {
 	var companyId = "CP-TESTES"
 	var now = time.Now()
 	var expireDate = now.Add(1 * time.Hour)
@@ -86,20 +87,20 @@ func getShelterUser(id string) shelterUser.UnsavedUser {
 	return shelterUser.CreateUser(identifier, emailId, name, botFlag, registeredDate)
 }
 
-func TestUserCreate(t *testing.T) {
-	var idStr = "US-TESTES"
-	var firstNow = time.Now()
+func getLocalerMockForCreate(t *testing.T, idStr string, now time.Time) *testUtility.LocalerMock {
 	var getNow = func() time.Time {
-		return firstNow
+		return now
 	}
 	var generateRamdomString = func(length int, charSet string) string {
 		return "TESTES"
 	}
-	var localerMock = &testUtility.LocalerMock{
+	return &testUtility.LocalerMock{
 		FakeGenerateRamdomString: generateRamdomString,
 		FakeGetNow:               getNow,
 	}
+}
 
+func getCreateDbMock(t *testing.T, idStr string, firstNow time.Time) userCreatorDBMock {
 	var getUser = func(identifier string) (*dbUser.User, error) {
 		assert.Equal(t, "US-TESTES", identifier, "Expected identifier 'US-TESTES'")
 		return &dbUser.User{}, nil
@@ -117,29 +118,39 @@ func TestUserCreate(t *testing.T) {
 
 		return nil
 	}
-	var dbUserAuthentic = getDbUserAuthentic(idStr)
+	var dbUserAuthentic = getDbUserAuthenticForCreator(idStr)
 	var getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
 		assert.Equal(t, "US-TESTES", identifier, "Expected identifier 'US-TESTES'")
 		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
 		return dbUserAuthentic, nil
 	}
-	var dbMock = userCreatorDBMock{
+	return userCreatorDBMock{
 		SqlExecutorMock: testUtility.SqlExecutorMock{
 			FakeInsert: insert,
 		},
 		getUserAuthentic: getUserAuthentic,
 		getUser:          getUser,
 	}
+}
 
+func getEntryMock(t *testing.T, idStr string, firstNow time.Time) userEntryMock {
 	var shelterUserVal = getShelterUser(idStr)
 	var toShelterUser = func(identifier pkgText.Identifier, now time.Time) (shelterUser.UnsavedUser, error) {
 		assert.Equal(t, "US-TESTES", string(identifier), "Expected identifier 'US-TESTES'")
 		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
 		return shelterUserVal, nil
 	}
-	var entryMock = userEntryMock{
+	return userEntryMock{
 		toShelterUser: toShelterUser,
 	}
+}
+
+func TestUserCreate(t *testing.T) {
+	var idStr = "US-TESTES"
+	var firstNow = time.Now()
+	var localerMock = getLocalerMockForCreate(t, idStr, firstNow)
+	var dbMock = getCreateDbMock(t, idStr, firstNow)
+	var entryMock = getEntryMock(t, idStr, firstNow)
 
 	creator := user.NewUserCreate(localerMock, dbMock)
 	result, err := creator.Execute(entryMock)
@@ -149,4 +160,94 @@ func TestUserCreate(t *testing.T) {
 	assert.Equal(t, "US-TESTES", string(result.Identifier), "Expected user identifier 'US-TESTES'")
 
 	t.Logf("User created: %+v", result)
+}
+
+func TestUserCreateErrGetUser(t *testing.T) {
+	var idStr = "US-TESTES"
+	var firstNow = time.Now()
+	var localerMock = getLocalerMockForCreate(t, idStr, firstNow)
+	var dbMock = getCreateDbMock(t, idStr, firstNow)
+	var entryMock = getEntryMock(t, idStr, firstNow)
+
+	dbMock.getUser = func(identifier string) (*dbUser.User, error) {
+		return nil, errors.New("GetUser error")
+	}
+
+	creator := user.NewUserCreate(localerMock, dbMock)
+	result, err := creator.Execute(entryMock)
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+}
+
+func TestUserCreateErrToShelter(t *testing.T) {
+	var idStr = "US-TESTES"
+	var firstNow = time.Now()
+	var localerMock = getLocalerMockForCreate(t, idStr, firstNow)
+	var dbMock = getCreateDbMock(t, idStr, firstNow)
+	var entryMock = getEntryMock(t, idStr, firstNow)
+
+	entryMock.toShelterUser = func(identifier pkgText.Identifier, now time.Time) (shelterUser.UnsavedUser, error) {
+		return shelterUser.UnsavedUser{}, errors.New("ToShelterUser error")
+	}
+
+	creator := user.NewUserCreate(localerMock, dbMock)
+	result, err := creator.Execute(entryMock)
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+}
+
+func TestUserCreateErrInsert(t *testing.T) {
+	var idStr = "US-TESTES"
+	var firstNow = time.Now()
+	var localerMock = getLocalerMockForCreate(t, idStr, firstNow)
+	var dbMock = getCreateDbMock(t, idStr, firstNow)
+	var entryMock = getEntryMock(t, idStr, firstNow)
+
+	dbMock.FakeInsert = func(args ...interface{}) error {
+		return errors.New("Insert error")
+	}
+
+	creator := user.NewUserCreate(localerMock, dbMock)
+	result, err := creator.Execute(entryMock)
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+}
+
+func TestUserCreateErrGetAuthentic(t *testing.T) {
+	var idStr = "US-TESTES"
+	var firstNow = time.Now()
+	var localerMock = getLocalerMockForCreate(t, idStr, firstNow)
+	var dbMock = getCreateDbMock(t, idStr, firstNow)
+	var entryMock = getEntryMock(t, idStr, firstNow)
+
+	dbMock.getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+		return nil, errors.New("GetUserAuthentic error")
+	}
+
+	creator := user.NewUserCreate(localerMock, dbMock)
+	result, err := creator.Execute(entryMock)
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+}
+
+func TestUserCreateErrGetAuthenticNil(t *testing.T) {
+	var idStr = "US-TESTES"
+	var firstNow = time.Now()
+	var localerMock = getLocalerMockForCreate(t, idStr, firstNow)
+	var dbMock = getCreateDbMock(t, idStr, firstNow)
+	var entryMock = getEntryMock(t, idStr, firstNow)
+
+	dbMock.getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+		return nil, nil
+	}
+
+	creator := user.NewUserCreate(localerMock, dbMock)
+	result, err := creator.Execute(entryMock)
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
 }
