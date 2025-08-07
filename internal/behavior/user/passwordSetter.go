@@ -1,7 +1,6 @@
 package user
 
 import (
-	"github.com/go-gorp/gorp"
 	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
@@ -11,7 +10,6 @@ import (
 )
 
 type PasswordSetterDB interface {
-	gorp.SqlExecutor
 	commandQuery.AddPasswordQuery
 }
 
@@ -48,7 +46,8 @@ func (setter PasswordSet) Execute(entry entryUser.PasswordGetter, userAuthentic 
 
 	dbUserPassword := dbUser.FromShelterUserPassword(userPassword)
 
-	if err = setter.db.Insert(dbUserPassword); err != nil {
+	_, err = setter.db.AddPassword(dbUserPassword, now)
+	if err != nil {
 		return err
 	}
 

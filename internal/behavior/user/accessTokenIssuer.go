@@ -2,7 +2,6 @@ package user
 
 import (
 	"github.com/go-gorp/gorp"
-	"github.com/motojouya/geezer_auth/internal/db"
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
@@ -12,7 +11,6 @@ import (
 
 type AccessTokenIssuerDB interface {
 	gorp.SqlExecutor
-	db.Transactional
 	userQuery.GetUserAccessTokenQuery
 }
 

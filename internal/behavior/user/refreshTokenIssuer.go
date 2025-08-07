@@ -1,8 +1,6 @@
 package user
 
 import (
-	"github.com/go-gorp/gorp"
-	"github.com/motojouya/geezer_auth/internal/db"
 	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
@@ -11,8 +9,6 @@ import (
 )
 
 type RefreshTokenIssuerDB interface {
-	gorp.SqlExecutor
-	db.Transactional
 	commandQuery.AddRefreshTokenQuery
 }
 
@@ -48,7 +44,8 @@ func (issuer RefreshTokenIssue) Execute(userAuthentic *shelterUser.UserAuthentic
 	userRefreshToken := shelterUser.CreateUserRefreshToken(userAuthentic.GetUser(), refreshToken, now)
 	dbUserRefreshToken := dbUser.FromShelterUserRefreshToken(userRefreshToken)
 
-	if err := issuer.db.Insert(dbUserRefreshToken); err != nil {
+	_, err = issuer.db.AddRefreshToken(dbUserRefreshToken, now)
+	if err != nil {
 		return shelterText.Token(""), err
 	}
 
