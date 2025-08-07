@@ -5,6 +5,7 @@ import (
 	"github.com/motojouya/geezer_auth/internal/behavior/testUtility"
 	"github.com/motojouya/geezer_auth/internal/behavior/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
@@ -22,7 +23,7 @@ type accessTokenIssuerDBMock struct {
 }
 
 func (mock accessTokenIssuerDBMock) GetUserAccessToken(identifier string, now time.Time) ([]dbUser.UserAccessTokenFull, error) {
-	return mock.addRefreshToken(identifier, now)
+	return mock.getUserAccessToken(identifier, now)
 }
 
 func getShelterUserAuthenticForAccToken() *shelterUser.UserAuthentic {
@@ -65,26 +66,36 @@ func getLocalerMockForAccToken(t *testing.T, expectUUID uuid.UUID, now time.Time
 		FakeGenerateUUID: generateUUID,
 	}
 }
-// TODO working
-func getRefreshTokenIssueDbMock(t *testing.T, expectToken string, firstNow time.Time) accessTokenIssuerDBMock {
+
+func getAccessTokenIssueDbMock(t *testing.T, expectId string, expectToken string, firstNow time.Time) accessTokenIssuerDBMock {
 	var insert = func(userAccessTokens ...interface{}) error {
-		assert.Equal(t, userRefreshToken.RefreshToken, expectToken, "Expected token to match")
-		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
+		assert.Equal(t, userAccessTokens[0].AccessToken, expectToken, "Expected token to match")
 		return userRefreshToken, nil
 	}
 	var getUserAccessToken = func(identifier string, now time.Time) ([]dbUser.UserAccessTokenFull, error) {
-		assert.Equal(t, expectToken, identifier, "Expected identifier to match")
+		assert.Equal(t, expectId, identifier, "Expected identifier to match")
 		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
-		userAccessToken := dbUser.NewUserAccessTokenFull(
-			expectToken,
-		}
-		return []dbUser.UserAccessTokenFull{userAccessToken}, nil
+		return []dbUser.UserAccessTokenFull{}, nil
 	}
 	return accessTokenIssuerDBMock{
 		SqlExecutorMock: testUtility.SqlExecutorMock{
 			FakeInsert: insert,
 		},
 		getUserAccessToken: getUserAccessToken,
+	}
+}
+
+func getJwtHandlerMock(t *testing.T, expectId string, expectToken string, expectUUID string, firstNow time.Time) *testUtility.JwtHandlerMock {
+	var generate = func(user pkgUser.User, now time.Time, tokenId string) (pkgUser.Authentic, pkgText.JwtToken, error) {
+		assert.Equal(t, expectId, user.Identifier, "Expected token ID to match")
+		assert.Equal(t, expectUUID, tokenId, "Expected token ID to match")
+		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
+		return shelterUser.TokenData{
+			ExpiresAt: shelterUser.NewExpiresAt(now.Add(time.Hour)),
+		}, pkgText.JwtToken(expectToken), nil
+	}
+	return &testUtility.JwtHandlerMock{
+		FakeGenerate: generate,
 	}
 }
 
