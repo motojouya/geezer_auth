@@ -1,18 +1,15 @@
 package user_test
 
 import (
-	gojwt "github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/motojouya/geezer_auth/internal/behavior/testUtility"
-	"github.com/motojouya/geezer_auth/internal/behavior/user"
-	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
+	controlUser "github.com/motojouya/geezer_auth/internal/control/user"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
+	testUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -31,7 +28,7 @@ type emailSetterMock struct {
 	execute func(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error
 }
 
-func (emailSetterMock) Execute(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error {
+func (mock emailSetterMock) Execute(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error {
 	return mock.execute(entry, user)
 }
 
@@ -59,33 +56,10 @@ func (mock accessTokenIssuerMock) Execute(user *shelterUser.UserAuthentic) (pkgT
 	return mock.execute(user)
 }
 
-type TransactionalDatabaseMock struct {
-	FakeBegin func() error
-	FakeRollback func() error
-	FakeCommit func() error
-	FakeClose func() error
-}
-
-func (mock TransactionalDatabaseMock) Begin() error {
-	return mock.FakeBegin()
-}
-
-func (mock TransactionalDatabaseMock) Rollback() error {
-	return mock.FakeRollback()
-}
-
-func (mock TransactionalDatabaseMock) Commit() error {
-	return mock.FakeCommit()
-}
-
-func (mock TransactionalDatabaseMock) Close() error {
-	return mock.FakeClose()
-}
-
-func getBehavior() (*userCreatorMock, *emailSetterMock, *passwordSetterMock, *refreshTokenIssuerMock, *accessTokenIssuerMock) {
+func getBehavior(userAuthentic *shelterUser.UserAuthentic, refreshToken shelterText.Token, accessToken pkgText.JwtToken) (*userCreatorMock, *emailSetterMock, *passwordSetterMock, *refreshTokenIssuerMock, *accessTokenIssuerMock) {
 	var userCreator = &userCreatorMock{
 		execute: func(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error) {
-			return getShelterUserAuthenticForAccToken(string(entry.GetIdentifier())), nil
+			return userAuthentic, nil
 		},
 	}
 
@@ -103,34 +77,17 @@ func getBehavior() (*userCreatorMock, *emailSetterMock, *passwordSetterMock, *re
 
 	var refreshTokenIssuer = &refreshTokenIssuerMock{
 		execute: func(user *shelterUser.UserAuthentic) (shelterText.Token, error) {
-			return shelterText.Token("test-refresh-token"), nil
+			return refreshToken, nil
 		},
 	}
 
 	var accessTokenIssuer = &accessTokenIssuerMock{
 		execute: func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
-			return pkgText.JwtToken("test-access-token"), nil
+			return accessToken, nil
 		},
 	}
 
 	return userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer
-}
-
-func getDB() TransactionalDatabaseMock {
-	return TransactionalDatabaseMock{
-		FakeBegin: func() error {
-			return nil
-		},
-		FakeRollback: func() error {
-			return nil
-		},
-		FakeCommit: func() error {
-			return nil
-		},
-		FakeClose: func() error {
-			return nil
-		},
-	}
 }
 
 func getShelterUserAuthenticForRegister(expectId string) *shelterUser.UserAuthentic {
@@ -161,20 +118,236 @@ func getShelterUserAuthenticForRegister(expectId string) *shelterUser.UserAuthen
 	return shelterUser.NewUserAuthentic(userValue, companyRole, &email)
 }
 
+func getRegisterEntry() entryUser.UserRegisterRequest {
+	return entryUser.UserRegisterRequest{
+		UserRegister: entryUser.UserRegister{
+			Email:    "test@example.com",
+			Name:     "TestName",
+			Bot:      false,
+			Password: "password123",
+		},
+	}
+}
+
 func TestRegister(t *testing.T) {
 	var expectIdentifier = "US-TESTES"
 	var expectUUID, _ = uuid.NewUUID()
+	var refreshToken, _ = shelterText.CreateToken(expectUUID)
 	var expectToken = "test-access-token"
-	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForAccToken(expectIdentifier)
+	var accessToken = pkgText.JwtToken(expectToken)
+	var userAuthentic = getShelterUserAuthenticForRegister(expectIdentifier)
 
-	var localerMock = getLocalerMockForAccToken(t, expectUUID, firstNow)
-	var dbMock = getAccessTokenIssueDbMock(t, expectIdentifier, expectToken, firstNow)
-	var jwtHandlerMock = getJwtHandlerMock(t, expectIdentifier, expectToken, expectUUID.String(), firstNow)
+	var transactionCalledCount = &testUtility.TransactionCalledCount{}
+	var db = testUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 
-	issuer := user.NewAccessTokenIssue(localerMock, dbMock, jwtHandlerMock)
-	accessToken, err := issuer.Execute(userAuthentic)
+	var userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer = getBehavior(userAuthentic, refreshToken, accessToken)
+	var control = controlUser.NewRegisterControl(
+		db,
+		userCreator,
+		emailSetter,
+		passwordSetter,
+		refreshTokenIssuer,
+		accessTokenIssuer,
+	)
+
+	var entry = getRegisterEntry()
+
+	var userRegisterResponse, err = controlUser.RegisterExecute(control, entry, nil)
 
 	assert.NoError(t, err)
-	assert.Equal(t, expectToken, string(accessToken), "Expected refresh token to match generated UUID")
+	assert.Equal(t, expectIdentifier, userRegisterResponse.User.Identifier)
+	assert.Equal(t, expectUUID.String(), userRegisterResponse.RefreshToken)
+	assert.Equal(t, expectToken, userRegisterResponse.AccessToken)
+
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 1, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 0, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
+
+	t.Logf("User Identifier: %+v", userRegisterResponse)
+}
+
+func TestRegisterErrCreator(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectUUID, _ = uuid.NewUUID()
+	var refreshToken, _ = shelterText.CreateToken(expectUUID)
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+	var userAuthentic = getShelterUserAuthenticForRegister(expectIdentifier)
+
+	var transactionCalledCount = &testUtility.TransactionCalledCount{}
+	var db = testUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+
+	var userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer = getBehavior(userAuthentic, refreshToken, accessToken)
+	userCreator.execute = func(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error) {
+		return nil, errors.New("user creation error")
+	}
+
+	var control = controlUser.NewRegisterControl(
+		db,
+		userCreator,
+		emailSetter,
+		passwordSetter,
+		refreshTokenIssuer,
+		accessTokenIssuer,
+	)
+
+	var entry = getRegisterEntry()
+
+	var _, err = controlUser.RegisterExecute(control, entry, nil)
+
+	assert.Error(t, err)
+
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
+}
+
+func TestRegisterErrEmail(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectUUID, _ = uuid.NewUUID()
+	var refreshToken, _ = shelterText.CreateToken(expectUUID)
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+	var userAuthentic = getShelterUserAuthenticForRegister(expectIdentifier)
+
+	var transactionCalledCount = &testUtility.TransactionCalledCount{}
+	var db = testUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+
+	var userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer = getBehavior(userAuthentic, refreshToken, accessToken)
+	emailSetter.execute = func(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error {
+		return errors.New("email setting error")
+	}
+
+	var control = controlUser.NewRegisterControl(
+		db,
+		userCreator,
+		emailSetter,
+		passwordSetter,
+		refreshTokenIssuer,
+		accessTokenIssuer,
+	)
+
+	var entry = getRegisterEntry()
+
+	var _, err = controlUser.RegisterExecute(control, entry, nil)
+
+	assert.Error(t, err)
+
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
+}
+
+func TestRegisterErrPassword(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectUUID, _ = uuid.NewUUID()
+	var refreshToken, _ = shelterText.CreateToken(expectUUID)
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+	var userAuthentic = getShelterUserAuthenticForRegister(expectIdentifier)
+
+	var transactionCalledCount = &testUtility.TransactionCalledCount{}
+	var db = testUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+
+	var userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer = getBehavior(userAuthentic, refreshToken, accessToken)
+	passwordSetter.execute = func(entry entryUser.PasswordGetter, user *shelterUser.UserAuthentic) error {
+		return errors.New("password setting error")
+	}
+
+	var control = controlUser.NewRegisterControl(
+		db,
+		userCreator,
+		emailSetter,
+		passwordSetter,
+		refreshTokenIssuer,
+		accessTokenIssuer,
+	)
+
+	var entry = getRegisterEntry()
+
+	var _, err = controlUser.RegisterExecute(control, entry, nil)
+
+	assert.Error(t, err)
+
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
+}
+
+func TestRegisterErrRefToken(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectUUID, _ = uuid.NewUUID()
+	var refreshToken, _ = shelterText.CreateToken(expectUUID)
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+	var userAuthentic = getShelterUserAuthenticForRegister(expectIdentifier)
+
+	var transactionCalledCount = &testUtility.TransactionCalledCount{}
+	var db = testUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+
+	var userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer = getBehavior(userAuthentic, refreshToken, accessToken)
+	refreshTokenIssuer.execute = func(user *shelterUser.UserAuthentic) (shelterText.Token, error) {
+		return "", errors.New("refresh token issuing error")
+	}
+
+	var control = controlUser.NewRegisterControl(
+		db,
+		userCreator,
+		emailSetter,
+		passwordSetter,
+		refreshTokenIssuer,
+		accessTokenIssuer,
+	)
+
+	var entry = getRegisterEntry()
+
+	var _, err = controlUser.RegisterExecute(control, entry, nil)
+
+	assert.Error(t, err)
+
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
+}
+
+func TestRegisterErrAccToken(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectUUID, _ = uuid.NewUUID()
+	var refreshToken, _ = shelterText.CreateToken(expectUUID)
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+	var userAuthentic = getShelterUserAuthenticForRegister(expectIdentifier)
+
+	var transactionCalledCount = &testUtility.TransactionCalledCount{}
+	var db = testUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+
+	var userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer = getBehavior(userAuthentic, refreshToken, accessToken)
+	accessTokenIssuer.execute = func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
+		return "", errors.New("access token issuing error")
+	}
+
+	var control = controlUser.NewRegisterControl(
+		db,
+		userCreator,
+		emailSetter,
+		passwordSetter,
+		refreshTokenIssuer,
+		accessTokenIssuer,
+	)
+
+	var entry = getRegisterEntry()
+
+	var _, err = controlUser.RegisterExecute(control, entry, nil)
+
+	assert.Error(t, err)
+
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 }
