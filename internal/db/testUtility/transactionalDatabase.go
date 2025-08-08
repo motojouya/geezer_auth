@@ -1,10 +1,10 @@
 package testUtility
 
 type TransactionalDatabaseMock struct {
-	FakeBegin func() error
+	FakeBegin    func() error
 	FakeRollback func() error
-	FakeCommit func() error
-	FakeClose func() error
+	FakeCommit   func() error
+	FakeClose    func() error
 }
 
 func (mock TransactionalDatabaseMock) Begin() error {

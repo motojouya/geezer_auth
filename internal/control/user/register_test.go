@@ -1,19 +1,19 @@
 package user_test
 
 import (
+	"errors"
 	"github.com/google/uuid"
 	controlUser "github.com/motojouya/geezer_auth/internal/control/user"
-	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	testUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
-	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
-	testUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
+	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
-	"errors"
 )
 
 type userCreatorMock struct {

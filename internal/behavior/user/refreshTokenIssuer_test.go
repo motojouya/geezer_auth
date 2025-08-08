@@ -1,19 +1,19 @@
 package user_test
 
 import (
+	"errors"
 	"github.com/google/uuid"
-	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
 	"github.com/motojouya/geezer_auth/internal/behavior/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
-	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
-	"errors"
 )
 
 type refreshTokenIssuerDBMock struct {
@@ -60,7 +60,7 @@ func getLocalerMockForRefToken(t *testing.T, expectUUID uuid.UUID, now time.Time
 		return expectUUID, nil
 	}
 	return &localUtility.LocalerMock{
-		FakeGetNow: getNow,
+		FakeGetNow:       getNow,
 		FakeGenerateUUID: generateUUID,
 	}
 }

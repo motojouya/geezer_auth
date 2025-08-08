@@ -1,23 +1,23 @@
 package user_test
 
 import (
+	"errors"
 	gojwt "github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
-	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
-	jwtUtility "github.com/motojouya/geezer_auth/pkg/shelter/jwt/testUtility"
 	"github.com/motojouya/geezer_auth/internal/behavior/user"
+	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
-	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
-	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	jwtUtility "github.com/motojouya/geezer_auth/pkg/shelter/jwt/testUtility"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
+	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
-	"errors"
 )
 
 type accessTokenIssuerDBMock struct {
@@ -65,7 +65,7 @@ func getLocalerMockForAccToken(t *testing.T, expectUUID uuid.UUID, now time.Time
 		return expectUUID, nil
 	}
 	return &localUtility.LocalerMock{
-		FakeGetNow: getNow,
+		FakeGetNow:       getNow,
 		FakeGenerateUUID: generateUUID,
 	}
 }
