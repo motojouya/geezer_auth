@@ -3,7 +3,9 @@ package user_test
 import (
 	gojwt "github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/motojouya/geezer_auth/internal/behavior/testUtility"
+	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
+	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
+	jwtUtility "github.com/motojouya/geezer_auth/pkg/shelter/jwt/testUtility"
 	"github.com/motojouya/geezer_auth/internal/behavior/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
@@ -20,7 +22,7 @@ import (
 
 type accessTokenIssuerDBMock struct {
 	getUserAccessToken func(identifier string, now time.Time) ([]dbUser.UserAccessTokenFull, error)
-	testUtility.SqlExecutorMock
+	dbUtility.SqlExecutorMock
 }
 
 func (mock accessTokenIssuerDBMock) GetUserAccessToken(identifier string, now time.Time) ([]dbUser.UserAccessTokenFull, error) {
@@ -55,14 +57,14 @@ func getShelterUserAuthenticForAccToken(expectId string) *shelterUser.UserAuthen
 	return shelterUser.NewUserAuthentic(userValue, companyRole, &email)
 }
 
-func getLocalerMockForAccToken(t *testing.T, expectUUID uuid.UUID, now time.Time) *testUtility.LocalerMock {
+func getLocalerMockForAccToken(t *testing.T, expectUUID uuid.UUID, now time.Time) *localUtility.LocalerMock {
 	var getNow = func() time.Time {
 		return now
 	}
 	var generateUUID = func() (uuid.UUID, error) {
 		return expectUUID, nil
 	}
-	return &testUtility.LocalerMock{
+	return &localUtility.LocalerMock{
 		FakeGetNow: getNow,
 		FakeGenerateUUID: generateUUID,
 	}
@@ -85,14 +87,14 @@ func getAccessTokenIssueDbMock(t *testing.T, expectId string, expectToken string
 		return []dbUser.UserAccessTokenFull{}, nil
 	}
 	return accessTokenIssuerDBMock{
-		SqlExecutorMock: testUtility.SqlExecutorMock{
+		SqlExecutorMock: dbUtility.SqlExecutorMock{
 			FakeInsert: insert,
 		},
 		getUserAccessToken: getUserAccessToken,
 	}
 }
 
-func getJwtHandlerMock(t *testing.T, expectId string, expectToken string, expectUUID string, firstNow time.Time) *testUtility.JwtHandlerMock {
+func getJwtHandlerMock(t *testing.T, expectId string, expectToken string, expectUUID string, firstNow time.Time) *jwtUtility.JwtHandlerMock {
 	var generate = func(user *pkgUser.User, now time.Time, tokenId string) (*pkgUser.Authentic, pkgText.JwtToken, error) {
 		assert.Equal(t, expectId, string(user.Identifier), "Expected token ID to match")
 		assert.Equal(t, expectUUID, tokenId, "Expected token ID to match")
@@ -103,7 +105,7 @@ func getJwtHandlerMock(t *testing.T, expectId string, expectToken string, expect
 			},
 		}, pkgText.JwtToken(expectToken), nil
 	}
-	return &testUtility.JwtHandlerMock{
+	return &jwtUtility.JwtHandlerMock{
 		FakeGenerate: generate,
 	}
 }

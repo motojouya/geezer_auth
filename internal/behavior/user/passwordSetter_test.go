@@ -1,7 +1,7 @@
 package user_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/behavior/testUtility"
+	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
 	"github.com/motojouya/geezer_auth/internal/behavior/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
@@ -59,11 +59,11 @@ func getShelterUserAuthenticForPassword() *shelterUser.UserAuthentic {
 	return shelterUser.NewUserAuthentic(userValue, companyRole, &email)
 }
 
-func getLocalerMockForPassword(t *testing.T, now time.Time) *testUtility.LocalerMock {
+func getLocalerMockForPassword(t *testing.T, now time.Time) *localUtility.LocalerMock {
 	var getNow = func() time.Time {
 		return now
 	}
-	return &testUtility.LocalerMock{
+	return &localUtility.LocalerMock{
 		FakeGetNow: getNow,
 	}
 }

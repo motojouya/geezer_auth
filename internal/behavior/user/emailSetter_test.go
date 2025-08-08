@@ -1,7 +1,7 @@
 package user_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/behavior/testUtility"
+	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
 	"github.com/motojouya/geezer_auth/internal/behavior/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
@@ -66,14 +66,14 @@ func getShelterUserAuthenticForEmail(expectEmail string) *shelterUser.UserAuthen
 	return shelterUser.NewUserAuthentic(userValue, companyRole, &email)
 }
 
-func getLocalerMockForEmail(t *testing.T, now time.Time) *testUtility.LocalerMock {
+func getLocalerMockForEmail(t *testing.T, now time.Time) *localUtility.LocalerMock {
 	var getNow = func() time.Time {
 		return now
 	}
 	var generateUUID = func() (uuid.UUID, error) {
 		return uuid.NewUUID()
 	}
-	return &testUtility.LocalerMock{
+	return &localUtility.LocalerMock{
 		FakeGenerateUUID: generateUUID,
 		FakeGetNow:       getNow,
 	}

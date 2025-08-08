@@ -1,7 +1,8 @@
 package user_test
 
 import (
-	"github.com/motojouya/geezer_auth/internal/behavior/testUtility"
+	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
+	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
 	"github.com/motojouya/geezer_auth/internal/behavior/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
@@ -15,7 +16,7 @@ import (
 type userCreatorDBMock struct {
 	getUser          func(identifier string) (*dbUser.User, error)
 	getUserAuthentic func(identifier string, now time.Time) (*dbUser.UserAuthentic, error)
-	testUtility.SqlExecutorMock
+	dbUtility.SqlExecutorMock
 }
 
 func (mock userCreatorDBMock) GetUser(identifier string) (*dbUser.User, error) {
@@ -87,14 +88,14 @@ func getShelterUser(id string) shelterUser.UnsavedUser {
 	return shelterUser.CreateUser(identifier, emailId, name, botFlag, registeredDate)
 }
 
-func getLocalerMockForCreate(t *testing.T, idStr string, now time.Time) *testUtility.LocalerMock {
+func getLocalerMockForCreate(t *testing.T, idStr string, now time.Time) *localUtility.LocalerMock {
 	var getNow = func() time.Time {
 		return now
 	}
 	var generateRamdomString = func(length int, charSet string) string {
 		return "TESTES"
 	}
-	return &testUtility.LocalerMock{
+	return &localUtility.LocalerMock{
 		FakeGenerateRamdomString: generateRamdomString,
 		FakeGetNow:               getNow,
 	}
@@ -125,7 +126,7 @@ func getCreateDbMock(t *testing.T, idStr string, firstNow time.Time) userCreator
 		return dbUserAuthentic, nil
 	}
 	return userCreatorDBMock{
-		SqlExecutorMock: testUtility.SqlExecutorMock{
+		SqlExecutorMock: dbUtility.SqlExecutorMock{
 			FakeInsert: insert,
 		},
 		getUserAuthentic: getUserAuthentic,

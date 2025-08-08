@@ -2,7 +2,7 @@ package user_test
 
 import (
 	"github.com/google/uuid"
-	"github.com/motojouya/geezer_auth/internal/behavior/testUtility"
+	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
 	"github.com/motojouya/geezer_auth/internal/behavior/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
@@ -52,14 +52,14 @@ func getShelterUserAuthenticForRefToken() *shelterUser.UserAuthentic {
 	return shelterUser.NewUserAuthentic(userValue, companyRole, &email)
 }
 
-func getLocalerMockForRefToken(t *testing.T, expectUUID uuid.UUID, now time.Time) *testUtility.LocalerMock {
+func getLocalerMockForRefToken(t *testing.T, expectUUID uuid.UUID, now time.Time) *localUtility.LocalerMock {
 	var getNow = func() time.Time {
 		return now
 	}
 	var generateUUID = func() (uuid.UUID, error) {
 		return expectUUID, nil
 	}
-	return &testUtility.LocalerMock{
+	return &localUtility.LocalerMock{
 		FakeGetNow: getNow,
 		FakeGenerateUUID: generateUUID,
 	}
