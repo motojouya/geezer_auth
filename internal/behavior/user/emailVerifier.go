@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/go-gorp/gorp"
 	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
@@ -12,6 +13,7 @@ import (
 )
 
 type EmailVerifierDB interface {
+	gorp.SqlExecutor
 	userQuery.GetUserEmailOfTokenQuery
 	commandQuery.VerifyEmailQuery
 	userQuery.GetUserAuthenticQuery
@@ -50,8 +52,7 @@ func (verifier EmailVerify) Execute(entry entryUser.EmailVerifier, userAuthentic
 		return nil, err
 	}
 
-	userIdentifier := string(userAuthentic.Identifier)
-	dbUserEmailFull, err := verifier.db.GetUserEmailOfToken(userIdentifier, string(email))
+	dbUserEmailFull, err := verifier.db.GetUserEmailOfToken(string(userAuthentic.Identifier), string(email))
 	if err != nil {
 		return nil, err
 	}
@@ -76,13 +77,22 @@ func (verifier EmailVerify) Execute(entry entryUser.EmailVerifier, userAuthentic
 		return nil, err
 	}
 
-	dbUserAuthentic, err := verifier.db.GetUserAuthentic(userIdentifier, now)
+	userVal := userAuthentic.GetUser()
+	userVal.UpdateDate = now
+	var dbUserValue = dbUser.FromShelterUser(userVal)
+
+	_, err = verifier.db.Update(&dbUserValue)
+	if err != nil {
+		return nil, err
+	}
+
+	dbUserAuthentic, err := verifier.db.GetUserAuthentic(string(userAuthentic.Identifier), now)
 	if err != nil {
 		return nil, err
 	}
 
 	if dbUserAuthentic == nil {
-		keys := map[string]string{"identifier": userIdentifier}
+		keys := map[string]string{"identifier": string(userAuthentic.Identifier)}
 		return nil, essence.NewNotFoundError("user", keys, "user not found")
 	}
 
