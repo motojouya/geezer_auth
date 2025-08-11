@@ -21,7 +21,7 @@ func getUserForUserEmail(persistKey uint) shelter.User {
 	return shelter.NewUser(persistKey, identifier, name, emailId, botFlag, registeredDate, updateDate)
 }
 
-func TestFromShelterUserEmail(t *testing.T) {
+func TestFromShelterUnsavedUserEmail(t *testing.T) {
 	var persistKey uint = 1
 	var userValue = getUserForUserEmail(persistKey)
 
@@ -30,7 +30,7 @@ func TestFromShelterUserEmail(t *testing.T) {
 	var registerDate = time.Now()
 
 	var shelterUserEmail = shelter.CreateUserEmail(userValue, email, verifyToken, registerDate)
-	var userEmail = user.FromShelterUserEmail(shelterUserEmail)
+	var userEmail = user.FromShelterUnsavedUserEmail(shelterUserEmail)
 
 	assert.Equal(t, uint(0), userEmail.PersistKey)
 	assert.Equal(t, persistKey, userEmail.UserPersistKey)

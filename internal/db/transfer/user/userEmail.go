@@ -63,8 +63,20 @@ var SelectUserEmail = utility.Dialect.From(goqu.T("user_email").As("ue")).InnerJ
 	goqu.I("ue.expire_date").As("expire_date"),
 )
 
-func FromShelterUserEmail(shelterUserEmail *shelter.UnsavedUserEmail) *UserEmail {
+func FromShelterUnsavedUserEmail(shelterUserEmail *shelter.UnsavedUserEmail) *UserEmail {
 	return &UserEmail{
+		UserPersistKey: shelterUserEmail.User.PersistKey,
+		Email:          string(shelterUserEmail.Email),
+		VerifyToken:    string(shelterUserEmail.VerifyToken),
+		RegisterDate:   shelterUserEmail.RegisterDate,
+		VerifyDate:     shelterUserEmail.VerifyDate,
+		ExpireDate:     shelterUserEmail.ExpireDate,
+	}
+}
+
+func FromShelterUserEmail(shelterUserEmail *shelter.UserEmail) *UserEmail {
+	return &UserEmail{
+		PersistKey:     shelterUserEmail.PersistKey,
 		UserPersistKey: shelterUserEmail.User.PersistKey,
 		Email:          string(shelterUserEmail.Email),
 		VerifyToken:    string(shelterUserEmail.VerifyToken),

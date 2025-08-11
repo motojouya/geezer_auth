@@ -33,8 +33,20 @@ var SelectUser = utility.Dialect.From(goqu.T("users").As("u")).Select(
 	goqu.I("u.update_date").As("update_date"),
 )
 
-func FromShelterUser(shelterUser shelter.UnsavedUser) User {
+func FromShelterUnsavedUser(shelterUser shelter.UnsavedUser) User {
 	return User{
+		Identifier:     string(shelterUser.Identifier),
+		ExposeEmailId:  string(shelterUser.ExposeEmailId),
+		Name:           string(shelterUser.Name),
+		BotFlag:        shelterUser.BotFlag,
+		RegisteredDate: shelterUser.RegisteredDate,
+		UpdateDate:     shelterUser.UpdateDate,
+	}
+}
+
+func FromShelterUser(shelterUser shelter.User) User {
+	return User{
+		PersistKey:     shelterUser.PersistKey,
 		Identifier:     string(shelterUser.Identifier),
 		ExposeEmailId:  string(shelterUser.ExposeEmailId),
 		Name:           string(shelterUser.Name),

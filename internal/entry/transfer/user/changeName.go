@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+type UserApplyer interface {
+	ApplyShelterUser(user shelter.User, updateDate time.Time) (shelter.User, error)
+}
+
 type UserChangeName struct {
 	Name string `json:"name"`
 }
@@ -14,7 +18,7 @@ type UserChangeNameRequest struct {
 	UserChangeName UserChangeName `http:"body"`
 }
 
-func (u UserChangeNameRequest) ToShelterUser(user shelter.User, updateDate time.Time) (shelter.User, error) {
+func (u UserChangeNameRequest) ApplyShelterUser(user shelter.User, updateDate time.Time) (shelter.User, error) {
 	var name, nameErr = pkgText.NewName(u.UserChangeName.Name)
 	if nameErr != nil {
 		return shelter.User{}, nameErr

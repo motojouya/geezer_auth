@@ -68,7 +68,7 @@ func (creator UserCreate) Execute(entry entryUser.UserGetter) (*shelterUser.User
 		return nil, err
 	}
 
-	var dbUserValue = dbUser.FromShelterUser(unsavedUser)
+	var dbUserValue = dbUser.FromShelterUnsavedUser(unsavedUser)
 
 	if err = creator.db.Insert(&dbUserValue); err != nil {
 		return nil, err

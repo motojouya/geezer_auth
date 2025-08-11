@@ -11,10 +11,6 @@ type UserGetter interface {
 	ToShelterUser(pkgText.Identifier, time.Time) (shelter.UnsavedUser, error)
 }
 
-type EmailGetter interface {
-	GetEmail() (pkgText.Email, error)
-}
-
 type UserRegister struct {
 	Email    string `json:"email"`
 	Name     string `json:"name"`

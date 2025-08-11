@@ -17,7 +17,7 @@ func TestFromShelterUser(t *testing.T) {
 	var registeredDate = time.Now()
 
 	var shelterUser = shelter.CreateUser(identifier, emailId, name, botFlag, registeredDate)
-	var transferUser = user.FromShelterUser(shelterUser)
+	var transferUser = user.FromShelterUnsavedUser(shelterUser)
 
 	assert.Equal(t, uint(0), transferUser.PersistKey)
 	assert.Equal(t, string(identifier), string(transferUser.Identifier))

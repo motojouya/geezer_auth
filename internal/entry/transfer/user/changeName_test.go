@@ -21,7 +21,7 @@ func TestChangeNameToShelterUser(t *testing.T) {
 	var userName, _ = pkgText.NewName("different_name")
 	var shelterUser = getUserForChangeName(userIdentifier, userName)
 
-	var shelterUserNameChanged, err = userChangeNameRequest.ToShelterUser(shelterUser, time.Now())
+	var shelterUserNameChanged, err = userChangeNameRequest.ApplyShelterUser(shelterUser, time.Now())
 
 	assert.Nil(t, err)
 	assert.NotNil(t, shelterUserNameChanged)
