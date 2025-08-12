@@ -2,10 +2,10 @@ package user_test
 
 import (
 	"errors"
-	"github.com/google/uuid"
 	"github.com/motojouya/geezer_auth/internal/behavior/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
+	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
@@ -19,7 +19,7 @@ import (
 type emailVerifierDBMock struct {
 	getUserEmailOfToken func(identifier string, email string) (*dbUser.UserEmailFull, error)
 	verifyEmail         func(userEmail *dbUser.UserEmail, now time.Time) (*dbUser.UserEmail, error)
-	getUserAuthentic    func(identifier string) (*dbUser.UserAuthentic, error)
+	getUserAuthentic    func(identifier string, now time.Time) (*dbUser.UserAuthentic, error)
 	dbUtility.SqlExecutorMock
 }
 
@@ -31,8 +31,8 @@ func (mock emailVerifierDBMock) VerifyEmail(userEmail *dbUser.UserEmail, now tim
 	return mock.verifyEmail(userEmail, now)
 }
 
-func (mock emailVerifierDBMock) GetUserAuthentic(identifier string) (*dbUser.UserAuthentic, error) {
-	return mock.getUserAuthentic(identifier)
+func (mock emailVerifierDBMock) GetUserAuthentic(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+	return mock.getUserAuthentic(identifier, now)
 }
 
 type emailVerifierEntryMock struct {
@@ -48,10 +48,9 @@ func (mock emailVerifierEntryMock) GetVerifyToken() (shelterText.Token, error) {
 	return mock.getVerifyToken()
 }
 
-func getShelterUserAuthenticForEmailVerify(expectEmail string) *shelterUser.UserAuthentic {
-
+func getShelterUserAuthenticForEmailVerify(expectId string, expectEmail string) *shelterUser.UserAuthentic {
 	var userId uint = 1
-	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
+	var userIdentifier, _ = pkgText.NewIdentifier(expectId)
 	var emailId, _ = pkgText.NewEmail(expectEmail)
 	var userName, _ = pkgText.NewName("TestName")
 	var botFlag = false
@@ -86,17 +85,77 @@ func getLocalerMockForEmailVerify(t *testing.T, now time.Time) *localUtility.Loc
 	}
 }
 
-func getEmailVerifyDbMock(t *testing.T, expectId string, expectEmail string, exectToken string, firstNow time.Time) emailVerifierDBMock {
+func getDbUserAuthentic(expectId string, expectOldEmail string, expectNewEmail string) *dbUser.UserAuthentic {
+	var companyId = "CP-TESTES"
+	var now = time.Now()
+	var expireDate = now.Add(1 * time.Hour)
+	var userCompanyRole1 = dbUser.UserCompanyRoleFull{
+		UserCompanyRole: dbUser.UserCompanyRole{
+			PersistKey:        1,
+			UserPersistKey:    2,
+			CompanyPersistKey: 3,
+			RoleLabel:         "TEST_ROLE",
+			RegisterDate:      now,
+			ExpireDate:        &expireDate,
+		},
+		UserIdentifier:        expectId,
+		UserExposeEmailId:     expectOldEmail,
+		UserName:              "TestUserName",
+		UserBotFlag:           false,
+		UserRegisteredDate:    now.Add(2 * time.Hour),
+		UserUpdateDate:        now.Add(3 * time.Hour),
+		CompanyIdentifier:     companyId,
+		CompanyName:           "TestCompanyName",
+		CompanyRegisteredDate: now.Add(4 * time.Hour),
+		RoleName:              "TestRoleName",
+		RoleDescription:       "TestRoleDescription",
+		RoleRegisteredDate:    now.Add(5 * time.Hour),
+	}
+	var userCompanyRoles = []dbUser.UserCompanyRoleFull{userCompanyRole1}
+
+	return &dbUser.UserAuthentic{
+		UserPersistKey:     1,
+		UserIdentifier:     expectId,
+		UserExposeEmailId:  expectOldEmail,
+		UserName:           "TestUserName",
+		UserBotFlag:        false,
+		UserRegisteredDate: now,
+		UserUpdateDate:     now.Add(1 * time.Hour),
+		Email:              &expectNewEmail,
+		UserCompanyRole:    userCompanyRoles,
+	}
+}
+
+func getUserEmailFull(expectId string, expectOldEmail string, expectNewEmail string, now time.Time) *dbUser.UserEmailFull {
+	var verifiyDate = now.Add(1 * time.Hour)
+	var expireDate = now.Add(1 * time.Hour)
+	return &dbUser.UserEmailFull{
+		UserEmail: dbUser.UserEmail{
+			PersistKey:     1,
+			UserPersistKey: 2,
+			Email:          expectNewEmail,
+			VerifyToken:    "TestVerifyToken",
+			RegisterDate:   now,
+			VerifyDate:     &verifiyDate,
+			ExpireDate:     &expireDate,
+		},
+		UserIdentifier:     expectId,
+		UserExposeEmailId:  expectOldEmail,
+		UserName:           "TestUserName",
+		UserBotFlag:        false,
+		UserRegisteredDate: now.Add(2 * time.Hour),
+		UserUpdateDate:     now.Add(3 * time.Hour),
+	}
+}
+
+func getEmailVerifyDbMock(t *testing.T, expectId string, expectOldEmail string, expectNewEmail string, exectToken string, firstNow time.Time) emailVerifierDBMock {
 	var getUserEmailOfToken = func(identifier string, email string) (*dbUser.UserEmailFull, error) {
 		assert.Equal(t, expectId, identifier)
-		assert.Equal(t, expectEmail, email)
-		return &dbUser.UserEmailFull{
-			Email: expectEmail,
-			VerifyToken: exectToken,
-		}, nil
+		assert.Equal(t, expectNewEmail, email)
+		return getUserEmailFull(expectId, expectOldEmail, expectNewEmail, firstNow), nil
 	}
 	var verifyEmail = func(userEmail *dbUser.UserEmail, now time.Time) (*dbUser.UserEmail, error) {
-		assert.Equal(t, expectEmail, userEmail.Email)
+		assert.Equal(t, expectNewEmail, userEmail.Email)
 		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
 		return userEmail, nil
 	}
@@ -111,17 +170,20 @@ func getEmailVerifyDbMock(t *testing.T, expectId string, expectEmail string, exe
 		assert.NotNil(t, user, "Expected user to be not nil")
 		assert.Equal(t, expectId, user.Identifier, "Expected user identifier 'US-TESTES'")
 
-		return nil
+		return 0, nil
 	}
-	var getUserAuthentic = func(identifier string) (*dbUser.UserAuthentic, error) {
+	var getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
 		assert.Equal(t, expectId, identifier)
-		return []dbUser.UserEmailFull{}, nil
+		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
+		return getDbUserAuthentic(expectId, expectOldEmail, expectNewEmail), nil
 	}
 	return emailVerifierDBMock{
 		getUserEmailOfToken: getUserEmailOfToken,
 		verifyEmail:         verifyEmail,
 		getUserAuthentic:    getUserAuthentic,
-		update:              update,
+		SqlExecutorMock:     dbUtility.SqlExecutorMock{
+			FakeUpdate:  update,
+		},
 	}
 }
 
@@ -140,132 +202,260 @@ func getVerifyEmailEntryMock(t *testing.T, expectEmail string, expectToken strin
 	}
 }
 
-func TestEmailSetter(t *testing.T) {
-	var expectEmail = "test@example.com"
+func TestEmailVerifier(t *testing.T) {
+	var expectId = "US-TESTES"
+	var expectOldEmail = "test01@example.com"
+	var expectNewEmail = "test02@example.com"
+	var expectToken = "TestVerifyToken"
 	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForEmail(expectEmail)
+	var userAuthentic = getShelterUserAuthenticForEmailVerify(expectId, expectOldEmail)
 
-	var localerMock = getLocalerMockForEmail(t, firstNow)
-	var dbMock = getEmailSetDbMock(t, expectEmail, firstNow)
-	var entryMock = getGetEmailEntryMock(t, expectEmail, firstNow)
+	var localerMock = getLocalerMockForEmailVerify(t, firstNow)
+	var dbMock = getEmailVerifyDbMock(t, expectId, expectOldEmail, expectNewEmail, expectToken, firstNow)
+	var entryMock = getVerifyEmailEntryMock(t, expectNewEmail, expectToken)
 
-	setter := user.NewEmailSet(localerMock, dbMock)
-	err := setter.Execute(entryMock, userAuthentic)
+	verifier := user.NewEmailVerify(localerMock, dbMock)
+	resultAuthentic, err := verifier.Execute(entryMock, userAuthentic)
 
 	assert.NoError(t, err)
+	assert.NotNil(t, resultAuthentic, "Expected resultAuthentic to be not nil")
+	assert.Equal(t, expectId, string(resultAuthentic.Identifier), "Expected user identifier to match")
+	assert.NotNil(t, resultAuthentic.Email, "Expected user email to be not nil")
+	assert.Equal(t, expectNewEmail, string(*resultAuthentic.Email), "Expected user email to match")
 }
 
-func TestEmailSetterErrGetEmail(t *testing.T) {
-	var expectEmail = "test@example.com"
+func TestEmailVerifierErrNilAuthentic(t *testing.T) {
+	var expectId = "US-TESTES"
+	var expectOldEmail = "test01@example.com"
+	var expectNewEmail = "test02@example.com"
+	var expectToken = "TestVerifyToken"
 	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForEmail(expectEmail)
+	// var userAuthentic = getShelterUserAuthenticForEmailVerify(expectId, expectOldEmail)
 
-	var localerMock = getLocalerMockForEmail(t, firstNow)
-	var dbMock = getEmailSetDbMock(t, expectEmail, firstNow)
-	var entryMock = getGetEmailEntryMock(t, expectEmail, firstNow)
+	var localerMock = getLocalerMockForEmailVerify(t, firstNow)
+	var dbMock = getEmailVerifyDbMock(t, expectId, expectOldEmail, expectNewEmail, expectToken, firstNow)
+	var entryMock = getVerifyEmailEntryMock(t, expectNewEmail, expectToken)
+
+	verifier := user.NewEmailVerify(localerMock, dbMock)
+	_, err := verifier.Execute(entryMock, nil)
+
+	assert.Error(t, err)
+}
+
+func TestEmailVerifierErrEntryGetEmail(t *testing.T) {
+	var expectId = "US-TESTES"
+	var expectOldEmail = "test01@example.com"
+	var expectNewEmail = "test02@example.com"
+	var expectToken = "TestVerifyToken"
+	var firstNow = time.Now()
+	var userAuthentic = getShelterUserAuthenticForEmailVerify(expectId, expectOldEmail)
+
+	var localerMock = getLocalerMockForEmailVerify(t, firstNow)
+	var dbMock = getEmailVerifyDbMock(t, expectId, expectOldEmail, expectNewEmail, expectToken, firstNow)
+	var entryMock = getVerifyEmailEntryMock(t, expectNewEmail, expectToken)
 
 	entryMock.getEmail = func() (pkgText.Email, error) {
-		return pkgText.Email(""), errors.New("failed to get email")
+		return pkgText.Email(""), errors.New("test error")
 	}
 
-	setter := user.NewEmailSet(localerMock, dbMock)
-	err := setter.Execute(entryMock, userAuthentic)
+	verifier := user.NewEmailVerify(localerMock, dbMock)
+	_, err := verifier.Execute(entryMock, userAuthentic)
 
 	assert.Error(t, err)
 }
 
-func TestEmailSetterErrGetUserEmail(t *testing.T) {
-	var expectEmail = "test@example.com"
+func TestEmailVerifierErrEntryGetToken(t *testing.T) {
+	var expectId = "US-TESTES"
+	var expectOldEmail = "test01@example.com"
+	var expectNewEmail = "test02@example.com"
+	var expectToken = "TestVerifyToken"
 	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForEmail(expectEmail)
+	var userAuthentic = getShelterUserAuthenticForEmailVerify(expectId, expectOldEmail)
 
-	var localerMock = getLocalerMockForEmail(t, firstNow)
-	var dbMock = getEmailSetDbMock(t, expectEmail, firstNow)
-	var entryMock = getGetEmailEntryMock(t, expectEmail, firstNow)
+	var localerMock = getLocalerMockForEmailVerify(t, firstNow)
+	var dbMock = getEmailVerifyDbMock(t, expectId, expectOldEmail, expectNewEmail, expectToken, firstNow)
+	var entryMock = getVerifyEmailEntryMock(t, expectNewEmail, expectToken)
 
-	dbMock.getUserEmail = func(email string) ([]dbUser.UserEmailFull, error) {
-		return nil, errors.New("failed to get user email")
+	entryMock.getVerifyToken = func() (shelterText.Token, error) {
+		return shelterText.Token(""), errors.New("test error")
 	}
 
-	setter := user.NewEmailSet(localerMock, dbMock)
-	err := setter.Execute(entryMock, userAuthentic)
+	verifier := user.NewEmailVerify(localerMock, dbMock)
+	_, err := verifier.Execute(entryMock, userAuthentic)
 
 	assert.Error(t, err)
 }
 
-func TestEmailSetterErrGetUserEmailMany(t *testing.T) {
-	var expectEmail = "test@example.com"
+func TestEmailVerifierErrDbGetEmail(t *testing.T) {
+	var expectId = "US-TESTES"
+	var expectOldEmail = "test01@example.com"
+	var expectNewEmail = "test02@example.com"
+	var expectToken = "TestVerifyToken"
 	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForEmail(expectEmail)
+	var userAuthentic = getShelterUserAuthenticForEmailVerify(expectId, expectOldEmail)
 
-	var localerMock = getLocalerMockForEmail(t, firstNow)
-	var dbMock = getEmailSetDbMock(t, expectEmail, firstNow)
-	var entryMock = getGetEmailEntryMock(t, expectEmail, firstNow)
+	var localerMock = getLocalerMockForEmailVerify(t, firstNow)
+	var dbMock = getEmailVerifyDbMock(t, expectId, expectOldEmail, expectNewEmail, expectToken, firstNow)
+	var entryMock = getVerifyEmailEntryMock(t, expectNewEmail, expectToken)
 
-	var verifiyDate = firstNow.Add(1 * time.Hour)
-	var expireDate = firstNow.Add(1 * time.Hour)
-	var userEmail = dbUser.UserEmailFull{
-		UserEmail: dbUser.UserEmail{
-			PersistKey:     1,
-			UserPersistKey: 2,
-			Email:          "test01@example.com",
-			VerifyToken:    "TestVerifyToken",
-			RegisterDate:   firstNow,
-			VerifyDate:     &verifiyDate,
-			ExpireDate:     &expireDate,
-		},
-		UserIdentifier:     "invalid-identifier",
-		UserExposeEmailId:  "test02@example.com",
-		UserName:           "TestUserName",
-		UserBotFlag:        false,
-		UserRegisteredDate: firstNow.Add(2 * time.Hour),
-		UserUpdateDate:     firstNow.Add(3 * time.Hour),
+	dbMock.getUserEmailOfToken = func(identifier string, email string) (*dbUser.UserEmailFull, error) {
+		return nil, errors.New("test error")
 	}
 
-	dbMock.getUserEmail = func(email string) ([]dbUser.UserEmailFull, error) {
-		return []dbUser.UserEmailFull{userEmail}, nil
-	}
-
-	setter := user.NewEmailSet(localerMock, dbMock)
-	err := setter.Execute(entryMock, userAuthentic)
+	verifier := user.NewEmailVerify(localerMock, dbMock)
+	_, err := verifier.Execute(entryMock, userAuthentic)
 
 	assert.Error(t, err)
 }
 
-func TestEmailSetterErrGenerateUUID(t *testing.T) {
-	var expectEmail = "test@example.com"
+func TestEmailVerifierErrDbGetEmailNil(t *testing.T) {
+	var expectId = "US-TESTES"
+	var expectOldEmail = "test01@example.com"
+	var expectNewEmail = "test02@example.com"
+	var expectToken = "TestVerifyToken"
 	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForEmail(expectEmail)
+	var userAuthentic = getShelterUserAuthenticForEmailVerify(expectId, expectOldEmail)
 
-	var localerMock = getLocalerMockForEmail(t, firstNow)
-	var dbMock = getEmailSetDbMock(t, expectEmail, firstNow)
-	var entryMock = getGetEmailEntryMock(t, expectEmail, firstNow)
+	var localerMock = getLocalerMockForEmailVerify(t, firstNow)
+	var dbMock = getEmailVerifyDbMock(t, expectId, expectOldEmail, expectNewEmail, expectToken, firstNow)
+	var entryMock = getVerifyEmailEntryMock(t, expectNewEmail, expectToken)
 
-	localerMock.FakeGenerateUUID = func() (uuid.UUID, error) {
-		return uuid.UUID{}, errors.New("failed to generate UUID")
+	dbMock.getUserEmailOfToken = func(identifier string, email string) (*dbUser.UserEmailFull, error) {
+		return nil, nil
 	}
 
-	setter := user.NewEmailSet(localerMock, dbMock)
-	err := setter.Execute(entryMock, userAuthentic)
+	verifier := user.NewEmailVerify(localerMock, dbMock)
+	_, err := verifier.Execute(entryMock, userAuthentic)
 
 	assert.Error(t, err)
 }
 
-func TestEmailSetterErrAddEmail(t *testing.T) {
-	var expectEmail = "test@example.com"
+func TestEmailVerifierErrDbGetEmailInvalid(t *testing.T) {
+	var expectId = "US-TESTES"
+	var expectOldEmail = "test01@example.com"
+	var expectNewEmail = "test02@example.com"
+	var expectToken = "TestVerifyToken"
 	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForEmail(expectEmail)
+	var userAuthentic = getShelterUserAuthenticForEmailVerify(expectId, expectOldEmail)
 
-	var localerMock = getLocalerMockForEmail(t, firstNow)
-	var dbMock = getEmailSetDbMock(t, expectEmail, firstNow)
-	var entryMock = getGetEmailEntryMock(t, expectEmail, firstNow)
+	var localerMock = getLocalerMockForEmailVerify(t, firstNow)
+	var dbMock = getEmailVerifyDbMock(t, expectId, expectOldEmail, expectNewEmail, expectToken, firstNow)
+	var entryMock = getVerifyEmailEntryMock(t, expectNewEmail, expectToken)
 
-	dbMock.addEmail = func(userEmail *dbUser.UserEmail, now time.Time) (*dbUser.UserEmail, error) {
-		return nil, errors.New("failed to add email")
+	dbMock.getUserEmailOfToken = func(identifier string, email string) (*dbUser.UserEmailFull, error) {
+		var emailFull = getUserEmailFull(expectId, expectOldEmail, expectNewEmail, firstNow)
+		emailFull.UserIdentifier = "INVALID_ID"
+		return emailFull, nil
 	}
 
-	setter := user.NewEmailSet(localerMock, dbMock)
-	err := setter.Execute(entryMock, userAuthentic)
+	verifier := user.NewEmailVerify(localerMock, dbMock)
+	_, err := verifier.Execute(entryMock, userAuthentic)
+
+	assert.Error(t, err)
+}
+
+func TestEmailVerifierErrInvalidToken(t *testing.T) {
+	var expectId = "US-TESTES"
+	var expectOldEmail = "test01@example.com"
+	var expectNewEmail = "test02@example.com"
+	var expectToken = "TestVerifyToken"
+	var firstNow = time.Now()
+	var userAuthentic = getShelterUserAuthenticForEmailVerify(expectId, expectOldEmail)
+
+	var localerMock = getLocalerMockForEmailVerify(t, firstNow)
+	var dbMock = getEmailVerifyDbMock(t, expectId, expectOldEmail, expectNewEmail, expectToken, firstNow)
+	var entryMock = getVerifyEmailEntryMock(t, expectNewEmail, "InvalidToken")
+
+	verifier := user.NewEmailVerify(localerMock, dbMock)
+	_, err := verifier.Execute(entryMock, userAuthentic)
+
+	assert.Error(t, err)
+}
+
+func TestEmailVerifierErrDbVerifyEmail(t *testing.T) {
+	var expectId = "US-TESTES"
+	var expectOldEmail = "test01@example.com"
+	var expectNewEmail = "test02@example.com"
+	var expectToken = "TestVerifyToken"
+	var firstNow = time.Now()
+	var userAuthentic = getShelterUserAuthenticForEmailVerify(expectId, expectOldEmail)
+
+	var localerMock = getLocalerMockForEmailVerify(t, firstNow)
+	var dbMock = getEmailVerifyDbMock(t, expectId, expectOldEmail, expectNewEmail, expectToken, firstNow)
+	var entryMock = getVerifyEmailEntryMock(t, expectNewEmail, "InvalidToken")
+
+	dbMock.verifyEmail = func(userEmail *dbUser.UserEmail, now time.Time) (*dbUser.UserEmail, error) {
+		return nil, errors.New("test error")
+	}
+
+	verifier := user.NewEmailVerify(localerMock, dbMock)
+	_, err := verifier.Execute(entryMock, userAuthentic)
+
+	assert.Error(t, err)
+}
+
+func TestEmailVerifierErrDbUpdate(t *testing.T) {
+	var expectId = "US-TESTES"
+	var expectOldEmail = "test01@example.com"
+	var expectNewEmail = "test02@example.com"
+	var expectToken = "TestVerifyToken"
+	var firstNow = time.Now()
+	var userAuthentic = getShelterUserAuthenticForEmailVerify(expectId, expectOldEmail)
+
+	var localerMock = getLocalerMockForEmailVerify(t, firstNow)
+	var dbMock = getEmailVerifyDbMock(t, expectId, expectOldEmail, expectNewEmail, expectToken, firstNow)
+	var entryMock = getVerifyEmailEntryMock(t, expectNewEmail, "InvalidToken")
+
+	dbMock.SqlExecutorMock.FakeUpdate = func(args ...interface{}) (int64, error) {
+		return 0, errors.New("test error")
+	}
+
+	verifier := user.NewEmailVerify(localerMock, dbMock)
+	_, err := verifier.Execute(entryMock, userAuthentic)
+
+	assert.Error(t, err)
+}
+
+func TestEmailVerifierErrDbGetAuthentic(t *testing.T) {
+	var expectId = "US-TESTES"
+	var expectOldEmail = "test01@example.com"
+	var expectNewEmail = "test02@example.com"
+	var expectToken = "TestVerifyToken"
+	var firstNow = time.Now()
+	var userAuthentic = getShelterUserAuthenticForEmailVerify(expectId, expectOldEmail)
+
+	var localerMock = getLocalerMockForEmailVerify(t, firstNow)
+	var dbMock = getEmailVerifyDbMock(t, expectId, expectOldEmail, expectNewEmail, expectToken, firstNow)
+	var entryMock = getVerifyEmailEntryMock(t, expectNewEmail, "InvalidToken")
+
+	dbMock.getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+		return nil, errors.New("test error")
+	}
+
+	verifier := user.NewEmailVerify(localerMock, dbMock)
+	_, err := verifier.Execute(entryMock, userAuthentic)
+
+	assert.Error(t, err)
+}
+
+func TestEmailVerifierErrDbGetAuthenticNil(t *testing.T) {
+	var expectId = "US-TESTES"
+	var expectOldEmail = "test01@example.com"
+	var expectNewEmail = "test02@example.com"
+	var expectToken = "TestVerifyToken"
+	var firstNow = time.Now()
+	var userAuthentic = getShelterUserAuthenticForEmailVerify(expectId, expectOldEmail)
+
+	var localerMock = getLocalerMockForEmailVerify(t, firstNow)
+	var dbMock = getEmailVerifyDbMock(t, expectId, expectOldEmail, expectNewEmail, expectToken, firstNow)
+	var entryMock = getVerifyEmailEntryMock(t, expectNewEmail, "InvalidToken")
+
+	dbMock.getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+		return nil, nil
+	}
+
+	verifier := user.NewEmailVerify(localerMock, dbMock)
+	_, err := verifier.Execute(entryMock, userAuthentic)
 
 	assert.Error(t, err)
 }
