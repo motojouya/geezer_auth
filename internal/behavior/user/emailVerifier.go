@@ -20,7 +20,7 @@ type EmailVerifierDB interface {
 }
 
 type EmailVerifier interface {
-	Execute(entry entryUser.EmailGetter, userAuthentic *shelterUser.UserAuthentic) error
+	Execute(entry entryUser.EmailVerifier, userAuthentic *shelterUser.UserAuthentic) (*shelterUser.UserAuthentic, error)
 }
 
 type EmailVerify struct {
@@ -77,9 +77,8 @@ func (verifier EmailVerify) Execute(entry entryUser.EmailVerifier, userAuthentic
 		return nil, err
 	}
 
-	userVal := userAuthentic.GetUser()
-	userVal.UpdateDate = now
-	var dbUserValue = dbUser.FromShelterUser(userVal)
+	updatedUser := userAuthentic.GetUser().Update(now)
+	var dbUserValue = dbUser.FromShelterUser(updatedUser)
 
 	_, err = verifier.db.Update(&dbUserValue)
 	if err != nil {

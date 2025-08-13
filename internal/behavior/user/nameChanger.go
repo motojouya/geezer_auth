@@ -34,12 +34,12 @@ func NewNameChange(local localPkg.Localer, db NameChangerDB) *NameChange {
 func (changer NameChange) Execute(entry entryUser.UserApplyer, userAuthentic *shelterUser.UserAuthentic) (*shelterUser.UserAuthentic, error) {
 	now := changer.local.GetNow()
 
-	changeApplyedUser, err := entry.ApplyShelterUser(userAuthentic.GetUser(), now)
+	changeAppliedUser, err := entry.ApplyShelterUser(userAuthentic.GetUser(), now)
 	if err != nil {
 		return nil, err
 	}
 
-	var dbUserValue = dbUser.FromShelterUser(changeApplyedUser)
+	var dbUserValue = dbUser.FromShelterUser(changeAppliedUser)
 
 	if _, err = changer.db.Update(&dbUserValue); err != nil {
 		return nil, err

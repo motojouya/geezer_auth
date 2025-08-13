@@ -64,6 +64,20 @@ func NewUser(
 	}
 }
 
+func (user User) Update(updateDate time.Time) User {
+	return User{
+		PersistKey: user.PersistKey,
+		UnsavedUser: UnsavedUser{
+			Identifier:     user.Identifier,
+			ExposeEmailId:  user.ExposeEmailId,
+			Name:           user.Name,
+			BotFlag:        user.BotFlag,
+			RegisteredDate: user.RegisteredDate,
+			UpdateDate:     updateDate,
+		},
+	}
+}
+
 func (user User) UpdateName(name pkgText.Name, updateDate time.Time) User {
 	return User{
 		PersistKey: user.PersistKey,

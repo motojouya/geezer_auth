@@ -2,7 +2,6 @@ package user
 
 import (
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
-	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
@@ -14,7 +13,7 @@ type UserGetterDB interface {
 }
 
 type UserGetter interface {
-	Execute(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error)
+	Execute(userIdentifier pkgText.Identifier) (*shelterUser.UserAuthentic, error)
 }
 
 type UserGet struct {
