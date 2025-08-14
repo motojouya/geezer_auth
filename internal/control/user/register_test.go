@@ -17,33 +17,33 @@ import (
 	"time"
 )
 
-func getBehaviorForRegister(userAuthentic *shelterUser.UserAuthentic, refreshToken shelterText.Token, accessToken pkgText.JwtToken) (*userTestUtility.userCreatorMock, *userTestUtility.emailSetterMock, *userTestUtility.passwordSetterMock, *userTestUtility.refreshTokenIssuerMock, *userTestUtility.accessTokenIssuerMock) {
-	var userCreator = &userTestUtility.userCreatorMock{
-		execute: func(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error) {
+func getBehaviorForRegister(userAuthentic *shelterUser.UserAuthentic, refreshToken shelterText.Token, accessToken pkgText.JwtToken) (*userTestUtility.UserCreatorMock, *userTestUtility.EmailSetterMock, *userTestUtility.PasswordSetterMock, *userTestUtility.RefreshTokenIssuerMock, *userTestUtility.AccessTokenIssuerMock) {
+	var userCreator = &userTestUtility.UserCreatorMock{
+		FakeExecute: func(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error) {
 			return userAuthentic, nil
 		},
 	}
 
-	var emailSetter = &userTestUtility.emailSetterMock{
-		execute: func(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error {
+	var emailSetter = &userTestUtility.EmailSetterMock{
+		FakeExecute: func(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error {
 			return nil
 		},
 	}
 
-	var passwordSetter = &userTestUtility.passwordSetterMock{
-		execute: func(entry entryUser.PasswordGetter, user *shelterUser.UserAuthentic) error {
+	var passwordSetter = &userTestUtility.PasswordSetterMock{
+		FakeExecute: func(entry entryUser.PasswordGetter, user *shelterUser.UserAuthentic) error {
 			return nil
 		},
 	}
 
-	var refreshTokenIssuer = &userTestUtility.refreshTokenIssuerMock{
-		execute: func(user *shelterUser.UserAuthentic) (shelterText.Token, error) {
+	var refreshTokenIssuer = &userTestUtility.RefreshTokenIssuerMock{
+		FakeExecute: func(user *shelterUser.UserAuthentic) (shelterText.Token, error) {
 			return refreshToken, nil
 		},
 	}
 
-	var accessTokenIssuer = &userTestUtility.accessTokenIssuerMock{
-		execute: func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
+	var accessTokenIssuer = &userTestUtility.AccessTokenIssuerMock{
+		FakeExecute: func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
 			return accessToken, nil
 		},
 	}
@@ -140,7 +140,7 @@ func TestRegisterErrCreator(t *testing.T) {
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 
 	var userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer = getBehaviorForRegister(userAuthentic, refreshToken, accessToken)
-	userCreator.execute = func(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error) {
+	userCreator.FakeExecute = func(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error) {
 		return nil, errors.New("user creation error")
 	}
 
@@ -177,7 +177,7 @@ func TestRegisterErrEmail(t *testing.T) {
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 
 	var userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer = getBehaviorForRegister(userAuthentic, refreshToken, accessToken)
-	emailSetter.execute = func(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error {
+	emailSetter.FakeExecute = func(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error {
 		return errors.New("email setting error")
 	}
 
@@ -214,7 +214,7 @@ func TestRegisterErrPassword(t *testing.T) {
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 
 	var userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer = getBehaviorForRegister(userAuthentic, refreshToken, accessToken)
-	passwordSetter.execute = func(entry entryUser.PasswordGetter, user *shelterUser.UserAuthentic) error {
+	passwordSetter.FakeExecute = func(entry entryUser.PasswordGetter, user *shelterUser.UserAuthentic) error {
 		return errors.New("password setting error")
 	}
 
@@ -251,7 +251,7 @@ func TestRegisterErrRefToken(t *testing.T) {
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 
 	var userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer = getBehaviorForRegister(userAuthentic, refreshToken, accessToken)
-	refreshTokenIssuer.execute = func(user *shelterUser.UserAuthentic) (shelterText.Token, error) {
+	refreshTokenIssuer.FakeExecute = func(user *shelterUser.UserAuthentic) (shelterText.Token, error) {
 		return "", errors.New("refresh token issuing error")
 	}
 
@@ -288,7 +288,7 @@ func TestRegisterErrAccToken(t *testing.T) {
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 
 	var userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer = getBehaviorForRegister(userAuthentic, refreshToken, accessToken)
-	accessTokenIssuer.execute = func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
+	accessTokenIssuer.FakeExecute = func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
 		return "", errors.New("access token issuing error")
 	}
 

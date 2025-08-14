@@ -4,7 +4,8 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	controlUser "github.com/motojouya/geezer_auth/internal/control/user"
-	testUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
+	dbTestUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
+	userTestUtility "github.com/motojouya/geezer_auth/internal/behavior/user/testUtility"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	shelterAuth "github.com/motojouya/geezer_auth/internal/shelter/authorization"
@@ -12,26 +13,32 @@ import (
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
+	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
-func getBehaviorForEmailVerify(userAuthentic *shelterUser.UserAuthentic, accessToken pkgText.JwtToken) (*userGetterMock, *emailVerifierMock, *accessTokenIssuerMock) {
-	var userGetter = &userGetterMock{
-		execute: func(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error) {
+func getBehaviorForEmailVerify(t *testing.T, userAuthentic *shelterUser.UserAuthentic, email pkgText.Email, accessToken pkgText.JwtToken) (*userTestUtility.UserGetterMock, *userTestUtility.EmailVerifierMock, *userTestUtility.AccessTokenIssuerMock) {
+	var userGetter = &userTestUtility.UserGetterMock{
+		FakeExecute: func(identifier pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
+			assert.Equal(t, identifier, userAuthentic.Identifier)
 			return userAuthentic, nil
 		},
 	}
 
-	var emailVerifier = &emailVerifierMock{
-		execute: func(entry entryUser.EmailVeifier, user *shelterUser.UserAuthentic) (*shelterUser.UserAuthentic, error) {
+	var emailVerifier = &userTestUtility.EmailVerifierMock{
+		FakeExecute: func(entry entryUser.EmailVerifier, user *shelterUser.UserAuthentic) (*shelterUser.UserAuthentic, error) {
+			emailArg, err := entry.GetEmail()
+			assert.NoError(t, err)
+			assert.Equal(t, emailArg, email)
+			userAuthentic.Email = &email
 			return userAuthentic, nil
 		},
 	}
 
-	var accessTokenIssuer = &accessTokenIssuerMock{
-		execute: func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
+	var accessTokenIssuer = &userTestUtility.AccessTokenIssuerMock{
+		FakeExecute: func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
 			return accessToken, nil
 		},
 	}
@@ -67,10 +74,10 @@ func getShelterUserAuthenticForEmailVerify(expectId string) *shelterUser.UserAut
 	return shelterUser.NewUserAuthentic(userValue, companyRole, &email)
 }
 
-func getEmailVerifyEntry() entryUser.UserVerifyEmailRequest {
+func getEmailVerifyEntry(expectEmail string) entryUser.UserVerifyEmailRequest {
 	return entryUser.UserVerifyEmailRequest{
 		UserVerifyEmail: entryUser.UserVerifyEmail{
-			Email:       "test@example.com",
+			Email:       expectEmail,
 			VerifyToken: "test-verify-token",
 		},
 	}
@@ -85,27 +92,15 @@ func getAuthorizationForEmailVerify() *shelterAuth.Authorization {
 	})
 }
 
-func getPkgAuthenticForEmailVerify() *pkgUser.Authentic {
-	var userIdentifierStr = "US-TESTES"
-	var companyIdentifier, _ = text.NewIdentifier("CP-TESTES")
-	var companyName, _ = text.NewName("TestCompany")
-	var company = user.NewCompany(companyIdentifier, companyName)
-
-	var roleLabel, _ = text.NewLabel("TestRole")
-	var roleName, _ = text.NewName("TestRoleName")
-	var role = user.NewRole(roleLabel, roleName)
-	var roles = []user.Role{role}
-
-	var companyRole = user.NewCompanyRole(company, roles)
-
-	var userIdentifier, _ = text.NewIdentifier(userIdentifierStr)
-	var emailId, _ = text.NewEmail("test@gmail.com")
-	var email, _ = text.NewEmail("test_2@gmail.com")
-	var userName, _ = text.NewName("TestName")
+func getPkgAuthenticForEmailVerify(expectId string, expectEmail string) *pkgUser.Authentic {
+	var userIdentifier, _ = pkgText.NewIdentifier(expectId)
+	var emailId, _ = pkgText.NewEmail("test@gmail.com")
+	var email, _ = pkgText.NewEmail(expectEmail)
+	var userName, _ = pkgText.NewName("TestName")
 	var botFlag = false
 	var updateDate = time.Now()
 
-	var userValue = user.NewUser(userIdentifier, emailId, &email, userName, botFlag, companyRole, updateDate)
+	var userValue = pkgUser.NewUser(userIdentifier, emailId, &email, userName, botFlag, nil, updateDate)
 
 	var issuer = "issuer_id"
 	var subject = "subject_id"
@@ -117,22 +112,24 @@ func getPkgAuthenticForEmailVerify() *pkgUser.Authentic {
 	var issuedAt = time.Now()
 	var id, _ = uuid.NewUUID()
 
-	return user.NewAuthentic(issuer, subject, audience, expiresAt, notBefore, issuedAt, id.String(), userValue)
+	return pkgUser.NewAuthentic(issuer, subject, audience, expiresAt, notBefore, issuedAt, id.String(), userValue)
 }
 
-func TestRegister(t *testing.T) {
+func TestEmailVerifier(t *testing.T) {
 	var expectIdentifier = "US-TESTES"
 	var expectOldEmail = "test01@example.com"
-	var expectNewEmail = "test01@example.com"
+	var expectNewEmail = "test02@example.com"
+	var email, _ = pkgText.NewEmail(expectNewEmail)
 	var expectToken = "test-access-token"
 	var accessToken = pkgText.JwtToken(expectToken)
 	var userAuthentic = getShelterUserAuthenticForEmailVerify(expectIdentifier)
 
-	var transactionCalledCount = &testUtility.TransactionCalledCount{}
-	var db = testUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
+	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+
 	var authorization = getAuthorizationForEmailVerify()
 
-	var userGetter, emailVerifier, accessTokenIssuer = getBehaviorForEmailVerify(userAuthentic, accessToken)
+	var userGetter, emailVerifier, accessTokenIssuer = getBehaviorForEmailVerify(t, userAuthentic, email, accessToken)
 	var control = controlUser.NewVerifyEmailControl(
 		db,
 		authorization,
@@ -141,14 +138,15 @@ func TestRegister(t *testing.T) {
 		accessTokenIssuer,
 	)
 
-	var pkgAuthentic = getPkgAuthenticForEmailVerify()
-	var entry = getEmailVerifyEntry()
+	var pkgAuthentic = getPkgAuthenticForEmailVerify(expectIdentifier, expectOldEmail)
+	var entry = getEmailVerifyEntry(expectNewEmail)
 
-	var emailVerifyResponse, err = controlUser.EmailVerifyExecute(control, entry, nil)
+	var emailVerifyResponse, err = controlUser.EmailVerifyExecute(control, entry, pkgAuthentic)
 
 	assert.NoError(t, err)
 	assert.Equal(t, expectIdentifier, emailVerifyResponse.User.Identifier)
-	assert.Equal(t, expectEmail, emailVerifyResponse.User.Email)
+	assert.NotNil(t, emailVerifyResponse.User.Email)
+	assert.Equal(t, expectNewEmail, *emailVerifyResponse.User.Email)
 	assert.Equal(t, expectToken, emailVerifyResponse.AccessToken)
 
 	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
@@ -157,4 +155,154 @@ func TestRegister(t *testing.T) {
 	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 
 	t.Logf("User Identifier: %+v", emailVerifyResponse)
+}
+
+func TestEmailVerifierErrRole(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectNewEmail = "test02@example.com"
+	var email, _ = pkgText.NewEmail(expectNewEmail)
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+	var userAuthentic = getShelterUserAuthenticForEmailVerify(expectIdentifier)
+
+	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
+	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+
+	var authorization = getAuthorizationForEmailVerify()
+
+	var userGetter, emailVerifier, accessTokenIssuer = getBehaviorForEmailVerify(t, userAuthentic, email, accessToken)
+	var control = controlUser.NewVerifyEmailControl(
+		db,
+		authorization,
+		userGetter,
+		emailVerifier,
+		accessTokenIssuer,
+	)
+
+	var entry = getEmailVerifyEntry(expectNewEmail)
+
+	var _, err = controlUser.EmailVerifyExecute(control, entry, nil)
+
+	assert.Error(t, err)
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
+}
+
+func TestEmailVerifierErrGet(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectOldEmail = "test01@example.com"
+	var expectNewEmail = "test02@example.com"
+	var email, _ = pkgText.NewEmail(expectNewEmail)
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+	var userAuthentic = getShelterUserAuthenticForEmailVerify(expectIdentifier)
+
+	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
+	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+
+	var authorization = getAuthorizationForEmailVerify()
+
+	var userGetter, emailVerifier, accessTokenIssuer = getBehaviorForEmailVerify(t, userAuthentic, email, accessToken)
+	userGetter.FakeExecute = func(identifier pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
+		return nil, errors.New("get user error")
+	}
+
+	var control = controlUser.NewVerifyEmailControl(
+		db,
+		authorization,
+		userGetter,
+		emailVerifier,
+		accessTokenIssuer,
+	)
+
+	var pkgAuthentic = getPkgAuthenticForEmailVerify(expectIdentifier, expectOldEmail)
+	var entry = getEmailVerifyEntry(expectNewEmail)
+
+	var _, err = controlUser.EmailVerifyExecute(control, entry, pkgAuthentic)
+
+	assert.Error(t, err)
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
+}
+
+func TestEmailVerifierErrVerify(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectOldEmail = "test01@example.com"
+	var expectNewEmail = "test02@example.com"
+	var email, _ = pkgText.NewEmail(expectNewEmail)
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+	var userAuthentic = getShelterUserAuthenticForEmailVerify(expectIdentifier)
+
+	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
+	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+
+	var authorization = getAuthorizationForEmailVerify()
+
+	var userGetter, emailVerifier, accessTokenIssuer = getBehaviorForEmailVerify(t, userAuthentic, email, accessToken)
+	emailVerifier.FakeExecute = func(entry entryUser.EmailVerifier, user *shelterUser.UserAuthentic) (*shelterUser.UserAuthentic, error) {
+		return nil, errors.New("verify email error")
+	}
+
+	var control = controlUser.NewVerifyEmailControl(
+		db,
+		authorization,
+		userGetter,
+		emailVerifier,
+		accessTokenIssuer,
+	)
+
+	var pkgAuthentic = getPkgAuthenticForEmailVerify(expectIdentifier, expectOldEmail)
+	var entry = getEmailVerifyEntry(expectNewEmail)
+
+	var _, err = controlUser.EmailVerifyExecute(control, entry, pkgAuthentic)
+
+	assert.Error(t, err)
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
+}
+
+func TestEmailVerifierErrIssue(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectOldEmail = "test01@example.com"
+	var expectNewEmail = "test02@example.com"
+	var email, _ = pkgText.NewEmail(expectNewEmail)
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+	var userAuthentic = getShelterUserAuthenticForEmailVerify(expectIdentifier)
+
+	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
+	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+
+	var authorization = getAuthorizationForEmailVerify()
+
+	var userGetter, emailVerifier, accessTokenIssuer = getBehaviorForEmailVerify(t, userAuthentic, email, accessToken)
+	accessTokenIssuer.FakeExecute = func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
+		return pkgText.JwtToken(""), errors.New("issue access token error")
+	}
+
+	var control = controlUser.NewVerifyEmailControl(
+		db,
+		authorization,
+		userGetter,
+		emailVerifier,
+		accessTokenIssuer,
+	)
+
+	var pkgAuthentic = getPkgAuthenticForEmailVerify(expectIdentifier, expectOldEmail)
+	var entry = getEmailVerifyEntry(expectNewEmail)
+
+	var _, err = controlUser.EmailVerifyExecute(control, entry, pkgAuthentic)
+
+	assert.Error(t, err)
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 }

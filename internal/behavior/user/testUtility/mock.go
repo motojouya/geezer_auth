@@ -7,58 +7,58 @@ import (
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
-type userCreatorMock struct {
-	execute func(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error)
+type UserCreatorMock struct {
+	FakeExecute func(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error)
 }
 
-func (mock userCreatorMock) Execute(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error) {
-	return mock.execute(entry)
+func (mock UserCreatorMock) Execute(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error) {
+	return mock.FakeExecute(entry)
 }
 
-type userGetterMock struct {
-	execute func(identifier pkgText.Identifier) (*shelterUser.UserAuthentic, error)
+type UserGetterMock struct {
+	FakeExecute func(identifier pkgText.Identifier) (*shelterUser.UserAuthentic, error)
 }
 
-func (mock userGetterMock) Execute(identifier pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
-	return mock.execute(identifier)
+func (mock UserGetterMock) Execute(identifier pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
+	return mock.FakeExecute(identifier)
 }
 
-type emailSetterMock struct {
-	execute func(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error
+type EmailSetterMock struct {
+	FakeExecute func(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error
 }
 
-func (mock emailSetterMock) Execute(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error {
-	return mock.execute(entry, user)
+func (mock EmailSetterMock) Execute(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error {
+	return mock.FakeExecute(entry, user)
 }
 
-type emailVerifierMock struct {
-	execute func(entry entryUser.EmailVerifier, user *shelterUser.UserAuthentic) (*shelterUser.UserAuthentic, error)
+type EmailVerifierMock struct {
+	FakeExecute func(entry entryUser.EmailVerifier, user *shelterUser.UserAuthentic) (*shelterUser.UserAuthentic, error)
 }
 
-func (mock emailVerifierMock) Execute(entry entryUser.EmailVerifier, user *shelterUser.UserAuthentic) (*shelterUser.UserAuthentic, error) {
-	return mock.execute(entry, user)
+func (mock EmailVerifierMock) Execute(entry entryUser.EmailVerifier, user *shelterUser.UserAuthentic) (*shelterUser.UserAuthentic, error) {
+	return mock.FakeExecute(entry, user)
 }
 
-type passwordSetterMock struct {
-	execute func(entry entryUser.PasswordGetter, user *shelterUser.UserAuthentic) error
+type PasswordSetterMock struct {
+	FakeExecute func(entry entryUser.PasswordGetter, user *shelterUser.UserAuthentic) error
 }
 
-func (mock passwordSetterMock) Execute(entry entryUser.PasswordGetter, user *shelterUser.UserAuthentic) error {
-	return mock.execute(entry, user)
+func (mock PasswordSetterMock) Execute(entry entryUser.PasswordGetter, user *shelterUser.UserAuthentic) error {
+	return mock.FakeExecute(entry, user)
 }
 
-type refreshTokenIssuerMock struct {
-	execute func(user *shelterUser.UserAuthentic) (shelterText.Token, error)
+type RefreshTokenIssuerMock struct {
+	FakeExecute func(user *shelterUser.UserAuthentic) (shelterText.Token, error)
 }
 
-func (mock refreshTokenIssuerMock) Execute(user *shelterUser.UserAuthentic) (shelterText.Token, error) {
-	return mock.execute(user)
+func (mock RefreshTokenIssuerMock) Execute(user *shelterUser.UserAuthentic) (shelterText.Token, error) {
+	return mock.FakeExecute(user)
 }
 
-type accessTokenIssuerMock struct {
-	execute func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error)
+type AccessTokenIssuerMock struct {
+	FakeExecute func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error)
 }
 
-func (mock accessTokenIssuerMock) Execute(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
-	return mock.execute(user)
+func (mock AccessTokenIssuerMock) Execute(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
+	return mock.FakeExecute(user)
 }
