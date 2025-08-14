@@ -3,9 +3,9 @@ package user_test
 import (
 	"errors"
 	"github.com/motojouya/geezer_auth/internal/behavior/user"
+	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
-	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
@@ -36,7 +36,7 @@ func (mock emailVerifierDBMock) GetUserAuthentic(identifier string, now time.Tim
 }
 
 type emailVerifierEntryMock struct {
-	getEmail func() (pkgText.Email, error)
+	getEmail       func() (pkgText.Email, error)
 	getVerifyToken func() (shelterText.Token, error)
 }
 
@@ -81,7 +81,7 @@ func getLocalerMockForEmailVerify(t *testing.T, now time.Time) *localUtility.Loc
 		return now
 	}
 	return &localUtility.LocalerMock{
-		FakeGetNow:       getNow,
+		FakeGetNow: getNow,
 	}
 }
 
@@ -181,8 +181,8 @@ func getEmailVerifyDbMock(t *testing.T, expectId string, expectOldEmail string, 
 		getUserEmailOfToken: getUserEmailOfToken,
 		verifyEmail:         verifyEmail,
 		getUserAuthentic:    getUserAuthentic,
-		SqlExecutorMock:     dbUtility.SqlExecutorMock{
-			FakeUpdate:  update,
+		SqlExecutorMock: dbUtility.SqlExecutorMock{
+			FakeUpdate: update,
 		},
 	}
 }

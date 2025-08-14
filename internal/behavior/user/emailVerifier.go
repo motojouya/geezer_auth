@@ -8,8 +8,8 @@ import (
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	"github.com/motojouya/geezer_auth/internal/shelter/essence"
-	pkgEssence "github.com/motojouya/geezer_auth/pkg/shelter/essence"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	pkgEssence "github.com/motojouya/geezer_auth/pkg/shelter/essence"
 )
 
 type EmailVerifierDB interface {

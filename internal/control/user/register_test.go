@@ -3,9 +3,9 @@ package user_test
 import (
 	"errors"
 	"github.com/google/uuid"
+	userTestUtility "github.com/motojouya/geezer_auth/internal/behavior/user/testUtility"
 	controlUser "github.com/motojouya/geezer_auth/internal/control/user"
 	dbTestUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
-	userTestUtility "github.com/motojouya/geezer_auth/internal/behavior/user/testUtility"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
