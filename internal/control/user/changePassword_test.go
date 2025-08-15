@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-func getBehaviorForChangeEmail(t *testing.T, userAuthentic *shelterUser.UserAuthentic) (*userTestUtility.UserGetterMock, *userTestUtility.EmailSetterMock) {
+func getBehaviorForChangePassword(t *testing.T, userAuthentic *shelterUser.UserAuthentic) (*userTestUtility.UserGetterMock, *userTestUtility.PasswordSetterMock) {
 	var userGetter = &userTestUtility.UserGetterMock{
 		FakeExecute: func(identifier pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
 			assert.Equal(t, identifier, userAuthentic.Identifier)
@@ -27,19 +27,19 @@ func getBehaviorForChangeEmail(t *testing.T, userAuthentic *shelterUser.UserAuth
 		},
 	}
 
-	var emailSetter = &userTestUtility.EmailSetterMock{
-		FakeExecute: func(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error {
+	var passwordSetter = &userTestUtility.PasswordSetterMock{
+		FakeExecute: func(entry entryUser.PasswordGetter, user *shelterUser.UserAuthentic) error {
 			return nil
 		},
 	}
 
-	return userGetter, emailSetter
+	return userGetter, passwordSetter
 }
 
-func getShelterUserAuthenticForChangeEmail(expectId string, expectEmail string) *shelterUser.UserAuthentic {
+func getShelterUserAuthenticForChangePassword(expectId string) *shelterUser.UserAuthentic {
 	var userId uint = 1
 	var userIdentifier, _ = pkgText.NewIdentifier(expectId)
-	var emailId, _ = pkgText.NewEmail(expectEmail)
+	var emailId, _ = pkgText.NewEmail("test@example.com")
 	var userName, _ = pkgText.NewName("Test User")
 	var botFlag = false
 	var userRegisteredDate = time.Now()
@@ -60,19 +60,19 @@ func getShelterUserAuthenticForChangeEmail(expectId string, expectEmail string) 
 	var roles = []shelterRole.Role{shelterRole.NewRole(roleName, label, description, roleRegisteredDate)}
 	var companyRole = shelterUser.NewCompanyRole(company, roles)
 
-	var email, _ = pkgText.NewEmail(expectEmail)
+	var email, _ = pkgText.NewEmail("test@example.com")
 	return shelterUser.NewUserAuthentic(userValue, companyRole, &email)
 }
 
-func getChangeEmailEntry(expectedEmail string) entryUser.UserChangeEmailRequest {
-	return entryUser.UserChangeEmailRequest{
-		UserChangeEmail: entryUser.UserChangeEmail{
-			Email:     expectedEmail,
+func getChangePasswordEntry(expectedPassword string) entryUser.UserChangePasswordRequest {
+	return entryUser.UserChangePasswordRequest{
+		UserChangePassword: entryUser.UserChangePassword{
+			Password:     expectedPassword,
 		},
 	}
 }
 
-func getAuthorizationForChangeEmail() *shelterAuth.Authorization {
+func getAuthorizationForChangePassword() *shelterAuth.Authorization {
 	return shelterAuth.NewAuthorization([]shelterRole.RolePermission{
 		shelterRole.AnonymousPermission,
 		shelterRole.RoleLessPermission,
@@ -81,10 +81,10 @@ func getAuthorizationForChangeEmail() *shelterAuth.Authorization {
 	})
 }
 
-func getPkgAuthenticForChangeEmail(expectId string, expectEmail string) *pkgUser.Authentic {
+func getPkgAuthenticForChangePassword(expectId string) *pkgUser.Authentic {
 	var userIdentifier, _ = pkgText.NewIdentifier(expectId)
-	var emailId, _ = pkgText.NewEmail(expectEmail)
-	var email, _ = pkgText.NewEmail(expectEmail)
+	var emailId, _ = pkgText.NewEmail("test@example.com")
+	var email, _ = pkgText.NewEmail("test@example.com")
 	var userName, _ = pkgText.NewName("Test User")
 	var botFlag = false
 	var updateDate = time.Now()
@@ -104,32 +104,30 @@ func getPkgAuthenticForChangeEmail(expectId string, expectEmail string) *pkgUser
 	return pkgUser.NewAuthentic(issuer, subject, audience, expiresAt, notBefore, issuedAt, id.String(), userValue)
 }
 
-func TestChangeEmail(t *testing.T) {
+func TestChangePassword(t *testing.T) {
 	var expectIdentifier = "US-TESTES"
-	var expectOldEmail = "test01@example.com"
-	var expectNewEmail = "test02@example.com"
-	var userAuthentic = getShelterUserAuthenticForChangeEmail(expectIdentifier, expectOldEmail)
+	var expectPassword = "password01"
+	var userAuthentic = getShelterUserAuthenticForChangePassword(expectIdentifier)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
-	var authorization = getAuthorizationForChangeEmail()
+	var authorization = getAuthorizationForChangePassword()
 
-	var userGetter, emailSetter = getBehaviorForChangeEmail(t, userAuthentic)
-	var control = controlUser.NewChangeEmailControl(
+	var userGetter, passwordSetter = getBehaviorForChangePassword(t, userAuthentic)
+	var control = controlUser.NewChangePasswordControl(
 		db,
 		authorization,
 		userGetter,
-		emailSetter,
+		passwordSetter,
 	)
 
-	var entry = getChangeEmailEntry(expectNewEmail)
-	var pkgAuthentic = getPkgAuthenticForChangeEmail(expectIdentifier, expectOldEmail)
+	var entry = getChangePasswordEntry(expectPassword)
+	var pkgAuthentic = getPkgAuthenticForChangePassword(expectIdentifier)
 
-	var userUpdateResponse, err = controlUser.ChangeEmailExecute(control, entry, pkgAuthentic)
+	var userUpdateResponse, err = controlUser.ChangePasswordExecute(control, entry, pkgAuthentic)
 
 	assert.NoError(t, err)
 	assert.Equal(t, expectIdentifier, userUpdateResponse.User.Identifier)
-	assert.Equal(t, expectOldEmail, *userUpdateResponse.User.Email)
 
 	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
 	assert.Equal(t, 1, transactionCalledCount.CommitCalled)
@@ -139,85 +137,82 @@ func TestChangeEmail(t *testing.T) {
 	t.Logf("User Identifier: %+v", userUpdateResponse)
 }
 
-func TestChangeEmailErrAuth(t *testing.T) {
+func TestChangePasswordErrAuth(t *testing.T) {
 	var expectIdentifier = "US-TESTES"
-	var expectOldEmail = "test01@example.com"
-	var expectNewEmail = "test02@example.com"
-	var userAuthentic = getShelterUserAuthenticForChangeEmail(expectIdentifier, expectOldEmail)
+	var expectPassword = "password01"
+	var userAuthentic = getShelterUserAuthenticForChangePassword(expectIdentifier)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
-	var authorization = getAuthorizationForChangeEmail()
+	var authorization = getAuthorizationForChangePassword()
 
-	var userGetter, emailSetter = getBehaviorForChangeEmail(t, userAuthentic)
-	var control = controlUser.NewChangeEmailControl(
+	var userGetter, passwordSetter = getBehaviorForChangePassword(t, userAuthentic)
+	var control = controlUser.NewChangePasswordControl(
 		db,
 		authorization,
 		userGetter,
-		emailSetter,
+		passwordSetter,
 	)
 
-	var entry = getChangeEmailEntry(expectNewEmail)
+	var entry = getChangePasswordEntry(expectPassword)
 
-	var _, err = controlUser.ChangeEmailExecute(control, entry, nil)
+	var _, err = controlUser.ChangePasswordExecute(control, entry, nil)
 
 	assert.Error(t, err)
 }
 
-func TestChangeEmailErrGet(t *testing.T) {
+func TestChangePasswordErrGet(t *testing.T) {
 	var expectIdentifier = "US-TESTES"
-	var expectOldEmail = "test01@example.com"
-	var expectNewEmail = "test02@example.com"
-	var userAuthentic = getShelterUserAuthenticForChangeEmail(expectIdentifier, expectOldEmail)
+	var expectPassword = "password01"
+	var userAuthentic = getShelterUserAuthenticForChangePassword(expectIdentifier)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
-	var authorization = getAuthorizationForChangeEmail()
+	var authorization = getAuthorizationForChangePassword()
 
-	var userGetter, emailSetter = getBehaviorForChangeEmail(t, userAuthentic)
+	var userGetter, passwordSetter = getBehaviorForChangePassword(t, userAuthentic)
 	userGetter.FakeExecute = func(identifier pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
 		return nil, errors.New("user not found")
 	}
-	var control = controlUser.NewChangeEmailControl(
+	var control = controlUser.NewChangePasswordControl(
 		db,
 		authorization,
 		userGetter,
-		emailSetter,
+		passwordSetter,
 	)
 
-	var entry = getChangeEmailEntry(expectNewEmail)
-	var pkgAuthentic = getPkgAuthenticForChangeEmail(expectIdentifier, expectOldEmail)
+	var entry = getChangePasswordEntry(expectPassword)
+	var pkgAuthentic = getPkgAuthenticForChangePassword(expectIdentifier)
 
-	var _, err = controlUser.ChangeEmailExecute(control, entry, pkgAuthentic)
+	var _, err = controlUser.ChangePasswordExecute(control, entry, pkgAuthentic)
 
 	assert.Error(t, err)
 }
 
-func TestChangeEmailErrChange(t *testing.T) {
+func TestChangePasswordErrChange(t *testing.T) {
 	var expectIdentifier = "US-TESTES"
-	var expectOldEmail = "test01@example.com"
-	var expectNewEmail = "test02@example.com"
-	var userAuthentic = getShelterUserAuthenticForChangeEmail(expectIdentifier, expectOldEmail)
+	var expectPassword = "password01"
+	var userAuthentic = getShelterUserAuthenticForChangePassword(expectIdentifier)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
-	var authorization = getAuthorizationForChangeEmail()
+	var authorization = getAuthorizationForChangePassword()
 
-	var userGetter, emailSetter = getBehaviorForChangeEmail(t, userAuthentic)
-	emailSetter.FakeExecute = func(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error {
-		return errors.New("email change failed")
+	var userGetter, passwordSetter = getBehaviorForChangePassword(t, userAuthentic)
+	passwordSetter.FakeExecute = func(entry entryUser.PasswordGetter, user *shelterUser.UserAuthentic) error {
+		return errors.New("password change failed")
 	}
-	var control = controlUser.NewChangeEmailControl(
+	var control = controlUser.NewChangePasswordControl(
 		db,
 		authorization,
 		userGetter,
-		emailSetter,
+		passwordSetter,
 	)
 
-	var entry = getChangeEmailEntry(expectNewEmail)
-	var pkgAuthentic = getPkgAuthenticForChangeEmail(expectIdentifier, expectOldEmail)
+	var entry = getChangePasswordEntry(expectPassword)
+	var pkgAuthentic = getPkgAuthenticForChangePassword(expectIdentifier)
 
-	var _, err = controlUser.ChangeEmailExecute(control, entry, pkgAuthentic)
+	var _, err = controlUser.ChangePasswordExecute(control, entry, pkgAuthentic)
 
 	assert.Error(t, err)
 }
