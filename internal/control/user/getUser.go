@@ -1,16 +1,16 @@
 package user
 
 import (
-	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	authBehavior "github.com/motojouya/geezer_auth/internal/behavior/authorization"
 	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
 	userBehavior "github.com/motojouya/geezer_auth/internal/behavior/user"
-	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	entryCommon "github.com/motojouya/geezer_auth/internal/entry/transfer/common"
+	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
-	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/shelter/authorization"
 	essence "github.com/motojouya/geezer_auth/internal/shelter/essence"
+	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
+	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 )
 
 type GetUserControl struct {

@@ -1,7 +1,6 @@
 package user
 
 import (
-	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	authBehavior "github.com/motojouya/geezer_auth/internal/behavior/authorization"
 	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
 	userBehavior "github.com/motojouya/geezer_auth/internal/behavior/user"
@@ -9,15 +8,16 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
-	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/shelter/authorization"
+	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
+	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 )
 
 type ChangePasswordControl struct {
 	db.TransactionalDatabase
-	authorization     *authorization.Authorization
-	userGetter        userBehavior.UserGetter
-	passwordSetter    userBehavior.PasswordSetter
+	authorization  *authorization.Authorization
+	userGetter     userBehavior.UserGetter
+	passwordSetter userBehavior.PasswordSetter
 }
 
 func NewChangePasswordControl(

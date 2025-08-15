@@ -3,17 +3,17 @@ package user_test
 import (
 	"errors"
 	"github.com/google/uuid"
-	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
-	shelterAuth "github.com/motojouya/geezer_auth/internal/shelter/authorization"
 	userTestUtility "github.com/motojouya/geezer_auth/internal/behavior/user/testUtility"
 	controlUser "github.com/motojouya/geezer_auth/internal/control/user"
 	dbTestUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
+	shelterAuth "github.com/motojouya/geezer_auth/internal/shelter/authorization"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
+	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -67,7 +67,7 @@ func getShelterUserAuthenticForChangeEmail(expectId string, expectEmail string) 
 func getChangeEmailEntry(expectedEmail string) entryUser.UserChangeEmailRequest {
 	return entryUser.UserChangeEmailRequest{
 		UserChangeEmail: entryUser.UserChangeEmail{
-			Email:     expectedEmail,
+			Email: expectedEmail,
 		},
 	}
 }
