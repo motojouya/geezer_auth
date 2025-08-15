@@ -39,6 +39,14 @@ func (mock EmailVerifierMock) Execute(entry entryUser.EmailVerifier, user *shelt
 	return mock.FakeExecute(entry, user)
 }
 
+type NameChangerMock struct {
+	FakeExecute func(entry entryUser.UserApplyer, user *shelterUser.UserAuthentic) (*shelterUser.UserAuthentic, error)
+}
+
+func (mock NameChangerMock) Execute(entry entryUser.UserApplyer, user *shelterUser.UserAuthentic) (*shelterUser.UserAuthentic, error) {
+	return mock.FakeExecute(entry, user)
+}
+
 type PasswordSetterMock struct {
 	FakeExecute func(entry entryUser.PasswordGetter, user *shelterUser.UserAuthentic) error
 }

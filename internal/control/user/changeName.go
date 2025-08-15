@@ -1,6 +1,7 @@
 package user
 
 import (
+	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	authBehavior "github.com/motojouya/geezer_auth/internal/behavior/authorization"
 	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
 	userBehavior "github.com/motojouya/geezer_auth/internal/behavior/user"
@@ -8,36 +9,35 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
-	"github.com/motojouya/geezer_auth/internal/shelter/authorization"
-	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
+	"github.com/motojouya/geezer_auth/internal/shelter/authorization"
 )
 
-type VerifyEmailControl struct {
+type ChangeNameControl struct {
 	db.TransactionalDatabase
-	authorization     *authorization.Authorization
+	authorization      *authorization.Authorization
 	userGetter        userBehavior.UserGetter
-	emailVerifier     userBehavior.EmailVerifier
-	accessTokenIssuer userBehavior.AccessTokenIssuer
+	nameChanger        userBehavior.NameChanger
+	accessTokenIssuer  userBehavior.AccessTokenIssuer
 }
 
-func NewVerifyEmailControl(
+func NewChangeNameControl(
 	database db.TransactionalDatabase,
 	authorization *authorization.Authorization,
 	userGetter userBehavior.UserGetter,
-	emailVerifier userBehavior.EmailVerifier,
+	nameChanger userBehavior.NameChanger,
 	accessTokenIssuer userBehavior.AccessTokenIssuer,
-) *VerifyEmailControl {
-	return &VerifyEmailControl{
+) *ChangeNameControl {
+	return &ChangeNameControl{
 		TransactionalDatabase: database,
 		authorization:         authorization,
 		userGetter:            userGetter,
-		emailVerifier:         emailVerifier,
+		nameChanger:           nameChanger,
 		accessTokenIssuer:     accessTokenIssuer,
 	}
 }
 
-func CreateVerifyEmailControl() (*VerifyEmailControl, error) {
+func CreateChangeNameControl() (*ChangeNameControl, error) {
 	var local = localPkg.CreateLocal()
 	var env = localPkg.CreateEnvironment()
 
@@ -57,17 +57,17 @@ func CreateVerifyEmailControl() (*VerifyEmailControl, error) {
 	}
 
 	userGetter := userBehavior.NewUserGet(local, database)
-	emailVerifier := userBehavior.NewEmailVerify(local, database)
+	nameChanger := userBehavior.NewNameChange(local, database)
 	accessTokenIssuer := userBehavior.NewAccessTokenIssue(local, database, jwtHandler)
 
-	return NewVerifyEmailControl(database, authorization, userGetter, emailVerifier, accessTokenIssuer), nil
+	return NewChangeNameControl(database, authorization, userGetter, nameChanger, accessTokenIssuer), nil
 }
 
-var emailVerifyPermission = shelterRole.NewRequirePermission(true, false, false, false)
+var changeNamePermission = shelterRole.NewRequirePermission(true, false, false, false)
 
-var EmailVerifyExecute = utility.Transact(func(control *VerifyEmailControl, entry entryUser.UserVerifyEmailRequest, authentic *pkgUser.Authentic) (*entryUser.UserUpdateResponse, error) {
+var ChangeNameExecute = utility.Transact(func(control *ChangeNameControl, entry entryUser.UserChangeNameRequest, authentic *pkgUser.Authentic) (*entryUser.UserUpdateResponse, error) {
 
-	if err := control.authorization.Authorize(emailVerifyPermission, authentic); err != nil {
+	if err := control.authorization.Authorize(changeNamePermission, authentic); err != nil {
 		return nil, err
 	}
 
@@ -76,7 +76,7 @@ var EmailVerifyExecute = utility.Transact(func(control *VerifyEmailControl, entr
 		return nil, err
 	}
 
-	userAuthentic, err = control.emailVerifier.Execute(entry, userAuthentic)
+	userAuthentic, err = control.nameChanger.Execute(entry, userAuthentic)
 	if err != nil {
 		return nil, err
 	}
