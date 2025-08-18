@@ -5,21 +5,16 @@ import (
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
+type RefreshTokenGetter interface {
+	GetRefreshToken() (text.Token, error)
+}
+
 type AuthRefresh struct {
-	AuthIdentifier
 	RefreshToken string `json:"refresh_token"`
 }
 
 type AuthRefreshRequest struct {
 	AuthRefresh AuthRefresh `http:"body"`
-}
-
-func (a AuthRefreshRequest) GetIdentifier() (*pkgText.Identifier, error) {
-	return a.AuthRefresh.GetIdentifier()
-}
-
-func (a AuthRefreshRequest) GetEmailIdentifier() (*pkgText.Email, error) {
-	return a.AuthRefresh.GetEmailIdentifier()
 }
 
 func (a AuthRefreshRequest) GetRefreshToken() (text.Token, error) {

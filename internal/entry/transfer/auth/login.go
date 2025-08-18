@@ -5,6 +5,11 @@ import (
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
+type IdentifierGetter interface {
+	GetIdentifier() (*pkgText.Identifier, error)
+	GetEmailIdentifier() (*pkgText.Email, error)
+}
+
 type AuthIdentifier struct {
 	Identifier      *string `json:"identifier"`
 	EmailIdentifier *string `json:"email_identifier"`
@@ -32,6 +37,11 @@ func (a AuthIdentifier) GetEmailIdentifier() (*pkgText.Email, error) {
 	}
 
 	return &email, nil
+}
+
+type AuthLoginner interface {
+	IdentifierGetter
+	GetPassword() (text.Password, error)
 }
 
 type AuthLogin struct {

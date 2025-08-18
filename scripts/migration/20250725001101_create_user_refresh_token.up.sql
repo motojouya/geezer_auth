@@ -4,5 +4,5 @@ CREATE TABLE user_refresh_token (
   refresh_token VARCHAR(255) NOT NULL,
   register_date TIMESTAMP WITH TIME ZONE NOT NULL,
   expire_date TIMESTAMP WITH TIME ZONE,
-  unique (user_persist_key, refresh_token)
+  unique (refresh_token)
 );

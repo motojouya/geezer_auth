@@ -9,22 +9,36 @@ import (
 )
 
 type GetUserRefreshTokenQuery interface {
-	GetUserRefreshToken(identifier string, now time.Time) (*transfer.UserRefreshTokenFull, error)
+	GetUserRefreshToken(token string, now time.Time) (*transfer.UserAuthentic, error)
 }
 
-func GetUserRefreshToken(executer gorp.SqlExecutor, identifier string, now time.Time) (*transfer.UserRefreshTokenFull, error) {
-	var sql, args, sqlErr = transfer.SelectUserRefreshToken.Where(
-		goqu.I("u.identifier").Eq(identifier),
-		goqu.I("urt.expire_date").Gte(now),
+func GetUserRefreshToken(executer gorp.SqlExecutor, token string, now time.Time) (*transfer.UserAuthentic, error) {
+	var sql, args, sqlErr = transfer.SelectUserAuthentic.InnerJoin(
+		goqu.T("user_refresh_token").As("urt"),
+		goqu.On(
+			goqu.I("u.persist_key").Eq(goqu.I("urt.user_persist_key")),
+			goqu.I("urt.refresh_token").Eq(token)
+			goqu.I("urt.expire_date").Gte(now),
+		),
 	).Prepared(true).ToSQL()
 	if sqlErr != nil {
 		return nil, sqlErr
 	}
 
-	var urt, execErr = utility.SelectSingle[transfer.UserRefreshTokenFull](executer, "user_refresh_token", map[string]string{"identifier": identifier}, sql, args...)
+	var ua, execErr = utility.SelectSingle[transfer.UserAuthentic](executer, "user", map[string]string{"refreshToken": token}, sql, args...)
 	if execErr != nil {
 		return nil, execErr
 	}
 
-	return urt, nil
+	if ua == nil {
+		return nil, nil
+	}
+
+	var ucrs, getUserCompanyRolesErr = GetUserCompanyRole(executer, []string{identifier}, now)
+	if getUserCompanyRolesErr != nil {
+		return nil, getUserCompanyRolesErr
+	}
+
+	ua.UserCompanyRole = ucrs
+	return ua, nil
 }
