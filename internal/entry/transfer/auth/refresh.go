@@ -2,7 +2,6 @@ package auth
 
 import (
 	text "github.com/motojouya/geezer_auth/internal/shelter/text"
-	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
 type RefreshTokenGetter interface {

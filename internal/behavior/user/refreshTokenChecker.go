@@ -1,55 +1,45 @@
 package user
 
 import (
-	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
-	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	entryAuth "github.com/motojouya/geezer_auth/internal/entry/transfer/auth"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
-	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 )
 
-type RefreshTokenIssuerDB interface {
-	commandQuery.AddRefreshTokenQuery
+type RefreshTokenCheckerDB interface {
+	userQuery.GetUserRefreshTokenQuery
 }
 
-type RefreshTokenIssuer interface {
-	Execute(userAuthentic *shelterUser.UserAuthentic) (shelterText.Token, error)
+type RefreshTokenChecker interface {
+	Execute(entry entryAuth.RefreshTokenGetter) (*shelterUser.UserAuthentic, error)
 }
 
-type RefreshTokenIssue struct {
+type RefreshTokenCheck struct {
 	local localPkg.Localer
-	db    RefreshTokenIssuerDB
+	db    RefreshTokenCheckerDB
 }
 
-func NewRefreshTokenIssue(local localPkg.Localer, database RefreshTokenIssuerDB) *RefreshTokenIssue {
-	return &RefreshTokenIssue{
+func NewRefreshTokenCheck(local localPkg.Localer, database RefreshTokenCheckerDB) *RefreshTokenCheck {
+	return &RefreshTokenCheck{
 		db:    database,
 		local: local,
 	}
 }
 
-// TODO refresh tokenは単体で認証もできるので漏れるとだいぶまずい。passwordと同様に不可逆暗号として保存すべき
-func (issuer RefreshTokenIssue) Execute(entry entryAuth.RefreshTokenGetter) (userAuthentic *shelterUser.UserAuthentic, error) {
-	now := issuer.local.GetNow()
+func (checker RefreshTokenCheck) Execute(entry entryAuth.RefreshTokenGetter) (*shelterUser.UserAuthentic, error) {
+	now := checker.local.GetNow()
 
-	refreshTokenSource, err := issuer.local.GenerateUUID()
+	refreshToken, err := entry.GetRefreshToken()
 	if err != nil {
-		return shelterText.Token(""), err
+		return nil, err
 	}
 
-	refreshToken, err := shelterText.CreateToken(refreshTokenSource)
+	// FIXME refresh tokenは単体で認証もできるので漏れるとだいぶまずい。passwordと同様に不可逆暗号として保存し、検索時に暗号化して当てるべき。
+	dbUserAuthentic, err := checker.db.GetUserRefreshToken(string(refreshToken), now)
 	if err != nil {
-		return shelterText.Token(""), err
+		return nil, err
 	}
 
-	userRefreshToken := shelterUser.CreateUserRefreshToken(userAuthentic.GetUser(), refreshToken, now)
-	dbUserRefreshToken := dbUser.FromShelterUserRefreshToken(userRefreshToken)
-
-	_, err = issuer.db.AddRefreshToken(dbUserRefreshToken, now)
-	if err != nil {
-		return shelterText.Token(""), err
-	}
-
-	return refreshToken, nil
+	return dbUserAuthentic.ToShelterUserAuthentic()
 }

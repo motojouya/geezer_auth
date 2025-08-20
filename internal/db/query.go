@@ -22,6 +22,7 @@ type Query interface {
 	user.GetUserEmailOfTokenQuery
 	user.GetUserEmailQuery
 	user.GetUserPasswordQuery
+	user.GetUserPasswordOfEmailQuery
 	user.GetUserRefreshTokenQuery
 	user.GetUserAuthenticQuery
 	user.GetUserAuthenticOfCompanyQuery
@@ -71,8 +72,12 @@ func (orp ORP) GetUserPassword(identifier string) (*transferUser.UserPasswordFul
 	return user.GetUserPassword(orp, identifier)
 }
 
-func (orp ORP) GetUserRefreshToken(identifier string, now time.Time) (*transferUser.UserRefreshTokenFull, error) {
-	return user.GetUserRefreshToken(orp, identifier, now)
+func (orp ORP) GetUserPasswordOfEmail(email string) (*transferUser.UserPasswordFull, error) {
+	return user.GetUserPasswordOfEmail(orp, email)
+}
+
+func (orp ORP) GetUserRefreshToken(token string, now time.Time) (*transferUser.UserAuthentic, error) {
+	return user.GetUserRefreshToken(orp, token, now)
 }
 
 func (orp ORP) GetUserAuthentic(identifier string, now time.Time) (*transferUser.UserAuthentic, error) {

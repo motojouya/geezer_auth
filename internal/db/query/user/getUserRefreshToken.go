@@ -17,7 +17,7 @@ func GetUserRefreshToken(executer gorp.SqlExecutor, token string, now time.Time)
 		goqu.T("user_refresh_token").As("urt"),
 		goqu.On(
 			goqu.I("u.persist_key").Eq(goqu.I("urt.user_persist_key")),
-			goqu.I("urt.refresh_token").Eq(token)
+			goqu.I("urt.refresh_token").Eq(token),
 			goqu.I("urt.expire_date").Gte(now),
 		),
 	).Prepared(true).ToSQL()
@@ -34,7 +34,7 @@ func GetUserRefreshToken(executer gorp.SqlExecutor, token string, now time.Time)
 		return nil, nil
 	}
 
-	var ucrs, getUserCompanyRolesErr = GetUserCompanyRole(executer, []string{identifier}, now)
+	var ucrs, getUserCompanyRolesErr = GetUserCompanyRole(executer, []string{ua.UserIdentifier}, now)
 	if getUserCompanyRolesErr != nil {
 		return nil, getUserCompanyRolesErr
 	}
