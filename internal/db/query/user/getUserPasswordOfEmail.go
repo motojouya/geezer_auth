@@ -20,7 +20,7 @@ func GetUserPasswordOfEmail(executer gorp.SqlExecutor, email string) (*transfer.
 		return nil, sqlErr
 	}
 
-	var up, execErr = utility.SelectSingle[transfer.UserPasswordFull](executer, "user_password", map[string]string{"identifier": identifier}, sql, args...)
+	var up, execErr = utility.SelectSingle[transfer.UserPasswordFull](executer, "user_password", map[string]string{"email_identifier": email}, sql, args...)
 	if execErr != nil {
 		return nil, execErr
 	}

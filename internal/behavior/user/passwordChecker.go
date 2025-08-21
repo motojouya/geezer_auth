@@ -4,13 +4,13 @@ import (
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	entryAuth "github.com/motojouya/geezer_auth/internal/entry/transfer/auth"
-	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
-	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 )
 
 type PasswordCheckerDB interface {
 	userQuery.GetUserPasswordQuery
+	userQuery.GetUserPasswordOfEmailQuery
 }
 
 type PasswordChecker interface {
@@ -18,26 +18,24 @@ type PasswordChecker interface {
 }
 
 type PasswordCheck struct {
-	local localPkg.Localer
-	db    PasswordCheckerDB
+	db PasswordCheckerDB
 }
 
-func NewPasswordCheck(local localPkg.Localer, db PasswordSetterDB) *PasswordCheck {
+func NewPasswordCheck(db PasswordCheckerDB) *PasswordCheck {
 	return &PasswordCheck{
-		local: local,
-		db:    db,
+		db: db,
 	}
 }
 
 func (checker PasswordCheck) Execute(entry entryAuth.AuthLoginner) error {
-	now := checker.local.GetNow()
-
 	identifier, err := entry.GetIdentifier()
 	if err != nil {
 		return err
 	}
 
-	if identifier != nil {
+	email, err := entry.GetEmailIdentifier()
+	if err != nil {
+		return err
 	}
 
 	password, err := entry.GetPassword()
@@ -45,19 +43,29 @@ func (checker PasswordCheck) Execute(entry entryAuth.AuthLoginner) error {
 		return err
 	}
 
-	hashedPassword, err := shelterText.HashPassword(password)
+	var dbUserPassword *dbUser.UserPasswordFull
+	if identifier != nil {
+		dbUserPassword, err = checker.db.GetUserPassword(string(*identifier))
+		if err != nil {
+			return err
+		}
+	} else if email != nil {
+		dbUserPassword, err = checker.db.GetUserPasswordOfEmail(string(*email))
+		if err != nil {
+			return err
+		}
+	} else {
+		return essence.NewInvalidArgumentError("identifier", "", "identifier or email must be provided")
+	}
+
+	if dbUserPassword == nil {
+		return essence.NewInvalidArgumentError("identifier", "", "user not found")
+	}
+
+	userPassword, err := dbUserPassword.ToShelterUserPassword()
 	if err != nil {
 		return err
 	}
 
-	userPassword := shelterUser.CreateUserPassword(userAuthentic.GetUser(), hashedPassword, now)
-
-	dbUserPassword := dbUser.FromShelterUserPassword(userPassword)
-
-	_, err = checker.db.GetUserPassword(dbUserPassword, now)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return shelterText.VerifyPassword(userPassword.Password, password)
 }

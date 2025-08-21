@@ -5,7 +5,6 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
 
 func TestGetUserPasswordOfEmail(t *testing.T) {

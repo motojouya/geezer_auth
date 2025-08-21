@@ -21,7 +21,7 @@ func (a AuthIdentifier) GetIdentifier() (*pkgText.Identifier, error) {
 	}
 	var identifier, err = pkgText.NewIdentifier(*a.Identifier)
 	if err != nil {
-		return &identifier, err
+		return nil, err
 	}
 
 	return &identifier, nil
@@ -33,7 +33,7 @@ func (a AuthIdentifier) GetEmailIdentifier() (*pkgText.Email, error) {
 	}
 	var email, err = pkgText.NewEmail(*a.EmailIdentifier)
 	if err != nil {
-		return &email, err
+		return nil, err
 	}
 
 	return &email, nil

@@ -1,144 +1,118 @@
 package user_test
 
 import (
-	"errors"
+	// "errors"
 	"github.com/motojouya/geezer_auth/internal/behavior/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
-	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
-	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
-	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
-type passwordSetterDBMock struct {
-	addPassword func(userPassword *dbUser.UserPassword, now time.Time) (*dbUser.UserPassword, error)
+type passwordCheckerDBMock struct {
+	getUserPassword func(identifier string) (*dbUser.UserPasswordFull, error)
+	getUserPasswordOfEmail func(email string) (*dbUser.UserPasswordFull, error)
 }
 
-func (mock passwordSetterDBMock) AddPassword(userPassword *dbUser.UserPassword, now time.Time) (*dbUser.UserPassword, error) {
-	return mock.addPassword(userPassword, now)
+func (mock passwordCheckerDBMock) GetUserPassword(identifier string) (*dbUser.UserPasswordFull, error) {
+	return mock.getUserPassword(identifier)
 }
 
-type passwordGetEntryMock struct {
+func (mock passwordCheckerDBMock) GetUserPasswordOfEmail(email string) (*dbUser.UserPasswordFull, error) {
+	return mock.getUserPasswordOfEmail(email)
+}
+
+type loginnerEntryMock struct {
 	getPassword func() (shelterText.Password, error)
+	getIdentifier func() (*pkgText.Identifier, error)
+	getEmailIdentifier func() (*pkgText.Email, error)
 }
 
-func (mock passwordGetEntryMock) GetPassword() (shelterText.Password, error) {
+func (mock loginnerEntryMock) GetPassword() (shelterText.Password, error) {
 	return mock.getPassword()
 }
 
-func getShelterUserAuthenticForPassword() *shelterUser.UserAuthentic {
-	var userId uint = 1
-	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
-	var emailId, _ = pkgText.NewEmail("test@example.com")
-	var userName, _ = pkgText.NewName("TestName")
-	var botFlag = false
-	var userRegisteredDate = time.Now()
-	var updateDate = time.Now()
-	var userValue = shelterUser.NewUser(userId, userIdentifier, userName, emailId, botFlag, userRegisteredDate, updateDate)
-
-	var companyIdentifier, _ = pkgText.NewIdentifier("CP-TESTES")
-	var companyId uint = 1
-	var companyName, _ = pkgText.NewName("TestCompany")
-	var companyRegisteredDate = time.Now()
-	var company = shelterCompany.NewCompany(companyId, companyIdentifier, companyName, companyRegisteredDate)
-
-	var label, _ = pkgText.NewLabel("TEST_ROLE")
-	var roleName, _ = pkgText.NewName("TestRole")
-	var description, _ = shelterText.NewText("Role for testing")
-	var roleRegisteredDate = time.Now()
-
-	var roles = []shelterRole.Role{shelterRole.NewRole(roleName, label, description, roleRegisteredDate)}
-	var companyRole = shelterUser.NewCompanyRole(company, roles)
-
-	var email, _ = pkgText.NewEmail("test_2@gmail.com")
-	return shelterUser.NewUserAuthentic(userValue, companyRole, &email)
+func (mock loginnerEntryMock) GetIdentifier() (*pkgText.Identifier, error) {
+	return mock.getIdentifier()
 }
 
-func getLocalerMockForPassword(t *testing.T, now time.Time) *localUtility.LocalerMock {
-	var getNow = func() time.Time {
-		return now
-	}
-	return &localUtility.LocalerMock{
-		FakeGetNow: getNow,
+func (mock loginnerEntryMock) GetEmailIdentifier() (*pkgText.Email, error) {
+	return mock.getEmailIdentifier()
+}
+
+func getDbUserPassword(expectId string, expectEmail string, expectPassword string) dbUser.UserPasswordFull {
+	var now = time.Now()
+	var expireDate = now.Add(1 * time.Hour)
+	return dbUser.UserPasswordFull{
+		UserPassword: dbUser.UserPassword{
+			PersistKey:     1,
+			UserPersistKey: 2,
+			Password:       expectPassword,
+			RegisteredDate: now.Add(3 * time.Hour),
+			ExpireDate:     &expireDate,
+		},
+		UserIdentifier:     expectId,
+		UserExposeEmailId:  expectEmail,
+		UserName:           "TestUserName",
+		UserBotFlag:        false,
+		UserRegisteredDate: now,
+		UserUpdateDate:     now.Add(2 * time.Hour),
 	}
 }
 
-func getPasswordSetDbMock(t *testing.T, expectPassword string, firstNow time.Time) passwordSetterDBMock {
-	var addPassword = func(userPassword *dbUser.UserPassword, now time.Time) (*dbUser.UserPassword, error) {
-		var verifyPassword = shelterText.VerifyPassword(shelterText.HashedPassword(userPassword.Password), shelterText.Password(expectPassword))
-		assert.NoError(t, verifyPassword)
-		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
-		return userPassword, nil
+func getPasswordCheckDbMock(t *testing.T, expectId string, expectEmail string, expectPassword string) passwordCheckerDBMock {
+	var userPassword = getDbUserPassword(expectId, expectEmail, expectPassword)
+	var getUserPassword = func(identifier string) (*dbUser.UserPasswordFull, error) {
+		assert.Equal(t, expectId, identifier)
+		return &userPassword, nil
 	}
-	return passwordSetterDBMock{
-		addPassword: addPassword,
+	var getUserPasswordOfEmail = func(email string) (*dbUser.UserPasswordFull, error) {
+		assert.Equal(t, expectEmail, email)
+		return &userPassword, nil
+	}
+	return passwordCheckerDBMock{
+		getUserPassword: getUserPassword,
+		getUserPasswordOfEmail: getUserPasswordOfEmail,
 	}
 }
 
-func getGetPasswordEntryMock(t *testing.T, expectPassword string, firstNow time.Time) passwordGetEntryMock {
+func getLoginEntryMock(t *testing.T, expectId string, expectEmail string, expectPassword string) loginnerEntryMock {
 	var password, _ = shelterText.NewPassword(expectPassword)
+	var email, _ = pkgText.NewEmail(expectEmail)
+	var identifier, _ = pkgText.NewIdentifier(expectId)
 	var getPassword = func() (shelterText.Password, error) {
 		return password, nil
 	}
-	return passwordGetEntryMock{
-		getPassword: getPassword,
+	var getIdentifier = func() (*pkgText.Identifier, error) {
+		return &identifier, nil
+	}
+	var getEmailIdentifier = func() (*pkgText.Email, error) {
+		return &email, nil
+	}
+	return loginnerEntryMock{
+		getPassword:   getPassword,
+		getIdentifier: getIdentifier,
+		getEmailIdentifier:      getEmailIdentifier,
 	}
 }
 
-func TestPasswordSetter(t *testing.T) {
+func TestPasswordChecker(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectEmail = "test@example.com"
+
 	var expectPassword = "password01"
-	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForPassword()
+	var password, _ = shelterText.NewPassword(expectPassword)
+	var hashedPassword, _ = shelterText.HashPassword(password)
 
-	var localerMock = getLocalerMockForPassword(t, firstNow)
-	var dbMock = getPasswordSetDbMock(t, expectPassword, firstNow)
-	var entryMock = getGetPasswordEntryMock(t, expectPassword, firstNow)
+	var dbMock = getPasswordCheckDbMock(t, expectIdentifier, expectEmail, string(hashedPassword))
+	var entryMock = getLoginEntryMock(t, expectIdentifier, expectEmail, expectPassword)
 
-	setter := user.NewPasswordSet(localerMock, dbMock)
-	err := setter.Execute(entryMock, userAuthentic)
+	checker := user.NewPasswordCheck(dbMock)
+	err := checker.Execute(entryMock)
 
 	assert.NoError(t, err)
 }
 
-func TestPasswordSetterErrGetPass(t *testing.T) {
-	var expectPassword = "password01"
-	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForPassword()
-
-	var localerMock = getLocalerMockForPassword(t, firstNow)
-	var dbMock = getPasswordSetDbMock(t, expectPassword, firstNow)
-	var entryMock = getGetPasswordEntryMock(t, expectPassword, firstNow)
-
-	entryMock.getPassword = func() (shelterText.Password, error) {
-		return shelterText.Password(""), errors.New("error getting password")
-	}
-
-	setter := user.NewPasswordSet(localerMock, dbMock)
-	err := setter.Execute(entryMock, userAuthentic)
-
-	assert.Error(t, err)
-}
-
-func TestPasswordSetterErrAddPass(t *testing.T) {
-	var expectPassword = "password01"
-	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForPassword()
-
-	var localerMock = getLocalerMockForPassword(t, firstNow)
-	var dbMock = getPasswordSetDbMock(t, expectPassword, firstNow)
-	var entryMock = getGetPasswordEntryMock(t, expectPassword, firstNow)
-
-	dbMock.addPassword = func(userPassword *dbUser.UserPassword, now time.Time) (*dbUser.UserPassword, error) {
-		return nil, errors.New("error adding password")
-	}
-
-	setter := user.NewPasswordSet(localerMock, dbMock)
-	err := setter.Execute(entryMock, userAuthentic)
-
-	assert.Error(t, err)
-}
+// TODO working error cases
