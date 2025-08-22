@@ -1,7 +1,7 @@
 package user_test
 
 import (
-	// "errors"
+	"errors"
 	"github.com/motojouya/geezer_auth/internal/behavior/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
@@ -98,7 +98,222 @@ func getLoginEntryMock(t *testing.T, expectId string, expectEmail string, expect
 	}
 }
 
-func TestPasswordChecker(t *testing.T) {
+func TestPasswordCheckerId(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectEmail = "test@example.com"
+
+	var expectPassword = "password01"
+	var password, _ = shelterText.NewPassword(expectPassword)
+	var hashedPassword, _ = shelterText.HashPassword(password)
+
+	var dbMock = getPasswordCheckDbMock(t, expectIdentifier, expectEmail, string(hashedPassword))
+	var entryMock = getLoginEntryMock(t, expectIdentifier, expectEmail, expectPassword)
+	entryMock.getEmailIdentifier = func() (*pkgText.Email, error) {
+		return nil, nil // Simulate no email provided
+	}
+
+	checker := user.NewPasswordCheck(dbMock)
+	err := checker.Execute(entryMock)
+
+	assert.NoError(t, err)
+}
+
+func TestPasswordCheckerEmail(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectEmail = "test@example.com"
+
+	var expectPassword = "password01"
+	var password, _ = shelterText.NewPassword(expectPassword)
+	var hashedPassword, _ = shelterText.HashPassword(password)
+
+	var dbMock = getPasswordCheckDbMock(t, expectIdentifier, expectEmail, string(hashedPassword))
+	var entryMock = getLoginEntryMock(t, expectIdentifier, expectEmail, expectPassword)
+	entryMock.getIdentifier = func() (*pkgText.Identifier, error) {
+		return nil, nil // Simulate no identifier provided
+	}
+
+	checker := user.NewPasswordCheck(dbMock)
+	err := checker.Execute(entryMock)
+
+	assert.NoError(t, err)
+}
+
+func TestPasswordCheckerErrId(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectEmail = "test@example.com"
+
+	var expectPassword = "password01"
+	var password, _ = shelterText.NewPassword(expectPassword)
+	var hashedPassword, _ = shelterText.HashPassword(password)
+
+	var dbMock = getPasswordCheckDbMock(t, expectIdentifier, expectEmail, string(hashedPassword))
+	var entryMock = getLoginEntryMock(t, expectIdentifier, expectEmail, expectPassword)
+	entryMock.getIdentifier = func() (*pkgText.Identifier, error) {
+		return nil, errors.New("identifier not provided")
+	}
+
+	checker := user.NewPasswordCheck(dbMock)
+	err := checker.Execute(entryMock)
+
+	assert.Error(t, err)
+}
+
+func TestPasswordCheckerErrEmail(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectEmail = "test@example.com"
+
+	var expectPassword = "password01"
+	var password, _ = shelterText.NewPassword(expectPassword)
+	var hashedPassword, _ = shelterText.HashPassword(password)
+
+	var dbMock = getPasswordCheckDbMock(t, expectIdentifier, expectEmail, string(hashedPassword))
+	var entryMock = getLoginEntryMock(t, expectIdentifier, expectEmail, expectPassword)
+	entryMock.getEmailIdentifier = func() (*pkgText.Email, error) {
+		return nil, errors.New("email not provided")
+	}
+
+	checker := user.NewPasswordCheck(dbMock)
+	err := checker.Execute(entryMock)
+
+	assert.Error(t, err)
+}
+
+func TestPasswordCheckerErrPassword(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectEmail = "test@example.com"
+
+	var expectPassword = "password01"
+	var password, _ = shelterText.NewPassword(expectPassword)
+	var hashedPassword, _ = shelterText.HashPassword(password)
+
+	var dbMock = getPasswordCheckDbMock(t, expectIdentifier, expectEmail, string(hashedPassword))
+	var entryMock = getLoginEntryMock(t, expectIdentifier, expectEmail, expectPassword)
+	entryMock.getPassword = func() (shelterText.Password, error) {
+		return shelterText.Password(""), errors.New("password not provided")
+	}
+
+	checker := user.NewPasswordCheck(dbMock)
+	err := checker.Execute(entryMock)
+
+	assert.Error(t, err)
+}
+
+func TestPasswordCheckerErrNoId(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectEmail = "test@example.com"
+
+	var expectPassword = "password01"
+	var password, _ = shelterText.NewPassword(expectPassword)
+	var hashedPassword, _ = shelterText.HashPassword(password)
+
+	var dbMock = getPasswordCheckDbMock(t, expectIdentifier, expectEmail, string(hashedPassword))
+	var entryMock = getLoginEntryMock(t, expectIdentifier, expectEmail, expectPassword)
+	entryMock.getIdentifier = func() (*pkgText.Identifier, error) {
+		return nil, nil // Simulate no identifier provided
+	}
+	entryMock.getEmailIdentifier = func() (*pkgText.Email, error) {
+		return nil, nil // Simulate no email provided
+	}
+
+	checker := user.NewPasswordCheck(dbMock)
+	err := checker.Execute(entryMock)
+
+	assert.Error(t, err)
+}
+
+func TestPasswordCheckerErrIdDb(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectEmail = "test@example.com"
+
+	var expectPassword = "password01"
+	var password, _ = shelterText.NewPassword(expectPassword)
+	var hashedPassword, _ = shelterText.HashPassword(password)
+
+	var dbMock = getPasswordCheckDbMock(t, expectIdentifier, expectEmail, string(hashedPassword))
+	var entryMock = getLoginEntryMock(t, expectIdentifier, expectEmail, expectPassword)
+	entryMock.getEmailIdentifier = func() (*pkgText.Email, error) {
+		return nil, nil // Simulate no email provided
+	}
+	dbMock.getUserPassword = func(identifier string) (*dbUser.UserPasswordFull, error) {
+		return nil, errors.New("database error")
+	}
+
+	checker := user.NewPasswordCheck(dbMock)
+	err := checker.Execute(entryMock)
+
+	assert.Error(t, err)
+}
+
+func TestPasswordCheckerErrIdDbNil(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectEmail = "test@example.com"
+
+	var expectPassword = "password01"
+	var password, _ = shelterText.NewPassword(expectPassword)
+	var hashedPassword, _ = shelterText.HashPassword(password)
+
+	var dbMock = getPasswordCheckDbMock(t, expectIdentifier, expectEmail, string(hashedPassword))
+	var entryMock = getLoginEntryMock(t, expectIdentifier, expectEmail, expectPassword)
+	entryMock.getEmailIdentifier = func() (*pkgText.Email, error) {
+		return nil, nil // Simulate no email provided
+	}
+	dbMock.getUserPassword = func(identifier string) (*dbUser.UserPasswordFull, error) {
+		return nil, nil
+	}
+
+	checker := user.NewPasswordCheck(dbMock)
+	err := checker.Execute(entryMock)
+
+	assert.Error(t, err)
+}
+
+func TestPasswordCheckerErrEmailDb(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectEmail = "test@example.com"
+
+	var expectPassword = "password01"
+	var password, _ = shelterText.NewPassword(expectPassword)
+	var hashedPassword, _ = shelterText.HashPassword(password)
+
+	var dbMock = getPasswordCheckDbMock(t, expectIdentifier, expectEmail, string(hashedPassword))
+	var entryMock = getLoginEntryMock(t, expectIdentifier, expectEmail, expectPassword)
+	entryMock.getIdentifier = func() (*pkgText.Identifier, error) {
+		return nil, nil // Simulate no identifier provided
+	}
+	dbMock.getUserPasswordOfEmail = func(email string) (*dbUser.UserPasswordFull, error) {
+		return nil, errors.New("database error")
+	}
+
+	checker := user.NewPasswordCheck(dbMock)
+	err := checker.Execute(entryMock)
+
+	assert.Error(t, err)
+}
+
+func TestPasswordCheckerErrEmailDbNil(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectEmail = "test@example.com"
+
+	var expectPassword = "password01"
+	var password, _ = shelterText.NewPassword(expectPassword)
+	var hashedPassword, _ = shelterText.HashPassword(password)
+
+	var dbMock = getPasswordCheckDbMock(t, expectIdentifier, expectEmail, string(hashedPassword))
+	var entryMock = getLoginEntryMock(t, expectIdentifier, expectEmail, expectPassword)
+	entryMock.getIdentifier = func() (*pkgText.Identifier, error) {
+		return nil, nil // Simulate no identifier provided
+	}
+	dbMock.getUserPasswordOfEmail = func(email string) (*dbUser.UserPasswordFull, error) {
+		return nil, nil // Simulate no user found
+	}
+
+	checker := user.NewPasswordCheck(dbMock)
+	err := checker.Execute(entryMock)
+
+	assert.Error(t, err)
+}
+
+func TestPasswordCheckerErrUserPassword(t *testing.T) {
 	var expectIdentifier = "US-TESTES"
 	var expectEmail = "test@example.com"
 
@@ -109,10 +324,27 @@ func TestPasswordChecker(t *testing.T) {
 	var dbMock = getPasswordCheckDbMock(t, expectIdentifier, expectEmail, string(hashedPassword))
 	var entryMock = getLoginEntryMock(t, expectIdentifier, expectEmail, expectPassword)
 
+	var userPassword = getDbUserPassword(expectIdentifier, "", string(hashedPassword))
+	dbMock.getUserPassword = func(identifier string) (*dbUser.UserPasswordFull, error) {
+		return &userPassword, nil // Simulate no user found
+	}
+
 	checker := user.NewPasswordCheck(dbMock)
 	err := checker.Execute(entryMock)
 
-	assert.NoError(t, err)
+	assert.Error(t, err)
 }
 
-// TODO working error cases
+func TestPasswordCheckerErrPasswordHash(t *testing.T) {
+	var expectIdentifier = "US-TESTES"
+	var expectEmail = "test@example.com"
+	var expectPassword = "password01"
+
+	var dbMock = getPasswordCheckDbMock(t, expectIdentifier, expectEmail, expectPassword)
+	var entryMock = getLoginEntryMock(t, expectIdentifier, expectEmail, expectPassword)
+
+	checker := user.NewPasswordCheck(dbMock)
+	err := checker.Execute(entryMock)
+
+	assert.Error(t, err)
+}
