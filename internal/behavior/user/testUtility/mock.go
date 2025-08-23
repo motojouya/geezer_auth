@@ -2,6 +2,7 @@ package testUtility
 
 import (
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
+	entryAuth "github.com/motojouya/geezer_auth/internal/entry/transfer/auth"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
@@ -53,6 +54,14 @@ type PasswordSetterMock struct {
 
 func (mock PasswordSetterMock) Execute(entry entryUser.PasswordGetter, user *shelterUser.UserAuthentic) error {
 	return mock.FakeExecute(entry, user)
+}
+
+type PasswordCheckerMock struct {
+	FakeExecute func(entry entryAuth.AuthLoginner) (pkgText.Identifier, error)
+}
+
+func (mock PasswordCheckerMock) Execute(entry entryAuth.AuthLoginner) (pkgText.Identifier, error) {
+	return mock.FakeExecute(entry)
 }
 
 type RefreshTokenIssuerMock struct {

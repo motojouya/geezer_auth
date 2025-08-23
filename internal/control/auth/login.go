@@ -64,8 +64,6 @@ var LoginExecute = utility.Transact(func(control *LoginControl, entry entryAuth.
 		return nil, err
 	}
 
-	// TODO idでもemailでもobjectからでも値からでもできたいが、どうするか
-	// passwordCheckerはどちらでもできるようにしたいが、こっちはどっちでもいいのでpasswordCheckerでid返しちゃうか
 	userAuthentic, err := control.userGetter.Execute(identifier)
 	if err != nil {
 		return nil, err

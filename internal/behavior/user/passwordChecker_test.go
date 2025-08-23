@@ -113,9 +113,10 @@ func TestPasswordCheckerId(t *testing.T) {
 	}
 
 	checker := user.NewPasswordCheck(dbMock)
-	err := checker.Execute(entryMock)
+	id, err := checker.Execute(entryMock)
 
 	assert.NoError(t, err)
+	assert.Equal(t, expectIdentifier, string(id))
 }
 
 func TestPasswordCheckerEmail(t *testing.T) {
@@ -133,9 +134,10 @@ func TestPasswordCheckerEmail(t *testing.T) {
 	}
 
 	checker := user.NewPasswordCheck(dbMock)
-	err := checker.Execute(entryMock)
+	id, err := checker.Execute(entryMock)
 
 	assert.NoError(t, err)
+	assert.Equal(t, expectIdentifier, string(id))
 }
 
 func TestPasswordCheckerErrId(t *testing.T) {
@@ -153,7 +155,7 @@ func TestPasswordCheckerErrId(t *testing.T) {
 	}
 
 	checker := user.NewPasswordCheck(dbMock)
-	err := checker.Execute(entryMock)
+	_, err := checker.Execute(entryMock)
 
 	assert.Error(t, err)
 }
@@ -173,7 +175,7 @@ func TestPasswordCheckerErrEmail(t *testing.T) {
 	}
 
 	checker := user.NewPasswordCheck(dbMock)
-	err := checker.Execute(entryMock)
+	_, err := checker.Execute(entryMock)
 
 	assert.Error(t, err)
 }
@@ -193,7 +195,7 @@ func TestPasswordCheckerErrPassword(t *testing.T) {
 	}
 
 	checker := user.NewPasswordCheck(dbMock)
-	err := checker.Execute(entryMock)
+	_, err := checker.Execute(entryMock)
 
 	assert.Error(t, err)
 }
@@ -216,7 +218,7 @@ func TestPasswordCheckerErrNoId(t *testing.T) {
 	}
 
 	checker := user.NewPasswordCheck(dbMock)
-	err := checker.Execute(entryMock)
+	_, err := checker.Execute(entryMock)
 
 	assert.Error(t, err)
 }
@@ -239,7 +241,7 @@ func TestPasswordCheckerErrIdDb(t *testing.T) {
 	}
 
 	checker := user.NewPasswordCheck(dbMock)
-	err := checker.Execute(entryMock)
+	_, err := checker.Execute(entryMock)
 
 	assert.Error(t, err)
 }
@@ -262,7 +264,7 @@ func TestPasswordCheckerErrIdDbNil(t *testing.T) {
 	}
 
 	checker := user.NewPasswordCheck(dbMock)
-	err := checker.Execute(entryMock)
+	_, err := checker.Execute(entryMock)
 
 	assert.Error(t, err)
 }
@@ -285,7 +287,7 @@ func TestPasswordCheckerErrEmailDb(t *testing.T) {
 	}
 
 	checker := user.NewPasswordCheck(dbMock)
-	err := checker.Execute(entryMock)
+	_, err := checker.Execute(entryMock)
 
 	assert.Error(t, err)
 }
@@ -308,7 +310,7 @@ func TestPasswordCheckerErrEmailDbNil(t *testing.T) {
 	}
 
 	checker := user.NewPasswordCheck(dbMock)
-	err := checker.Execute(entryMock)
+	_, err := checker.Execute(entryMock)
 
 	assert.Error(t, err)
 }
@@ -330,7 +332,7 @@ func TestPasswordCheckerErrUserPassword(t *testing.T) {
 	}
 
 	checker := user.NewPasswordCheck(dbMock)
-	err := checker.Execute(entryMock)
+	_, err := checker.Execute(entryMock)
 
 	assert.Error(t, err)
 }
@@ -344,7 +346,7 @@ func TestPasswordCheckerErrPasswordHash(t *testing.T) {
 	var entryMock = getLoginEntryMock(t, expectIdentifier, expectEmail, expectPassword)
 
 	checker := user.NewPasswordCheck(dbMock)
-	err := checker.Execute(entryMock)
+	_, err := checker.Execute(entryMock)
 
 	assert.Error(t, err)
 }
