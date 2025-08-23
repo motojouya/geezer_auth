@@ -1,11 +1,10 @@
-package user
+package auth
 
 import (
 	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
 	userBehavior "github.com/motojouya/geezer_auth/internal/behavior/user"
 	"github.com/motojouya/geezer_auth/internal/control/utility"
 	"github.com/motojouya/geezer_auth/internal/db"
-	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	entryAuth "github.com/motojouya/geezer_auth/internal/entry/transfer/auth"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"

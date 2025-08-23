@@ -15,7 +15,7 @@ type PasswordCheckerDB interface {
 }
 
 type PasswordChecker interface {
-	Execute(entry entryAuth.AuthLoginner) error
+	Execute(entry entryAuth.AuthLoginner) (pkgText.Identifier, error)
 }
 
 type PasswordCheck struct {
