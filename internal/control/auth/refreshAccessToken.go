@@ -48,7 +48,7 @@ func CreateRefreshAccessTokenControl() (*RefreshAccessTokenControl, error) {
 	return NewRefreshAccessTokenControl(database, refreshTokenChecker, accessTokenIssuer), nil
 }
 
-var RefreshAccessTokenControlExecute = utility.Transact(func(control *RefreshAccessTokenControl, entry entryAuth.AuthRefreshRequest, _ *pkgUser.Authentic) (*entryAuth.AuthRefreshResponse, error) {
+var RefreshAccessTokenExecute = utility.Transact(func(control *RefreshAccessTokenControl, entry entryAuth.AuthRefreshRequest, _ *pkgUser.Authentic) (*entryAuth.AuthRefreshResponse, error) {
 
 	userAuthentic, err := control.refreshTokenChecker.Execute(entry)
 	if err != nil {

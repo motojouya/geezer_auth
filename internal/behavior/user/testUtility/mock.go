@@ -72,6 +72,14 @@ func (mock RefreshTokenIssuerMock) Execute(user *shelterUser.UserAuthentic) (she
 	return mock.FakeExecute(user)
 }
 
+type RefreshTokenCheckerMock struct {
+	FakeExecute func(entry entryAuth.RefreshTokenGetter) (*shelterUser.UserAuthentic, error)
+}
+
+func (mock RefreshTokenCheckerMock) Execute(entry entryAuth.RefreshTokenGetter) (*shelterUser.UserAuthentic, error) {
+	return mock.FakeExecute(entry)
+}
+
 type AccessTokenIssuerMock struct {
 	FakeExecute func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error)
 }

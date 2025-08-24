@@ -17,23 +17,10 @@ import (
 	"time"
 )
 
-func getBehaviorForLogin(t *testing.T, userAuthentic *shelterUser.UserAuthentic, refreshToken shelterText.Token, accessToken pkgText.JwtToken) (*userTestUtility.UserGetterMock, *userTestUtility.PasswordCheckerMock, *userTestUtility.RefreshTokenIssuerMock, *userTestUtility.AccessTokenIssuerMock) {
-	var userGetter = &userTestUtility.UserGetterMock{
-		FakeExecute: func(identifier pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
-			assert.Equal(t, userAuthentic.Identifier, identifier)
+func getBehaviorForRefresh(t *testing.T, userAuthentic *shelterUser.UserAuthentic, accessToken pkgText.JwtToken) (*userTestUtility.RefreshTokenCheckerMock, *userTestUtility.AccessTokenIssuerMock) {
+	var refreshTokenChecker = &userTestUtility.RefreshTokenCheckerMock{
+		FakeExecute: func(entry entryAuth.RefreshTokenGetter) (*shelterUser.UserAuthentic, error) {
 			return userAuthentic, nil
-		},
-	}
-
-	var passwordChecker = &userTestUtility.PasswordCheckerMock{
-		FakeExecute: func(entry entryAuth.AuthLoginner) (pkgText.Identifier, error) {
-			return userAuthentic.Identifier, nil
-		},
-	}
-
-	var refreshTokenIssuer = &userTestUtility.RefreshTokenIssuerMock{
-		FakeExecute: func(user *shelterUser.UserAuthentic) (shelterText.Token, error) {
-			return refreshToken, nil
 		},
 	}
 
@@ -43,13 +30,13 @@ func getBehaviorForLogin(t *testing.T, userAuthentic *shelterUser.UserAuthentic,
 		},
 	}
 
-	return userGetter, passwordChecker, refreshTokenIssuer, accessTokenIssuer
+	return refreshTokenChecker, accessTokenIssuer
 }
 
-func getShelterUserAuthenticForLogin(expectId string, expectEmail string) *shelterUser.UserAuthentic {
+func getShelterUserAuthenticForRefresh(expectId string) *shelterUser.UserAuthentic {
 	var userId uint = 1
 	var userIdentifier, _ = pkgText.NewIdentifier(expectId)
-	var emailId, _ = pkgText.NewEmail(expectEmail)
+	var emailId, _ = pkgText.NewEmail("test@example.com")
 	var userName, _ = pkgText.NewName("TestName")
 	var botFlag = false
 	var userRegisteredDate = time.Now()
@@ -70,89 +57,76 @@ func getShelterUserAuthenticForLogin(expectId string, expectEmail string) *shelt
 	var roles = []shelterRole.Role{shelterRole.NewRole(roleName, label, description, roleRegisteredDate)}
 	var companyRole = shelterUser.NewCompanyRole(company, roles)
 
-	var email, _ = pkgText.NewEmail(expectEmail)
+	var email, _ = pkgText.NewEmail("test@example.com")
 	return shelterUser.NewUserAuthentic(userValue, companyRole, &email)
 }
 
-func getLoginEntry(expectId string, expectEmail string, expectPassword string) entryAuth.AuthLoginRequest {
-	return entryAuth.AuthLoginRequest{
-		AuthLogin: entryAuth.AuthLogin{
-			AuthIdentifier: entryAuth.AuthIdentifier{
-				Identifier:      &expectId,
-				EmailIdentifier: &expectEmail,
-			},
-			Password: expectPassword,
+func getRefreshEntry(expectToken string) entryAuth.AuthRefreshRequest {
+	return entryAuth.AuthRefreshRequest{
+		AuthRefresh: entryAuth.AuthRefresh{
+			RefreshToken: expectToken,
 		},
 	}
 }
 
-func TestLogin(t *testing.T) {
+func TestRefresh(t *testing.T) {
 	var expectIdentifier = "US-TESTES"
-	var expectEmail = "test@example.com"
-	var expectPassword = "password123"
 	var expectUUID, _ = uuid.NewUUID()
 	var refreshToken, _ = shelterText.CreateToken(expectUUID)
 	var expectToken = "test-access-token"
 	var accessToken = pkgText.JwtToken(expectToken)
-	var userAuthentic = getShelterUserAuthenticForLogin(expectIdentifier, expectEmail)
+	var userAuthentic = getShelterUserAuthenticForRefresh(expectIdentifier)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 
-	var userGetter, passwordChecker, refreshTokenIssuer, accessTokenIssuer = getBehaviorForLogin(t, userAuthentic, refreshToken, accessToken)
-	var control = controlAuth.NewLoginControl(
+	var refreshTokenChecker, accessTokenIssuer = getBehaviorForRefresh(t, userAuthentic, accessToken)
+	var control = controlAuth.NewRefreshAccessTokenControl(
 		db,
-		userGetter,
-		passwordChecker,
-		refreshTokenIssuer,
+		refreshTokenChecker,
 		accessTokenIssuer,
 	)
 
-	var entry = getLoginEntry(expectIdentifier, expectEmail, expectPassword)
+	var entry = getRefreshEntry(string(refreshToken))
 
-	var authLoginResponse, err = controlAuth.LoginExecute(control, entry, nil)
+	var authRefreshResponse, err = controlAuth.RefreshAccessTokenExecute(control, entry, nil)
 
 	assert.NoError(t, err)
-	assert.Equal(t, expectIdentifier, authLoginResponse.User.Identifier)
-	assert.Equal(t, expectUUID.String(), authLoginResponse.RefreshToken)
-	assert.Equal(t, expectToken, authLoginResponse.AccessToken)
+	assert.Equal(t, expectIdentifier, authRefreshResponse.User.Identifier)
+	assert.Equal(t, expectToken, authRefreshResponse.AccessToken)
 
 	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
 	assert.Equal(t, 1, transactionCalledCount.CommitCalled)
 	assert.Equal(t, 0, transactionCalledCount.RollbackCalled)
 	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 
-	t.Logf("response: %+v", authLoginResponse)
+	t.Logf("response: %+v", authRefreshResponse)
 }
 
-func TestLoginErrLogin(t *testing.T) {
+func TestRefreshErrRefresh(t *testing.T) {
 	var expectIdentifier = "US-TESTES"
-	var expectEmail = "test@example.com"
-	var expectPassword = "password123"
 	var expectUUID, _ = uuid.NewUUID()
 	var refreshToken, _ = shelterText.CreateToken(expectUUID)
 	var expectToken = "test-access-token"
 	var accessToken = pkgText.JwtToken(expectToken)
-	var userAuthentic = getShelterUserAuthenticForLogin(expectIdentifier, expectEmail)
+	var userAuthentic = getShelterUserAuthenticForRefresh(expectIdentifier)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 
-	var userGetter, passwordChecker, refreshTokenIssuer, accessTokenIssuer = getBehaviorForLogin(t, userAuthentic, refreshToken, accessToken)
-	passwordChecker.FakeExecute = func(entry entryAuth.AuthLoginner) (pkgText.Identifier, error) {
-		return pkgText.Identifier(""), errors.New("login error")
+	var refreshTokenChecker, accessTokenIssuer = getBehaviorForRefresh(t, userAuthentic, accessToken)
+	refreshTokenChecker.FakeExecute = func(entry entryAuth.RefreshTokenGetter) (*shelterUser.UserAuthentic, error) {
+		return nil, errors.New("refresh token error")
 	}
-	var control = controlAuth.NewLoginControl(
+	var control = controlAuth.NewRefreshAccessTokenControl(
 		db,
-		userGetter,
-		passwordChecker,
-		refreshTokenIssuer,
+		refreshTokenChecker,
 		accessTokenIssuer,
 	)
 
-	var entry = getLoginEntry(expectIdentifier, expectEmail, expectPassword)
+	var entry = getRefreshEntry(string(refreshToken))
 
-	var _, err = controlAuth.LoginExecute(control, entry, nil)
+	var _, err = controlAuth.RefreshAccessTokenExecute(control, entry, nil)
 
 	assert.Error(t, err)
 
@@ -162,108 +136,30 @@ func TestLoginErrLogin(t *testing.T) {
 	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 }
 
-func TestLoginErrGet(t *testing.T) {
+func TestRefreshErrIssue(t *testing.T) {
 	var expectIdentifier = "US-TESTES"
-	var expectEmail = "test@example.com"
-	var expectPassword = "password123"
 	var expectUUID, _ = uuid.NewUUID()
 	var refreshToken, _ = shelterText.CreateToken(expectUUID)
 	var expectToken = "test-access-token"
 	var accessToken = pkgText.JwtToken(expectToken)
-	var userAuthentic = getShelterUserAuthenticForLogin(expectIdentifier, expectEmail)
+	var userAuthentic = getShelterUserAuthenticForRefresh(expectIdentifier)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 
-	var userGetter, passwordChecker, refreshTokenIssuer, accessTokenIssuer = getBehaviorForLogin(t, userAuthentic, refreshToken, accessToken)
-	userGetter.FakeExecute = func(identifier pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
-		return nil, errors.New("get user error")
-	}
-	var control = controlAuth.NewLoginControl(
-		db,
-		userGetter,
-		passwordChecker,
-		refreshTokenIssuer,
-		accessTokenIssuer,
-	)
-
-	var entry = getLoginEntry(expectIdentifier, expectEmail, expectPassword)
-
-	var _, err = controlAuth.LoginExecute(control, entry, nil)
-
-	assert.Error(t, err)
-
-	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
-	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
-	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
-	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
-}
-
-func TestLoginErrRefToken(t *testing.T) {
-	var expectIdentifier = "US-TESTES"
-	var expectEmail = "test@example.com"
-	var expectPassword = "password123"
-	var expectUUID, _ = uuid.NewUUID()
-	var refreshToken, _ = shelterText.CreateToken(expectUUID)
-	var expectToken = "test-access-token"
-	var accessToken = pkgText.JwtToken(expectToken)
-	var userAuthentic = getShelterUserAuthenticForLogin(expectIdentifier, expectEmail)
-
-	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
-	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
-
-	var userGetter, passwordChecker, refreshTokenIssuer, accessTokenIssuer = getBehaviorForLogin(t, userAuthentic, refreshToken, accessToken)
-	refreshTokenIssuer.FakeExecute = func(user *shelterUser.UserAuthentic) (shelterText.Token, error) {
-		return shelterText.Token(""), errors.New("refresh token error")
-	}
-	var control = controlAuth.NewLoginControl(
-		db,
-		userGetter,
-		passwordChecker,
-		refreshTokenIssuer,
-		accessTokenIssuer,
-	)
-
-	var entry = getLoginEntry(expectIdentifier, expectEmail, expectPassword)
-
-	var _, err = controlAuth.LoginExecute(control, entry, nil)
-
-	assert.Error(t, err)
-
-	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
-	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
-	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
-	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
-}
-
-func TestLoginErrAccToken(t *testing.T) {
-	var expectIdentifier = "US-TESTES"
-	var expectEmail = "test@example.com"
-	var expectPassword = "password123"
-	var expectUUID, _ = uuid.NewUUID()
-	var refreshToken, _ = shelterText.CreateToken(expectUUID)
-	var expectToken = "test-access-token"
-	var accessToken = pkgText.JwtToken(expectToken)
-	var userAuthentic = getShelterUserAuthenticForLogin(expectIdentifier, expectEmail)
-
-	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
-	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
-
-	var userGetter, passwordChecker, refreshTokenIssuer, accessTokenIssuer = getBehaviorForLogin(t, userAuthentic, refreshToken, accessToken)
+	var refreshTokenChecker, accessTokenIssuer = getBehaviorForRefresh(t, userAuthentic, accessToken)
 	accessTokenIssuer.FakeExecute = func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
 		return pkgText.JwtToken(""), errors.New("access token error")
 	}
-	var control = controlAuth.NewLoginControl(
+	var control = controlAuth.NewRefreshAccessTokenControl(
 		db,
-		userGetter,
-		passwordChecker,
-		refreshTokenIssuer,
+		refreshTokenChecker,
 		accessTokenIssuer,
 	)
 
-	var entry = getLoginEntry(expectIdentifier, expectEmail, expectPassword)
+	var entry = getRefreshEntry(string(refreshToken))
 
-	var _, err = controlAuth.LoginExecute(control, entry, nil)
+	var _, err = controlAuth.RefreshAccessTokenExecute(control, entry, nil)
 
 	assert.Error(t, err)
 
