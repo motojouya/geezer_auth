@@ -1,0 +1,138 @@
+package user_test
+
+import (
+	"errors"
+	"github.com/motojouya/geezer_auth/internal/behavior/user"
+	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
+	"github.com/stretchr/testify/assert"
+	"testing"
+	"time"
+)
+
+type userGetterDBMock struct {
+	getUserAuthentic func(identifier string, now time.Time) (*dbUser.UserAuthentic, error)
+}
+
+func (mock userGetterDBMock) GetUserAuthentic(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+	return mock.getUserAuthentic(identifier, now)
+}
+
+func getDbUserAuthenticForUserGetter(id string) *dbUser.UserAuthentic {
+	var companyId = "CP-TESTES"
+	var now = time.Now()
+	var expireDate = now.Add(1 * time.Hour)
+
+	var userCompanyRole1 = &dbUser.UserCompanyRoleFull{
+		UserCompanyRole: dbUser.UserCompanyRole{
+			PersistKey:        1,
+			UserPersistKey:    2,
+			CompanyPersistKey: 3,
+			RoleLabel:         "TEST_ROLE",
+			RegisterDate:      now,
+			ExpireDate:        &expireDate,
+		},
+		UserIdentifier:        id,
+		UserExposeEmailId:     "test02@example.com",
+		UserName:              "TestUserName",
+		UserBotFlag:           false,
+		UserRegisteredDate:    now.Add(2 * time.Hour),
+		UserUpdateDate:        now.Add(3 * time.Hour),
+		CompanyIdentifier:     companyId,
+		CompanyName:           "TestCompanyName",
+		CompanyRegisteredDate: now.Add(4 * time.Hour),
+		RoleName:              "TestRoleName",
+		RoleDescription:       "TestRoleDescription",
+		RoleRegisteredDate:    now.Add(5 * time.Hour),
+	}
+	var userCompanyRoles = []dbUser.UserCompanyRoleFull{*userCompanyRole1}
+
+	var email = "test01@example.com"
+	return &dbUser.UserAuthentic{
+		UserPersistKey:     2,
+		UserIdentifier:     id,
+		UserExposeEmailId:  "test02@example.com",
+		UserName:           "TestUserName",
+		UserBotFlag:        false,
+		UserRegisteredDate: now,
+		UserUpdateDate:     now.Add(1 * time.Hour),
+		Email:              &email,
+		UserCompanyRole:    userCompanyRoles,
+	}
+}
+
+func getLocalerMockForUserGet(t *testing.T, now time.Time) *localUtility.LocalerMock {
+	var getNow = func() time.Time {
+		return now
+	}
+	return &localUtility.LocalerMock{
+		FakeGetNow: getNow,
+	}
+}
+
+func getUserGetterDbMock(t *testing.T, expectId string, firstNow time.Time) userGetterDBMock {
+	var dbUserAuthentic = getDbUserAuthenticForUserGetter(expectId)
+	var getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+		assert.Equal(t, expectId, identifier, "Expected identifier 'US-TESTES'")
+		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
+		return dbUserAuthentic, nil
+	}
+	return userGetterDBMock{
+		getUserAuthentic: getUserAuthentic,
+	}
+}
+
+func TestUserGetter(t *testing.T) {
+	var expectId = "US-TESTES"
+	var firstNow = time.Now()
+	var identifier, _ = pkgText.NewIdentifier(expectId)
+
+	var localerMock = getLocalerMockForUserGet(t, firstNow)
+	var dbMock = getUserGetterDbMock(t, expectId, firstNow)
+
+	getter := user.NewUserGet(localerMock, dbMock)
+	result, err := getter.Execute(identifier)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Equal(t, expectId, string(result.Identifier), "Expected user identifier 'US-TESTES'")
+
+	t.Logf("User created: %+v", result)
+}
+
+func TestUserGetterErrGetAuthentic(t *testing.T) {
+	var expectId = "US-TESTES"
+	var firstNow = time.Now()
+	var identifier, _ = pkgText.NewIdentifier(expectId)
+
+	var localerMock = getLocalerMockForUserGet(t, firstNow)
+	var dbMock = getUserGetterDbMock(t, expectId, firstNow)
+
+	dbMock.getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+		return nil, errors.New("database error")
+	}
+
+	getter := user.NewUserGet(localerMock, dbMock)
+	_, err := getter.Execute(identifier)
+
+	assert.Error(t, err)
+}
+
+func TestUserGetterErrGetAuthenticNil(t *testing.T) {
+	var expectId = "US-TESTES"
+	var firstNow = time.Now()
+	var identifier, _ = pkgText.NewIdentifier(expectId)
+
+	var localerMock = getLocalerMockForUserGet(t, firstNow)
+	var dbMock = getUserGetterDbMock(t, expectId, firstNow)
+
+	dbMock.getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+		return nil, nil
+	}
+
+	getter := user.NewUserGet(localerMock, dbMock)
+	_, err := getter.Execute(identifier)
+
+	assert.Error(t, err)
+}

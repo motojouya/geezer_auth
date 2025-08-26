@@ -155,6 +155,16 @@ type UserEmailVerifyResponse struct {
 上と同様
 
 ## 企業作成
+behaviorとしては
+- create company
+- get company
+- get users of company
+- get user of company
+- get role
+- publish token
+- check token
+- assign company role
+
 ### 企業作成
 - /auth/company/create
 - request
@@ -204,6 +214,8 @@ type UserEmailVerifyResponse struct {
     - publish token
     - expire old user token
 
+単純なcreateな処理
+
 ### 企業登録
 - /auth/company/企業id/accept
 - request
@@ -212,6 +224,10 @@ type UserEmailVerifyResponse struct {
 - model
   - assign company
     - token check
+
+behaviorとしては、user,company,roleを受け取ってuser_company_roleを作成する感じ
+その前段として、tokenのチェックを行うんだけど、これは別のbehaviorとして切り出す感じ
+assign company自体が、複数のcompanyをassignできないようにしないとなので、そのルール自体は実装する
 
 ### ロール付与
 - /auth/company/企業id/assign
@@ -223,6 +239,19 @@ type UserEmailVerifyResponse struct {
   - role
 - model
   - assign role
+
+これもbehaviorがそのまま流用できそう
+いや、これはそのcompanyにすでにassignされているかのチェックが必要
+これは、別のbehaviorか？
+その企業にassign済みかのチェックは別のbehaviorとして切り出す感じにして、assign自体はできそう。
+
+以下になる？やな。
+- getCompany
+- getRole
+- getUser
+- checkUserAssignedToCompany
+  - getUserでuser,company指定で取ってなければエラーとかでもいいかも
+- assignRoleToUserInCompany
 
 ## ロール
 ### ロール一覧
