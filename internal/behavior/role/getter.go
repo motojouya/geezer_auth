@@ -1,4 +1,4 @@
-package user
+package role
 
 import (
 	roleQuery "github.com/motojouya/geezer_auth/internal/db/query/role"
