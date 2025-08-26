@@ -21,9 +21,9 @@ type RoleGetResponse struct {
 	Roles []common.Role `json:"roles"`
 }
 
-func FromShelterRoles(shelterRoles []shelterRole.Role) RoleGetResponse {
+func FromShelterRoles(shelterRoles []shelterRole.Role) *RoleGetResponse {
 	var roles = essence.Map(shelterRoles, common.FromShelterRole)
-	return RoleGetResponse{
+	return &RoleGetResponse{
 		Roles: roles,
 	}
 }

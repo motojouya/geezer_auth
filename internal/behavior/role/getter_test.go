@@ -2,137 +2,90 @@ package user_test
 
 import (
 	"errors"
-	"github.com/motojouya/geezer_auth/internal/behavior/user"
-	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
-	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
+	behaviorRole "github.com/motojouya/geezer_auth/internal/behavior/role"
+	dbRole "github.com/motojouya/geezer_auth/internal/db/transfer/role"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
-type userGetterDBMock struct {
-	getUserAuthentic func(identifier string, now time.Time) (*dbUser.UserAuthentic, error)
+type roleGetterDBMock struct {
+	getRole func() ([]dbRole.Role, error)
 }
 
-func (mock userGetterDBMock) GetUserAuthentic(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
-	return mock.getUserAuthentic(identifier, now)
+func (mock roleGetterDBMock) GetRole() ([]dbRole.Role, error) {
+	return mock.getRole()
 }
 
-func getDbUserAuthenticForUserGetter(id string) *dbUser.UserAuthentic {
-	var companyId = "CP-TESTES"
-	var now = time.Now()
-	var expireDate = now.Add(1 * time.Hour)
+func getRole(expectLabel string) dbRole.Role {
+	var name = "TestRole"
+	var label = expectLabel
+	var description = "Role for testing"
+	var registeredDate = time.Now()
 
-	var userCompanyRole1 = &dbUser.UserCompanyRoleFull{
-		UserCompanyRole: dbUser.UserCompanyRole{
-			PersistKey:        1,
-			UserPersistKey:    2,
-			CompanyPersistKey: 3,
-			RoleLabel:         "TEST_ROLE",
-			RegisterDate:      now,
-			ExpireDate:        &expireDate,
-		},
-		UserIdentifier:        id,
-		UserExposeEmailId:     "test02@example.com",
-		UserName:              "TestUserName",
-		UserBotFlag:           false,
-		UserRegisteredDate:    now.Add(2 * time.Hour),
-		UserUpdateDate:        now.Add(3 * time.Hour),
-		CompanyIdentifier:     companyId,
-		CompanyName:           "TestCompanyName",
-		CompanyRegisteredDate: now.Add(4 * time.Hour),
-		RoleName:              "TestRoleName",
-		RoleDescription:       "TestRoleDescription",
-		RoleRegisteredDate:    now.Add(5 * time.Hour),
-	}
-	var userCompanyRoles = []dbUser.UserCompanyRoleFull{*userCompanyRole1}
-
-	var email = "test01@example.com"
-	return &dbUser.UserAuthentic{
-		UserPersistKey:     2,
-		UserIdentifier:     id,
-		UserExposeEmailId:  "test02@example.com",
-		UserName:           "TestUserName",
-		UserBotFlag:        false,
-		UserRegisteredDate: now,
-		UserUpdateDate:     now.Add(1 * time.Hour),
-		Email:              &email,
-		UserCompanyRole:    userCompanyRoles,
+	return dbRole.Role{
+		Name:           name,
+		Label:          label,
+		Description:    description,
+		RegisteredDate: registeredDate,
 	}
 }
 
-func getLocalerMockForUserGet(t *testing.T, now time.Time) *localUtility.LocalerMock {
-	var getNow = func() time.Time {
-		return now
+func getRoleGetterDBMock(roles []dbRole.Role) roleGetterDBMock {
+	var getRole = func() ([]dbRole.Role, error) {
+		return roles, nil
 	}
-	return &localUtility.LocalerMock{
-		FakeGetNow: getNow,
-	}
-}
-
-func getUserGetterDbMock(t *testing.T, expectId string, firstNow time.Time) userGetterDBMock {
-	var dbUserAuthentic = getDbUserAuthenticForUserGetter(expectId)
-	var getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
-		assert.Equal(t, expectId, identifier, "Expected identifier 'US-TESTES'")
-		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
-		return dbUserAuthentic, nil
-	}
-	return userGetterDBMock{
-		getUserAuthentic: getUserAuthentic,
+	return roleGetterDBMock{
+		getRole: getRole,
 	}
 }
 
-func TestUserGetter(t *testing.T) {
-	var expectId = "US-TESTES"
-	var firstNow = time.Now()
-	var identifier, _ = pkgText.NewIdentifier(expectId)
+func TestRoleGetter(t *testing.T) {
+	var expectLabel01 = "ROLE_ONE"
+	var role01 = getRole(expectLabel01)
+	var expectLabel02 = "ROLE_TWO"
+	var role02 = getRole(expectLabel02)
 
-	var localerMock = getLocalerMockForUserGet(t, firstNow)
-	var dbMock = getUserGetterDbMock(t, expectId, firstNow)
+	var dbMock = getRoleGetterDBMock([]dbRole.Role{role01, role02})
 
-	getter := user.NewUserGet(localerMock, dbMock)
-	result, err := getter.Execute(identifier)
+	getter := behaviorRole.NewRoleGet(dbMock)
+	result, err := getter.Execute()
 
 	assert.NoError(t, err)
-	assert.NotNil(t, result)
-	assert.Equal(t, expectId, string(result.Identifier), "Expected user identifier 'US-TESTES'")
+	assert.Equal(t, 2, len(result), "Expected 2 roles")
+	assert.Equal(t, expectLabel01, string(result[0].Label), "Expected role label 'ROLE_ONE'")
+	assert.Equal(t, expectLabel02, string(result[1].Label), "Expected role label 'ROLE_TWO'")
 
-	t.Logf("User created: %+v", result)
+	t.Logf("role: %+v", result)
 }
 
-func TestUserGetterErrGetAuthentic(t *testing.T) {
-	var expectId = "US-TESTES"
-	var firstNow = time.Now()
-	var identifier, _ = pkgText.NewIdentifier(expectId)
+func TestRoleGetterErrGet(t *testing.T) {
+	var expectLabel01 = "ROLE_ONE"
+	var role01 = getRole(expectLabel01)
+	var expectLabel02 = "ROLE_TWO"
+	var role02 = getRole(expectLabel02)
 
-	var localerMock = getLocalerMockForUserGet(t, firstNow)
-	var dbMock = getUserGetterDbMock(t, expectId, firstNow)
-
-	dbMock.getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
-		return nil, errors.New("database error")
+	var dbMock = getRoleGetterDBMock([]dbRole.Role{role01, role02})
+	dbMock.getRole = func() ([]dbRole.Role, error) {
+		return []dbRole.Role{}, errors.New("database error")
 	}
 
-	getter := user.NewUserGet(localerMock, dbMock)
-	_, err := getter.Execute(identifier)
+	getter := behaviorRole.NewRoleGet(dbMock)
+	_, err := getter.Execute()
 
 	assert.Error(t, err)
 }
 
-func TestUserGetterErrGetAuthenticNil(t *testing.T) {
-	var expectId = "US-TESTES"
-	var firstNow = time.Now()
-	var identifier, _ = pkgText.NewIdentifier(expectId)
+func TestRoleGetterErrTrans(t *testing.T) {
+	var expectLabel01 = "ROLE_ONE"
+	var role01 = getRole(expectLabel01)
+	var expectLabel02 = "role_two"
+	var role02 = getRole(expectLabel02)
 
-	var localerMock = getLocalerMockForUserGet(t, firstNow)
-	var dbMock = getUserGetterDbMock(t, expectId, firstNow)
+	var dbMock = getRoleGetterDBMock([]dbRole.Role{role01, role02})
 
-	dbMock.getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
-		return nil, nil
-	}
-
-	getter := user.NewUserGet(localerMock, dbMock)
-	_, err := getter.Execute(identifier)
+	getter := behaviorRole.NewRoleGet(dbMock)
+	_, err := getter.Execute()
 
 	assert.Error(t, err)
 }
