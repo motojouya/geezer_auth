@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func TestGetRole(t *testing.T) {
+func TestGetAllRole(t *testing.T) {
 	var now = testUtility.GetNow()
 
 	var records = []role.Role{
@@ -21,12 +21,17 @@ func TestGetRole(t *testing.T) {
 	testUtility.Truncate(t, orp)
 	testUtility.Ready(t, orp, records)
 
-	var results, err = orp.GetRole("LABEL_MEMBER")
+	var results, err = orp.GetAllRole()
 	if err != nil {
 		t.Fatalf("Could not get roles: %s", err)
 	}
 
-	assert.NotNil(t, results)
+	testUtility.AssertRecords(t, records, results, assertSameRole)
+}
 
-	assertSameRole(t, records[1], *results)
+func assertSameRole(t *testing.T, expect role.Role, actual role.Role) {
+	assert.Equal(t, expect.Label, actual.Label)
+	assert.Equal(t, expect.Name, actual.Name)
+	assert.Equal(t, expect.Description, actual.Description)
+	assert.WithinDuration(t, expect.RegisteredDate, actual.RegisteredDate, time.Second)
 }

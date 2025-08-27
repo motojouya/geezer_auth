@@ -10,11 +10,11 @@ import (
 )
 
 type roleGetterDBMock struct {
-	getRole func() ([]dbRole.Role, error)
+	getRole func(label string) (*dbRole.Role, error)
 }
 
-func (mock roleGetterDBMock) GetRole() ([]dbRole.Role, error) {
-	return mock.getRole()
+func (mock roleGetterDBMock) GetRole(label string) (*dbRole.Role, error) {
+	return mock.getRole(label)
 }
 
 func getRole(expectLabel string) dbRole.Role {
@@ -31,9 +31,9 @@ func getRole(expectLabel string) dbRole.Role {
 	}
 }
 
-func getRoleGetterDBMock(roles []dbRole.Role) roleGetterDBMock {
-	var getRole = func() ([]dbRole.Role, error) {
-		return roles, nil
+func getRoleGetterDBMock(role *dbRole.Role) roleGetterDBMock {
+	var getRole = func() (*dbRole.Role, error) {
+		return role, nil
 	}
 	return roleGetterDBMock{
 		getRole: getRole,
@@ -43,31 +43,36 @@ func getRoleGetterDBMock(roles []dbRole.Role) roleGetterDBMock {
 func TestRoleGetter(t *testing.T) {
 	var expectLabel01 = "ROLE_ONE"
 	var role01 = getRole(expectLabel01)
-	var expectLabel02 = "ROLE_TWO"
-	var role02 = getRole(expectLabel02)
 
-	var dbMock = getRoleGetterDBMock([]dbRole.Role{role01, role02})
+	var dbMock = getRoleGetterDBMock(&role01)
 
 	getter := behaviorRole.NewRoleGet(dbMock)
 	result, err := getter.Execute()
 
 	assert.NoError(t, err)
-	assert.Equal(t, 2, len(result), "Expected 2 roles")
-	assert.Equal(t, expectLabel01, string(result[0].Label), "Expected role label 'ROLE_ONE'")
-	assert.Equal(t, expectLabel02, string(result[1].Label), "Expected role label 'ROLE_TWO'")
+	assert.NotNil(t, result, "Expected non-nil result")
+	assert.Equal(t, expectLabel01, string(result.Label), "Expected role label 'ROLE_ONE'")
 
 	t.Logf("role: %+v", result)
+}
+
+func TestRoleGetterNil(t *testing.T) {
+	var dbMock = getRoleGetterDBMock(nil)
+
+	getter := behaviorRole.NewRoleGet(dbMock)
+	result, err := getter.Execute()
+
+	assert.NoError(t, err)
+	assert.Nil(t, result, "Expected non-nil result")
 }
 
 func TestRoleGetterErrGet(t *testing.T) {
 	var expectLabel01 = "ROLE_ONE"
 	var role01 = getRole(expectLabel01)
-	var expectLabel02 = "ROLE_TWO"
-	var role02 = getRole(expectLabel02)
 
-	var dbMock = getRoleGetterDBMock([]dbRole.Role{role01, role02})
-	dbMock.getRole = func() ([]dbRole.Role, error) {
-		return []dbRole.Role{}, errors.New("database error")
+	var dbMock = getRoleGetterDBMock(&role01)
+	dbMock.getRole = func() (*dbRole.Role, error) {
+		return nil, errors.New("database error")
 	}
 
 	getter := behaviorRole.NewRoleGet(dbMock)
@@ -77,12 +82,10 @@ func TestRoleGetterErrGet(t *testing.T) {
 }
 
 func TestRoleGetterErrTrans(t *testing.T) {
-	var expectLabel01 = "ROLE_ONE"
+	var expectLabel01 = "role_one"
 	var role01 = getRole(expectLabel01)
-	var expectLabel02 = "role_two"
-	var role02 = getRole(expectLabel02)
 
-	var dbMock = getRoleGetterDBMock([]dbRole.Role{role01, role02})
+	var dbMock = getRoleGetterDBMock(&role01)
 
 	getter := behaviorRole.NewRoleGet(dbMock)
 	_, err := getter.Execute()

@@ -3,6 +3,7 @@ package role
 import (
 	roleQuery "github.com/motojouya/geezer_auth/internal/db/query/role"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
+	entryCompanyUser "github.com/motojouya/geezer_auth/internal/entry/transfer/companyUser"
 )
 
 type RoleGetterDB interface {
@@ -23,20 +24,25 @@ func NewRoleGet(db RoleGetterDB) *RoleGet {
 	}
 }
 
-func (getter RoleGet) Execute() ([]shelterRole.Role, error) {
-	dbRoles, err := getter.db.GetRole()
+func (getter RoleGet) Execute(entry entryCompanyUser.RoleGetter) (*shelterRole.Role, error) {
+	roleLabel, err := entry.GetRoleLabel()
 	if err != nil {
 		return nil, err
 	}
 
-	var roles []shelterRole.Role
-	for _, dbRole := range dbRoles {
-		role, err := dbRole.ToShelterRole()
-		if err != nil {
-			return nil, err
-		}
-		roles = append(roles, role)
+	dbRole, err := getter.db.GetRole(string(roleLabel))
+	if err != nil {
+		return nil, err
 	}
 
-	return roles, nil
+	if dbRole == nil {
+		return nil, nil
+	}
+
+	role, err := dbRole.ToShelterRole()
+	if err != nil {
+		return nil, err
+	}
+
+	return role, nil
 }

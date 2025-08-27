@@ -5,25 +5,25 @@ import (
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 )
 
-type RoleGetterDB interface {
-	roleQuery.GetRoleQuery
+type AllRoleGetterDB interface {
+	roleQuery.GetAllRoleQuery
 }
 
-type RoleGetter interface {
+type AllRoleGetter interface {
 	Execute() ([]shelterRole.Role, error)
 }
 
-type RoleGet struct {
-	db RoleGetterDB
+type AllRoleGet struct {
+	db AllRoleGetterDB
 }
 
-func NewRoleGet(db RoleGetterDB) *RoleGet {
-	return &RoleGet{
+func NewAllRoleGet(db RoleGetterDB) *AllRoleGet {
+	return &AllRoleGet{
 		db: db,
 	}
 }
 
-func (getter RoleGet) Execute() ([]shelterRole.Role, error) {
+func (getter AllRoleGet) Execute() ([]shelterRole.Role, error) {
 	dbRoles, err := getter.db.GetRole()
 	if err != nil {
 		return nil, err

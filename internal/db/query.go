@@ -15,6 +15,7 @@ type Query interface {
 	company.GetCompanyQuery
 	company.GetCompanyInviteQuery
 	role.GetRoleQuery
+	role.GetAllRoleQuery
 	role.GetRolePermissionQuery
 	user.GetUserQuery
 	user.GetUserAccessTokenQuery
@@ -26,6 +27,7 @@ type Query interface {
 	user.GetUserRefreshTokenQuery
 	user.GetUserAuthenticQuery
 	user.GetUserAuthenticOfCompanyQuery
+	user.GetUserAuthenticOfCompanyUserQuery
 	command.AddEmailQuery
 	command.VerifyEmailQuery
 	command.AddPasswordQuery
@@ -40,8 +42,12 @@ func (orp ORP) GetCompanyInvite(identifier string, verifyToken string) (*transfe
 	return company.GetCompanyInvite(orp, identifier, verifyToken)
 }
 
-func (orp ORP) GetRole() ([]transferRole.Role, error) {
-	return role.GetRole(orp)
+func (orp ORP) GetRole(label string) (*transferRole.Role, error) {
+	return role.GetRole(orp, label)
+}
+
+func (orp ORP) GetAllRole() ([]transferRole.Role, error) {
+	return role.GetAllRole(orp)
 }
 
 func (orp ORP) GetRolePermission() ([]transferRole.RolePermission, error) {
@@ -86,6 +92,10 @@ func (orp ORP) GetUserAuthentic(identifier string, now time.Time) (*transferUser
 
 func (orp ORP) GetUserAuthenticOfCompany(identifier string, now time.Time) ([]transferUser.UserAuthentic, error) {
 	return user.GetUserAuthenticOfCompany(orp, identifier, now)
+}
+
+func (orp ORP) GetUserAuthenticOfCompanyUser(companyIdentifier string, userIdentifier string, now time.Time) (*transferUser.UserAuthentic, error) {
+	return user.GetUserAuthenticOfCompany(orp, companyIdentifier, userIdentifier, now)
 }
 
 func (orp ORP) AddEmail(userEmail *transferUser.UserEmail, now time.Time) (*transferUser.UserEmail, error) {

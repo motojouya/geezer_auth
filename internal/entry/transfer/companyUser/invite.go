@@ -5,6 +5,10 @@ import (
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
+type RoleGetter interface {
+	GetRoleLabel() (pkgText.Label, error)
+}
+
 type RoleInvite struct {
 	RoleLabel string `json:"role_label"`
 }

@@ -16,13 +16,13 @@ import (
 type GetRoleControl struct {
 	essence.Closable
 	authorization *authorization.Authorization
-	roleGetter    roleBehavior.RoleGetter
+	roleGetter    roleBehavior.AllRoleGetter
 }
 
 func NewGetRoleControl(
 	database essence.Closable,
 	authorization *authorization.Authorization,
-	roleGetter    roleBehavior.RoleGetter,
+	roleGetter    roleBehavior.AllRoleGetter,
 ) *GetRoleControl {
 	return &GetRoleControl{
 		Closable:      database,

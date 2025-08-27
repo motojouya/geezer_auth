@@ -19,8 +19,8 @@ import (
 	"time"
 )
 
-func getBehaviorForGetRole(roles []shelterRole.Role) *roleTestUtility.RoleGetterMock {
-	var roleGetter = &roleTestUtility.RoleGetterMock{
+func getBehaviorForGetRole(roles []shelterRole.Role) *roleTestUtility.AllRoleGetterMock {
+	var roleGetter = &roleTestUtility.AllRoleGetterMock{
 		FakeExecute: func() ([]shelterRole.Role, error) {
 			return roles, nil
 		},

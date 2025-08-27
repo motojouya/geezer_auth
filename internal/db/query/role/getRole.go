@@ -2,25 +2,25 @@ package role
 
 import (
 	"github.com/doug-martin/goqu/v9"
+	"github.com/motojouya/geezer_auth/internal/db/utility"
 	"github.com/go-gorp/gorp"
 	transfer "github.com/motojouya/geezer_auth/internal/db/transfer/role"
 )
 
 type GetRoleQuery interface {
-	GetRole() ([]transfer.Role, error)
+	GetRole(label string) (*transfer.Role, error)
 }
 
-func GetRole(executer gorp.SqlExecutor) ([]transfer.Role, error) {
-	var sql, _, sqlErr = transfer.SelectRole.Order(goqu.I("r.label").Asc()).ToSQL()
+func GetRole(executer gorp.SqlExecutor, label string) (*transfer.Role, error) {
+	var sql, _, sqlErr = transfer.SelectRole.Where(goqu.I("r.label").Eq(label)).Order(goqu.I("r.label").Asc()).ToSQL()
 	if sqlErr != nil {
 		return nil, sqlErr
 	}
 
-	var roles []transfer.Role
-	var _, execErr = executer.Select(&roles, sql)
+	var role, execErr = utility.SelectSingle[transfer.Role](executer, "role", map[string]string{"label": label}, sql, args...)
 	if execErr != nil {
 		return nil, execErr
 	}
 
-	return roles, nil
+	return role, nil
 }
