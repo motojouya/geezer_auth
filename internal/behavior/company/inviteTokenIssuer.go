@@ -1,53 +1,54 @@
-package user
+package company
 
 import (
 	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	dbCompany "github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 )
 
-type RefreshTokenIssuerDB interface {
+type InviteTokenIssuerDB interface {
 	commandQuery.AddRefreshTokenQuery
 }
 
-type RefreshTokenIssuer interface {
-	Execute(userAuthentic *shelterUser.UserAuthentic) (shelterText.Token, error)
+type InviteTokenIssuer interface {
+	Execute(company shelterCompany.Company, role shelterRole.Role) (shelterText.Token, error)
 }
 
-type RefreshTokenIssue struct {
+type InviteTokenIssue struct {
 	local localPkg.Localer
-	db    RefreshTokenIssuerDB
+	db    InviteTokenIssuerDB
 }
 
-func NewRefreshTokenIssue(local localPkg.Localer, database RefreshTokenIssuerDB) *RefreshTokenIssue {
-	return &RefreshTokenIssue{
+func NewInviteTokenIssue(local localPkg.Localer, database InviteTokenIssuerDB) *InviteTokenIssue {
+	return &InviteTokenIssue{
 		db:    database,
 		local: local,
 	}
 }
 
-func (issuer RefreshTokenIssue) Execute(userAuthentic *shelterUser.UserAuthentic) (shelterText.Token, error) {
+func (issuer InviteTokenIssue) Execute(company shelterCompany.Company, role shelterRole.Role) (shelterText.Token, error) {
 	now := issuer.local.GetNow()
 
-	refreshTokenSource, err := issuer.local.GenerateUUID()
+	inviteTokenSource, err := issuer.local.GenerateUUID()
 	if err != nil {
 		return shelterText.Token(""), err
 	}
 
-	refreshToken, err := shelterText.CreateToken(refreshTokenSource)
+	inviteToken, err := shelterText.CreateToken(inviteTokenSource)
 	if err != nil {
 		return shelterText.Token(""), err
 	}
 
-	userRefreshToken := shelterUser.CreateUserRefreshToken(userAuthentic.GetUser(), refreshToken, now)
-	dbUserRefreshToken := dbUser.FromShelterUserRefreshToken(userRefreshToken)
+	companyInvite := shelterCompany.CreateCompanyInvite(company, inviteToken, role, now)
+	dbCompanyInvite := dbCompany.FromShelterCompanyInvite(companyInvite)
 
-	_, err = issuer.db.AddRefreshToken(dbUserRefreshToken, now)
-	if err != nil {
+	if err := issuer.db.Insert(&dbCompanyInvite); err != nil {
 		return shelterText.Token(""), err
 	}
 
-	return refreshToken, nil
+	return inviteToken, nil
 }

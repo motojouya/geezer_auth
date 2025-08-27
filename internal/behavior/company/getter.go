@@ -1,45 +1,48 @@
-package user
+package company
 
 import (
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
-	localPkg "github.com/motojouya/geezer_auth/internal/local"
+	companyQuery "github.com/motojouya/geezer_auth/internal/db/query/company"
 	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
-type UserGetterDB interface {
-	userQuery.GetUserAuthenticQuery
+type CompanyGetterDB interface {
+	companyQuery.GetCompanyQuery
 }
 
-type UserGetter interface {
-	Execute(userIdentifier pkgText.Identifier) (*shelterUser.UserAuthentic, error)
+type CompanyGetter interface {
+	Execute(entry entryCompany.CompanyGetter) (*shelterCompany.Company, error)
 }
 
-type UserGet struct {
-	local localPkg.Localer
-	db    UserGetterDB
+type CompanyGet struct {
+	db    CompanyGetterDB
 }
 
-func NewUserGet(local localPkg.Localer, db UserGetterDB) *UserGet {
-	return &UserGet{
-		local: local,
+func NewCompanyGet(db CompanyGetterDB) CompanyGet {
+	return &CompanyGet{
 		db:    db,
 	}
 }
 
-func (getter UserGet) Execute(userIdentifier pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
-	now := getter.local.GetNow()
+func (getter CompanyGet) Execute(entry entryCompany.CompanyGetter) (*shelterCompany.Company, error) {
 
-	dbUserAuthentic, err := getter.db.GetUserAuthentic(string(userIdentifier), now)
+	identifier, err := entry.GetCompanyIdentifier()
 	if err != nil {
 		return nil, err
 	}
 
-	if dbUserAuthentic == nil {
-		keys := map[string]string{"identifier": string(userIdentifier)}
-		return nil, essence.NewNotFoundError("user", keys, "user not found")
+	dbCompany, err := getter.db.GetCompany(string(identifier))
+	if err != nil {
+		return nil, err
 	}
 
-	return dbUserAuthentic.ToShelterUserAuthentic()
+	if dbCompany == nil {
+		keys := map[string]string{"identifier": string(identifier)}
+		return nil, essence.NewNotFoundError("company", keys, "company not found")
+	}
+
+	return dbCompany.ToShelterCompany()
 }

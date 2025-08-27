@@ -1,19 +1,21 @@
-package user
+package company
 
 import (
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
+	entryCompanyUser "github.com/motojouya/geezer_auth/internal/entry/transfer/companyUser"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
 type UserGetterDB interface {
-	userQuery.GetUserAuthenticQuery
+	userQuery.GetUserAuthenticOfCompanyUserQuery
 }
 
 type UserGetter interface {
-	Execute(userIdentifier pkgText.Identifier) (*shelterUser.UserAuthentic, error)
+	Execute(entry entryCompany.CompanyGetter) (*shelterUser.UserAuthentic, error)
 }
 
 type UserGet struct {
@@ -28,16 +30,21 @@ func NewUserGet(local localPkg.Localer, db UserGetterDB) *UserGet {
 	}
 }
 
-func (getter UserGet) Execute(userIdentifier pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
+func (getter UserGet) Execute(entry entryCompanyUser.CompanyUserGetter, company shelterCompany.Company) (*shelterUser.UserAuthentic, error) {
 	now := getter.local.GetNow()
 
-	dbUserAuthentic, err := getter.db.GetUserAuthentic(string(userIdentifier), now)
+	userIdentifier, err := entry.GetUserIdentifier()
+	if err != nil {
+		return nil, err
+	}
+
+	dbUserAuthentic, err := getter.db.GetUserAuthenticOfCompanyUser(string(company.Identifier), string(userIdentifier), now)
 	if err != nil {
 		return nil, err
 	}
 
 	if dbUserAuthentic == nil {
-		keys := map[string]string{"identifier": string(userIdentifier)}
+		keys := map[string]string{"company_identifier": string(company.Identifier), "user_identifier": string(userIdentifier)}
 		return nil, essence.NewNotFoundError("user", keys, "user not found")
 	}
 

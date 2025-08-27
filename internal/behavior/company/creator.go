@@ -1,43 +1,45 @@
-package user
+package company
 
 import (
 	"github.com/go-gorp/gorp"
-	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
+	companyQuery "github.com/motojouya/geezer_auth/internal/db/query/company"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	dbCompany "github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
+	entryCompany "github.com/motojouya/geezer_auth/internal/entry/transfer/company"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
-type UserCreatorDB interface {
+type CompanyCreatorDB interface {
 	gorp.SqlExecutor
-	userQuery.GetUserQuery
-	userQuery.GetUserAuthenticQuery
+	companyQuery.GetCompanyQuery
 }
 
-type UserCreator interface {
-	Execute(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error)
+type CompanyCreator interface {
+	Execute(entry entryCompany.CompanyCreator) (*shelterCompany.Company, error)
 }
 
-type UserCreate struct {
+type CompanyCreate struct {
 	local localPkg.Localer
-	db    UserCreatorDB
+	db    CompanyCreatorDB
 }
 
-func NewUserCreate(local localPkg.Localer, db UserCreatorDB) *UserCreate {
-	return &UserCreate{
+func NewCompanyCreate(local localPkg.Localer, db CompanyCreatorDB) *CompanyCreate {
+	return &CompanyCreate{
 		local: local,
 		db:    db,
 	}
 }
 
-func createUserIdentifier(local localPkg.Localer) func() (pkgText.Identifier, error) {
+func createCompanyIdentifier(local localPkg.Localer) func() (pkgText.Identifier, error) {
 	return func() (pkgText.Identifier, error) {
 		var ramdomString = local.GenerateRamdomString(pkgText.IdentifierLength, pkgText.IdentifierChar)
-		var identifier, err = shelterUser.CreateUserIdentifier(ramdomString)
+		var identifier, err = shelterCompany.CreateCompanyIdentifier(ramdomString)
 		if err != nil {
 			return pkgText.Identifier(""), err
 		}
@@ -45,44 +47,44 @@ func createUserIdentifier(local localPkg.Localer) func() (pkgText.Identifier, er
 	}
 }
 
-func checkUserIdentifier(userCreatorDB UserCreatorDB) func(pkgText.Identifier) (bool, error) {
+func checkCompanyIdentifier(companyCreatorDB CompanyCreatorDB) func(pkgText.Identifier) (bool, error) {
 	return func(identifier pkgText.Identifier) (bool, error) {
-		var user, err = userCreatorDB.GetUser(string(identifier))
+		var company, err = companyCreatorDB.GetCompany(string(identifier))
 		if err != nil {
 			return false, err
 		}
-		return user == nil, nil
+		return company == nil, nil
 	}
 }
 
-func (creator UserCreate) Execute(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error) {
+func (creator CompanyCreate) Execute(entry entryCompany.CompanyCreator) (*shelterCompany.Company, error) {
 	now := creator.local.GetNow()
 
-	userIdentifier, err := shelterText.GetString(createUserIdentifier(creator.local), checkUserIdentifier(creator.db), 10)
+	companyIdentifier, err := shelterText.GetString(createCompanyIdentifier(creator.local), checkCompanyIdentifier(creator.db), 10)
 	if err != nil {
 		return nil, err
 	}
 
-	unsavedUser, err := entry.ToShelterUser(userIdentifier, now)
+	unsavedCompany, err := entry.ToShelterCompany(companyIdentifier, now)
 	if err != nil {
 		return nil, err
 	}
 
-	var dbUserValue = dbUser.FromShelterUnsavedUser(unsavedUser)
+	var dbCompanyValue = dbCompany.FromShelterUnsavedCompany(unsavedCompany)
 
-	if err = creator.db.Insert(&dbUserValue); err != nil {
+	if err = creator.db.Insert(&dbCompanyValue); err != nil {
 		return nil, err
 	}
 
-	dbUserAuthentic, err := creator.db.GetUserAuthentic(dbUserValue.Identifier, now)
+	dbCompanyResult, err := creator.db.GetCompany(string(companyIdentifier))
 	if err != nil {
 		return nil, err
 	}
 
-	if dbUserAuthentic == nil {
-		keys := map[string]string{"identifier": dbUserValue.Identifier}
-		return nil, essence.NewNotFoundError("user", keys, "user not found")
+	if dbCompanyResult == nil {
+		keys := map[string]string{"identifier": string(companyIdentifier)}
+		return nil, essence.NewNotFoundError("company", keys, "company not found")
 	}
 
-	return dbUserAuthentic.ToShelterUserAuthentic()
+	return dbCompanyResult.ToShelterCompany()
 }

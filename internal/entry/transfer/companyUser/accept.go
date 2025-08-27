@@ -5,6 +5,10 @@ import (
 	"github.com/motojouya/geezer_auth/internal/shelter/text"
 )
 
+type InviteTokenGetter interface {
+	GetToken() (text.Token, error)
+}
+
 type CompanyAccept struct {
 	Token string `json:"token"`
 }

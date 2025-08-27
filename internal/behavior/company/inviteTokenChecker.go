@@ -1,45 +1,58 @@
-package user
+package company
 
 import (
-	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
+	companyQuery "github.com/motojouya/geezer_auth/internal/db/query/company"
 	entryAuth "github.com/motojouya/geezer_auth/internal/entry/transfer/auth"
+	entryCompanyUser "github.com/motojouya/geezer_auth/internal/entry/transfer/companyUser"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	shelterAuth "github.com/motojouya/geezer_auth/internal/shelter/authorization"
+	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 )
 
-type RefreshTokenCheckerDB interface {
-	userQuery.GetUserRefreshTokenQuery
+type InviteTokenCheckerDB interface {
+	companyQuery.GetCompanyInviteQuery
 }
 
-type RefreshTokenChecker interface {
-	Execute(entry entryAuth.RefreshTokenGetter) (*shelterUser.UserAuthentic, error)
+type InviteTokenChecker interface {
+	Execute(entry entryCompanyUser.InviteTokenGetter, company shelterCompany.Company) (shelterRole.Role, error)
 }
 
-type RefreshTokenCheck struct {
+type InviteTokenCheck struct {
 	local localPkg.Localer
-	db    RefreshTokenCheckerDB
+	db    InviteTokenCheckerDB
 }
 
-func NewRefreshTokenCheck(local localPkg.Localer, database RefreshTokenCheckerDB) *RefreshTokenCheck {
-	return &RefreshTokenCheck{
+func NewInviteTokenCheck(local localPkg.Localer, database InviteTokenCheckerDB) *InviteTokenCheck {
+	return &InviteTokenCheck{
 		db:    database,
 		local: local,
 	}
 }
 
-func (checker RefreshTokenCheck) Execute(entry entryAuth.RefreshTokenGetter) (*shelterUser.UserAuthentic, error) {
+func (checker InviteTokenCheck) Execute(entry entryCompanyUser.InviteTokenGetter, company shelterCompany.Company) (shelterRole.Role, error) {
 	now := checker.local.GetNow()
 
-	refreshToken, err := entry.GetRefreshToken()
+	inviteToken, err := entry.GetToken()
 	if err != nil {
-		return nil, err
+		return shelterRole.Role{}, err
 	}
 
-	// FIXME refresh tokenは単体で認証もできるので漏れるとだいぶまずい。passwordと同様に不可逆暗号として保存し、検索時に暗号化して当てるべき。
-	dbUserAuthentic, err := checker.db.GetUserRefreshToken(string(refreshToken), now)
+	dbCompanyInvite, err := checker.db.GetCompanyInvite(string(company.Identifier), string(inviteToken))
 	if err != nil {
-		return nil, err
+		return shelterRole.Role{}, err
 	}
 
-	return dbUserAuthentic.ToShelterUserAuthentic()
+	if dbCompanyInvite == nil {
+		keys := map[string]string{"token": string(inviteToken), "identifier": string(company.Identifier)}
+		return shelterRole.Role{}, essence.NewNotFoundError("company_invite", keys, "company_invite not found")
+	}
+
+	companyInvite, err := dbCompanyInvite.ToShelterCompanyInvite()
+
+	if companyInvite.ExpireDate.Before(now) {
+		return shelterRole.Role{}, shelterAuth.NewTokenExpiredError(companyInvite.ExpireDate, "invite token is expired")
+	}
+
+	return companyInvite.Role, nil
 }

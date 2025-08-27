@@ -1,4 +1,4 @@
-package user
+package company
 
 import (
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
@@ -8,38 +8,52 @@ import (
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
-type UserGetterDB interface {
-	userQuery.GetUserAuthenticQuery
+type AllUserGetterDB interface {
+	userQuery.GetUserAuthenticOfCompanyQuery
 }
 
-type UserGetter interface {
-	Execute(userIdentifier pkgText.Identifier) (*shelterUser.UserAuthentic, error)
+type AllUserGetter interface {
+	Execute(entry entryCompany.CompanyGetter) ([]shelterUser.UserAuthentic, error)
 }
 
-type UserGet struct {
+type AllUserGet struct {
 	local localPkg.Localer
-	db    UserGetterDB
+	db    AllUserGetterDB
 }
 
-func NewUserGet(local localPkg.Localer, db UserGetterDB) *UserGet {
-	return &UserGet{
+func NewAllUserGet(local localPkg.Localer, db UserGetterDB) *AllUserGet {
+	return &AllUserGet{
 		local: local,
 		db:    db,
 	}
 }
 
-func (getter UserGet) Execute(userIdentifier pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
+func (getter AllUserGet) Execute(entry entryCompany.CompanyGetter) ([]shelterUser.UserAuthentic, error) {
 	now := getter.local.GetNow()
 
-	dbUserAuthentic, err := getter.db.GetUserAuthentic(string(userIdentifier), now)
+	companyIdentifier, err := entry.GetCompanyIdentifier()
 	if err != nil {
 		return nil, err
 	}
 
-	if dbUserAuthentic == nil {
-		keys := map[string]string{"identifier": string(userIdentifier)}
+	dbUserAuthentics, err := getter.db.GetUserAuthenticOfCompany(string(companyIdentifier), now)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(dbUserAuthentics) == 0 {
+		keys := map[string]string{"company_identifier": string(companyIdentifier)}
 		return nil, essence.NewNotFoundError("user", keys, "user not found")
 	}
 
-	return dbUserAuthentic.ToShelterUserAuthentic()
+	var userAuthentics []shelterUser.UserAuthentic
+	for _, dbUserAuthentic := range dbUserAuthentics {
+		userAuthentic, err := dbUserAuthentic.ToShelterUserAuthentic()
+		if err != nil {
+			return nil, err
+		}
+		userAuthentics = append(userAuthentics, userAuthentic)
+	}
+
+	return userAuthentics, nil
 }

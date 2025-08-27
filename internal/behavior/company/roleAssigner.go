@@ -1,73 +1,64 @@
-package user
+package company
 
 import (
-	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
+	"github.com/go-gorp/gorp"
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
-	"github.com/motojouya/geezer_auth/internal/shelter/essence"
+	shelterEssence "github.com/motojouya/geezer_auth/internal/shelter/essence"
+	pkgEssence "github.com/motojouya/geezer_auth/pkg/shelter/essence"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 )
 
-type EmailSetterDB interface {
-	userQuery.GetUserEmailQuery
-	commandQuery.AddEmailQuery
+type RoleAssignerDB interface {
+	gorp.SqlExecutor
+	userQuery.GetUserAuthenticQuery
 }
 
-type EmailSetter interface {
-	Execute(entry entryUser.EmailGetter, userAuthentic *shelterUser.UserAuthentic) error
+type RoleAssigner interface {
+	Execute(company shelterCompany.Company, userAuthentic *shelterUser.UserAuthentic, role shelterRole.Role) (*shelterUser.UserAuthentic, error)
 }
 
-type EmailSet struct {
+type RoleAssign struct {
 	local localPkg.Localer
-	db    EmailSetterDB
+	db    RoleAssignerDB
 }
 
-func NewEmailSet(local localPkg.Localer, database EmailSetterDB) *EmailSet {
-	return &EmailSet{
+func NewRoleAssign(local localPkg.Localer, database RoleAssignerDB) *RoleAssign {
+	return &RoleAssign{
 		db:    database,
 		local: local,
 	}
 }
 
-func (setter EmailSet) Execute(entry entryUser.EmailGetter, userAuthentic *shelterUser.UserAuthentic) error {
-	now := setter.local.GetNow()
+func (assigner RoleAssign) Execute(company shelterCompany.Company, userAuthentic *shelterUser.UserAuthentic, role shelterRole.Role) (*shelterUser.UserAuthentic, error) {
+	if userAuthentic == nil {
+		return nil, pkgEssence.NewNilError("userAuthentic", "userAuthentic is nil")
+	}
 
-	email, err := entry.GetEmail()
+	now := assigner.local.GetNow()
+
+	userCompanyRole := shelterUser.CreateUserCompanyRole(userAuthentic.GetUser(), company, role, now)
+	// FIXME 特定のuserにassignできるcompany、roleの数の制限をこのUserCompanyRoleが知り得ないので、UserAuthentic側でもたせて、その集約で制限をかけるべき。
+	// あるいはこれはこのままで、UserAuthenticにaddする関数を追加して、そういう表現にもできる。それがいいかも
+
+	dhUserCompanyRole := dbUser.FromShelterUnsavedUserCompanyRole(userCompanyRole)
+
+	if err := assigner.db.Insert(&dhUserCompanyRole); err != nil {
+		return nil, err
+	}
+
+	dbUserAuthentic, err := assigner.db.GetUserAuthentic(string(userAuthentic.Identifier), now)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	userEmails, err := setter.db.GetUserEmail(string(email))
-	if err != nil {
-		return err
+	if dbUserAuthentic == nil {
+		keys := map[string]string{"identifier": string(userAuthentic.Identifier)}
+		return nil, essence.NewNotFoundError("user", keys, "user not found")
 	}
 
-	if len(userEmails) > 0 {
-		keys := map[string]string{"email": string(email)}
-		return essence.NewDuplicateError("user_email", keys, "email already exists")
-	}
-
-	verifyTokenSource, err := setter.local.GenerateUUID()
-	if err != nil {
-		return err
-	}
-
-	verifyToken, err := shelterText.CreateToken(verifyTokenSource)
-	if err != nil {
-		return err
-	}
-
-	userEmail := shelterUser.CreateUserEmail(userAuthentic.GetUser(), email, verifyToken, now)
-
-	dbUserEmail := dbUser.FromShelterUnsavedUserEmail(userEmail)
-
-	if _, err = setter.db.AddEmail(dbUserEmail, now); err != nil {
-		return err
-	}
-
-	//FIXME 未実装 ここでverify tokenを当該メールアドレスに通知する処理が入る。
-	return nil
+	return dbUserAuthentic.ToShelterUserAuthentic()
 }

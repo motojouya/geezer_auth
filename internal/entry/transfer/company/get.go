@@ -4,6 +4,10 @@ import (
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
+type CompanyGetter interface {
+	GetCompanyIdentifier() (pkgText.Identifier, error)
+}
+
 type CompanyGet struct {
 	Identifier string `json:"identifier"`
 }

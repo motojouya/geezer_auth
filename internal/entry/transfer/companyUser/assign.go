@@ -5,6 +5,10 @@ import (
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
+type CompanyUserGetter interface {
+	GetUserIdentifier() (pkgText.Identifier, error)
+}
+
 type RoleAssign struct {
 	RoleInvite
 	UserIdentifier string `json:"user_identifier"`

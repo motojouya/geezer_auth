@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+type CompanyCreator interface {
+	ToShelterCompany(identifier pkgText.Identifier, registerDate time.Time) (shelter.UnsavedCompany, error)
+}
+
 type CompanyCreate struct {
 	Name string `json:"name"`
 }
