@@ -26,10 +26,27 @@ func (mock roleAssignerDBMock) GetUserAuthentic(identifier string, now time.Time
 	return mock.getUserAuthentic(identifier, now)
 }
 
-func getShelterUserAuthenticForRoleAssign(expectId string) *shelterUser.UserAuthentic {
+func getShelterCompanyForRoleAssign(expectId string) shelterCompany.Company {
+	var companyIdentifier, _ = pkgText.NewIdentifier(expectId)
+	var companyId uint = 1
+	var companyName, _ = pkgText.NewName("TestCompany")
+	var companyRegisteredDate = time.Now()
 
+	return shelterCompany.NewCompany(companyId, companyIdentifier, companyName, companyRegisteredDate)
+}
+
+func getShelterRoleForRoleAssign(expectLabel string) *shelterRole.Role {
+	var label, _ = pkgText.NewLabel(expectLabel)
+	var roleName, _ = pkgText.NewName("TestRole")
+	var description, _ = shelterText.NewText("Role for testing")
+	var roleRegisteredDate = time.Now()
+
+	return shelterRole.NewRole(roleName, label, description, roleRegisteredDate)
+}
+
+func getShelterUserAuthenticForRoleAssign(expectUserId string, expectCompanyId string, expectLabel string) *shelterUser.UserAuthentic {
 	var userId uint = 1
-	var userIdentifier, _ = pkgText.NewIdentifier(expectId)
+	var userIdentifier, _ = pkgText.NewIdentifier(expectUserId)
 	var emailId, _ = pkgText.NewEmail("test@exaple.com")
 	var userName, _ = pkgText.NewName("TestName")
 	var botFlag = false
@@ -37,13 +54,13 @@ func getShelterUserAuthenticForRoleAssign(expectId string) *shelterUser.UserAuth
 	var updateDate = time.Now()
 	var userValue = shelterUser.NewUser(userId, userIdentifier, userName, emailId, botFlag, userRegisteredDate, updateDate)
 
-	var companyIdentifier, _ = pkgText.NewIdentifier("CP-TESTES")
+	var companyIdentifier, _ = pkgText.NewIdentifier(expectCompanyId)
 	var companyId uint = 1
 	var companyName, _ = pkgText.NewName("TestCompany")
 	var companyRegisteredDate = time.Now()
 	var company = shelterCompany.NewCompany(companyId, companyIdentifier, companyName, companyRegisteredDate)
 
-	var label, _ = pkgText.NewLabel("TEST_ROLE")
+	var label, _ = pkgText.NewLabel(expectLabel)
 	var roleName, _ = pkgText.NewName("TestRole")
 	var description, _ = shelterText.NewText("Role for testing")
 	var roleRegisteredDate = time.Now()
@@ -55,23 +72,84 @@ func getShelterUserAuthenticForRoleAssign(expectId string) *shelterUser.UserAuth
 	return shelterUser.NewUserAuthentic(userValue, companyRole, &email)
 }
 
-func getLocalerMockForRoleAssign(t *testing.T, now time.Time) *localUtility.LocalerMock {
+func getDbUserAuthenticForUserRoleAssigner(expectUserId string, expectCompanyId string, expectOldLabel string, expectNewLabel string) *dbUser.UserAuthentic {
+	var now = time.Now()
+	var expireDate = now.Add(1 * time.Hour)
+
+	var userCompanyRole1 = &dbUser.UserCompanyRoleFull{
+		UserCompanyRole: dbUser.UserCompanyRole{
+			PersistKey:        1,
+			UserPersistKey:    2,
+			CompanyPersistKey: 3,
+			RoleLabel:         expectOldLabel,
+			RegisterDate:      now,
+			ExpireDate:        &expireDate,
+		},
+		UserIdentifier:        expectUserId,
+		UserExposeEmailId:     "test02@example.com",
+		UserName:              "TestUserName",
+		UserBotFlag:           false,
+		UserRegisteredDate:    now.Add(2 * time.Hour),
+		UserUpdateDate:        now.Add(3 * time.Hour),
+		CompanyIdentifier:     expectCompanyId,
+		CompanyName:           "TestCompanyName",
+		CompanyRegisteredDate: now.Add(4 * time.Hour),
+		RoleName:              "TestRoleName",
+		RoleDescription:       "TestRoleDescription",
+		RoleRegisteredDate:    now.Add(5 * time.Hour),
+	}
+	var userCompanyRole2 = &dbUser.UserCompanyRoleFull{
+		UserCompanyRole: dbUser.UserCompanyRole{
+			PersistKey:        2,
+			UserPersistKey:    2,
+			CompanyPersistKey: 3,
+			RoleLabel:         expectNewLabel,
+			RegisterDate:      now,
+			ExpireDate:        &expireDate,
+		},
+		UserIdentifier:        expectUserId,
+		UserExposeEmailId:     "test02@example.com",
+		UserName:              "TestUserName",
+		UserBotFlag:           false,
+		UserRegisteredDate:    now.Add(2 * time.Hour),
+		UserUpdateDate:        now.Add(3 * time.Hour),
+		CompanyIdentifier:     expectCompanyId,
+		CompanyName:           "TestCompanyName",
+		CompanyRegisteredDate: now.Add(4 * time.Hour),
+		RoleName:              "TestRolaName",
+		RoleDescription:       "TestRolaDescription",
+		RoleRegisteredDate:    now.Add(5 * time.Hour),
+	}
+	var userCompanyRoles = []dbUser.UserCompanyRoleFull{*userCompanyRole1, *userCompanyRole2}
+
+	var email = "test01@example.com"
+	return &dbUser.UserAuthentic{
+		UserPersistKey:     2,
+		UserIdentifier:     expectUserId,
+		UserExposeEmailId:  "test02@example.com",
+		UserName:           "TestUserName",
+		UserBotFlag:        false,
+		UserRegisteredDate: now,
+		UserUpdateDate:     now.Add(1 * time.Hour),
+		Email:              &email,
+		UserCompanyRole:    userCompanyRoles,
+	}
+}
+
+func getLocalerMockForRoleAssign(now time.Time) *localUtility.LocalerMock {
 	var getNow = func() time.Time {
 		return now
 	}
-	var generateUUID = func() (uuid.UUID, error) {
-		return uuid.NewUUID()
-	}
 	return &localUtility.LocalerMock{
-		FakeGenerateUUID: generateUUID,
 		FakeGetNow:       getNow,
 	}
 }
 
-func getRoleAssignDbMock(t *testing.T, expectId string, firstNow time.Time) roleAssignerDBMock {
+func getRoleAssignDbMock(t *testing.T, expectUserId string, expectCompanyId string, expectOldLabel string, expectNewLabel string, firstNow time.Time) roleAssignerDBMock {
+	var dbUserAuthentic = getDbUserAuthenticForUserRoleAssigner(expectUserId, expectCompanyId, expectOldLabel, expectNewLabel)
 	var getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
-		assert.Equal(t, expectId, identifier)
-		return []dbUser.UserEmailFull{}, nil
+		assert.Equal(t, expectUserId, identifier)
+		return dbUserAuthentic, nil
 	}
 	var insert = func(args ...interface{}) error {
 		assert.Equal(t, 1, len(args), "Expected 1 argument")
@@ -82,30 +160,43 @@ func getRoleAssignDbMock(t *testing.T, expectId string, firstNow time.Time) role
 		}
 
 		assert.NotNil(t, userCompanyRole)
-		assert.Equal(t, expectId, userCompanyRole.User.Identifier)
+		assert.Equal(t, expectUserId, userCompanyRole.User.Identifier)
+		assert.Equal(t, expectCompanyId, userCompanyRole.Company.Identifier)
+		assert.Equal(t, expectNewLabel, userCompanyRole.Role.Label)
 
 		return nil
 	}
 	return roleAssignerDBMock{
-		getUserEmail: getUserEmail,
-		addEmail:     addEmail,
 		SqlExecutorMock: dbUtility.SqlExecutorMock{
 			FakeInsert: insert,
 		},
+		getUserAuthentic: getUserAuthentic,
 	}
 }
 
 func TestRoleAssigner(t *testing.T) {
-	var expectEmail = "test@example.com"
+	var expectUserId = "US-TESTES"
+	var expectCompanyId = "CP-TESTES"
+	var expectOldLabel = "TEST_ROLE"
+	var expectNewLabel = "TEST_ROLA"
 	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForEmail(expectEmail)
 
-	var localerMock = getLocalerMockForEmail(t, firstNow)
-	var dbMock = getEmailSetDbMock(t, expectEmail, firstNow)
-	var entryMock = getGetEmailEntryMock(t, expectEmail, firstNow)
+	var userAuthentic = getShelterUserAuthenticForRoleAssign(expectUserId, expectCompanyId, expectOldLabel)
+	var company = getShelterCompanyForRoleAssign(expectCompanyId)
+	var role = getShelterRoleForRoleAssign(expectOldLabel)
 
-	setter := user.NewEmailSet(localerMock, dbMock)
-	err := setter.Execute(entryMock, userAuthentic)
+	var localerMock = getLocalerMockForRoleAssign(firstNow)
+	var dbMock = getRoleAssignDbMock(t, expectUserId, expectCompanyId, expectOldLabel, expectNewLabel, firstNow)
+
+	assigner := user.NewRoleAssign(localerMock, dbMock)
+	result, err := assigner.Execute(userAuthentic, company, role)
 
 	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Equal(t, expectUserId, string(result.Identifier))
+	assert.Equal(t, expectCompanyId, string(result.CompanyRole.Company.Identifier))
+	assert.Equal(t, expectOldLabel, string(result.CompanyRole.Roles[0].Label))
+	assert.Equal(t, expectNewLabel, string(result.CompanyRole.Roles[1].Label))
+
+	t.Logf("Result: %+v", result)
 }
