@@ -1,7 +1,7 @@
-package user_test
+package company_test
 
 import (
-	"errors"
+	//"errors"
 	"github.com/motojouya/geezer_auth/internal/behavior/user"
 	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
@@ -13,87 +13,37 @@ import (
 	"time"
 )
 
-type userCreatorDBMock struct {
-	getUser          func(identifier string) (*dbUser.User, error)
-	getUserAuthentic func(identifier string, now time.Time) (*dbUser.UserAuthentic, error)
+type companyCreatorDBMock struct {
+	getCompany func(identifier string) (*dbCompany.Company, error)
 	dbUtility.SqlExecutorMock
 }
 
-func (mock userCreatorDBMock) GetUser(identifier string) (*dbUser.User, error) {
-	return mock.getUser(identifier)
+func (mock companyCreatorDBMock) GetCompany(identifier string) (*dbCompany.Company, error) {
+	return mock.getCompany(identifier)
 }
 
-func (mock userCreatorDBMock) GetUserAuthentic(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
-	return mock.getUserAuthentic(identifier, now)
+type companyEntryMock struct {
+	toShelterCompany func(identifier pkgText.Identifier, now time.Time) (shelterCompany.UnsavedCompany, error)
 }
 
-type userEntryMock struct {
-	toShelterUser func(identifier pkgText.Identifier, now time.Time) (shelterUser.UnsavedUser, error)
+func (mock companyEntryMock) ToShelterCompany(identifier pkgText.Identifier, now time.Time) (shelterCompany.UnsavedCompany, error) {
+	return mock.toShelterCompany(identifier, now)
 }
 
-func (mock userEntryMock) ToShelterUser(identifier pkgText.Identifier, now time.Time) (shelterUser.UnsavedUser, error) {
-	return mock.toShelterUser(identifier, now)
-}
-
-func getDbUserAuthenticForCreator(id string) *dbUser.UserAuthentic {
-	var companyId = "CP-TESTES"
-	var now = time.Now()
-	var expireDate = now.Add(1 * time.Hour)
-
-	var userCompanyRole1 = &dbUser.UserCompanyRoleFull{
-		UserCompanyRole: dbUser.UserCompanyRole{
-			PersistKey:        1,
-			UserPersistKey:    2,
-			CompanyPersistKey: 3,
-			RoleLabel:         "TEST_ROLE",
-			RegisterDate:      now,
-			ExpireDate:        &expireDate,
-		},
-		UserIdentifier:        id,
-		UserExposeEmailId:     "test02@example.com",
-		UserName:              "TestUserName",
-		UserBotFlag:           false,
-		UserRegisteredDate:    now.Add(2 * time.Hour),
-		UserUpdateDate:        now.Add(3 * time.Hour),
-		CompanyIdentifier:     companyId,
-		CompanyName:           "TestCompanyName",
-		CompanyRegisteredDate: now.Add(4 * time.Hour),
-		RoleName:              "TestRoleName",
-		RoleDescription:       "TestRoleDescription",
-		RoleRegisteredDate:    now.Add(5 * time.Hour),
-	}
-	var userCompanyRoles = []dbUser.UserCompanyRoleFull{*userCompanyRole1}
-
-	var email = "test01@example.com"
-	return &dbUser.UserAuthentic{
-		UserPersistKey:     2,
-		UserIdentifier:     id,
-		UserExposeEmailId:  "test02@example.com",
-		UserName:           "TestUserName",
-		UserBotFlag:        false,
-		UserRegisteredDate: now,
-		UserUpdateDate:     now.Add(1 * time.Hour),
-		Email:              &email,
-		UserCompanyRole:    userCompanyRoles,
-	}
-}
-
-func getShelterUser(id string) shelterUser.UnsavedUser {
+func getShelterCompanyForCreate(expectId string, expectName string) shelterCompany.UnsavedCompany {
 	var identifier, _ = pkgText.NewIdentifier(id)
-	var emailId, _ = pkgText.NewEmail("test@gmail.com")
-	var name, _ = pkgText.NewName("TestName")
-	var botFlag = false
+	var name, _ = pkgText.NewName(expectName)
 	var registeredDate = time.Now()
 
-	return shelterUser.CreateUser(identifier, emailId, name, botFlag, registeredDate)
+	return shelterCompany.CreateCompany(identifier, name, registeredDate)
 }
 
-func getLocalerMockForCreate(t *testing.T, idStr string, now time.Time) *localUtility.LocalerMock {
+func getLocalerMockForCreate(t *testing.T, expectId string, now time.Time) *localUtility.LocalerMock {
 	var getNow = func() time.Time {
 		return now
 	}
 	var generateRamdomString = func(length int, charSet string) string {
-		return "TESTES"
+		return expectId
 	}
 	return &localUtility.LocalerMock{
 		FakeGenerateRamdomString: generateRamdomString,
@@ -101,154 +51,67 @@ func getLocalerMockForCreate(t *testing.T, idStr string, now time.Time) *localUt
 	}
 }
 
-func getCreateDbMock(t *testing.T, idStr string, firstNow time.Time) userCreatorDBMock {
-	var getUser = func(identifier string) (*dbUser.User, error) {
-		assert.Equal(t, "US-TESTES", identifier, "Expected identifier 'US-TESTES'")
-		return &dbUser.User{}, nil
+func getCreateDbMock(t *testing.T, expectId string, firstNow time.Time) companyCreatorDBMock {
+	var callCount = 0
+	var getCompany = func(identifier string) (*dbCompany.Company, error) {
+		if callCount == 0 {
+			callCount++
+			return nil, nil
+		}
+		assert.Equal(t, expectId, identifier, "Expected identifier 'US-TESTES'")
+		return &dbCompany.Company{}, nil
 	}
 	var insert = func(args ...interface{}) error {
 		assert.Equal(t, 1, len(args), "Expected 1 argument")
 
-		user, ok := args[0].(*dbUser.User)
+		company, ok := args[0].(*dbCompany.Company)
 		if !ok {
-			t.Errorf("Expected first argument to be of type *dbUser.User, got %T", args[0])
+			t.Errorf("Expected first argument to be of type *dbCompany.Company, got %T", args[0])
 		}
 
-		assert.NotNil(t, user, "Expected user to be not nil")
-		assert.Equal(t, "US-TESTES", user.Identifier, "Expected user identifier 'US-TESTES'")
+		assert.NotNil(t, company)
+		assert.Equal(t, expectId, company.Identifier)
 
 		return nil
 	}
-	var dbUserAuthentic = getDbUserAuthenticForCreator(idStr)
-	var getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
-		assert.Equal(t, "US-TESTES", identifier, "Expected identifier 'US-TESTES'")
-		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
-		return dbUserAuthentic, nil
-	}
-	return userCreatorDBMock{
+	return companyCreatorDBMock{
 		SqlExecutorMock: dbUtility.SqlExecutorMock{
 			FakeInsert: insert,
 		},
-		getUserAuthentic: getUserAuthentic,
-		getUser:          getUser,
+		getCompany: getCompany,
 	}
 }
 
-func getEntryMock(t *testing.T, idStr string, firstNow time.Time) userEntryMock {
-	var shelterUserVal = getShelterUser(idStr)
-	var toShelterUser = func(identifier pkgText.Identifier, now time.Time) (shelterUser.UnsavedUser, error) {
-		assert.Equal(t, "US-TESTES", string(identifier), "Expected identifier 'US-TESTES'")
+func getEntryMock(t *testing.T, expectId string, expectName string, firstNow time.Time) companyEntryMock {
+	var shelterUseCompanyrVal = getShelterCompanyForCreate(expectId, expectName)
+	var toShelterCompany = func(identifier pkgText.Identifier, now time.Time) (shelterCompany.UnsavedCompany, error) {
+		assert.Equal(t, expectId, string(identifier))
 		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
-		return shelterUserVal, nil
+		return shelterUseCompanyrVal, nil
 	}
-	return userEntryMock{
-		toShelterUser: toShelterUser,
+	return companyEntryMock{
+		toShelterCompany: toShelterCompany,
 	}
 }
 
-func TestUserCreate(t *testing.T) {
-	var idStr = "US-TESTES"
+func TestCompanyCreate(t *testing.T) {
+	var expectId = "CP-TESTES"
+	var expectName = "TestCompany"
 	var firstNow = time.Now()
-	var localerMock = getLocalerMockForCreate(t, idStr, firstNow)
-	var dbMock = getCreateDbMock(t, idStr, firstNow)
-	var entryMock = getEntryMock(t, idStr, firstNow)
 
-	creator := user.NewUserCreate(localerMock, dbMock)
+	var localerMock = getLocalerMockForCreate(t, "TESTES", firstNow)
+	var dbMock = getCreateDbMock(t, expectId, firstNow)
+	var entryMock = getEntryMock(t, expectId, expectName, firstNow)
+
+	creator := user.NewCompanyCreate(localerMock, dbMock)
 	result, err := creator.Execute(entryMock)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	assert.Equal(t, "US-TESTES", string(result.Identifier), "Expected user identifier 'US-TESTES'")
+	assert.Equal(t, expectId, string(result.Identifier))
+	assert.Equal(t, expectName, string(result.Name))
 
-	t.Logf("User created: %+v", result)
+	t.Logf("Company created: %+v", result)
 }
 
-func TestUserCreateErrGetUser(t *testing.T) {
-	var idStr = "US-TESTES"
-	var firstNow = time.Now()
-	var localerMock = getLocalerMockForCreate(t, idStr, firstNow)
-	var dbMock = getCreateDbMock(t, idStr, firstNow)
-	var entryMock = getEntryMock(t, idStr, firstNow)
-
-	dbMock.getUser = func(identifier string) (*dbUser.User, error) {
-		return nil, errors.New("GetUser error")
-	}
-
-	creator := user.NewUserCreate(localerMock, dbMock)
-	result, err := creator.Execute(entryMock)
-
-	assert.Error(t, err)
-	assert.Nil(t, result)
-}
-
-func TestUserCreateErrToShelter(t *testing.T) {
-	var idStr = "US-TESTES"
-	var firstNow = time.Now()
-	var localerMock = getLocalerMockForCreate(t, idStr, firstNow)
-	var dbMock = getCreateDbMock(t, idStr, firstNow)
-	var entryMock = getEntryMock(t, idStr, firstNow)
-
-	entryMock.toShelterUser = func(identifier pkgText.Identifier, now time.Time) (shelterUser.UnsavedUser, error) {
-		return shelterUser.UnsavedUser{}, errors.New("ToShelterUser error")
-	}
-
-	creator := user.NewUserCreate(localerMock, dbMock)
-	result, err := creator.Execute(entryMock)
-
-	assert.Error(t, err)
-	assert.Nil(t, result)
-}
-
-func TestUserCreateErrInsert(t *testing.T) {
-	var idStr = "US-TESTES"
-	var firstNow = time.Now()
-	var localerMock = getLocalerMockForCreate(t, idStr, firstNow)
-	var dbMock = getCreateDbMock(t, idStr, firstNow)
-	var entryMock = getEntryMock(t, idStr, firstNow)
-
-	dbMock.FakeInsert = func(args ...interface{}) error {
-		return errors.New("Insert error")
-	}
-
-	creator := user.NewUserCreate(localerMock, dbMock)
-	result, err := creator.Execute(entryMock)
-
-	assert.Error(t, err)
-	assert.Nil(t, result)
-}
-
-func TestUserCreateErrGetAuthentic(t *testing.T) {
-	var idStr = "US-TESTES"
-	var firstNow = time.Now()
-	var localerMock = getLocalerMockForCreate(t, idStr, firstNow)
-	var dbMock = getCreateDbMock(t, idStr, firstNow)
-	var entryMock = getEntryMock(t, idStr, firstNow)
-
-	dbMock.getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
-		return nil, errors.New("GetUserAuthentic error")
-	}
-
-	creator := user.NewUserCreate(localerMock, dbMock)
-	result, err := creator.Execute(entryMock)
-
-	assert.Error(t, err)
-	assert.Nil(t, result)
-}
-
-func TestUserCreateErrGetAuthenticNil(t *testing.T) {
-	var idStr = "US-TESTES"
-	var firstNow = time.Now()
-	var localerMock = getLocalerMockForCreate(t, idStr, firstNow)
-	var dbMock = getCreateDbMock(t, idStr, firstNow)
-	var entryMock = getEntryMock(t, idStr, firstNow)
-
-	dbMock.getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
-		return nil, nil
-	}
-
-	creator := user.NewUserCreate(localerMock, dbMock)
-	result, err := creator.Execute(entryMock)
-
-	assert.Error(t, err)
-	assert.Nil(t, result)
-}
+// TODO working error cases
