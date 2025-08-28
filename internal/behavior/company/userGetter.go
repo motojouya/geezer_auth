@@ -15,7 +15,7 @@ type UserGetterDB interface {
 }
 
 type UserGetter interface {
-	Execute(entry entryCompany.CompanyGetter) (*shelterUser.UserAuthentic, error)
+	Execute(entry entryCompanyUser.CompanyUserGetter, company shelterCompany.Company) (*shelterUser.UserAuthentic, error)
 }
 
 type UserGet struct {

@@ -1,7 +1,8 @@
-package user_test
+package company_test
 
 import (
-	"errors"
+	//"errors"
+	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	"github.com/google/uuid"
 	"github.com/motojouya/geezer_auth/internal/behavior/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
@@ -16,32 +17,20 @@ import (
 	"time"
 )
 
-type emailSetterDBMock struct {
-	getUserEmail func(email string) ([]dbUser.UserEmailFull, error)
-	addEmail     func(userEmail *dbUser.UserEmail, now time.Time) (*dbUser.UserEmail, error)
+type roleAssignerDBMock struct {
+	getUserAuthentic func(identifier string, now time.Time) (*dbUser.UserAuthentic, error)
+	dbUtility.SqlExecutorMock
 }
 
-func (mock emailSetterDBMock) GetUserEmail(email string) ([]dbUser.UserEmailFull, error) {
-	return mock.getUserEmail(email)
+func (mock roleAssignerDBMock) GetUserAuthentic(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+	return mock.getUserAuthentic(identifier, now)
 }
 
-func (mock emailSetterDBMock) AddEmail(userEmail *dbUser.UserEmail, now time.Time) (*dbUser.UserEmail, error) {
-	return mock.addEmail(userEmail, now)
-}
-
-type emailGetEntryMock struct {
-	getEmail func() (pkgText.Email, error)
-}
-
-func (mock emailGetEntryMock) GetEmail() (pkgText.Email, error) {
-	return mock.getEmail()
-}
-
-func getShelterUserAuthenticForEmail(expectEmail string) *shelterUser.UserAuthentic {
+func getShelterUserAuthenticForRoleAssign(expectId string) *shelterUser.UserAuthentic {
 
 	var userId uint = 1
-	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
-	var emailId, _ = pkgText.NewEmail(expectEmail)
+	var userIdentifier, _ = pkgText.NewIdentifier(expectId)
+	var emailId, _ = pkgText.NewEmail("test@exaple.com")
 	var userName, _ = pkgText.NewName("TestName")
 	var botFlag = false
 	var userRegisteredDate = time.Now()
@@ -66,7 +55,7 @@ func getShelterUserAuthenticForEmail(expectEmail string) *shelterUser.UserAuthen
 	return shelterUser.NewUserAuthentic(userValue, companyRole, &email)
 }
 
-func getLocalerMockForEmail(t *testing.T, now time.Time) *localUtility.LocalerMock {
+func getLocalerMockForRoleAssign(t *testing.T, now time.Time) *localUtility.LocalerMock {
 	var getNow = func() time.Time {
 		return now
 	}
@@ -79,33 +68,34 @@ func getLocalerMockForEmail(t *testing.T, now time.Time) *localUtility.LocalerMo
 	}
 }
 
-func getEmailSetDbMock(t *testing.T, expectEmail string, firstNow time.Time) emailSetterDBMock {
-	var getUserEmail = func(email string) ([]dbUser.UserEmailFull, error) {
-		assert.Equal(t, expectEmail, email)
+func getRoleAssignDbMock(t *testing.T, expectId string, firstNow time.Time) roleAssignerDBMock {
+	var getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+		assert.Equal(t, expectId, identifier)
 		return []dbUser.UserEmailFull{}, nil
 	}
-	var addEmail = func(userEmail *dbUser.UserEmail, now time.Time) (*dbUser.UserEmail, error) {
-		assert.Equal(t, expectEmail, userEmail.Email)
-		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
-		return userEmail, nil
+	var insert = func(args ...interface{}) error {
+		assert.Equal(t, 1, len(args), "Expected 1 argument")
+
+		userCompanyRole, ok := args[0].(*dbUser.UnsavedUserCompanyRole)
+		if !ok {
+			t.Errorf("Expected first argument to be of type *dbUser.User, got %T", args[0])
+		}
+
+		assert.NotNil(t, userCompanyRole)
+		assert.Equal(t, expectId, userCompanyRole.User.Identifier)
+
+		return nil
 	}
-	return emailSetterDBMock{
+	return roleAssignerDBMock{
 		getUserEmail: getUserEmail,
 		addEmail:     addEmail,
+		SqlExecutorMock: dbUtility.SqlExecutorMock{
+			FakeInsert: insert,
+		},
 	}
 }
 
-func getGetEmailEntryMock(t *testing.T, expectEmail string, firstNow time.Time) emailGetEntryMock {
-	var email, _ = pkgText.NewEmail(expectEmail)
-	var getEmail = func() (pkgText.Email, error) {
-		return email, nil
-	}
-	return emailGetEntryMock{
-		getEmail: getEmail,
-	}
-}
-
-func TestEmailSetter(t *testing.T) {
+func TestRoleAssigner(t *testing.T) {
 	var expectEmail = "test@example.com"
 	var firstNow = time.Now()
 	var userAuthentic = getShelterUserAuthenticForEmail(expectEmail)
@@ -118,119 +108,4 @@ func TestEmailSetter(t *testing.T) {
 	err := setter.Execute(entryMock, userAuthentic)
 
 	assert.NoError(t, err)
-}
-
-func TestEmailSetterErrGetEmail(t *testing.T) {
-	var expectEmail = "test@example.com"
-	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForEmail(expectEmail)
-
-	var localerMock = getLocalerMockForEmail(t, firstNow)
-	var dbMock = getEmailSetDbMock(t, expectEmail, firstNow)
-	var entryMock = getGetEmailEntryMock(t, expectEmail, firstNow)
-
-	entryMock.getEmail = func() (pkgText.Email, error) {
-		return pkgText.Email(""), errors.New("failed to get email")
-	}
-
-	setter := user.NewEmailSet(localerMock, dbMock)
-	err := setter.Execute(entryMock, userAuthentic)
-
-	assert.Error(t, err)
-}
-
-func TestEmailSetterErrGetUserEmail(t *testing.T) {
-	var expectEmail = "test@example.com"
-	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForEmail(expectEmail)
-
-	var localerMock = getLocalerMockForEmail(t, firstNow)
-	var dbMock = getEmailSetDbMock(t, expectEmail, firstNow)
-	var entryMock = getGetEmailEntryMock(t, expectEmail, firstNow)
-
-	dbMock.getUserEmail = func(email string) ([]dbUser.UserEmailFull, error) {
-		return nil, errors.New("failed to get user email")
-	}
-
-	setter := user.NewEmailSet(localerMock, dbMock)
-	err := setter.Execute(entryMock, userAuthentic)
-
-	assert.Error(t, err)
-}
-
-func TestEmailSetterErrGetUserEmailMany(t *testing.T) {
-	var expectEmail = "test@example.com"
-	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForEmail(expectEmail)
-
-	var localerMock = getLocalerMockForEmail(t, firstNow)
-	var dbMock = getEmailSetDbMock(t, expectEmail, firstNow)
-	var entryMock = getGetEmailEntryMock(t, expectEmail, firstNow)
-
-	var verifiyDate = firstNow.Add(1 * time.Hour)
-	var expireDate = firstNow.Add(1 * time.Hour)
-	var userEmail = dbUser.UserEmailFull{
-		UserEmail: dbUser.UserEmail{
-			PersistKey:     1,
-			UserPersistKey: 2,
-			Email:          "test01@example.com",
-			VerifyToken:    "TestVerifyToken",
-			RegisterDate:   firstNow,
-			VerifyDate:     &verifiyDate,
-			ExpireDate:     &expireDate,
-		},
-		UserIdentifier:     "invalid-identifier",
-		UserExposeEmailId:  "test02@example.com",
-		UserName:           "TestUserName",
-		UserBotFlag:        false,
-		UserRegisteredDate: firstNow.Add(2 * time.Hour),
-		UserUpdateDate:     firstNow.Add(3 * time.Hour),
-	}
-
-	dbMock.getUserEmail = func(email string) ([]dbUser.UserEmailFull, error) {
-		return []dbUser.UserEmailFull{userEmail}, nil
-	}
-
-	setter := user.NewEmailSet(localerMock, dbMock)
-	err := setter.Execute(entryMock, userAuthentic)
-
-	assert.Error(t, err)
-}
-
-func TestEmailSetterErrGenerateUUID(t *testing.T) {
-	var expectEmail = "test@example.com"
-	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForEmail(expectEmail)
-
-	var localerMock = getLocalerMockForEmail(t, firstNow)
-	var dbMock = getEmailSetDbMock(t, expectEmail, firstNow)
-	var entryMock = getGetEmailEntryMock(t, expectEmail, firstNow)
-
-	localerMock.FakeGenerateUUID = func() (uuid.UUID, error) {
-		return uuid.UUID{}, errors.New("failed to generate UUID")
-	}
-
-	setter := user.NewEmailSet(localerMock, dbMock)
-	err := setter.Execute(entryMock, userAuthentic)
-
-	assert.Error(t, err)
-}
-
-func TestEmailSetterErrAddEmail(t *testing.T) {
-	var expectEmail = "test@example.com"
-	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForEmail(expectEmail)
-
-	var localerMock = getLocalerMockForEmail(t, firstNow)
-	var dbMock = getEmailSetDbMock(t, expectEmail, firstNow)
-	var entryMock = getGetEmailEntryMock(t, expectEmail, firstNow)
-
-	dbMock.addEmail = func(userEmail *dbUser.UserEmail, now time.Time) (*dbUser.UserEmail, error) {
-		return nil, errors.New("failed to add email")
-	}
-
-	setter := user.NewEmailSet(localerMock, dbMock)
-	err := setter.Execute(entryMock, userAuthentic)
-
-	assert.Error(t, err)
 }

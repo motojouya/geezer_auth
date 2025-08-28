@@ -2,7 +2,7 @@ package company_test
 
 import (
 	//"errors"
-	"github.com/motojouya/geezer_auth/internal/behavior/user"
+	"github.com/motojouya/geezer_auth/internal/behavior/company"
 	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
@@ -103,7 +103,7 @@ func TestCompanyCreate(t *testing.T) {
 	var dbMock = getCreateDbMock(t, expectId, firstNow)
 	var entryMock = getEntryMock(t, expectId, expectName, firstNow)
 
-	creator := user.NewCompanyCreate(localerMock, dbMock)
+	creator := company.NewCompanyCreate(localerMock, dbMock)
 	result, err := creator.Execute(entryMock)
 
 	assert.NoError(t, err)
