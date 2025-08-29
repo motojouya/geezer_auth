@@ -1,9 +1,10 @@
-package user_test
+package company_test
 
 import (
-	"errors"
+	//"errors"
+	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	"github.com/google/uuid"
-	"github.com/motojouya/geezer_auth/internal/behavior/user"
+	"github.com/motojouya/geezer_auth/internal/behavior/company"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
@@ -16,43 +17,7 @@ import (
 	"time"
 )
 
-type refreshTokenIssuerDBMock struct {
-	addRefreshToken func(userRefreshToken dbUser.UserRefreshToken, now time.Time) (dbUser.UserRefreshToken, error)
-}
-
-func (mock refreshTokenIssuerDBMock) AddRefreshToken(userRefreshToken dbUser.UserRefreshToken, now time.Time) (dbUser.UserRefreshToken, error) {
-	return mock.addRefreshToken(userRefreshToken, now)
-}
-
-func getShelterUserAuthenticForRefToken() *shelterUser.UserAuthentic {
-	var userId uint = 1
-	var userIdentifier, _ = pkgText.NewIdentifier("TestIdentifier")
-	var emailId, _ = pkgText.NewEmail("test@example.com")
-	var userName, _ = pkgText.NewName("TestName")
-	var botFlag = false
-	var userRegisteredDate = time.Now()
-	var updateDate = time.Now()
-	var userValue = shelterUser.NewUser(userId, userIdentifier, userName, emailId, botFlag, userRegisteredDate, updateDate)
-
-	var companyIdentifier, _ = pkgText.NewIdentifier("CP-TESTES")
-	var companyId uint = 1
-	var companyName, _ = pkgText.NewName("TestCompany")
-	var companyRegisteredDate = time.Now()
-	var company = shelterCompany.NewCompany(companyId, companyIdentifier, companyName, companyRegisteredDate)
-
-	var label, _ = pkgText.NewLabel("TEST_ROLE")
-	var roleName, _ = pkgText.NewName("TestRole")
-	var description, _ = shelterText.NewText("Role for testing")
-	var roleRegisteredDate = time.Now()
-
-	var roles = []shelterRole.Role{shelterRole.NewRole(roleName, label, description, roleRegisteredDate)}
-	var companyRole = shelterUser.NewCompanyRole(company, roles)
-
-	var email, _ = pkgText.NewEmail("test_2@gmail.com")
-	return shelterUser.NewUserAuthentic(userValue, companyRole, &email)
-}
-
-func getLocalerMockForRefToken(t *testing.T, expectUUID uuid.UUID, now time.Time) *localUtility.LocalerMock {
+func getLocalerMockForInviteToken(expectUUID uuid.UUID, now time.Time) *localUtility.LocalerMock {
 	var getNow = func() time.Time {
 		return now
 	}
@@ -65,64 +30,59 @@ func getLocalerMockForRefToken(t *testing.T, expectUUID uuid.UUID, now time.Time
 	}
 }
 
-func getRefreshTokenIssueDbMock(t *testing.T, expectToken string, firstNow time.Time) refreshTokenIssuerDBMock {
-	var addRefreshToken = func(userRefreshToken dbUser.UserRefreshToken, now time.Time) (dbUser.UserRefreshToken, error) {
-		assert.Equal(t, userRefreshToken.RefreshToken, expectToken, "Expected token to match")
-		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
-		return userRefreshToken, nil
+func getInviteTokenIssuerDBMock(t *testing.T, expectId string, expectRole string) *dbUtility.SqlExecutorMock {
+	var insert = func(args ...interface{}) error {
+		assert.Equal(t, 1, len(args), "Expected 1 argument")
+
+		companyInvite, ok := args[0].(*dbCompany.UnsavedCompanyInvite)
+		if !ok {
+			t.Errorf("Expected first argument to be of type *dbCompany.Company, got %T", args[0])
+		}
+
+		assert.NotNil(t, companyInvite)
+		assert.Equal(t, expectId, companyInvite.Company.Identifier)
+		assert.Equal(t, expectRole, companyInvite.Role.Label)
+
+		return nil
 	}
-	return refreshTokenIssuerDBMock{
-		addRefreshToken: addRefreshToken,
+	return *dbUtility.SqlExecutorMock{
+		FakeInsert: insert,
 	}
+}
+
+func getShelterCompanyForInviteIssue(expectId string) shelterCompany.Company {
+	var companyIdentifier, _ = pkgText.NewIdentifier(expectId)
+	var companyId uint = 1
+	var companyName, _ = pkgText.NewName("TestCompany")
+	var companyRegisteredDate = time.Now()
+
+	return shelterCompany.NewCompany(companyId, companyIdentifier, companyName, companyRegisteredDate)
+}
+
+func getShelterRoleForInviteIssue(expectLabel string) shelterRole.Role {
+	var label, _ = pkgText.NewLabel(expectLabel)
+	var roleName, _ = pkgText.NewName("TestRole")
+	var description, _ = shelterText.NewText("Role for testing")
+	var roleRegisteredDate = time.Now()
+
+	return shelterRole.NewRole(roleName, label, description, roleRegisteredDate)
 }
 
 func TestRefreshTokenIssuer(t *testing.T) {
-	var expectUUID, _ = uuid.NewUUID()
+	var expectId = "CP-TESTES"
+	var expectRole = "ROLE_TEST"
 	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForRefToken()
+	var expectUUID, _ = uuid.NewUUID()
 
-	var localerMock = getLocalerMockForRefToken(t, expectUUID, firstNow)
-	var dbMock = getRefreshTokenIssueDbMock(t, expectUUID.String(), firstNow)
+	var company = getShelterCompanyForInviteIssue(expectId)
+	var role = getShelterRoleForInviteIssue(expectRole)
 
-	setter := user.NewRefreshTokenIssue(localerMock, dbMock)
-	refreshToken, err := setter.Execute(userAuthentic)
+	var localerMock = getLocalerMockForInviteToken(expectUUID, firstNow)
+	var dbMock = getInviteTokenIssuerDBMock(t, expectId, expectRole)
+
+	issuer := company.NewInviteTokenIssue(localerMock, dbMock)
+	inviteToken, err := issuer.Execute(company, role)
 
 	assert.NoError(t, err)
-	assert.Equal(t, expectUUID.String(), string(refreshToken), "Expected refresh token to match generated UUID")
-}
-
-func TestRefreshTokenIssuerErrGenerateUUID(t *testing.T) {
-	var expectUUID, _ = uuid.NewUUID()
-	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForRefToken()
-
-	var localerMock = getLocalerMockForRefToken(t, expectUUID, firstNow)
-	var dbMock = getRefreshTokenIssueDbMock(t, expectUUID.String(), firstNow)
-
-	localerMock.FakeGenerateUUID = func() (uuid.UUID, error) {
-		return uuid.Nil, errors.New("UUID generation error")
-	}
-
-	setter := user.NewRefreshTokenIssue(localerMock, dbMock)
-	_, err := setter.Execute(userAuthentic)
-
-	assert.Error(t, err)
-}
-
-func TestRefreshTokenIssuerErrAddToken(t *testing.T) {
-	var expectUUID, _ = uuid.NewUUID()
-	var firstNow = time.Now()
-	var userAuthentic = getShelterUserAuthenticForRefToken()
-
-	var localerMock = getLocalerMockForRefToken(t, expectUUID, firstNow)
-	var dbMock = getRefreshTokenIssueDbMock(t, expectUUID.String(), firstNow)
-
-	dbMock.addRefreshToken = func(userRefreshToken dbUser.UserRefreshToken, now time.Time) (dbUser.UserRefreshToken, error) {
-		return dbUser.UserRefreshToken{}, errors.New("Database error")
-	}
-
-	setter := user.NewRefreshTokenIssue(localerMock, dbMock)
-	_, err := setter.Execute(userAuthentic)
-
-	assert.Error(t, err)
+	assert.Equal(t, expectUUID.String(), string(inviteToken), "Expected refresh token to match generated UUID")
 }

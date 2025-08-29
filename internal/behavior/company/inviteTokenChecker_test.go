@@ -1,8 +1,8 @@
-package user_test
+package company_test
 
 import (
-	"errors"
-	"github.com/motojouya/geezer_auth/internal/behavior/user"
+	//"errors"
+	"github.com/motojouya/geezer_auth/internal/behavior/company"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
@@ -11,58 +11,15 @@ import (
 	"time"
 )
 
-type refreshTokenCheckerDBMock struct {
-	getUserRefreshToken func(token string, now time.Time) (*dbUser.UserAuthentic, error)
+type inviteTokenCheckerDBMock struct {
+	getCompanyInvite func(identifier string, token string) (*dbCompany.CompanyInviteFull, error)
 }
 
-func (mock refreshTokenCheckerDBMock) GetUserRefreshToken(token string, now time.Time) (*dbUser.UserAuthentic, error) {
-	return mock.getUserRefreshToken(token, now)
+func (mock inviteTokenCheckerDBMock) GetUserRefreshToken(token string, now time.Time) (*dbCompany.CompanyInviteFull, error) {
+	return mock.getCompanyInvite(identifier, token)
 }
 
-func getDbUserAuthenticForRefTokenChecker() *dbUser.UserAuthentic {
-	var companyId = "CP-TESTES"
-	var now = time.Now()
-	var expireDate = now.Add(1 * time.Hour)
-
-	var userCompanyRole1 = &dbUser.UserCompanyRoleFull{
-		UserCompanyRole: dbUser.UserCompanyRole{
-			PersistKey:        1,
-			UserPersistKey:    2,
-			CompanyPersistKey: 3,
-			RoleLabel:         "TEST_ROLE",
-			RegisterDate:      now,
-			ExpireDate:        &expireDate,
-		},
-		UserIdentifier:        "US-TESTES",
-		UserExposeEmailId:     "test02@example.com",
-		UserName:              "TestUserName",
-		UserBotFlag:           false,
-		UserRegisteredDate:    now.Add(2 * time.Hour),
-		UserUpdateDate:        now.Add(3 * time.Hour),
-		CompanyIdentifier:     companyId,
-		CompanyName:           "TestCompanyName",
-		CompanyRegisteredDate: now.Add(4 * time.Hour),
-		RoleName:              "TestRoleName",
-		RoleDescription:       "TestRoleDescription",
-		RoleRegisteredDate:    now.Add(5 * time.Hour),
-	}
-	var userCompanyRoles = []dbUser.UserCompanyRoleFull{*userCompanyRole1}
-
-	var email = "test01@example.com"
-	return &dbUser.UserAuthentic{
-		UserPersistKey:     2,
-		UserIdentifier:     "US-TESTES",
-		UserExposeEmailId:  "test02@example.com",
-		UserName:           "TestUserName",
-		UserBotFlag:        false,
-		UserRegisteredDate: now,
-		UserUpdateDate:     now.Add(1 * time.Hour),
-		Email:              &email,
-		UserCompanyRole:    userCompanyRoles,
-	}
-}
-
-func getLocalerMockForRefTokenCheck(t *testing.T, now time.Time) *localUtility.LocalerMock {
+func getLocalerMockForInviteTokenCheck(t *testing.T, now time.Time) *localUtility.LocalerMock {
 	var getNow = func() time.Time {
 		return now
 	}
@@ -71,81 +28,81 @@ func getLocalerMockForRefTokenCheck(t *testing.T, now time.Time) *localUtility.L
 	}
 }
 
-func getRefreshTokenCheckerDbMock(t *testing.T, expectToken string, firstNow time.Time) refreshTokenCheckerDBMock {
-	var getUserRefreshToken = func(token string, now time.Time) (*dbUser.UserAuthentic, error) {
-		assert.Equal(t, token, expectToken, "Expected token to match")
-		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
-		return getDbUserAuthenticForRefTokenChecker(), nil
+func getCompanyInviteFull(expectId string, expectLabel string, expectToken string) dbCompany.CompanyInviteFull {
+	var registerDate = time.Now()
+	var expireDate = registerDate.Add(50 * time.Hour)
+
+	return company.CompanyInviteFull{
+		CompanyInvite: company.CompanyInvite{
+			PersistKey:        1,
+			CompanyPersistKey: 2,
+			Token:             expectToken,
+			RoleLabel:         expectLabel,
+			RegisterDate:      registerDate,
+			ExpireDate:        expireDate,
+		},
+		CompanyIdentifier:     expectId,
+		CompanyName:           "Test Company",
+		CompanyRegisteredDate: companyValue.RegisteredDate,
+		RoleName:              "TestRole",
+		RoleDescription:       "Role for testing",
+		RoleRegisteredDate:    role.RegisteredDate,
 	}
-	return refreshTokenCheckerDBMock{
-		getUserRefreshToken: getUserRefreshToken,
+}
+
+func getInviteTokenCheckerDbMock(t *testing.T, expectId string, expectLabel string, expectToken string, firstNow time.Time) inviteTokenCheckerDBMock {
+	var companyInviteFull = getCompanyInviteFull(expectId, expectLabel, expectToken)
+	var getCompanyInvite = func(identifier string, token string) (*dbCompany.CompanyInviteFull, error) {
+		assert.Equal(t, identifier, expectId)
+		assert.Equal(t, token, expectToken)
+		return &companyInviteFull, nil
+	}
+	return inviteTokenCheckerDBMock{
+		getCompanyInvite: getCompanyInvite,
 	}
 }
 
-type userRefreshTokenGetterMock struct {
-	getRefreshToken func() (shelterText.Token, error)
+type userInviteTokenGetterMock struct {
+	getToken func() (shelterText.Token, error)
 }
 
-func (getter userRefreshTokenGetterMock) GetRefreshToken() (shelterText.Token, error) {
-	return getter.getRefreshToken()
+func (getter userInviteTokenGetterMock) GetToken() (shelterText.Token, error) {
+	return getter.getToken()
 }
 
-func getUserRefreshTokenGetterMock(expectToken string) userRefreshTokenGetterMock {
-	var getRefreshToken = func() (shelterText.Token, error) {
+func getUserInviteTokenGetterMock(expectToken string) userInviteTokenGetterMock {
+	var getToken = func() (shelterText.Token, error) {
 		return shelterText.NewToken(expectToken)
 	}
-	return userRefreshTokenGetterMock{
-		getRefreshToken: getRefreshToken,
+	return userInviteTokenGetterMock{
+		getToken: getToken,
 	}
+}
+
+func getShelterCompanyForInviteCheck(expectId string) shelterCompany.Company {
+	var companyIdentifier, _ = pkgText.NewIdentifier(expectId)
+	var companyId uint = 1
+	var companyName, _ = pkgText.NewName("TestCompany")
+	var companyRegisteredDate = time.Now()
+
+	return shelterCompany.NewCompany(companyId, companyIdentifier, companyName, companyRegisteredDate)
 }
 
 func TestRefreshTokenChecker(t *testing.T) {
 	var firstNow = time.Now()
 	var expectToken = "refresh_token01"
+	var expectId = "CP-TESTES"
+	var expectLabel = "ROLE_LABEL"
+	var company = getShelterCompanyForInviteCheck(expectId)
 
-	var localerMock = getLocalerMockForRefTokenCheck(t, firstNow)
-	var dbMock = getRefreshTokenCheckerDbMock(t, expectToken, firstNow)
-	var entryMock = getUserRefreshTokenGetterMock(expectToken)
+	var localerMock = getLocalerMockForInviteTokenCheck(t, firstNow)
+	var dbMock = getInviteTokenCheckerDbMock(t, expectId, expectLabel, expectToken, firstNow)
+	var entryMock = getUserInviteTokenGetterMock(expectToken)
 
-	checker := user.NewRefreshTokenCheck(localerMock, dbMock)
-	userAuthentic, err := checker.Execute(entryMock)
+	checker := company.NewInviteTokenCheck(localerMock, dbMock)
+	role, err := checker.Execute(entryMock, company)
 
 	assert.NoError(t, err)
-	assert.NotNil(t, userAuthentic, "Expected user authentic to be returned")
-}
-
-func TestRefreshTokenCheckerErrEntry(t *testing.T) {
-	var firstNow = time.Now()
-	var expectToken = "refresh_token01"
-
-	var localerMock = getLocalerMockForRefTokenCheck(t, firstNow)
-	var dbMock = getRefreshTokenCheckerDbMock(t, expectToken, firstNow)
-	var entryMock = getUserRefreshTokenGetterMock(expectToken)
-
-	entryMock.getRefreshToken = func() (shelterText.Token, error) {
-		return "", errors.New("error getting refresh token")
-	}
-
-	checker := user.NewRefreshTokenCheck(localerMock, dbMock)
-	_, err := checker.Execute(entryMock)
-
-	assert.Error(t, err)
-}
-
-func TestRefreshTokenCheckerErrDB(t *testing.T) {
-	var firstNow = time.Now()
-	var expectToken = "refresh_token01"
-
-	var localerMock = getLocalerMockForRefTokenCheck(t, firstNow)
-	var dbMock = getRefreshTokenCheckerDbMock(t, expectToken, firstNow)
-	var entryMock = getUserRefreshTokenGetterMock(expectToken)
-
-	dbMock.getUserRefreshToken = func(token string, now time.Time) (*dbUser.UserAuthentic, error) {
-		return nil, errors.New("error getting user refresh token from DB")
-	}
-
-	checker := user.NewRefreshTokenCheck(localerMock, dbMock)
-	_, err := checker.Execute(entryMock)
-
-	assert.Error(t, err)
+	assert.NotNil(t, role)
+	assert.Equal(t, expectLabel, string(role.Label))
 }

@@ -1,7 +1,7 @@
 package company
 
 import (
-	commandQuery "github.com/motojouya/geezer_auth/internal/db/query/command"
+	"github.com/go-gorp/gorp"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	dbCompany "github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
@@ -11,7 +11,7 @@ import (
 )
 
 type InviteTokenIssuerDB interface {
-	commandQuery.AddRefreshTokenQuery
+	gorp.SqlExecutor
 }
 
 type InviteTokenIssuer interface {
