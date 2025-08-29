@@ -49,6 +49,9 @@ func (checker InviteTokenCheck) Execute(entry entryCompanyUser.InviteTokenGetter
 	}
 
 	companyInvite, err := dbCompanyInvite.ToShelterCompanyInvite()
+	if err != nil {
+		return shelterRole.Role{}, err
+	}
 
 	if companyInvite.ExpireDate.Before(now) {
 		return shelterRole.Role{}, shelterAuth.NewTokenExpiredError(companyInvite.ExpireDate, "invite token is expired")

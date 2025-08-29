@@ -1,7 +1,7 @@
 package company_test
 
 import (
-	//"errors"
+	"errors"
 	"github.com/motojouya/geezer_auth/internal/behavior/company"
 	dbCompany "github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
@@ -71,4 +71,63 @@ func TestCompanyGetter(t *testing.T) {
 	t.Logf("get company: %+v", result)
 }
 
-// TODO working error cases
+func TestCompanyGetterNil(t *testing.T) {
+	var expectId = "CP-TESTES"
+
+	var dbMock = getCompanyGetterDbMock(t, expectId)
+	var entryMock = getCompanyGetterEntryMock(t, expectId)
+	dbMock.getCompany = func(identifier string) (*dbCompany.Company, error) {
+		return nil, nil
+	}
+
+	getter := company.NewCompanyGet(dbMock)
+	result, err := getter.Execute(entryMock)
+
+	assert.NoError(t, err)
+	assert.Nil(t, result)
+}
+
+func TestCompanyGetterErrEntry(t *testing.T) {
+	var expectId = "CP-TESTES"
+
+	var dbMock = getCompanyGetterDbMock(t, expectId)
+	var entryMock = getCompanyGetterEntryMock(t, expectId)
+	entryMock.getCompanyIdentifier = func() (pkgText.Identifier, error) {
+		return pkgText.Identifier(""), errors.New("failed to get company identifier")
+	}
+
+	getter := company.NewCompanyGet(dbMock)
+	_, err := getter.Execute(entryMock)
+
+	assert.Error(t, err)
+}
+
+func TestCompanyGetterErrGet(t *testing.T) {
+	var expectId = "CP-TESTES"
+
+	var dbMock = getCompanyGetterDbMock(t, expectId)
+	var entryMock = getCompanyGetterEntryMock(t, expectId)
+	dbMock.getCompany = func(identifier string) (*dbCompany.Company, error) {
+		return nil, errors.New("failed to get company")
+	}
+
+	getter := company.NewCompanyGet(dbMock)
+	_, err := getter.Execute(entryMock)
+
+	assert.Error(t, err)
+}
+
+func TestCompanyGetterErrTrans(t *testing.T) {
+	var expectId = "CP-TESTES"
+
+	var dbMock = getCompanyGetterDbMock(t, expectId)
+	var entryMock = getCompanyGetterEntryMock(t, expectId)
+	dbMock.getCompany = func(identifier string) (*dbCompany.Company, error) {
+		return &dbCompany.Company{}, nil
+	}
+
+	getter := company.NewCompanyGet(dbMock)
+	_, err := getter.Execute(entryMock)
+
+	assert.Error(t, err)
+}

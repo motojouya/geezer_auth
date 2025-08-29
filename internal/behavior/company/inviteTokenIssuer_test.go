@@ -1,7 +1,7 @@
 package company_test
 
 import (
-	//"errors"
+	"errors"
 	"github.com/google/uuid"
 	"github.com/motojouya/geezer_auth/internal/behavior/company"
 	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
@@ -66,7 +66,7 @@ func getShelterRoleForInviteIssue(expectLabel string) shelterRole.Role {
 	return shelterRole.NewRole(roleName, label, description, roleRegisteredDate)
 }
 
-func TestRefreshTokenIssuer(t *testing.T) {
+func TestInviteTokenIssuer(t *testing.T) {
 	var expectId = "CP-TESTES"
 	var expectRole = "ROLE_TEST"
 	var firstNow = time.Now()
@@ -83,4 +83,46 @@ func TestRefreshTokenIssuer(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, expectUUID.String(), string(inviteToken), "Expected refresh token to match generated UUID")
+}
+
+func TestInviteTokenIssuerErrGenerate(t *testing.T) {
+	var expectId = "CP-TESTES"
+	var expectRole = "ROLE_TEST"
+	var firstNow = time.Now()
+	var expectUUID, _ = uuid.NewUUID()
+
+	var shelterCompany = getShelterCompanyForInviteIssue(expectId)
+	var role = getShelterRoleForInviteIssue(expectRole)
+
+	var localerMock = getLocalerMockForInviteToken(expectUUID, firstNow)
+	var dbMock = getInviteTokenIssuerDBMock(t, expectId, expectRole)
+	localerMock.FakeGenerateUUID = func() (uuid.UUID, error) {
+		return uuid.UUID{}, errors.New("failed to generate UUID")
+	}
+
+	issuer := company.NewInviteTokenIssue(localerMock, dbMock)
+	_, err := issuer.Execute(shelterCompany, role)
+
+	assert.Error(t, err)
+}
+
+func TestInviteTokenIssuerErrInsert(t *testing.T) {
+	var expectId = "CP-TESTES"
+	var expectRole = "ROLE_TEST"
+	var firstNow = time.Now()
+	var expectUUID, _ = uuid.NewUUID()
+
+	var shelterCompany = getShelterCompanyForInviteIssue(expectId)
+	var role = getShelterRoleForInviteIssue(expectRole)
+
+	var localerMock = getLocalerMockForInviteToken(expectUUID, firstNow)
+	var dbMock = getInviteTokenIssuerDBMock(t, expectId, expectRole)
+	dbMock.FakeInsert = func(args ...interface{}) error {
+		return errors.New("failed to insert")
+	}
+
+	issuer := company.NewInviteTokenIssue(localerMock, dbMock)
+	_, err := issuer.Execute(shelterCompany, role)
+
+	assert.Error(t, err)
 }

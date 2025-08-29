@@ -1,7 +1,7 @@
 package company_test
 
 import (
-	//"errors"
+	"errors"
 	"github.com/motojouya/geezer_auth/internal/behavior/company"
 	dbCompany "github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
@@ -107,4 +107,108 @@ func TestRefreshTokenChecker(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, role)
 	assert.Equal(t, expectLabel, string(role.Label))
+}
+
+func TestRefreshTokenCheckerErrEntry(t *testing.T) {
+	var firstNow = time.Now()
+	var expectToken = "refresh_token01"
+	var expectId = "CP-TESTES"
+	var expectLabel = "ROLE_LABEL"
+	var shelterCompany = getShelterCompanyForInviteCheck(expectId)
+
+	var localerMock = getLocalerMockForInviteTokenCheck(t, firstNow)
+	var dbMock = getInviteTokenCheckerDbMock(t, expectId, expectLabel, expectToken, firstNow)
+	var entryMock = getUserInviteTokenGetterMock(expectToken)
+	entryMock.getToken = func() (shelterText.Token, error) {
+		return shelterText.Token(""), errors.New("entry error")
+	}
+
+	checker := company.NewInviteTokenCheck(localerMock, dbMock)
+	_, err := checker.Execute(entryMock, shelterCompany)
+
+	assert.Error(t, err)
+}
+
+func TestRefreshTokenCheckerErrGet(t *testing.T) {
+	var firstNow = time.Now()
+	var expectToken = "refresh_token01"
+	var expectId = "CP-TESTES"
+	var expectLabel = "ROLE_LABEL"
+	var shelterCompany = getShelterCompanyForInviteCheck(expectId)
+
+	var localerMock = getLocalerMockForInviteTokenCheck(t, firstNow)
+	var dbMock = getInviteTokenCheckerDbMock(t, expectId, expectLabel, expectToken, firstNow)
+	var entryMock = getUserInviteTokenGetterMock(expectToken)
+	dbMock.getCompanyInvite = func(identifier string, token string) (*dbCompany.CompanyInviteFull, error) {
+		return nil, errors.New("db error")
+	}
+
+	checker := company.NewInviteTokenCheck(localerMock, dbMock)
+	_, err := checker.Execute(entryMock, shelterCompany)
+
+	assert.Error(t, err)
+}
+
+func TestRefreshTokenCheckerErrGetNil(t *testing.T) {
+	var firstNow = time.Now()
+	var expectToken = "refresh_token01"
+	var expectId = "CP-TESTES"
+	var expectLabel = "ROLE_LABEL"
+	var shelterCompany = getShelterCompanyForInviteCheck(expectId)
+
+	var localerMock = getLocalerMockForInviteTokenCheck(t, firstNow)
+	var dbMock = getInviteTokenCheckerDbMock(t, expectId, expectLabel, expectToken, firstNow)
+	var entryMock = getUserInviteTokenGetterMock(expectToken)
+	dbMock.getCompanyInvite = func(identifier string, token string) (*dbCompany.CompanyInviteFull, error) {
+		return nil, nil
+	}
+
+	checker := company.NewInviteTokenCheck(localerMock, dbMock)
+	_, err := checker.Execute(entryMock, shelterCompany)
+
+	assert.Error(t, err)
+}
+
+func TestRefreshTokenCheckerErrTrans(t *testing.T) {
+	var firstNow = time.Now()
+	var expectToken = "refresh_token01"
+	var expectId = "CP-TESTES"
+	var expectLabel = "ROLE_LABEL"
+	var shelterCompany = getShelterCompanyForInviteCheck(expectId)
+
+	var localerMock = getLocalerMockForInviteTokenCheck(t, firstNow)
+	var dbMock = getInviteTokenCheckerDbMock(t, expectId, expectLabel, expectToken, firstNow)
+	var entryMock = getUserInviteTokenGetterMock(expectToken)
+	dbMock.getCompanyInvite = func(identifier string, token string) (*dbCompany.CompanyInviteFull, error) {
+		return &dbCompany.CompanyInviteFull{}, nil
+	}
+
+	checker := company.NewInviteTokenCheck(localerMock, dbMock)
+	_, err := checker.Execute(entryMock, shelterCompany)
+
+	assert.Error(t, err)
+}
+
+func TestRefreshTokenCheckerErrExpired(t *testing.T) {
+	var firstNow = time.Now()
+	var expectToken = "refresh_token01"
+	var expectId = "CP-TESTES"
+	var expectLabel = "ROLE_LABEL"
+	var shelterCompany = getShelterCompanyForInviteCheck(expectId)
+
+	var localerMock = getLocalerMockForInviteTokenCheck(t, firstNow)
+	var dbMock = getInviteTokenCheckerDbMock(t, expectId, expectLabel, expectToken, firstNow)
+	var entryMock = getUserInviteTokenGetterMock(expectToken)
+
+	var companyInviteFull = getCompanyInviteFull(expectId, expectLabel, expectToken)
+	companyInviteFull.ExpireDate = firstNow.Add(-5 * time.Hour)
+
+	dbMock.getCompanyInvite = func(identifier string, token string) (*dbCompany.CompanyInviteFull, error) {
+		return &companyInviteFull, nil
+	}
+
+	checker := company.NewInviteTokenCheck(localerMock, dbMock)
+	_, err := checker.Execute(entryMock, shelterCompany)
+
+	assert.Error(t, err)
 }

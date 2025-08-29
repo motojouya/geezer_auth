@@ -1,7 +1,7 @@
 package company_test
 
 import (
-	//"errors"
+	"errors"
 	"github.com/motojouya/geezer_auth/internal/behavior/company"
 	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
@@ -196,4 +196,115 @@ func TestRoleAssigner(t *testing.T) {
 	assert.Equal(t, expectNewLabel, string(result.CompanyRole.Roles[1].Label))
 
 	t.Logf("Result: %+v", result)
+}
+
+func TestRoleAssignerErrNilAuth(t *testing.T) {
+	var expectUserId = "US-TESTES"
+	var expectCompanyId = "CP-TESTES"
+	var expectOldLabel = "TEST_ROLE"
+	var expectNewLabel = "TEST_ROLA"
+	var firstNow = time.Now()
+
+	var shelterCompany = getShelterCompanyForRoleAssign(expectCompanyId)
+	var role = getShelterRoleForRoleAssign(expectNewLabel)
+
+	var localerMock = getLocalerMockForRoleAssign(firstNow)
+	var dbMock = getRoleAssignDbMock(t, expectUserId, expectCompanyId, expectOldLabel, expectNewLabel, firstNow)
+
+	assigner := company.NewRoleAssign(localerMock, dbMock)
+	_, err := assigner.Execute(shelterCompany, nil, role)
+
+	assert.Error(t, err)
+}
+
+func TestRoleAssignerErrInsert(t *testing.T) {
+	var expectUserId = "US-TESTES"
+	var expectCompanyId = "CP-TESTES"
+	var expectOldLabel = "TEST_ROLE"
+	var expectNewLabel = "TEST_ROLA"
+	var firstNow = time.Now()
+
+	var userAuthentic = getShelterUserAuthenticForRoleAssign(expectUserId, expectCompanyId, expectOldLabel)
+	var shelterCompany = getShelterCompanyForRoleAssign(expectCompanyId)
+	var role = getShelterRoleForRoleAssign(expectNewLabel)
+
+	var localerMock = getLocalerMockForRoleAssign(firstNow)
+	var dbMock = getRoleAssignDbMock(t, expectUserId, expectCompanyId, expectOldLabel, expectNewLabel, firstNow)
+	dbMock.FakeInsert = func(args ...interface{}) error {
+		return errors.New("insert error")
+	}
+
+	assigner := company.NewRoleAssign(localerMock, dbMock)
+	_, err := assigner.Execute(shelterCompany, userAuthentic, role)
+
+	assert.Error(t, err)
+}
+
+func TestRoleAssignerErrGet(t *testing.T) {
+	var expectUserId = "US-TESTES"
+	var expectCompanyId = "CP-TESTES"
+	var expectOldLabel = "TEST_ROLE"
+	var expectNewLabel = "TEST_ROLA"
+	var firstNow = time.Now()
+
+	var userAuthentic = getShelterUserAuthenticForRoleAssign(expectUserId, expectCompanyId, expectOldLabel)
+	var shelterCompany = getShelterCompanyForRoleAssign(expectCompanyId)
+	var role = getShelterRoleForRoleAssign(expectNewLabel)
+
+	var localerMock = getLocalerMockForRoleAssign(firstNow)
+	var dbMock = getRoleAssignDbMock(t, expectUserId, expectCompanyId, expectOldLabel, expectNewLabel, firstNow)
+	dbMock.getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+		return nil, errors.New("get error")
+	}
+
+	assigner := company.NewRoleAssign(localerMock, dbMock)
+	_, err := assigner.Execute(shelterCompany, userAuthentic, role)
+
+	assert.Error(t, err)
+}
+
+func TestRoleAssignerErrGetNil(t *testing.T) {
+	var expectUserId = "US-TESTES"
+	var expectCompanyId = "CP-TESTES"
+	var expectOldLabel = "TEST_ROLE"
+	var expectNewLabel = "TEST_ROLA"
+	var firstNow = time.Now()
+
+	var userAuthentic = getShelterUserAuthenticForRoleAssign(expectUserId, expectCompanyId, expectOldLabel)
+	var shelterCompany = getShelterCompanyForRoleAssign(expectCompanyId)
+	var role = getShelterRoleForRoleAssign(expectNewLabel)
+
+	var localerMock = getLocalerMockForRoleAssign(firstNow)
+	var dbMock = getRoleAssignDbMock(t, expectUserId, expectCompanyId, expectOldLabel, expectNewLabel, firstNow)
+	dbMock.getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+		return nil, nil
+	}
+
+	assigner := company.NewRoleAssign(localerMock, dbMock)
+	_, err := assigner.Execute(shelterCompany, userAuthentic, role)
+
+	assert.Error(t, err)
+}
+
+func TestRoleAssignerErrTrans(t *testing.T) {
+	var expectUserId = "US-TESTES"
+	var expectCompanyId = "CP-TESTES"
+	var expectOldLabel = "TEST_ROLE"
+	var expectNewLabel = "TEST_ROLA"
+	var firstNow = time.Now()
+
+	var userAuthentic = getShelterUserAuthenticForRoleAssign(expectUserId, expectCompanyId, expectOldLabel)
+	var shelterCompany = getShelterCompanyForRoleAssign(expectCompanyId)
+	var role = getShelterRoleForRoleAssign(expectNewLabel)
+
+	var localerMock = getLocalerMockForRoleAssign(firstNow)
+	var dbMock = getRoleAssignDbMock(t, expectUserId, expectCompanyId, expectOldLabel, expectNewLabel, firstNow)
+	dbMock.getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+		return &dbUser.UserAuthentic{}, nil
+	}
+
+	assigner := company.NewRoleAssign(localerMock, dbMock)
+	_, err := assigner.Execute(shelterCompany, userAuthentic, role)
+
+	assert.Error(t, err)
 }

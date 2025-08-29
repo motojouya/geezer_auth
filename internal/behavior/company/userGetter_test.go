@@ -1,7 +1,7 @@
 package company_test
 
 import (
-	//"errors"
+	"errors"
 	"github.com/motojouya/geezer_auth/internal/behavior/company"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
@@ -129,4 +129,85 @@ func TestUserGetter(t *testing.T) {
 	assert.Equal(t, expectCompanyId, string(result.CompanyRole.Company.Identifier))
 
 	t.Logf("User created: %+v", result)
+}
+
+func TestUserGetterNil(t *testing.T) {
+	var expectCompanyId = "CP-TESTES"
+	var expectUserId = "US-TESTES"
+	var firstNow = time.Now()
+
+	var localerMock = getLocalerMockForUserGet(t, firstNow)
+	var dbMock = getUserGetterDbMock(t, expectCompanyId, expectUserId, firstNow)
+	var entryMock = getCompanyUserGetterMock(t, expectUserId)
+	dbMock.getUserAuthenticOfCompanyUser = func(companyIdentifier string, userIdentifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+		return nil, nil
+	}
+
+	var shelterCompany = getShelterCompanyForGetter(expectCompanyId)
+
+	getter := company.NewUserGet(localerMock, dbMock)
+	result, err := getter.Execute(entryMock, shelterCompany)
+
+	assert.NoError(t, err)
+	assert.Nil(t, result)
+}
+
+func TestUserGetterErrEntry(t *testing.T) {
+	var expectCompanyId = "CP-TESTES"
+	var expectUserId = "US-TESTES"
+	var firstNow = time.Now()
+
+	var localerMock = getLocalerMockForUserGet(t, firstNow)
+	var dbMock = getUserGetterDbMock(t, expectCompanyId, expectUserId, firstNow)
+	var entryMock = getCompanyUserGetterMock(t, expectUserId)
+	entryMock.getUserIdentifier = func() (pkgText.Identifier, error) {
+		return pkgText.Identifier(""), errors.New("test error")
+	}
+
+	var shelterCompany = getShelterCompanyForGetter(expectCompanyId)
+
+	getter := company.NewUserGet(localerMock, dbMock)
+	_, err := getter.Execute(entryMock, shelterCompany)
+
+	assert.Error(t, err)
+}
+
+func TestUserGetterErrGet(t *testing.T) {
+	var expectCompanyId = "CP-TESTES"
+	var expectUserId = "US-TESTES"
+	var firstNow = time.Now()
+
+	var localerMock = getLocalerMockForUserGet(t, firstNow)
+	var dbMock = getUserGetterDbMock(t, expectCompanyId, expectUserId, firstNow)
+	var entryMock = getCompanyUserGetterMock(t, expectUserId)
+	dbMock.getUserAuthenticOfCompanyUser = func(companyIdentifier string, userIdentifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+		return nil, errors.New("test error")
+	}
+
+	var shelterCompany = getShelterCompanyForGetter(expectCompanyId)
+
+	getter := company.NewUserGet(localerMock, dbMock)
+	_, err := getter.Execute(entryMock, shelterCompany)
+
+	assert.Error(t, err)
+}
+
+func TestUserGetterErrTrans(t *testing.T) {
+	var expectCompanyId = "CP-TESTES"
+	var expectUserId = "US-TESTES"
+	var firstNow = time.Now()
+
+	var localerMock = getLocalerMockForUserGet(t, firstNow)
+	var dbMock = getUserGetterDbMock(t, expectCompanyId, expectUserId, firstNow)
+	var entryMock = getCompanyUserGetterMock(t, expectUserId)
+	dbMock.getUserAuthenticOfCompanyUser = func(companyIdentifier string, userIdentifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+		return &dbUser.UserAuthentic{}, errors.New("test error")
+	}
+
+	var shelterCompany = getShelterCompanyForGetter(expectCompanyId)
+
+	getter := company.NewUserGet(localerMock, dbMock)
+	_, err := getter.Execute(entryMock, shelterCompany)
+
+	assert.Error(t, err)
 }

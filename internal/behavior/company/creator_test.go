@@ -1,7 +1,7 @@
 package company_test
 
 import (
-	//"errors"
+	"errors"
 	"github.com/motojouya/geezer_auth/internal/behavior/company"
 	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	dbCompany "github.com/motojouya/geezer_auth/internal/db/transfer/company"
@@ -124,4 +124,140 @@ func TestCompanyCreate(t *testing.T) {
 	t.Logf("Company created: %+v", result)
 }
 
-// TODO working error cases
+func TestCompanyCreateErrGenerate(t *testing.T) {
+	var expectId = "CP-TESTES"
+	var expectName = "TestCompany"
+	var firstNow = time.Now()
+
+	var localerMock = getLocalerMockForCreate(t, "testes", firstNow)
+	var dbMock = getCreateDbMock(t, expectId, expectName, firstNow)
+	var entryMock = getEntryMock(t, expectId, expectName, firstNow)
+
+	creator := company.NewCompanyCreate(localerMock, dbMock)
+	_, err := creator.Execute(entryMock)
+
+	assert.Error(t, err)
+}
+
+func TestCompanyCreateErrCheckCompany(t *testing.T) {
+	var expectId = "CP-TESTES"
+	var expectName = "TestCompany"
+	var firstNow = time.Now()
+
+	var localerMock = getLocalerMockForCreate(t, "TESTES", firstNow)
+	var dbMock = getCreateDbMock(t, expectId, expectName, firstNow)
+	var entryMock = getEntryMock(t, expectId, expectName, firstNow)
+	dbMock.getCompany = func(identifier string) (*dbCompany.Company, error) {
+		return nil, errors.New("DB error")
+	}
+
+	creator := company.NewCompanyCreate(localerMock, dbMock)
+	_, err := creator.Execute(entryMock)
+
+	assert.Error(t, err)
+}
+
+func TestCompanyCreateErrEntry(t *testing.T) {
+	var expectId = "CP-TESTES"
+	var expectName = "TestCompany"
+	var firstNow = time.Now()
+
+	var localerMock = getLocalerMockForCreate(t, "TESTES", firstNow)
+	var dbMock = getCreateDbMock(t, expectId, expectName, firstNow)
+	var entryMock = getEntryMock(t, expectId, expectName, firstNow)
+	entryMock.toShelterCompany = func(identifier pkgText.Identifier, now time.Time) (shelterCompany.UnsavedCompany, error) {
+		return shelterCompany.UnsavedCompany{}, errors.New("Entry error")
+	}
+
+	creator := company.NewCompanyCreate(localerMock, dbMock)
+	_, err := creator.Execute(entryMock)
+
+	assert.Error(t, err)
+}
+
+func TestCompanyCreateErrInsert(t *testing.T) {
+	var expectId = "CP-TESTES"
+	var expectName = "TestCompany"
+	var firstNow = time.Now()
+
+	var localerMock = getLocalerMockForCreate(t, "TESTES", firstNow)
+	var dbMock = getCreateDbMock(t, expectId, expectName, firstNow)
+	var entryMock = getEntryMock(t, expectId, expectName, firstNow)
+	dbMock.SqlExecutorMock.FakeInsert = func(args ...interface{}) error {
+		return errors.New("Insert error")
+	}
+
+	creator := company.NewCompanyCreate(localerMock, dbMock)
+	_, err := creator.Execute(entryMock)
+
+	assert.Error(t, err)
+}
+
+func TestCompanyCreateErrGet(t *testing.T) {
+	var expectId = "CP-TESTES"
+	var expectName = "TestCompany"
+	var firstNow = time.Now()
+
+	var localerMock = getLocalerMockForCreate(t, "TESTES", firstNow)
+	var dbMock = getCreateDbMock(t, expectId, expectName, firstNow)
+	var entryMock = getEntryMock(t, expectId, expectName, firstNow)
+	var callCount = 0
+	dbMock.getCompany = func(identifier string) (*dbCompany.Company, error) {
+		if callCount == 0 {
+			callCount++
+			return nil, nil
+		}
+		return nil, errors.New("Get error")
+	}
+
+	creator := company.NewCompanyCreate(localerMock, dbMock)
+	_, err := creator.Execute(entryMock)
+
+	assert.Error(t, err)
+}
+
+func TestCompanyCreateErrGetNil(t *testing.T) {
+	var expectId = "CP-TESTES"
+	var expectName = "TestCompany"
+	var firstNow = time.Now()
+
+	var localerMock = getLocalerMockForCreate(t, "TESTES", firstNow)
+	var dbMock = getCreateDbMock(t, expectId, expectName, firstNow)
+	var entryMock = getEntryMock(t, expectId, expectName, firstNow)
+	var callCount = 0
+	dbMock.getCompany = func(identifier string) (*dbCompany.Company, error) {
+		if callCount == 0 {
+			callCount++
+			return nil, nil
+		}
+		return nil, nil
+	}
+
+	creator := company.NewCompanyCreate(localerMock, dbMock)
+	_, err := creator.Execute(entryMock)
+
+	assert.Error(t, err)
+}
+
+func TestCompanyCreateErrTrans(t *testing.T) {
+	var expectId = "CP-TESTES"
+	var expectName = "TestCompany"
+	var firstNow = time.Now()
+
+	var localerMock = getLocalerMockForCreate(t, "TESTES", firstNow)
+	var dbMock = getCreateDbMock(t, expectId, expectName, firstNow)
+	var entryMock = getEntryMock(t, expectId, expectName, firstNow)
+	var callCount = 0
+	dbMock.getCompany = func(identifier string) (*dbCompany.Company, error) {
+		if callCount == 0 {
+			callCount++
+			return nil, nil
+		}
+		return &dbCompany.Company{}, nil
+	}
+
+	creator := company.NewCompanyCreate(localerMock, dbMock)
+	_, err := creator.Execute(entryMock)
+
+	assert.Error(t, err)
+}
