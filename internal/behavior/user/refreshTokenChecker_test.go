@@ -67,7 +67,7 @@ func getLocalerMockForRefTokenCheck(t *testing.T, now time.Time) *localUtility.L
 		return now
 	}
 	return &localUtility.LocalerMock{
-		FakeGetNow:       getNow,
+		FakeGetNow: getNow,
 	}
 }
 

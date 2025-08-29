@@ -22,7 +22,7 @@ type GetRoleControl struct {
 func NewGetRoleControl(
 	database essence.Closable,
 	authorization *authorization.Authorization,
-	roleGetter    roleBehavior.AllRoleGetter,
+	roleGetter roleBehavior.AllRoleGetter,
 ) *GetRoleControl {
 	return &GetRoleControl{
 		Closable:      database,

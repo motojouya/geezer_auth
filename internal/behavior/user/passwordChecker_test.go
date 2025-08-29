@@ -12,7 +12,7 @@ import (
 )
 
 type passwordCheckerDBMock struct {
-	getUserPassword func(identifier string) (*dbUser.UserPasswordFull, error)
+	getUserPassword        func(identifier string) (*dbUser.UserPasswordFull, error)
 	getUserPasswordOfEmail func(email string) (*dbUser.UserPasswordFull, error)
 }
 
@@ -25,8 +25,8 @@ func (mock passwordCheckerDBMock) GetUserPasswordOfEmail(email string) (*dbUser.
 }
 
 type loginnerEntryMock struct {
-	getPassword func() (shelterText.Password, error)
-	getIdentifier func() (*pkgText.Identifier, error)
+	getPassword        func() (shelterText.Password, error)
+	getIdentifier      func() (*pkgText.Identifier, error)
 	getEmailIdentifier func() (*pkgText.Email, error)
 }
 
@@ -73,7 +73,7 @@ func getPasswordCheckDbMock(t *testing.T, expectId string, expectEmail string, e
 		return &userPassword, nil
 	}
 	return passwordCheckerDBMock{
-		getUserPassword: getUserPassword,
+		getUserPassword:        getUserPassword,
 		getUserPasswordOfEmail: getUserPasswordOfEmail,
 	}
 }
@@ -92,9 +92,9 @@ func getLoginEntryMock(t *testing.T, expectId string, expectEmail string, expect
 		return &email, nil
 	}
 	return loginnerEntryMock{
-		getPassword:   getPassword,
-		getIdentifier: getIdentifier,
-		getEmailIdentifier:      getEmailIdentifier,
+		getPassword:        getPassword,
+		getIdentifier:      getIdentifier,
+		getEmailIdentifier: getEmailIdentifier,
 	}
 }
 

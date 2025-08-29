@@ -2,10 +2,10 @@ package company
 
 import (
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
+	entryCompany "github.com/motojouya/geezer_auth/internal/entry/transfer/company"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
-	entryCompany "github.com/motojouya/geezer_auth/internal/entry/transfer/company"
 )
 
 type AllUserGetterDB interface {

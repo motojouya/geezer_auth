@@ -4,9 +4,9 @@ import (
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	entryCompanyUser "github.com/motojouya/geezer_auth/internal/entry/transfer/companyUser"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
+	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
-	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 )
 
 type UserGetterDB interface {

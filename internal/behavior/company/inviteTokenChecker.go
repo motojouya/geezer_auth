@@ -4,10 +4,10 @@ import (
 	companyQuery "github.com/motojouya/geezer_auth/internal/db/query/company"
 	entryCompanyUser "github.com/motojouya/geezer_auth/internal/entry/transfer/companyUser"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
-	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	shelterAuth "github.com/motojouya/geezer_auth/internal/shelter/authorization"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	essence "github.com/motojouya/geezer_auth/internal/shelter/essence"
+	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 )
 
 type InviteTokenCheckerDB interface {

@@ -2,9 +2,9 @@ package company
 
 import (
 	companyQuery "github.com/motojouya/geezer_auth/internal/db/query/company"
-	"github.com/motojouya/geezer_auth/internal/shelter/essence"
-	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	entryCompany "github.com/motojouya/geezer_auth/internal/entry/transfer/company"
+	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
+	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 )
 
 type CompanyGetterDB interface {
@@ -16,12 +16,12 @@ type CompanyGetter interface {
 }
 
 type CompanyGet struct {
-	db    CompanyGetterDB
+	db CompanyGetterDB
 }
 
 func NewCompanyGet(db CompanyGetterDB) *CompanyGet {
 	return &CompanyGet{
-		db:    db,
+		db: db,
 	}
 }
 

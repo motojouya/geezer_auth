@@ -2,8 +2,8 @@ package role
 
 import (
 	roleQuery "github.com/motojouya/geezer_auth/internal/db/query/role"
-	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	entryCompanyUser "github.com/motojouya/geezer_auth/internal/entry/transfer/companyUser"
+	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 )
 
 type RoleGetterDB interface {

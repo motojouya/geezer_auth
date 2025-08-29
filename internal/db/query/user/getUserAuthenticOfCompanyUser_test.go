@@ -5,8 +5,8 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
 	"github.com/motojouya/geezer_auth/internal/db/transfer/user"
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestGetUserAuthenticOfCompanyUser(t *testing.T) {

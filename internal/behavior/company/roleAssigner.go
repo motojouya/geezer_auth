@@ -5,11 +5,11 @@ import (
 	userQuery "github.com/motojouya/geezer_auth/internal/db/query/user"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
-	shelterEssence "github.com/motojouya/geezer_auth/internal/shelter/essence"
-	pkgEssence "github.com/motojouya/geezer_auth/pkg/shelter/essence"
-	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
+	shelterEssence "github.com/motojouya/geezer_auth/internal/shelter/essence"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
+	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	pkgEssence "github.com/motojouya/geezer_auth/pkg/shelter/essence"
 )
 
 type RoleAssignerDB interface {

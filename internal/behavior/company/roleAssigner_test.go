@@ -2,8 +2,8 @@ package company_test
 
 import (
 	//"errors"
-	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	"github.com/motojouya/geezer_auth/internal/behavior/company"
+	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
@@ -140,7 +140,7 @@ func getLocalerMockForRoleAssign(now time.Time) *localUtility.LocalerMock {
 		return now
 	}
 	return &localUtility.LocalerMock{
-		FakeGetNow:       getNow,
+		FakeGetNow: getNow,
 	}
 }
 

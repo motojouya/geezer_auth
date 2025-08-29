@@ -4,9 +4,9 @@ import (
 	"github.com/go-gorp/gorp"
 	dbCompany "github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
-	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
-	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
+	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
+	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
 )
 
 type InviteTokenIssuerDB interface {

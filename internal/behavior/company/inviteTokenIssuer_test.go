@@ -2,9 +2,9 @@ package company_test
 
 import (
 	//"errors"
-	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	"github.com/google/uuid"
 	"github.com/motojouya/geezer_auth/internal/behavior/company"
+	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	dbCompany "github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"

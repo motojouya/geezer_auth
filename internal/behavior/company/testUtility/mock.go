@@ -1,8 +1,8 @@
 package testUtility
 
 import (
-	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	entryAuth "github.com/motojouya/geezer_auth/internal/entry/transfer/auth"
+	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
