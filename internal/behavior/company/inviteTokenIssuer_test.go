@@ -5,12 +5,11 @@ import (
 	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	"github.com/google/uuid"
 	"github.com/motojouya/geezer_auth/internal/behavior/company"
-	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	dbCompany "github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
-	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -34,18 +33,17 @@ func getInviteTokenIssuerDBMock(t *testing.T, expectId string, expectRole string
 	var insert = func(args ...interface{}) error {
 		assert.Equal(t, 1, len(args), "Expected 1 argument")
 
-		companyInvite, ok := args[0].(*dbCompany.UnsavedCompanyInvite)
+		companyInvite, ok := args[0].(*dbCompany.CompanyInvite)
 		if !ok {
 			t.Errorf("Expected first argument to be of type *dbCompany.Company, got %T", args[0])
 		}
 
 		assert.NotNil(t, companyInvite)
-		assert.Equal(t, expectId, companyInvite.Company.Identifier)
-		assert.Equal(t, expectRole, companyInvite.Role.Label)
+		assert.Equal(t, expectRole, companyInvite.RoleLabel)
 
 		return nil
 	}
-	return *dbUtility.SqlExecutorMock{
+	return &dbUtility.SqlExecutorMock{
 		FakeInsert: insert,
 	}
 }
@@ -74,14 +72,14 @@ func TestRefreshTokenIssuer(t *testing.T) {
 	var firstNow = time.Now()
 	var expectUUID, _ = uuid.NewUUID()
 
-	var company = getShelterCompanyForInviteIssue(expectId)
+	var shelterCompany = getShelterCompanyForInviteIssue(expectId)
 	var role = getShelterRoleForInviteIssue(expectRole)
 
 	var localerMock = getLocalerMockForInviteToken(expectUUID, firstNow)
 	var dbMock = getInviteTokenIssuerDBMock(t, expectId, expectRole)
 
 	issuer := company.NewInviteTokenIssue(localerMock, dbMock)
-	inviteToken, err := issuer.Execute(company, role)
+	inviteToken, err := issuer.Execute(shelterCompany, role)
 
 	assert.NoError(t, err)
 	assert.Equal(t, expectUUID.String(), string(inviteToken), "Expected refresh token to match generated UUID")

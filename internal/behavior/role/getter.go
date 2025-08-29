@@ -11,7 +11,7 @@ type RoleGetterDB interface {
 }
 
 type RoleGetter interface {
-	Execute() ([]shelterRole.Role, error)
+	Execute(entry entryCompanyUser.RoleGetter) (shelterRole.Role, error)
 }
 
 type RoleGet struct {
@@ -24,24 +24,24 @@ func NewRoleGet(db RoleGetterDB) *RoleGet {
 	}
 }
 
-func (getter RoleGet) Execute(entry entryCompanyUser.RoleGetter) (*shelterRole.Role, error) {
+func (getter RoleGet) Execute(entry entryCompanyUser.RoleGetter) (shelterRole.Role, error) {
 	roleLabel, err := entry.GetRoleLabel()
 	if err != nil {
-		return nil, err
+		return shelterRole.Role{}, err
 	}
 
 	dbRole, err := getter.db.GetRole(string(roleLabel))
 	if err != nil {
-		return nil, err
+		return shelterRole.Role{}, err
 	}
 
 	if dbRole == nil {
-		return nil, nil
+		return shelterRole.Role{}, nil
 	}
 
 	role, err := dbRole.ToShelterRole()
 	if err != nil {
-		return nil, err
+		return shelterRole.Role{}, err
 	}
 
 	return role, nil

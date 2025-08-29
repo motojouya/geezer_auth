@@ -44,7 +44,7 @@ func CreateGetRoleControl() (*GetRoleControl, error) {
 		return nil, err
 	}
 
-	roleGetter := roleBehavior.NewRoleGet(database)
+	roleGetter := roleBehavior.NewAllRoleGet(database)
 
 	return NewGetRoleControl(database, authorization, roleGetter), nil
 }

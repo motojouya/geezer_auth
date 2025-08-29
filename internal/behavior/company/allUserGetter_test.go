@@ -50,7 +50,7 @@ func getDbUserAuthenticForAllUserGetter(expectId string) *dbUser.UserAuthentic {
 	var email = "test01@example.com"
 	return &dbUser.UserAuthentic{
 		UserPersistKey:     2,
-		UserIdentifier:     id,
+		UserIdentifier:     "US-TESTES",
 		UserExposeEmailId:  "test02@example.com",
 		UserName:           "TestUserName",
 		UserBotFlag:        false,
@@ -70,48 +70,48 @@ func getLocalerMockForAllUserGet(t *testing.T, now time.Time) *localUtility.Loca
 	}
 }
 
-func getAllUserGetterDbMock(t *testing.T, expectId string, firstNow time.Time) userGetterDBMock {
+func getAllUserGetterDbMock(t *testing.T, expectId string, firstNow time.Time) allUserGetterDBMock {
 	var dbUserAuthentic = getDbUserAuthenticForAllUserGetter(expectId)
 	var getUserAuthenticOfCompany = func(identifier string, now time.Time) ([]dbUser.UserAuthentic, error) {
 		assert.Equal(t, expectId, identifier)
 		assert.WithinDuration(t, now, firstNow, time.Second)
 		return []dbUser.UserAuthentic{*dbUserAuthentic}, nil
 	}
-	return userGetterDBMock{
+	return allUserGetterDBMock{
 		getUserAuthenticOfCompany: getUserAuthenticOfCompany,
 	}
 }
 
-type companyGetterEntryMock struct {
-	GetCompanyIdentifier func() (pkgText.Identifier, error)
+type companyGetterEntryMockForUser struct {
+	getCompanyIdentifier func() (pkgText.Identifier, error)
 }
 
-func (mock companyGetterEntryMock) GetCompanyIdentifier() (pkgText.Identifier, error) {
-	return mock.GetCompanyIdentifier()
+func (mock companyGetterEntryMockForUser) GetCompanyIdentifier() (pkgText.Identifier, error) {
+	return mock.getCompanyIdentifier()
 }
 
-func getCompanyGetterEntryMock(expectId string) companyGetterEntryMock {
+func getCompanyGetterEntryMockForUser(expectId string) companyGetterEntryMockForUser {
 	var getCompanyIdentifier = func() (pkgText.Identifier, error) {
 		return pkgText.NewIdentifier(expectId)
 	}
-	return companyGetterEntryMock{
-		GetCompanyIdentifier: getCompanyIdentifier,
+	return companyGetterEntryMockForUser{
+		getCompanyIdentifier: getCompanyIdentifier,
 	}
 }
 
-func TestUserGetter(t *testing.T) {
+func TestAllUserGetter(t *testing.T) {
 	var expectId = "CP-TESTES"
 	var firstNow = time.Now()
 
 	var localerMock = getLocalerMockForAllUserGet(t, firstNow)
-	var dbMock = getUserGetterDbMock(t, expectId, firstNow)
-	var entryMock = getCompanyGetterEntryMock(expectId)
+	var dbMock = getAllUserGetterDbMock(t, expectId, firstNow)
+	var entryMock = getCompanyGetterEntryMockForUser(expectId)
 
 	getter := company.NewAllUserGet(localerMock, dbMock)
 	result, err := getter.Execute(entryMock)
 
 	assert.NoError(t, err)
-	assert.Count(t, 1, len(result))
+	assert.Equal(t, 1, len(result))
 	assert.Equal(t, expectId, string(result[0].CompanyRole.Company.Identifier))
 
 	t.Logf("User: %+v", result)

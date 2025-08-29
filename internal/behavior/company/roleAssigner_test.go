@@ -3,8 +3,7 @@ package company_test
 import (
 	//"errors"
 	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
-	"github.com/google/uuid"
-	"github.com/motojouya/geezer_auth/internal/behavior/user"
+	"github.com/motojouya/geezer_auth/internal/behavior/company"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
@@ -35,7 +34,7 @@ func getShelterCompanyForRoleAssign(expectId string) shelterCompany.Company {
 	return shelterCompany.NewCompany(companyId, companyIdentifier, companyName, companyRegisteredDate)
 }
 
-func getShelterRoleForRoleAssign(expectLabel string) *shelterRole.Role {
+func getShelterRoleForRoleAssign(expectLabel string) shelterRole.Role {
 	var label, _ = pkgText.NewLabel(expectLabel)
 	var roleName, _ = pkgText.NewName("TestRole")
 	var description, _ = shelterText.NewText("Role for testing")
@@ -154,15 +153,13 @@ func getRoleAssignDbMock(t *testing.T, expectUserId string, expectCompanyId stri
 	var insert = func(args ...interface{}) error {
 		assert.Equal(t, 1, len(args), "Expected 1 argument")
 
-		userCompanyRole, ok := args[0].(*dbUser.UnsavedUserCompanyRole)
+		userCompanyRole, ok := args[0].(*dbUser.UserCompanyRole)
 		if !ok {
 			t.Errorf("Expected first argument to be of type *dbUser.User, got %T", args[0])
 		}
 
 		assert.NotNil(t, userCompanyRole)
-		assert.Equal(t, expectUserId, userCompanyRole.User.Identifier)
-		assert.Equal(t, expectCompanyId, userCompanyRole.Company.Identifier)
-		assert.Equal(t, expectNewLabel, userCompanyRole.Role.Label)
+		assert.Equal(t, expectNewLabel, userCompanyRole.RoleLabel)
 
 		return nil
 	}
@@ -182,14 +179,14 @@ func TestRoleAssigner(t *testing.T) {
 	var firstNow = time.Now()
 
 	var userAuthentic = getShelterUserAuthenticForRoleAssign(expectUserId, expectCompanyId, expectOldLabel)
-	var company = getShelterCompanyForRoleAssign(expectCompanyId)
+	var shelterCompany = getShelterCompanyForRoleAssign(expectCompanyId)
 	var role = getShelterRoleForRoleAssign(expectOldLabel)
 
 	var localerMock = getLocalerMockForRoleAssign(firstNow)
 	var dbMock = getRoleAssignDbMock(t, expectUserId, expectCompanyId, expectOldLabel, expectNewLabel, firstNow)
 
-	assigner := user.NewRoleAssign(localerMock, dbMock)
-	result, err := assigner.Execute(userAuthentic, company, role)
+	assigner := company.NewRoleAssign(localerMock, dbMock)
+	result, err := assigner.Execute(shelterCompany, userAuthentic, role)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)

@@ -10,11 +10,11 @@ import (
 )
 
 type allRoleGetterDBMock struct {
-	getRole func() ([]dbRole.Role, error)
+	getAllRole func() ([]dbRole.Role, error)
 }
 
-func (mock allRoleGetterDBMock) GetRole() ([]dbRole.Role, error) {
-	return mock.getRole()
+func (mock allRoleGetterDBMock) GetAllRole() ([]dbRole.Role, error) {
+	return mock.getAllRole()
 }
 
 func getRole(expectLabel string) dbRole.Role {
@@ -32,15 +32,15 @@ func getRole(expectLabel string) dbRole.Role {
 }
 
 func getAllRoleGetterDBMock(roles []dbRole.Role) allRoleGetterDBMock {
-	var getRole = func() ([]dbRole.Role, error) {
+	var getAllRole = func() ([]dbRole.Role, error) {
 		return roles, nil
 	}
 	return allRoleGetterDBMock{
-		getRole: getRole,
+		getAllRole: getAllRole,
 	}
 }
 
-func TestRoleGetter(t *testing.T) {
+func TestAllRoleGetter(t *testing.T) {
 	var expectLabel01 = "ROLE_ONE"
 	var role01 = getRole(expectLabel01)
 	var expectLabel02 = "ROLE_TWO"
@@ -59,14 +59,14 @@ func TestRoleGetter(t *testing.T) {
 	t.Logf("role: %+v", result)
 }
 
-func TestRoleGetterErrGet(t *testing.T) {
+func TestAllRoleGetterErrGet(t *testing.T) {
 	var expectLabel01 = "ROLE_ONE"
 	var role01 = getRole(expectLabel01)
 	var expectLabel02 = "ROLE_TWO"
 	var role02 = getRole(expectLabel02)
 
 	var dbMock = getAllRoleGetterDBMock([]dbRole.Role{role01, role02})
-	dbMock.getRole = func() ([]dbRole.Role, error) {
+	dbMock.getAllRole = func() ([]dbRole.Role, error) {
 		return []dbRole.Role{}, errors.New("database error")
 	}
 
@@ -76,7 +76,7 @@ func TestRoleGetterErrGet(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestRoleGetterErrTrans(t *testing.T) {
+func TestAllRoleGetterErrTrans(t *testing.T) {
 	var expectLabel01 = "ROLE_ONE"
 	var role01 = getRole(expectLabel01)
 	var expectLabel02 = "role_two"

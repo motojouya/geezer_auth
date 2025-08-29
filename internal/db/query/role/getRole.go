@@ -12,7 +12,7 @@ type GetRoleQuery interface {
 }
 
 func GetRole(executer gorp.SqlExecutor, label string) (*transfer.Role, error) {
-	var sql, _, sqlErr = transfer.SelectRole.Where(goqu.I("r.label").Eq(label)).Order(goqu.I("r.label").Asc()).ToSQL()
+	var sql, args, sqlErr = transfer.SelectRole.Where(goqu.I("r.label").Eq(label)).Order(goqu.I("r.label").Asc()).ToSQL()
 	if sqlErr != nil {
 		return nil, sqlErr
 	}

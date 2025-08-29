@@ -3,14 +3,11 @@ package company
 import (
 	"github.com/go-gorp/gorp"
 	companyQuery "github.com/motojouya/geezer_auth/internal/db/query/company"
-	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	dbCompany "github.com/motojouya/geezer_auth/internal/db/transfer/company"
-	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
 	entryCompany "github.com/motojouya/geezer_auth/internal/entry/transfer/company"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
-	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
@@ -21,7 +18,7 @@ type CompanyCreatorDB interface {
 }
 
 type CompanyCreator interface {
-	Execute(entry entryCompany.CompanyCreator) (*shelterCompany.Company, error)
+	Execute(entry entryCompany.CompanyCreator) (shelterCompany.Company, error)
 }
 
 type CompanyCreate struct {
@@ -57,33 +54,33 @@ func checkCompanyIdentifier(companyCreatorDB CompanyCreatorDB) func(pkgText.Iden
 	}
 }
 
-func (creator CompanyCreate) Execute(entry entryCompany.CompanyCreator) (*shelterCompany.Company, error) {
+func (creator CompanyCreate) Execute(entry entryCompany.CompanyCreator) (shelterCompany.Company, error) {
 	now := creator.local.GetNow()
 
 	companyIdentifier, err := shelterText.GetString(createCompanyIdentifier(creator.local), checkCompanyIdentifier(creator.db), 10)
 	if err != nil {
-		return nil, err
+		return shelterCompany.Company{}, err
 	}
 
 	unsavedCompany, err := entry.ToShelterCompany(companyIdentifier, now)
 	if err != nil {
-		return nil, err
+		return shelterCompany.Company{}, err
 	}
 
-	var dbCompanyValue = dbCompany.FromShelterUnsavedCompany(unsavedCompany)
+	var dbCompanyValue = dbCompany.FromShelterCompany(unsavedCompany)
 
 	if err = creator.db.Insert(&dbCompanyValue); err != nil {
-		return nil, err
+		return shelterCompany.Company{}, err
 	}
 
 	dbCompanyResult, err := creator.db.GetCompany(string(companyIdentifier))
 	if err != nil {
-		return nil, err
+		return shelterCompany.Company{}, err
 	}
 
 	if dbCompanyResult == nil {
 		keys := map[string]string{"identifier": string(companyIdentifier)}
-		return nil, essence.NewNotFoundError("company", keys, "company not found")
+		return shelterCompany.Company{}, essence.NewNotFoundError("company", keys, "company not found")
 	}
 
 	return dbCompanyResult.ToShelterCompany()

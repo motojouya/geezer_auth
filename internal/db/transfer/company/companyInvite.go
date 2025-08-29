@@ -63,9 +63,8 @@ var SelectCompanyInvite = utility.Dialect.From(goqu.T("company_invite").As("ci")
 	goqu.I("ci.expire_date").As("expire_date"),
 )
 
-func FromShelterCompanyInvite(invite shelter.CompanyInvite) CompanyInvite {
+func FromShelterCompanyInvite(invite shelter.UnsavedCompanyInvite) CompanyInvite {
 	return CompanyInvite{
-		CompanyPersistKey: invite.Company.PersistKey,
 		Token:             string(invite.Token),
 		RoleLabel:         string(invite.Role.Label),
 		RegisterDate:      invite.RegisterDate,

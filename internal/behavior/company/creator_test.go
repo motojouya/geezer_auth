@@ -4,9 +4,9 @@ import (
 	//"errors"
 	"github.com/motojouya/geezer_auth/internal/behavior/company"
 	dbUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
-	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	dbCompany "github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
-	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -31,7 +31,7 @@ func (mock companyEntryMock) ToShelterCompany(identifier pkgText.Identifier, now
 }
 
 func getShelterCompanyForCreate(expectId string, expectName string) shelterCompany.UnsavedCompany {
-	var identifier, _ = pkgText.NewIdentifier(id)
+	var identifier, _ = pkgText.NewIdentifier(expectId)
 	var name, _ = pkgText.NewName(expectName)
 	var registeredDate = time.Now()
 

@@ -4,6 +4,7 @@ import (
 	//"errors"
 	"github.com/motojouya/geezer_auth/internal/behavior/company"
 	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/stretchr/testify/assert"
@@ -50,7 +51,7 @@ func getDbUserAuthenticForUserGetter(expectCompanyId string, expectUserId string
 	var email = "test01@example.com"
 	return &dbUser.UserAuthentic{
 		UserPersistKey:     2,
-		UserIdentifier:     id,
+		UserIdentifier:     expectUserId,
 		UserExposeEmailId:  "test02@example.com",
 		UserName:           "TestUserName",
 		UserBotFlag:        false,
@@ -70,15 +71,16 @@ func getLocalerMockForUserGet(t *testing.T, now time.Time) *localUtility.Localer
 	}
 }
 
-func getUserGetterDbMock(t *testing.T, expectCompanyId string, expectUserId string, firstNow time.Time) userGetterDBMock {
+func getUserGetterDbMock(t *testing.T, expectCompanyId string, expectUserId string, firstNow time.Time) *userGetterDBMock {
 	var dbUserAuthentic = getDbUserAuthenticForUserGetter(expectCompanyId, expectUserId)
-	var getUserAuthentic = func(identifier string, now time.Time) (*dbUser.UserAuthentic, error) {
-		assert.Equal(t, expectId, identifier, "Expected identifier 'US-TESTES'")
+	var getUserAuthenticOfCompanyUser = func(companyIdentifier string, userIdentifier string, now time.Time) (*dbUser.UserAuthentic, error) {
+		assert.Equal(t, expectUserId, userIdentifier, "Expected identifier 'US-TESTES'")
+		assert.Equal(t, expectCompanyId, companyIdentifier, "Expected identifier 'US-TESTES'")
 		assert.WithinDuration(t, now, firstNow, time.Second, "Expected 'now' to be within 1 second of current time")
 		return dbUserAuthentic, nil
 	}
-	return userGetterDBMock{
-		getUserAuthentic: getUserAuthentic,
+	return &userGetterDBMock{
+		getUserAuthenticOfCompanyUser: getUserAuthenticOfCompanyUser,
 	}
 }
 
@@ -101,8 +103,8 @@ func getCompanyUserGetterMock(t *testing.T, expectId string) companyUserGetterMo
 
 func getShelterCompanyForGetter(expectId string) shelterCompany.Company {
 	var companyId uint = 1
-	var identifier, _ = text.NewIdentifier(expectId)
-	var name, _ = text.NewName("TestRole")
+	var identifier, _ = pkgText.NewIdentifier(expectId)
+	var name, _ = pkgText.NewName("TestRole")
 	var registeredDate = time.Now()
 
 	return shelterCompany.NewCompany(companyId, identifier, name, registeredDate)
@@ -112,7 +114,6 @@ func TestUserGetter(t *testing.T) {
 	var expectCompanyId = "CP-TESTES"
 	var expectUserId = "US-TESTES"
 	var firstNow = time.Now()
-	var identifier, _ = pkgText.NewIdentifier(expectUserId)
 
 	var localerMock = getLocalerMockForUserGet(t, firstNow)
 	var dbMock = getUserGetterDbMock(t, expectCompanyId, expectUserId, firstNow)

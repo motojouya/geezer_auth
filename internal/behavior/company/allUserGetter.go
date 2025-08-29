@@ -5,7 +5,7 @@ import (
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
-	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
+	entryCompany "github.com/motojouya/geezer_auth/internal/entry/transfer/company"
 )
 
 type AllUserGetterDB interface {
@@ -21,7 +21,7 @@ type AllUserGet struct {
 	db    AllUserGetterDB
 }
 
-func NewAllUserGet(local localPkg.Localer, db UserGetterDB) *AllUserGet {
+func NewAllUserGet(local localPkg.Localer, db AllUserGetterDB) *AllUserGet {
 	return &AllUserGet{
 		local: local,
 		db:    db,
@@ -52,7 +52,7 @@ func (getter AllUserGet) Execute(entry entryCompany.CompanyGetter) ([]shelterUse
 		if err != nil {
 			return nil, err
 		}
-		userAuthentics = append(userAuthentics, userAuthentic)
+		userAuthentics = append(userAuthentics, *userAuthentic)
 	}
 
 	return userAuthentics, nil

@@ -3,9 +3,11 @@ package company_test
 import (
 	//"errors"
 	"github.com/motojouya/geezer_auth/internal/behavior/company"
-	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
+	dbCompany "github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	localUtility "github.com/motojouya/geezer_auth/internal/local/testUtility"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
+	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -15,7 +17,7 @@ type inviteTokenCheckerDBMock struct {
 	getCompanyInvite func(identifier string, token string) (*dbCompany.CompanyInviteFull, error)
 }
 
-func (mock inviteTokenCheckerDBMock) GetUserRefreshToken(token string, now time.Time) (*dbCompany.CompanyInviteFull, error) {
+func (mock inviteTokenCheckerDBMock) GetCompanyInvite(identifier string, token string) (*dbCompany.CompanyInviteFull, error) {
 	return mock.getCompanyInvite(identifier, token)
 }
 
@@ -32,8 +34,8 @@ func getCompanyInviteFull(expectId string, expectLabel string, expectToken strin
 	var registerDate = time.Now()
 	var expireDate = registerDate.Add(50 * time.Hour)
 
-	return company.CompanyInviteFull{
-		CompanyInvite: company.CompanyInvite{
+	return dbCompany.CompanyInviteFull{
+		CompanyInvite: dbCompany.CompanyInvite{
 			PersistKey:        1,
 			CompanyPersistKey: 2,
 			Token:             expectToken,
@@ -43,10 +45,10 @@ func getCompanyInviteFull(expectId string, expectLabel string, expectToken strin
 		},
 		CompanyIdentifier:     expectId,
 		CompanyName:           "Test Company",
-		CompanyRegisteredDate: companyValue.RegisteredDate,
+		CompanyRegisteredDate: registerDate,
 		RoleName:              "TestRole",
 		RoleDescription:       "Role for testing",
-		RoleRegisteredDate:    role.RegisteredDate,
+		RoleRegisteredDate:    registerDate,
 	}
 }
 
@@ -93,14 +95,14 @@ func TestRefreshTokenChecker(t *testing.T) {
 	var expectToken = "refresh_token01"
 	var expectId = "CP-TESTES"
 	var expectLabel = "ROLE_LABEL"
-	var company = getShelterCompanyForInviteCheck(expectId)
+	var shelterCompany = getShelterCompanyForInviteCheck(expectId)
 
 	var localerMock = getLocalerMockForInviteTokenCheck(t, firstNow)
 	var dbMock = getInviteTokenCheckerDbMock(t, expectId, expectLabel, expectToken, firstNow)
 	var entryMock = getUserInviteTokenGetterMock(expectToken)
 
 	checker := company.NewInviteTokenCheck(localerMock, dbMock)
-	role, err := checker.Execute(entryMock, company)
+	role, err := checker.Execute(entryMock, shelterCompany)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, role)

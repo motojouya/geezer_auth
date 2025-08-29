@@ -17,14 +17,14 @@ type AllRoleGet struct {
 	db AllRoleGetterDB
 }
 
-func NewAllRoleGet(db RoleGetterDB) *AllRoleGet {
+func NewAllRoleGet(db AllRoleGetterDB) *AllRoleGet {
 	return &AllRoleGet{
 		db: db,
 	}
 }
 
 func (getter AllRoleGet) Execute() ([]shelterRole.Role, error) {
-	dbRoles, err := getter.db.GetRole()
+	dbRoles, err := getter.db.GetAllRole()
 	if err != nil {
 		return nil, err
 	}

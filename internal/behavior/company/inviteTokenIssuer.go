@@ -2,11 +2,10 @@ package company
 
 import (
 	"github.com/go-gorp/gorp"
-	dbUser "github.com/motojouya/geezer_auth/internal/db/transfer/user"
 	dbCompany "github.com/motojouya/geezer_auth/internal/db/transfer/company"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
-	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 )
 

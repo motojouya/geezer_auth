@@ -95,7 +95,7 @@ func (orp ORP) GetUserAuthenticOfCompany(identifier string, now time.Time) ([]tr
 }
 
 func (orp ORP) GetUserAuthenticOfCompanyUser(companyIdentifier string, userIdentifier string, now time.Time) (*transferUser.UserAuthentic, error) {
-	return user.GetUserAuthenticOfCompany(orp, companyIdentifier, userIdentifier, now)
+	return user.GetUserAuthenticOfCompanyUser(orp, companyIdentifier, userIdentifier, now)
 }
 
 func (orp ORP) AddEmail(userEmail *transferUser.UserEmail, now time.Time) (*transferUser.UserEmail, error) {

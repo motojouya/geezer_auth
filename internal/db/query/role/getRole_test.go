@@ -5,7 +5,6 @@ import (
 	"github.com/motojouya/geezer_auth/internal/db/transfer/role"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
 
 func TestGetRole(t *testing.T) {

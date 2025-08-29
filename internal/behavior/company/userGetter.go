@@ -7,7 +7,6 @@ import (
 	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
-	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
 type UserGetterDB interface {
