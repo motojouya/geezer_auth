@@ -24,25 +24,25 @@ func NewRoleGet(db RoleGetterDB) *RoleGet {
 	}
 }
 
-func (getter RoleGet) Execute(entry entryCompanyUser.RoleGetter) (shelterRole.Role, error) {
+func (getter RoleGet) Execute(entry entryCompanyUser.RoleGetter) (*shelterRole.Role, error) {
 	roleLabel, err := entry.GetRoleLabel()
 	if err != nil {
-		return shelterRole.Role{}, err
+		return nil, err
 	}
 
 	dbRole, err := getter.db.GetRole(string(roleLabel))
 	if err != nil {
-		return shelterRole.Role{}, err
+		return nil, err
 	}
 
 	if dbRole == nil {
-		return shelterRole.Role{}, nil
+		return nil, nil
 	}
 
 	role, err := dbRole.ToShelterRole()
 	if err != nil {
-		return shelterRole.Role{}, err
+		return nil, err
 	}
 
-	return role, nil
+	return &role, nil
 }

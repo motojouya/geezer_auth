@@ -155,7 +155,7 @@ func getRoleAssignDbMock(t *testing.T, expectUserId string, expectCompanyId stri
 
 		userCompanyRole, ok := args[0].(*dbUser.UserCompanyRole)
 		if !ok {
-			t.Errorf("Expected first argument to be of type *dbUser.User, got %T", args[0])
+			t.Errorf("Expected first argument to be of type *dbUser.UserCompanyRole, got %T", args[0])
 		}
 
 		assert.NotNil(t, userCompanyRole)
@@ -180,7 +180,7 @@ func TestRoleAssigner(t *testing.T) {
 
 	var userAuthentic = getShelterUserAuthenticForRoleAssign(expectUserId, expectCompanyId, expectOldLabel)
 	var shelterCompany = getShelterCompanyForRoleAssign(expectCompanyId)
-	var role = getShelterRoleForRoleAssign(expectOldLabel)
+	var role = getShelterRoleForRoleAssign(expectNewLabel)
 
 	var localerMock = getLocalerMockForRoleAssign(firstNow)
 	var dbMock = getRoleAssignDbMock(t, expectUserId, expectCompanyId, expectOldLabel, expectNewLabel, firstNow)

@@ -4,7 +4,6 @@ import (
 	companyQuery "github.com/motojouya/geezer_auth/internal/db/query/company"
 	entryCompany "github.com/motojouya/geezer_auth/internal/entry/transfer/company"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
-	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 )
 
 type CompanyGetterDB interface {
@@ -12,7 +11,7 @@ type CompanyGetterDB interface {
 }
 
 type CompanyGetter interface {
-	Execute(entry entryCompany.CompanyGetter) (shelterCompany.Company, error)
+	Execute(entry entryCompany.CompanyGetter) (*shelterCompany.Company, error)
 }
 
 type CompanyGet struct {
@@ -25,22 +24,27 @@ func NewCompanyGet(db CompanyGetterDB) *CompanyGet {
 	}
 }
 
-func (getter CompanyGet) Execute(entry entryCompany.CompanyGetter) (shelterCompany.Company, error) {
+func (getter CompanyGet) Execute(entry entryCompany.CompanyGetter) (*shelterCompany.Company, error) {
 
 	identifier, err := entry.GetCompanyIdentifier()
 	if err != nil {
-		return shelterCompany.Company{}, err
+		return nil, err
 	}
 
 	dbCompany, err := getter.db.GetCompany(string(identifier))
 	if err != nil {
-		return shelterCompany.Company{}, err
+		return nil, err
 	}
 
 	if dbCompany == nil {
-		keys := map[string]string{"identifier": string(identifier)}
-		return shelterCompany.Company{}, essence.NewNotFoundError("company", keys, "company not found")
+		return nil, nil
+
 	}
 
-	return dbCompany.ToShelterCompany()
+	resultCompany, err := dbCompany.ToShelterCompany()
+	if err != nil {
+		return nil, err
+	}
+
+	return &resultCompany, nil
 }

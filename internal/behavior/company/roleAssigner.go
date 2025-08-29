@@ -46,7 +46,7 @@ func (assigner RoleAssign) Execute(company shelterCompany.Company, userAuthentic
 
 	dhUserCompanyRole := dbUser.FromShelterUserCompanyRole(userCompanyRole)
 
-	if err := assigner.db.Insert(&dhUserCompanyRole); err != nil {
+	if err := assigner.db.Insert(dhUserCompanyRole); err != nil {
 		return nil, err
 	}
 

@@ -5,7 +5,6 @@ import (
 	entryCompanyUser "github.com/motojouya/geezer_auth/internal/entry/transfer/companyUser"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
-	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 )
 
@@ -43,8 +42,7 @@ func (getter UserGet) Execute(entry entryCompanyUser.CompanyUserGetter, company 
 	}
 
 	if dbUserAuthentic == nil {
-		keys := map[string]string{"company_identifier": string(company.Identifier), "user_identifier": string(userIdentifier)}
-		return nil, essence.NewNotFoundError("user", keys, "user not found")
+		return nil, nil
 	}
 
 	return dbUserAuthentic.ToShelterUserAuthentic()

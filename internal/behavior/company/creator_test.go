@@ -51,15 +51,25 @@ func getLocalerMockForCreate(t *testing.T, expectId string, now time.Time) *loca
 	}
 }
 
-func getCreateDbMock(t *testing.T, expectId string, firstNow time.Time) companyCreatorDBMock {
+func getDbCompany(expectId string, expectName string) dbCompany.Company {
+	return dbCompany.Company{
+		PersistKey:     1,
+		Identifier:     expectId,
+		Name:           expectName,
+		RegisteredDate: time.Now(),
+	}
+}
+
+func getCreateDbMock(t *testing.T, expectId string, expectName string, firstNow time.Time) companyCreatorDBMock {
 	var callCount = 0
+	var dbCompanyValue = getDbCompany(expectId, expectName)
 	var getCompany = func(identifier string) (*dbCompany.Company, error) {
 		if callCount == 0 {
 			callCount++
 			return nil, nil
 		}
 		assert.Equal(t, expectId, identifier, "Expected identifier 'US-TESTES'")
-		return &dbCompany.Company{}, nil
+		return &dbCompanyValue, nil
 	}
 	var insert = func(args ...interface{}) error {
 		assert.Equal(t, 1, len(args), "Expected 1 argument")
@@ -100,7 +110,7 @@ func TestCompanyCreate(t *testing.T) {
 	var firstNow = time.Now()
 
 	var localerMock = getLocalerMockForCreate(t, "TESTES", firstNow)
-	var dbMock = getCreateDbMock(t, expectId, firstNow)
+	var dbMock = getCreateDbMock(t, expectId, expectName, firstNow)
 	var entryMock = getEntryMock(t, expectId, expectName, firstNow)
 
 	creator := company.NewCompanyCreate(localerMock, dbMock)

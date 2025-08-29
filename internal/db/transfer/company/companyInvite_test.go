@@ -22,6 +22,7 @@ func TestFromShelterCompanyInvite(t *testing.T) {
 	var tokenUUID, _ = uuid.NewUUID()
 	var token, _ = text.CreateToken(tokenUUID)
 	var registerDate = time.Now()
+	var expireDate = registerDate.Add(50 * time.Hour)
 
 	var shelterCompanyInvite = shelter.CreateCompanyInvite(companyValue, token, role, registerDate)
 	var companyInvite = company.FromShelterCompanyInvite(shelterCompanyInvite)
@@ -31,7 +32,7 @@ func TestFromShelterCompanyInvite(t *testing.T) {
 	assert.Equal(t, persistKey, companyInvite.CompanyPersistKey)
 	assert.Equal(t, string(token), companyInvite.Token)
 	assert.Equal(t, registerDate, companyInvite.RegisterDate)
-	assert.Equal(t, registerDate, companyInvite.ExpireDate)
+	assert.Equal(t, expireDate, companyInvite.ExpireDate)
 
 	t.Logf("companyInvite: %+v", companyInvite)
 }
