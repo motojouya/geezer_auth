@@ -1,89 +1,66 @@
 package testUtility
 
 import (
-	entryAuth "github.com/motojouya/geezer_auth/internal/entry/transfer/auth"
-	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
+	entryCompany "github.com/motojouya/geezer_auth/internal/entry/transfer/company"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
-type UserCreatorMock struct {
-	FakeExecute func(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error)
+type CompanyCreatorMock struct {
+	FakeExecute func(entry entryCompany.CompanyCreator) (*shelterCompany.Company, error)
 }
 
-func (mock UserCreatorMock) Execute(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error) {
+func (mock CompanyCreatorMock) Execute(entry entryCompany.CompanyCreator) (*shelterCompany.Company, error) {
 	return mock.FakeExecute(entry)
+}
+
+type CompanyGetterMock struct {
+	FakeExecute func(entry entryCompany.CompanyGetter) (*shelterCompany.Company, error)
+}
+
+func (mock CompanyGetterMock) Execute(entry entryCompany.CompanyGetter) (*shelterCompany.Company, error) {
+	return mock.FakeExecute(entry)
+}
+
+type AllUserGetterMock struct {
+	FakeExecute func(entry entryCompany.CompanyGetter) ([]shelterUser.UserAuthentic, error)
+}
+
+func (mock AllUserGetterMock) Execute(entry entryCompany.CompanyGetter) ([]shelterUser.UserAuthentic, error) {
+	return mock.FakeExecute(entry, user)
 }
 
 type UserGetterMock struct {
-	FakeExecute func(identifier pkgText.Identifier) (*shelterUser.UserAuthentic, error)
+	FakeExecute func(entry entryCompanyUser.CompanyUserGetter, company shelterCompany.Company) (*shelterUser.UserAuthentic, error)
 }
 
-func (mock UserGetterMock) Execute(identifier pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
-	return mock.FakeExecute(identifier)
+func (mock UserGetterMock) Execute(entry entryCompanyUser.CompanyUserGetter, company shelterCompany.Company) (*shelterUser.UserAuthentic, error) {
+	return mock.FakeExecute(entry, company)
 }
 
-type EmailSetterMock struct {
-	FakeExecute func(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error
+type InviteTokenCheckerMock struct {
+	FakeExecute func(entry entryCompanyUser.InviteTokenGetter, company shelterCompany.Company) (shelterRole.Role, error)
 }
 
-func (mock EmailSetterMock) Execute(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error {
-	return mock.FakeExecute(entry, user)
+func (mock InviteTokenCheckerMock) Execute(entry entryCompanyUser.InviteTokenGetter, company shelterCompany.Company) (shelterRole.Role, error) {
+	return mock.FakeExecute(entry, company)
 }
 
-type EmailVerifierMock struct {
-	FakeExecute func(entry entryUser.EmailVerifier, user *shelterUser.UserAuthentic) (*shelterUser.UserAuthentic, error)
+type InviteTokenIssuerMock struct {
+	FakeExecute func(company shelterCompany.Company, role shelterRole.Role) (shelterText.Token, error)
 }
 
-func (mock EmailVerifierMock) Execute(entry entryUser.EmailVerifier, user *shelterUser.UserAuthentic) (*shelterUser.UserAuthentic, error) {
-	return mock.FakeExecute(entry, user)
+func (mock InviteTokenIssuerMock) Execute(company shelterCompany.Company, role shelterRole.Role) (shelterText.Token, error) {
+	return mock.FakeExecute(company, role)
 }
 
-type NameChangerMock struct {
-	FakeExecute func(entry entryUser.UserApplyer, user *shelterUser.UserAuthentic) (*shelterUser.UserAuthentic, error)
+type RoleAssignerMock struct {
+	FakeExecute func(company shelterCompany.Company, userAuthentic *shelterUser.UserAuthentic, role shelterRole.Role) (*shelterUser.UserAuthentic, error)
 }
 
-func (mock NameChangerMock) Execute(entry entryUser.UserApplyer, user *shelterUser.UserAuthentic) (*shelterUser.UserAuthentic, error) {
-	return mock.FakeExecute(entry, user)
-}
-
-type PasswordSetterMock struct {
-	FakeExecute func(entry entryUser.PasswordGetter, user *shelterUser.UserAuthentic) error
-}
-
-func (mock PasswordSetterMock) Execute(entry entryUser.PasswordGetter, user *shelterUser.UserAuthentic) error {
-	return mock.FakeExecute(entry, user)
-}
-
-type PasswordCheckerMock struct {
-	FakeExecute func(entry entryAuth.AuthLoginner) (pkgText.Identifier, error)
-}
-
-func (mock PasswordCheckerMock) Execute(entry entryAuth.AuthLoginner) (pkgText.Identifier, error) {
-	return mock.FakeExecute(entry)
-}
-
-type RefreshTokenIssuerMock struct {
-	FakeExecute func(user *shelterUser.UserAuthentic) (shelterText.Token, error)
-}
-
-func (mock RefreshTokenIssuerMock) Execute(user *shelterUser.UserAuthentic) (shelterText.Token, error) {
-	return mock.FakeExecute(user)
-}
-
-type RefreshTokenCheckerMock struct {
-	FakeExecute func(entry entryAuth.RefreshTokenGetter) (*shelterUser.UserAuthentic, error)
-}
-
-func (mock RefreshTokenCheckerMock) Execute(entry entryAuth.RefreshTokenGetter) (*shelterUser.UserAuthentic, error) {
-	return mock.FakeExecute(entry)
-}
-
-type AccessTokenIssuerMock struct {
-	FakeExecute func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error)
-}
-
-func (mock AccessTokenIssuerMock) Execute(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
-	return mock.FakeExecute(user)
+func (mock RoleAssignerMock) Execute(company shelterCompany.Company, userAuthentic *shelterUser.UserAuthentic, role shelterRole.Role) (*shelterUser.UserAuthentic, error) {
+	return mock.FakeExecute(company, userAuthentic, role)
 }
