@@ -2,6 +2,7 @@ package testUtility
 
 import (
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
+	entryCompanyUser "github.com/motojouya/geezer_auth/internal/entry/transfer/companyUser"
 )
 
 type AllRoleGetterMock struct {
@@ -13,9 +14,9 @@ func (mock AllRoleGetterMock) Execute() ([]shelterRole.Role, error) {
 }
 
 type RoleGetterMock struct {
-	FakeExecute func() ([]shelterRole.Role, error)
+	FakeExecute func(entry entryCompanyUser.RoleGetter) (*shelterRole.Role, error)
 }
 
-func (mock RoleGetterMock) Execute() ([]shelterRole.Role, error) {
-	return mock.FakeExecute()
+func (mock RoleGetterMock) Execute(entry entryCompanyUser.RoleGetter) (*shelterRole.Role, error) {
+	return mock.FakeExecute(entry)
 }

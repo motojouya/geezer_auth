@@ -19,17 +19,17 @@ import (
 	"time"
 )
 
-func getBehaviorForGetCompany(company shelterCompany.Company) *companyTestUtility.CompanyGetterMock {
-	var companyGetter = &companyTestUtility.CompanyGetterMock{
-		FakeExecute: func(entry entryCompany.CompanyGetter) (*shelterCompany.Company, error) {
-			return &company, nil
+func getBehaviorForGetUser(users []shelterUser.UserAuthentic) *companyTestUtility.AllUserGetterMock {
+	var allUserGetter = &companyTestUtility.AllUserGetterMock{
+		FakeExecute: func(entry entryCompany.CompanyGetter) ([]shelterUser.UserAuthentic, error) {
+			return users, nil
 		},
 	}
 
-	return companyGetter
+	return allUserGetter
 }
 
-func getShelterCompanyForGet(expectId string) shelterCompany.Company {
+func getShelterCompanyForGetUser(expectId string) shelterCompany.Company {
 	var companyIdentifier, _ = pkgText.NewIdentifier(expectId)
 	var companyId uint = 1
 	var companyName, _ = pkgText.NewName("TestCompany")
@@ -38,7 +38,7 @@ func getShelterCompanyForGet(expectId string) shelterCompany.Company {
 	return shelterCompany.NewCompany(companyId, companyIdentifier, companyName, companyRegisteredDate)
 }
 
-func getShelterUserAuthenticForGetUser(expectId string) *shelterUser.UserAuthentic {
+func getShelterUserAuthenticForGetAllUser(expectId string) *shelterUser.UserAuthentic {
 	var userId uint = 1
 	var userIdentifier, _ = pkgText.NewIdentifier(expectId)
 	var emailId, _ = pkgText.NewEmail("test@example.com")
@@ -66,7 +66,7 @@ func getShelterUserAuthenticForGetUser(expectId string) *shelterUser.UserAuthent
 	return shelterUser.NewUserAuthentic(userValue, companyRole, &email)
 }
 
-func getAuthorizationForGetUser() *shelterAuth.Authorization {
+func getAuthorizationForGetAllUser() *shelterAuth.Authorization {
 	return shelterAuth.NewAuthorization([]shelterRole.RolePermission{
 		shelterRole.AnonymousPermission,
 		shelterRole.RoleLessPermission,
@@ -75,7 +75,7 @@ func getAuthorizationForGetUser() *shelterAuth.Authorization {
 	})
 }
 
-func getPkgAuthenticForGetUser(expectId string) *pkgUser.Authentic {
+func getPkgAuthenticForGetAllUser(expectId string) *pkgUser.Authentic {
 	var userIdentifier, _ = pkgText.NewIdentifier(expectId)
 	var emailId, _ = pkgText.NewEmail("test@example.com")
 	var email, _ = pkgText.NewEmail("test@example.com")
@@ -98,15 +98,7 @@ func getPkgAuthenticForGetUser(expectId string) *pkgUser.Authentic {
 	return pkgUser.NewAuthentic(issuer, subject, audience, expiresAt, notBefore, issuedAt, id.String(), userValue)
 }
 
-type getCompanyEntryMock struct {
-	getCompanyIdentifier func() (pkgText.Identifier, error)
-}
-
-func (mock getCompanyEntryMock) GetCompanyIdentifier() (pkgText.Identifier, error) {
-	return mock.getCompanyIdentifier()
-}
-
-func getGetCompanyEntry(expectId string) entryCompany.CompanyGetRequest {
+func getGetCompanyEntryForGetUser(expectId string) entryCompany.CompanyGetRequest {
 	return entryCompany.CompanyGetRequest{
 		CompanyGet: entryCompany.CompanyGet{
 			Identifier: expectId,
@@ -114,15 +106,15 @@ func getGetCompanyEntry(expectId string) entryCompany.CompanyGetRequest {
 	}
 }
 
-func TestGetCompany(t *testing.T) {
+func TestGetUser(t *testing.T) {
 	var expectIdentifier = "CP-TESTES"
-	var company = getShelterCompanyForGet(expectIdentifier)
+	var company = getShelterCompanyForGetUser(expectIdentifier)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
-	var authorization = getAuthorizationForGetUser()
+	var authorization = getAuthorizationForGetAllUser()
 
-	var companyGetter = getBehaviorForGetCompany(company)
+	var companyGetter = getBehaviorForGetAllUser(company)
 	var control = controlCompany.NewGetCompanyControl(
 		db,
 		authorization,
@@ -138,78 +130,4 @@ func TestGetCompany(t *testing.T) {
 	assert.Equal(t, expectIdentifier, companyGetResponse.Company.Identifier)
 
 	t.Logf("Company: %+v", companyGetResponse)
-}
-
-func TestGetCompanyErrAuth(t *testing.T) {
-	var expectIdentifier = "CP-TESTES"
-	var company = getShelterCompanyForGet(expectIdentifier)
-
-	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
-	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
-	var authorization = getAuthorizationForGetUser()
-
-	var companyGetter = getBehaviorForGetCompany(company)
-	var control = controlCompany.NewGetCompanyControl(
-		db,
-		authorization,
-		companyGetter,
-	)
-
-	var req = getGetCompanyEntry(expectIdentifier)
-
-	var _, err = controlCompany.GetCompanyExecute(control, req, nil)
-
-	assert.Error(t, err)
-}
-
-func TestGetCompanyErrGet(t *testing.T) {
-	var expectIdentifier = "CP-TESTES"
-	var company = getShelterCompanyForGet(expectIdentifier)
-
-	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
-	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
-	var authorization = getAuthorizationForGetUser()
-
-	var companyGetter = getBehaviorForGetCompany(company)
-	companyGetter.FakeExecute = func(entry entryCompany.CompanyGetter) (*shelterCompany.Company, error) {
-		return nil, errors.New("test error")
-	}
-	var control = controlCompany.NewGetCompanyControl(
-		db,
-		authorization,
-		companyGetter,
-	)
-
-	var req = getGetCompanyEntry(expectIdentifier)
-	var pkgAuthentic = getPkgAuthenticForGetUser(expectIdentifier)
-
-	var _, err = controlCompany.GetCompanyExecute(control, req, pkgAuthentic)
-
-	assert.Error(t, err)
-}
-
-func TestGetCompanyErrGetNil(t *testing.T) {
-	var expectIdentifier = "CP-TESTES"
-	var company = getShelterCompanyForGet(expectIdentifier)
-
-	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
-	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
-	var authorization = getAuthorizationForGetUser()
-
-	var companyGetter = getBehaviorForGetCompany(company)
-	companyGetter.FakeExecute = func(entry entryCompany.CompanyGetter) (*shelterCompany.Company, error) {
-		return nil, nil
-	}
-	var control = controlCompany.NewGetCompanyControl(
-		db,
-		authorization,
-		companyGetter,
-	)
-
-	var req = getGetCompanyEntry(expectIdentifier)
-	var pkgAuthentic = getPkgAuthenticForGetUser(expectIdentifier)
-
-	var _, err = controlCompany.GetCompanyExecute(control, req, pkgAuthentic)
-
-	assert.Error(t, err)
 }

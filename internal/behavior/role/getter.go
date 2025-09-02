@@ -11,7 +11,7 @@ type RoleGetterDB interface {
 }
 
 type RoleGetter interface {
-	Execute(entry entryCompanyUser.RoleGetter) (shelterRole.Role, error)
+	Execute(entry entryCompanyUser.RoleGetter) (*shelterRole.Role, error)
 }
 
 type RoleGet struct {

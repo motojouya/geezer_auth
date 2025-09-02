@@ -1,57 +1,57 @@
-package user_test
+package company_test
 
 import (
 	"errors"
 	"github.com/google/uuid"
 	userTestUtility "github.com/motojouya/geezer_auth/internal/behavior/user/testUtility"
-	controlUser "github.com/motojouya/geezer_auth/internal/control/user"
+	companyTestUtility "github.com/motojouya/geezer_auth/internal/behavior/company/testUtility"
+	roleTestUtility "github.com/motojouya/geezer_auth/internal/behavior/role/testUtility"
+	controlCompany "github.com/motojouya/geezer_auth/internal/control/company"
 	dbTestUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
-	entryUser "github.com/motojouya/geezer_auth/internal/entry/transfer/user"
+	entryCompany "github.com/motojouya/geezer_auth/internal/entry/transfer/company"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
+	shelterAuth "github.com/motojouya/geezer_auth/internal/shelter/authorization"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	entryCompanyUser "github.com/motojouya/geezer_auth/internal/entry/transfer/companyUser"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
+	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
-func getBehaviorForRegister(userAuthentic *shelterUser.UserAuthentic, refreshToken shelterText.Token, accessToken pkgText.JwtToken) (*userTestUtility.UserCreatorMock, *userTestUtility.EmailSetterMock, *userTestUtility.PasswordSetterMock, *userTestUtility.RefreshTokenIssuerMock, *userTestUtility.AccessTokenIssuerMock) {
-	var userCreator = &userTestUtility.UserCreatorMock{
-		FakeExecute: func(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error) {
+func getBehaviorForCreate(t *testing.T, userAuthentic *shelterUser.UserAuthentic, company shelterCompany.Company, role shelterRole.Role) (*companyTestUtility.CompanyCreatorMock, *roleTestUtility.RoleGetterMock, *userTestUtility.UserGetterMock, *companyTestUtility.RoleAssignerMock) {
+	var companyCreator = &companyTestUtility.CompanyCreatorMock{
+		FakeExecute: func(entry entryCompany.CompanyCreator) (shelterCompany.Company, error) {
+			return company, nil
+		},
+	}
+
+	var roleGetter = &roleTestUtility.RoleGetterMock{
+		FakeExecute: func(entry entryCompanyUser.RoleGetter) (*shelterRole.Role, error) {
+			return &role, nil
+		},
+	}
+
+	var userGetter = &userTestUtility.UserGetterMock{
+		FakeExecute: func(identififer pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
+			assert.Equal(t, string(userAuthentic.Identifier), string(identififer), "User Identifier should match")
 			return userAuthentic, nil
 		},
 	}
 
-	var emailSetter = &userTestUtility.EmailSetterMock{
-		FakeExecute: func(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error {
-			return nil
+	var RoleAssigner = &companyTestUtility.RoleAssignerMock{
+		FakeExecute: func(company shelterCompany.Company, user *shelterUser.UserAuthentic, role shelterRole.Role) (*shelterUser.UserAuthentic, error) {
+			return userAuthentic, nil
 		},
 	}
 
-	var passwordSetter = &userTestUtility.PasswordSetterMock{
-		FakeExecute: func(entry entryUser.PasswordGetter, user *shelterUser.UserAuthentic) error {
-			return nil
-		},
-	}
-
-	var refreshTokenIssuer = &userTestUtility.RefreshTokenIssuerMock{
-		FakeExecute: func(user *shelterUser.UserAuthentic) (shelterText.Token, error) {
-			return refreshToken, nil
-		},
-	}
-
-	var accessTokenIssuer = &userTestUtility.AccessTokenIssuerMock{
-		FakeExecute: func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
-			return accessToken, nil
-		},
-	}
-
-	return userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer
+	return companyCreator, roleGetter, userGetter, RoleAssigner
 }
 
-func getShelterUserAuthenticForRegister(expectId string) *shelterUser.UserAuthentic {
+func getShelterUserAuthenticForCreate(expectId string) *shelterUser.UserAuthentic {
 	var userId uint = 1
 	var userIdentifier, _ = pkgText.NewIdentifier(expectId)
 	var emailId, _ = pkgText.NewEmail("test@example.com")
@@ -79,236 +79,292 @@ func getShelterUserAuthenticForRegister(expectId string) *shelterUser.UserAuthen
 	return shelterUser.NewUserAuthentic(userValue, companyRole, &email)
 }
 
-func getRegisterEntry() entryUser.UserRegisterRequest {
-	return entryUser.UserRegisterRequest{
-		UserRegister: entryUser.UserRegister{
-			Email:    "test@example.com",
-			Name:     "TestName",
-			Bot:      false,
-			Password: "password123",
+func getCreateEntry(expectName string) entryCompany.CompanyCreateRequest {
+	return entryCompany.CompanyCreateRequest{
+		CompanyCreate: entryCompany.CompanyCreate{
+			Name: expectName,
 		},
 	}
 }
 
-func TestRegister(t *testing.T) {
-	var expectIdentifier = "US-TESTES"
-	var expectUUID, _ = uuid.NewUUID()
-	var refreshToken, _ = shelterText.CreateToken(expectUUID)
-	var expectToken = "test-access-token"
-	var accessToken = pkgText.JwtToken(expectToken)
-	var userAuthentic = getShelterUserAuthenticForRegister(expectIdentifier)
+func getAuthorizationForCreate() *shelterAuth.Authorization {
+	return shelterAuth.NewAuthorization([]shelterRole.RolePermission{
+		shelterRole.AnonymousPermission,
+		shelterRole.RoleLessPermission,
+		shelterRole.NewRolePermission("EMPLOYEE", true, true, false, false, 5),
+		shelterRole.NewRolePermission("MANAGER", true, true, true, true, 9),
+	})
+}
+
+func getRoleForCreate(expectLabel pkgText.Label) shelterRole.Role {
+	var name, _ = pkgText.NewName("TestRole")
+	var description, _ = shelterText.NewText("Role for testing")
+	var registeredDate = time.Now()
+
+	return shelterRole.NewRole(name, expectLabel, description, registeredDate)
+}
+
+func getPkgAuthenticForCreate(expectId string) *pkgUser.Authentic {
+	var userIdentifier, _ = pkgText.NewIdentifier(expectId)
+	var emailId, _ = pkgText.NewEmail("test@example.com")
+	var email, _ = pkgText.NewEmail("test@example.com")
+	var userName, _ = pkgText.NewName("Test User")
+	var botFlag = false
+	var updateDate = time.Now()
+
+	var userValue = pkgUser.NewUser(userIdentifier, emailId, &email, userName, botFlag, nil, updateDate)
+
+	var issuer = "issuer_id"
+	var subject = "subject_id"
+	var aud01 = "aud1"
+	var aud02 = "aud2"
+	var audience = []string{aud01, aud02}
+	var expiresAt = time.Now()
+	var notBefore = time.Now()
+	var issuedAt = time.Now()
+	var id, _ = uuid.NewUUID()
+
+	return pkgUser.NewAuthentic(issuer, subject, audience, expiresAt, notBefore, issuedAt, id.String(), userValue)
+}
+
+func getShelterCompanyForCreate(expectId string, expectName string) shelterCompany.Company {
+	var companyIdentifier, _ = pkgText.NewIdentifier(expectId)
+	var companyId uint = 1
+	var companyName, _ = pkgText.NewName(expectName)
+	var companyRegisteredDate = time.Now()
+
+	return shelterCompany.NewCompany(companyId, companyIdentifier, companyName, companyRegisteredDate)
+}
+
+func TestCreate(t *testing.T) {
+	var expectUserId = "US-TESTES"
+	var userAuthentic = getShelterUserAuthenticForCreate(expectUserId)
+	var expectCompanyId = "CP-TESTES"
+	var expectCompanyName = "TestCompany"
+	var company = getShelterCompanyForCreate(expectCompanyId, expectCompanyName)
+	var role = getRoleForCreate(shelterRole.RoleAdminLabel)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+	var authorization = getAuthorizationForCreate()
 
-	var userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer = getBehaviorForRegister(userAuthentic, refreshToken, accessToken)
-	var control = controlUser.NewRegisterControl(
+	var companyCreator, roleGetter, userGetter, roleAssigner = getBehaviorForCreate(t, userAuthentic, company, role)
+	var control = controlCompany.NewCreateControl(
 		db,
-		userCreator,
-		emailSetter,
-		passwordSetter,
-		refreshTokenIssuer,
-		accessTokenIssuer,
+		authorization,
+		companyCreator,
+		roleGetter,
+		userGetter,
+		roleAssigner,
 	)
 
-	var entry = getRegisterEntry()
+	var entry = getCreateEntry(expectCompanyName)
+	var pkgAuthentic = getPkgAuthenticForCreate(expectUserId)
 
-	var userRegisterResponse, err = controlUser.RegisterExecute(control, entry, nil)
+	var companyCreateResponse, err = controlCompany.CreateExecute(control, entry, pkgAuthentic)
 
 	assert.NoError(t, err)
-	assert.Equal(t, expectIdentifier, userRegisterResponse.User.Identifier)
-	assert.Equal(t, expectUUID.String(), userRegisterResponse.RefreshToken)
-	assert.Equal(t, expectToken, userRegisterResponse.AccessToken)
+	assert.Equal(t, expectCompanyId, companyCreateResponse.Company.Identifier)
+	assert.Equal(t, expectCompanyName, companyCreateResponse.Company.Name)
 
 	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
 	assert.Equal(t, 1, transactionCalledCount.CommitCalled)
 	assert.Equal(t, 0, transactionCalledCount.RollbackCalled)
 	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 
-	t.Logf("User Identifier: %+v", userRegisterResponse)
+	t.Logf("company: %+v", companyCreateResponse)
 }
 
-func TestRegisterErrCreator(t *testing.T) {
-	var expectIdentifier = "US-TESTES"
-	var expectUUID, _ = uuid.NewUUID()
-	var refreshToken, _ = shelterText.CreateToken(expectUUID)
-	var expectToken = "test-access-token"
-	var accessToken = pkgText.JwtToken(expectToken)
-	var userAuthentic = getShelterUserAuthenticForRegister(expectIdentifier)
+func TestCreateErrAuth(t *testing.T) {
+	var expectUserId = "US-TESTES"
+	var userAuthentic = getShelterUserAuthenticForCreate(expectUserId)
+	var expectCompanyId = "CP-TESTES"
+	var expectCompanyName = "TestCompany"
+	var company = getShelterCompanyForCreate(expectCompanyId, expectCompanyName)
+	var role = getRoleForCreate(shelterRole.RoleAdminLabel)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+	var authorization = getAuthorizationForCreate()
 
-	var userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer = getBehaviorForRegister(userAuthentic, refreshToken, accessToken)
-	userCreator.FakeExecute = func(entry entryUser.UserGetter) (*shelterUser.UserAuthentic, error) {
-		return nil, errors.New("user creation error")
-	}
-
-	var control = controlUser.NewRegisterControl(
+	var companyCreator, roleGetter, userGetter, roleAssigner = getBehaviorForCreate(t, userAuthentic, company, role)
+	var control = controlCompany.NewCreateControl(
 		db,
-		userCreator,
-		emailSetter,
-		passwordSetter,
-		refreshTokenIssuer,
-		accessTokenIssuer,
+		authorization,
+		companyCreator,
+		roleGetter,
+		userGetter,
+		roleAssigner,
 	)
 
-	var entry = getRegisterEntry()
+	var entry = getCreateEntry(expectCompanyName)
 
-	var _, err = controlUser.RegisterExecute(control, entry, nil)
+	var _, err = controlCompany.CreateExecute(control, entry, nil)
 
 	assert.Error(t, err)
-
-	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
-	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
-	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
-	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 }
 
-func TestRegisterErrEmail(t *testing.T) {
-	var expectIdentifier = "US-TESTES"
-	var expectUUID, _ = uuid.NewUUID()
-	var refreshToken, _ = shelterText.CreateToken(expectUUID)
-	var expectToken = "test-access-token"
-	var accessToken = pkgText.JwtToken(expectToken)
-	var userAuthentic = getShelterUserAuthenticForRegister(expectIdentifier)
+func TestCreateErrCreate(t *testing.T) {
+	var expectUserId = "US-TESTES"
+	var userAuthentic = getShelterUserAuthenticForCreate(expectUserId)
+	var expectCompanyId = "CP-TESTES"
+	var expectCompanyName = "TestCompany"
+	var company = getShelterCompanyForCreate(expectCompanyId, expectCompanyName)
+	var role = getRoleForCreate(shelterRole.RoleAdminLabel)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+	var authorization = getAuthorizationForCreate()
 
-	var userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer = getBehaviorForRegister(userAuthentic, refreshToken, accessToken)
-	emailSetter.FakeExecute = func(entry entryUser.EmailGetter, user *shelterUser.UserAuthentic) error {
-		return errors.New("email setting error")
+	var companyCreator, roleGetter, userGetter, roleAssigner = getBehaviorForCreate(t, userAuthentic, company, role)
+	companyCreator.FakeExecute = func(entry entryCompany.CompanyCreator) (shelterCompany.Company, error) {
+		return shelterCompany.Company{}, errors.New("failed to create company")
 	}
-
-	var control = controlUser.NewRegisterControl(
+	var control = controlCompany.NewCreateControl(
 		db,
-		userCreator,
-		emailSetter,
-		passwordSetter,
-		refreshTokenIssuer,
-		accessTokenIssuer,
+		authorization,
+		companyCreator,
+		roleGetter,
+		userGetter,
+		roleAssigner,
 	)
 
-	var entry = getRegisterEntry()
+	var entry = getCreateEntry(expectCompanyName)
+	var pkgAuthentic = getPkgAuthenticForCreate(expectUserId)
 
-	var _, err = controlUser.RegisterExecute(control, entry, nil)
+	var _, err = controlCompany.CreateExecute(control, entry, pkgAuthentic)
 
 	assert.Error(t, err)
-
-	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
-	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
-	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
-	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 }
 
-func TestRegisterErrPassword(t *testing.T) {
-	var expectIdentifier = "US-TESTES"
-	var expectUUID, _ = uuid.NewUUID()
-	var refreshToken, _ = shelterText.CreateToken(expectUUID)
-	var expectToken = "test-access-token"
-	var accessToken = pkgText.JwtToken(expectToken)
-	var userAuthentic = getShelterUserAuthenticForRegister(expectIdentifier)
+func TestCreateErrGetRole(t *testing.T) {
+	var expectUserId = "US-TESTES"
+	var userAuthentic = getShelterUserAuthenticForCreate(expectUserId)
+	var expectCompanyId = "CP-TESTES"
+	var expectCompanyName = "TestCompany"
+	var company = getShelterCompanyForCreate(expectCompanyId, expectCompanyName)
+	var role = getRoleForCreate(shelterRole.RoleAdminLabel)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+	var authorization = getAuthorizationForCreate()
 
-	var userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer = getBehaviorForRegister(userAuthentic, refreshToken, accessToken)
-	passwordSetter.FakeExecute = func(entry entryUser.PasswordGetter, user *shelterUser.UserAuthentic) error {
-		return errors.New("password setting error")
+	var companyCreator, roleGetter, userGetter, roleAssigner = getBehaviorForCreate(t, userAuthentic, company, role)
+	roleGetter.FakeExecute = func(entry entryCompanyUser.RoleGetter) (*shelterRole.Role, error) {
+		return nil, errors.New("failed to get role")
 	}
-
-	var control = controlUser.NewRegisterControl(
+	var control = controlCompany.NewCreateControl(
 		db,
-		userCreator,
-		emailSetter,
-		passwordSetter,
-		refreshTokenIssuer,
-		accessTokenIssuer,
+		authorization,
+		companyCreator,
+		roleGetter,
+		userGetter,
+		roleAssigner,
 	)
 
-	var entry = getRegisterEntry()
+	var entry = getCreateEntry(expectCompanyName)
+	var pkgAuthentic = getPkgAuthenticForCreate(expectUserId)
 
-	var _, err = controlUser.RegisterExecute(control, entry, nil)
+	var _, err = controlCompany.CreateExecute(control, entry, pkgAuthentic)
 
 	assert.Error(t, err)
-
-	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
-	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
-	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
-	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 }
 
-func TestRegisterErrRefToken(t *testing.T) {
-	var expectIdentifier = "US-TESTES"
-	var expectUUID, _ = uuid.NewUUID()
-	var refreshToken, _ = shelterText.CreateToken(expectUUID)
-	var expectToken = "test-access-token"
-	var accessToken = pkgText.JwtToken(expectToken)
-	var userAuthentic = getShelterUserAuthenticForRegister(expectIdentifier)
+func TestCreateErrGetRoleNil(t *testing.T) {
+	var expectUserId = "US-TESTES"
+	var userAuthentic = getShelterUserAuthenticForCreate(expectUserId)
+	var expectCompanyId = "CP-TESTES"
+	var expectCompanyName = "TestCompany"
+	var company = getShelterCompanyForCreate(expectCompanyId, expectCompanyName)
+	var role = getRoleForCreate(shelterRole.RoleAdminLabel)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+	var authorization = getAuthorizationForCreate()
 
-	var userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer = getBehaviorForRegister(userAuthentic, refreshToken, accessToken)
-	refreshTokenIssuer.FakeExecute = func(user *shelterUser.UserAuthentic) (shelterText.Token, error) {
-		return "", errors.New("refresh token issuing error")
+	var companyCreator, roleGetter, userGetter, roleAssigner = getBehaviorForCreate(t, userAuthentic, company, role)
+	roleGetter.FakeExecute = func(entry entryCompanyUser.RoleGetter) (*shelterRole.Role, error) {
+		return nil, nil
 	}
-
-	var control = controlUser.NewRegisterControl(
+	var control = controlCompany.NewCreateControl(
 		db,
-		userCreator,
-		emailSetter,
-		passwordSetter,
-		refreshTokenIssuer,
-		accessTokenIssuer,
+		authorization,
+		companyCreator,
+		roleGetter,
+		userGetter,
+		roleAssigner,
 	)
 
-	var entry = getRegisterEntry()
+	var entry = getCreateEntry(expectCompanyName)
+	var pkgAuthentic = getPkgAuthenticForCreate(expectUserId)
 
-	var _, err = controlUser.RegisterExecute(control, entry, nil)
+	var _, err = controlCompany.CreateExecute(control, entry, pkgAuthentic)
 
 	assert.Error(t, err)
-
-	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
-	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
-	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
-	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 }
 
-func TestRegisterErrAccToken(t *testing.T) {
-	var expectIdentifier = "US-TESTES"
-	var expectUUID, _ = uuid.NewUUID()
-	var refreshToken, _ = shelterText.CreateToken(expectUUID)
-	var expectToken = "test-access-token"
-	var accessToken = pkgText.JwtToken(expectToken)
-	var userAuthentic = getShelterUserAuthenticForRegister(expectIdentifier)
+func TestCreateErrGetUser(t *testing.T) {
+	var expectUserId = "US-TESTES"
+	var userAuthentic = getShelterUserAuthenticForCreate(expectUserId)
+	var expectCompanyId = "CP-TESTES"
+	var expectCompanyName = "TestCompany"
+	var company = getShelterCompanyForCreate(expectCompanyId, expectCompanyName)
+	var role = getRoleForCreate(shelterRole.RoleAdminLabel)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+	var authorization = getAuthorizationForCreate()
 
-	var userCreator, emailSetter, passwordSetter, refreshTokenIssuer, accessTokenIssuer = getBehaviorForRegister(userAuthentic, refreshToken, accessToken)
-	accessTokenIssuer.FakeExecute = func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
-		return "", errors.New("access token issuing error")
+	var companyCreator, roleGetter, userGetter, roleAssigner = getBehaviorForCreate(t, userAuthentic, company, role)
+	userGetter.FakeExecute = func(identififer pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
+		return nil, errors.New("failed to get user")
 	}
-
-	var control = controlUser.NewRegisterControl(
+	var control = controlCompany.NewCreateControl(
 		db,
-		userCreator,
-		emailSetter,
-		passwordSetter,
-		refreshTokenIssuer,
-		accessTokenIssuer,
+		authorization,
+		companyCreator,
+		roleGetter,
+		userGetter,
+		roleAssigner,
 	)
 
-	var entry = getRegisterEntry()
+	var entry = getCreateEntry(expectCompanyName)
+	var pkgAuthentic = getPkgAuthenticForCreate(expectUserId)
 
-	var _, err = controlUser.RegisterExecute(control, entry, nil)
+	var _, err = controlCompany.CreateExecute(control, entry, pkgAuthentic)
 
 	assert.Error(t, err)
+}
 
-	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
-	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
-	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
-	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
+func TestCreateErrAssign(t *testing.T) {
+	var expectUserId = "US-TESTES"
+	var userAuthentic = getShelterUserAuthenticForCreate(expectUserId)
+	var expectCompanyId = "CP-TESTES"
+	var expectCompanyName = "TestCompany"
+	var company = getShelterCompanyForCreate(expectCompanyId, expectCompanyName)
+	var role = getRoleForCreate(shelterRole.RoleAdminLabel)
+
+	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
+	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+	var authorization = getAuthorizationForCreate()
+
+	var companyCreator, roleGetter, userGetter, roleAssigner = getBehaviorForCreate(t, userAuthentic, company, role)
+	roleAssigner.FakeExecute = func(company shelterCompany.Company, user *shelterUser.UserAuthentic, role shelterRole.Role) (*shelterUser.UserAuthentic, error) {
+		return nil, errors.New("failed to assign role")
+	}
+	var control = controlCompany.NewCreateControl(
+		db,
+		authorization,
+		companyCreator,
+		roleGetter,
+		userGetter,
+		roleAssigner,
+	)
+
+	var entry = getCreateEntry(expectCompanyName)
+	var pkgAuthentic = getPkgAuthenticForCreate(expectUserId)
+
+	var _, err = controlCompany.CreateExecute(control, entry, pkgAuthentic)
+
+	assert.Error(t, err)
 }

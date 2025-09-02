@@ -2,18 +2,18 @@ package testUtility
 
 import (
 	entryCompany "github.com/motojouya/geezer_auth/internal/entry/transfer/company"
+	entryCompanyUser "github.com/motojouya/geezer_auth/internal/entry/transfer/companyUser"
 	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
-	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
 type CompanyCreatorMock struct {
-	FakeExecute func(entry entryCompany.CompanyCreator) (*shelterCompany.Company, error)
+	FakeExecute func(entry entryCompany.CompanyCreator) (shelterCompany.Company, error)
 }
 
-func (mock CompanyCreatorMock) Execute(entry entryCompany.CompanyCreator) (*shelterCompany.Company, error) {
+func (mock CompanyCreatorMock) Execute(entry entryCompany.CompanyCreator) (shelterCompany.Company, error) {
 	return mock.FakeExecute(entry)
 }
 
@@ -30,7 +30,7 @@ type AllUserGetterMock struct {
 }
 
 func (mock AllUserGetterMock) Execute(entry entryCompany.CompanyGetter) ([]shelterUser.UserAuthentic, error) {
-	return mock.FakeExecute(entry, user)
+	return mock.FakeExecute(entry)
 }
 
 type UserGetterMock struct {

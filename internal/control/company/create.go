@@ -2,38 +2,45 @@ package company
 
 import (
 	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
+	authBehavior "github.com/motojouya/geezer_auth/internal/behavior/authorization"
 	companyBehavior "github.com/motojouya/geezer_auth/internal/behavior/company"
 	roleBehavior "github.com/motojouya/geezer_auth/internal/behavior/role"
+	userBehavior "github.com/motojouya/geezer_auth/internal/behavior/user"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
+	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/motojouya/geezer_auth/internal/control/utility"
 	"github.com/motojouya/geezer_auth/internal/db"
 	entryCompany "github.com/motojouya/geezer_auth/internal/entry/transfer/company"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
+	"github.com/motojouya/geezer_auth/internal/shelter/authorization"
 )
 
 type CreateControl struct {
 	db.TransactionalDatabase
-	Authorization  *authorization.Authorization
-	CompanyCreator companyBehavior.UserCreator
-	RoleGetter     roleBehavior.RoleGetter
-	RoleAssigner   companyBehavior.RoleAssigner
+	authorization  *authorization.Authorization
+	companyCreator companyBehavior.CompanyCreator
+	roleGetter     roleBehavior.RoleGetter
+	userGetter     userBehavior.UserGetter
+	roleAssigner   companyBehavior.RoleAssigner
 }
 
 func NewCreateControl(
 	database db.TransactionalDatabase,
 	authorization *authorization.Authorization,
-	companyCreator companyBehavior.UserCreator,
+	companyCreator companyBehavior.CompanyCreator,
 	roleGetter roleBehavior.RoleGetter,
+	userGetter userBehavior.UserGetter,
 	roleAssigner companyBehavior.RoleAssigner,
 ) *CreateControl {
 	return &CreateControl{
 		TransactionalDatabase: database,
-		Authorization:	       authorization,
-		CompanyCreator:        companyBehavior.UserCreator,
-		RoleGetter:            roleBehavior.RoleGetter,
-		RoleAssigner:          companyBehavior.RoleAssigner,
+		authorization:	       authorization,
+		companyCreator:        companyCreator,
+		roleGetter:            roleGetter,
+		userGetter:            userGetter,
+		roleAssigner:          roleAssigner,
 	}
 }
 
@@ -53,37 +60,51 @@ func CreateCreateControl() (*CreateControl, error) {
 
 	companyCreator := companyBehavior.NewCompanyCreate(local, database)
 	roleGetter := roleBehavior.NewRoleGet(database)
+	userGetter := userBehavior.NewUserGet(local, database)
 	roleAssigner := companyBehavior.NewRoleAssign(local, database)
 
-	return NewCreateControl(database, authorization, companyCreator, roleGetter, roleAssigner), nil
+	return NewCreateControl(database, authorization, companyCreator, roleGetter, userGetter, roleAssigner), nil
 }
 
 var createCompanyPermission = shelterRole.NewRequirePermission(true, false, false, false)
 
-var CreateExecute = utility.Transact(func(control *CreateControl, entry entryCompany.CompanyCreateRequest, authentic *pkgUser.Authentic) (*entryCompany.CompanyGetResponse, error) {
+type RoleGetEntry struct {
+	label pkgText.Label
+}
+
+func (entry *RoleGetEntry) GetRoleLabel() (pkgText.Label, error) {
+	return entry.label, nil
+}
+
+var CreateExecute = utility.Transact(func(control *CreateControl, entry entryCompany.CompanyCreateRequest, authentic *pkgUser.Authentic) (entryCompany.CompanyGetResponse, error) {
 
 	if err := control.authorization.Authorize(createCompanyPermission, authentic); err != nil {
-		return nil, err
+		return entryCompany.CompanyGetResponse{}, err
 	}
 
 	company, err := control.companyCreator.Execute(entry)
 	if err != nil {
-		return nil, err
+		return entryCompany.CompanyGetResponse{}, err
 	}
 
-	role, err := control.roleGetter.Execute(struct {
-		entryCompany.RoleGetter
-	}{
-		GetRoleLabel: func() (pkgText.Label, error) {
-			return shelterRole.RoleAdminLabel, nil
-		},
+	role, err := control.roleGetter.Execute(&RoleGetEntry{
+		label: shelterRole.RoleAdminLabel,
 	})
 	if err != nil {
-		return nil, err
+		return entryCompany.CompanyGetResponse{}, err
+	}
+	if role == nil {
+		keys := map[string]string{"label": string(shelterRole.RoleAdminLabel)}
+		return entryCompany.CompanyGetResponse{}, essence.NewNotFoundError("role", keys, "role not found")
 	}
 
-	if _, err = control.roleAssigner.Execute(company, role); err != nil {
-		return nil, err
+	userAuthentic, err := control.userGetter.Execute(authentic.User.Identifier)
+	if err != nil {
+		return entryCompany.CompanyGetResponse{}, err
+	}
+
+	if _, err = control.roleAssigner.Execute(company, userAuthentic, *role); err != nil {
+		return entryCompany.CompanyGetResponse{}, err
 	}
 
 	return entryCompany.FromShelterCompany(company), nil

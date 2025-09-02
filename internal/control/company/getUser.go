@@ -12,25 +12,26 @@ import (
 	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 )
 
-type GetCompanyControl struct {
+type GetUserControl struct {
 	essence.Closable
 	authorization *authorization.Authorization
-	companyGetter companyBehavior.CompanyGetter
+	allUserGetter companyBehavior.AllUserGetter
 }
 
-func NewGetCompanyControl(
+func NewGetUserControl(
 	database essence.Closable,
 	authorization *authorization.Authorization,
-	companyGetter companyBehavior.CompanyGetter,
-) *GetCompanyControl {
-	return &GetCompanyControl{
+	allUserGetter companyBehavior.AllUserGetter,
+) *GetUserControl {
+	return &GetUserControl{
 		Closable:      database,
 		authorization: authorization,
-		companyGetter: companyGetter,
+		allUserGetter: allUserGetter,
 	}
 }
 
-func CreateGetCompanyControl() (*GetCompanyControl, error) {
+func CreateGetUserControl() (*GetUserControl, error) {
+	var local = localPkg.CreateLocal()
 	var env = localPkg.CreateEnvironment()
 
 	database, err := configBehavior.NewDatabaseGet(env).GetDatabase()
@@ -43,27 +44,23 @@ func CreateGetCompanyControl() (*GetCompanyControl, error) {
 		return nil, err
 	}
 
-	companyGetter := companyBehavior.NewCompanyGet(database)
+	allUserGetter := companyBehavior.NewAllUserGet(local, database)
 
-	return NewGetCompanyControl(database, authorization, companyGetter), nil
+	return NewGetUserControl(database, authorization, allUserGetter), nil
 }
 
-var getCompanyPermission = shelterRole.NewRequirePermission(true, false, false, false)
+var getUserPermission = shelterRole.NewRequirePermission(true, true, false, false)
 
-func GetCompanyExecute(control *GetCompanyControl, entry entryCompany.CompanyGetRequest, authentic *pkgUser.Authentic) (entryCompany.CompanyGetResponse, error) {
+func GetUserExecute(control *GetUserControl, entry entryCompany.CompanyGetRequest, authentic *pkgUser.Authentic) (*entryCompany.CompanyUserResponse, error) {
 
-	if err := control.authorization.Authorize(getCompanyPermission, authentic); err != nil {
-		return entryCompany.CompanyGetResponse{}, err
+	if err := control.authorization.Authorize(getUserPermission, authentic); err != nil {
+		return nil, err
 	}
 
-	company, err := control.companyGetter.Execute(entry)
+	users, err := control.allUserGetter.Execute(entry)
 	if err != nil {
-		return entryCompany.CompanyGetResponse{}, err
-	}
-	if company == nil {
-		keys := map[string]string{"identifier": entry.CompanyGet.Identifier}
-		return entryCompany.CompanyGetResponse{}, essence.NewNotFoundError("company", keys, "company not found")
+		return nil, err
 	}
 
-	return entryCompany.FromShelterCompany(*company), nil
+	return entryCompany.FromShelterUserAuthentic(users), nil
 }
