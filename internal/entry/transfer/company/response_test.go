@@ -58,7 +58,7 @@ func TestFromShelterUserAuthentic(t *testing.T) {
 	var email, _ = pkgText.NewEmail("test_2@gmail.com")
 	var shelterUserObj = shelterUser.NewUserAuthentic(userValue, companyRole, &email)
 
-	var shelterUsers = []*shelterUser.UserAuthentic{shelterUserObj}
+	var shelterUsers = []shelterUser.UserAuthentic{*shelterUserObj}
 
 	var response = company.FromShelterUserAuthentic(shelterUsers)
 

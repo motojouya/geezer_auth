@@ -40,7 +40,7 @@ func getShelterCompanyForGetUser(expectId string) shelterCompany.Company {
 
 func getShelterUserAuthenticForGetAllUser(expectId string) *shelterUser.UserAuthentic {
 	var userId uint = 1
-	var userIdentifier, _ = pkgText.NewIdentifier(expectId)
+	var userIdentifier, _ = pkgText.NewIdentifier("US-TESTES")
 	var emailId, _ = pkgText.NewEmail("test@example.com")
 	var userName, _ = pkgText.NewName("Test User")
 	var botFlag = false
@@ -48,7 +48,7 @@ func getShelterUserAuthenticForGetAllUser(expectId string) *shelterUser.UserAuth
 	var updateDate = time.Now()
 	var userValue = shelterUser.NewUser(userId, userIdentifier, userName, emailId, botFlag, userRegisteredDate, updateDate)
 
-	var companyIdentifier, _ = pkgText.NewIdentifier("CP-TESTES")
+	var companyIdentifier, _ = pkgText.NewIdentifier(expectId)
 	var companyId uint = 1
 	var companyName, _ = pkgText.NewName("TestCompany")
 	var companyRegisteredDate = time.Now()
@@ -75,15 +75,29 @@ func getAuthorizationForGetAllUser() *shelterAuth.Authorization {
 	})
 }
 
-func getPkgAuthenticForGetAllUser(expectId string) *pkgUser.Authentic {
-	var userIdentifier, _ = pkgText.NewIdentifier(expectId)
+func getCompanyRole(companyIdentifierStr string, roleLabelStr string) *pkgUser.CompanyRole {
+	var companyIdentifier, _ = pkgText.NewIdentifier(companyIdentifierStr)
+	var companyName, _ = pkgText.NewName("TestCompany")
+	var company = pkgUser.NewCompany(companyIdentifier, companyName)
+
+	var roleLabel, _ = pkgText.NewLabel(roleLabelStr)
+	var roleName, _ = pkgText.NewName("TestRoleName")
+	var role = pkgUser.NewRole(roleLabel, roleName)
+	var roles = []pkgUser.Role{role}
+
+	return pkgUser.NewCompanyRole(company, roles)
+}
+
+func getPkgAuthenticForGetAllUser(companyRole *pkgUser.CompanyRole) *pkgUser.Authentic {
+
+	var userIdentifier, _ = pkgText.NewIdentifier("US-TESTES")
 	var emailId, _ = pkgText.NewEmail("test@example.com")
 	var email, _ = pkgText.NewEmail("test@example.com")
 	var userName, _ = pkgText.NewName("Test User")
 	var botFlag = false
 	var updateDate = time.Now()
 
-	var userValue = pkgUser.NewUser(userIdentifier, emailId, &email, userName, botFlag, nil, updateDate)
+	var userValue = pkgUser.NewUser(userIdentifier, emailId, &email, userName, botFlag, companyRole, updateDate)
 
 	var issuer = "issuer_id"
 	var subject = "subject_id"
@@ -108,26 +122,80 @@ func getGetCompanyEntryForGetUser(expectId string) entryCompany.CompanyGetReques
 
 func TestGetUser(t *testing.T) {
 	var expectIdentifier = "CP-TESTES"
-	var company = getShelterCompanyForGetUser(expectIdentifier)
+	var expectLabel = "EMPLOYEE"
+	var userAuthentic = getShelterUserAuthenticForGetAllUser(expectIdentifier)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 	var authorization = getAuthorizationForGetAllUser()
 
-	var companyGetter = getBehaviorForGetAllUser(company)
-	var control = controlCompany.NewGetCompanyControl(
+	var userGetter = getBehaviorForGetUser([]shelterUser.UserAuthentic{*userAuthentic})
+	var control = controlCompany.NewGetUserControl(
 		db,
 		authorization,
-		companyGetter,
+		userGetter,
 	)
 
-	var req = getGetCompanyEntry(expectIdentifier)
-	var pkgAuthentic = getPkgAuthenticForGetUser(expectIdentifier)
+	var req = getGetCompanyEntryForGetUser(expectIdentifier)
+	var companyRole = getCompanyRole(expectIdentifier, expectLabel)
+	var pkgAuthentic = getPkgAuthenticForGetAllUser(companyRole)
 
-	var companyGetResponse, err = controlCompany.GetCompanyExecute(control, req, pkgAuthentic)
+	var companyUserResponse, err = controlCompany.GetUserExecute(control, req, pkgAuthentic)
 
 	assert.NoError(t, err)
-	assert.Equal(t, expectIdentifier, companyGetResponse.Company.Identifier)
+	assert.Equal(t, 1, len(companyUserResponse.Users))
+	assert.Equal(t, expectIdentifier, companyUserResponse.Users[0].CompanyRole.Company.Identifier)
 
-	t.Logf("Company: %+v", companyGetResponse)
+	t.Logf("Company: %+v", companyUserResponse)
+}
+
+func TestGetUserErrAuth(t *testing.T) {
+	var expectIdentifier = "CP-TESTES"
+	var userAuthentic = getShelterUserAuthenticForGetAllUser(expectIdentifier)
+
+	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
+	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+	var authorization = getAuthorizationForGetAllUser()
+
+	var userGetter = getBehaviorForGetUser([]shelterUser.UserAuthentic{*userAuthentic})
+	var control = controlCompany.NewGetUserControl(
+		db,
+		authorization,
+		userGetter,
+	)
+
+	var req = getGetCompanyEntryForGetUser(expectIdentifier)
+	var pkgAuthentic = getPkgAuthenticForGetAllUser(nil)
+
+	var _, err = controlCompany.GetUserExecute(control, req, pkgAuthentic)
+
+	assert.Error(t, err)
+}
+
+func TestGetUserErrGet(t *testing.T) {
+	var expectIdentifier = "CP-TESTES"
+	var expectLabel = "EMPLOYEE"
+	var userAuthentic = getShelterUserAuthenticForGetAllUser(expectIdentifier)
+
+	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
+	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+	var authorization = getAuthorizationForGetAllUser()
+
+	var userGetter = getBehaviorForGetUser([]shelterUser.UserAuthentic{*userAuthentic})
+	userGetter.FakeExecute = func(entry entryCompany.CompanyGetter) ([]shelterUser.UserAuthentic, error) {
+		return nil, errors.New("db error")
+	}
+	var control = controlCompany.NewGetUserControl(
+		db,
+		authorization,
+		userGetter,
+	)
+
+	var req = getGetCompanyEntryForGetUser(expectIdentifier)
+	var companyRole = getCompanyRole(expectIdentifier, expectLabel)
+	var pkgAuthentic = getPkgAuthenticForGetAllUser(companyRole)
+
+	var _, err = controlCompany.GetUserExecute(control, req, pkgAuthentic)
+
+	assert.Error(t, err)
 }
