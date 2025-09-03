@@ -202,6 +202,11 @@ func TestCreateErrAuth(t *testing.T) {
 	var _, err = controlCompany.CreateExecute(control, entry, nil)
 
 	assert.Error(t, err)
+
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 }
 
 func TestCreateErrCreate(t *testing.T) {
@@ -235,6 +240,11 @@ func TestCreateErrCreate(t *testing.T) {
 	var _, err = controlCompany.CreateExecute(control, entry, pkgAuthentic)
 
 	assert.Error(t, err)
+
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 }
 
 func TestCreateErrGetRole(t *testing.T) {
@@ -268,6 +278,11 @@ func TestCreateErrGetRole(t *testing.T) {
 	var _, err = controlCompany.CreateExecute(control, entry, pkgAuthentic)
 
 	assert.Error(t, err)
+
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 }
 
 func TestCreateErrGetRoleNil(t *testing.T) {
@@ -301,6 +316,11 @@ func TestCreateErrGetRoleNil(t *testing.T) {
 	var _, err = controlCompany.CreateExecute(control, entry, pkgAuthentic)
 
 	assert.Error(t, err)
+
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 }
 
 func TestCreateErrGetUser(t *testing.T) {
@@ -334,6 +354,11 @@ func TestCreateErrGetUser(t *testing.T) {
 	var _, err = controlCompany.CreateExecute(control, entry, pkgAuthentic)
 
 	assert.Error(t, err)
+
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 }
 
 func TestCreateErrAssign(t *testing.T) {
@@ -367,4 +392,9 @@ func TestCreateErrAssign(t *testing.T) {
 	var _, err = controlCompany.CreateExecute(control, entry, pkgAuthentic)
 
 	assert.Error(t, err)
+
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 }
