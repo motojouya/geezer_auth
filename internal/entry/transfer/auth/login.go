@@ -50,17 +50,17 @@ type AuthLogin struct {
 }
 
 type AuthLoginRequest struct {
-	AuthLogin AuthLogin `http:"body"`
+	AuthLogin
 }
 
 func (a AuthLoginRequest) GetIdentifier() (*pkgText.Identifier, error) {
-	return a.AuthLogin.GetIdentifier()
+	return a.GetIdentifier()
 }
 
 func (a AuthLoginRequest) GetEmailIdentifier() (*pkgText.Email, error) {
-	return a.AuthLogin.GetEmailIdentifier()
+	return a.GetEmailIdentifier()
 }
 
 func (a AuthLoginRequest) GetPassword() (text.Password, error) {
-	return text.NewPassword(a.AuthLogin.Password)
+	return text.NewPassword(a.Password)
 }

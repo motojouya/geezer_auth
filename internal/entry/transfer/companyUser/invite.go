@@ -15,9 +15,9 @@ type RoleInvite struct {
 
 type CompanyUserInviteRequest struct {
 	company.CompanyGetRequest
-	RoleInvite RoleInvite `http:"body"`
+	RoleInvite
 }
 
 func (c CompanyUserInviteRequest) GetRoleLabel() (pkgText.Label, error) {
-	return pkgText.NewLabel(c.RoleInvite.RoleLabel)
+	return pkgText.NewLabel(c.RoleLabel)
 }

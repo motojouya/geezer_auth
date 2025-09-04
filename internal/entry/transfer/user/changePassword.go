@@ -13,9 +13,9 @@ type UserChangePassword struct {
 }
 
 type UserChangePasswordRequest struct {
-	UserChangePassword UserChangePassword `http:"body"`
+	UserChangePassword
 }
 
 func (u UserChangePasswordRequest) GetPassword() (text.Password, error) {
-	return text.NewPassword(u.UserChangePassword.Password)
+	return text.NewPassword(u.Password)
 }

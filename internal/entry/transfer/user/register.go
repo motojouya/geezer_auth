@@ -19,27 +19,27 @@ type UserRegister struct {
 }
 
 type UserRegisterRequest struct {
-	UserRegister UserRegister `http:"body"`
+	UserRegister
 }
 
 func (u UserRegisterRequest) ToShelterUser(identifier pkgText.Identifier, registerDate time.Time) (shelter.UnsavedUser, error) {
-	var emailId, emailErr = pkgText.NewEmail(u.UserRegister.Email)
+	var emailId, emailErr = pkgText.NewEmail(u.Email)
 	if emailErr != nil {
 		return shelter.UnsavedUser{}, emailErr
 	}
 
-	var name, nameErr = pkgText.NewName(u.UserRegister.Name)
+	var name, nameErr = pkgText.NewName(u.Name)
 	if nameErr != nil {
 		return shelter.UnsavedUser{}, nameErr
 	}
 
-	return shelter.CreateUser(identifier, emailId, name, u.UserRegister.Bot, registerDate), nil
+	return shelter.CreateUser(identifier, emailId, name, u.Bot, registerDate), nil
 }
 
 func (u UserRegisterRequest) GetPassword() (text.Password, error) {
-	return text.NewPassword(u.UserRegister.Password)
+	return text.NewPassword(u.Password)
 }
 
 func (u UserRegisterRequest) GetEmail() (pkgText.Email, error) {
-	return pkgText.NewEmail(u.UserRegister.Email)
+	return pkgText.NewEmail(u.Email)
 }

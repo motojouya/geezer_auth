@@ -15,9 +15,9 @@ type CompanyAccept struct {
 
 type CompanyUserAcceptRequest struct {
 	company.CompanyGetRequest
-	CompanyAccept CompanyAccept `http:"body"`
+	CompanyAccept
 }
 
 func (c CompanyUserAcceptRequest) GetToken() (text.Token, error) {
-	return text.NewToken(c.CompanyAccept.Token)
+	return text.NewToken(c.Token)
 }

@@ -9,13 +9,13 @@ type CompanyGetter interface {
 }
 
 type CompanyGet struct {
-	Identifier string `json:"identifier"`
+	Identifier string `param:"identifier"`
 }
 
 type CompanyGetRequest struct {
-	CompanyGet CompanyGet `http:"path"`
+	CompanyGet
 }
 
 func (c CompanyGetRequest) GetCompanyIdentifier() (pkgText.Identifier, error) {
-	return pkgText.NewIdentifier(c.CompanyGet.Identifier)
+	return pkgText.NewIdentifier(c.Identifier)
 }

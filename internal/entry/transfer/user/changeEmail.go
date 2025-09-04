@@ -13,9 +13,9 @@ type UserChangeEmail struct {
 }
 
 type UserChangeEmailRequest struct {
-	UserChangeEmail UserChangeEmail `http:"body"`
+	UserChangeEmail
 }
 
 func (u UserChangeEmailRequest) GetEmail() (pkgText.Email, error) {
-	return pkgText.NewEmail(u.UserChangeEmail.Email)
+	return pkgText.NewEmail(u.Email)
 }

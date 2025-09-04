@@ -16,13 +16,13 @@ type UserVerifyEmail struct {
 }
 
 type UserVerifyEmailRequest struct {
-	UserVerifyEmail UserVerifyEmail `http:"body"`
+	UserVerifyEmail
 }
 
 func (u UserVerifyEmailRequest) GetEmail() (pkgText.Email, error) {
-	return pkgText.NewEmail(u.UserVerifyEmail.Email)
+	return pkgText.NewEmail(u.Email)
 }
 
 func (u UserVerifyEmailRequest) GetVerifyToken() (text.Token, error) {
-	return text.NewToken(u.UserVerifyEmail.VerifyToken)
+	return text.NewToken(u.VerifyToken)
 }

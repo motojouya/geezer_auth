@@ -16,13 +16,13 @@ type RoleAssign struct {
 
 type CompanyUserAssignRequest struct {
 	company.CompanyGetRequest
-	RoleAssign RoleAssign `http:"body"`
+	RoleAssign
 }
 
 func (c CompanyUserAssignRequest) GetRoleLabel() (pkgText.Label, error) {
-	return pkgText.NewLabel(c.RoleAssign.RoleLabel)
+	return pkgText.NewLabel(c.RoleLabel)
 }
 
 func (c CompanyUserAssignRequest) GetUserIdentifier() (pkgText.Identifier, error) {
-	return pkgText.NewIdentifier(c.RoleAssign.UserIdentifier)
+	return pkgText.NewIdentifier(c.UserIdentifier)
 }

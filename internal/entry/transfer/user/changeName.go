@@ -15,11 +15,11 @@ type UserChangeName struct {
 }
 
 type UserChangeNameRequest struct {
-	UserChangeName UserChangeName `http:"body"`
+	UserChangeName
 }
 
 func (u UserChangeNameRequest) ApplyShelterUser(user shelter.User, updateDate time.Time) (shelter.User, error) {
-	var name, nameErr = pkgText.NewName(u.UserChangeName.Name)
+	var name, nameErr = pkgText.NewName(u.Name)
 	if nameErr != nil {
 		return shelter.User{}, nameErr
 	}

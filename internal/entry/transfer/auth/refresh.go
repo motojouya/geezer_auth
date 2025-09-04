@@ -13,9 +13,9 @@ type AuthRefresh struct {
 }
 
 type AuthRefreshRequest struct {
-	AuthRefresh AuthRefresh `http:"body"`
+	AuthRefresh
 }
 
 func (a AuthRefreshRequest) GetRefreshToken() (text.Token, error) {
-	return text.NewToken(a.AuthRefresh.RefreshToken)
+	return text.NewToken(a.RefreshToken)
 }

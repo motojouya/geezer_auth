@@ -15,11 +15,11 @@ type CompanyCreate struct {
 }
 
 type CompanyCreateRequest struct {
-	CompanyCreate CompanyCreate `http:"body"`
+	CompanyCreate
 }
 
 func (c CompanyCreateRequest) ToShelterCompany(identifier pkgText.Identifier, registerDate time.Time) (shelter.UnsavedCompany, error) {
-	var name, nameErr = pkgText.NewName(c.CompanyCreate.Name)
+	var name, nameErr = pkgText.NewName(c.Name)
 	if nameErr != nil {
 		return shelter.UnsavedCompany{}, nameErr
 	}
