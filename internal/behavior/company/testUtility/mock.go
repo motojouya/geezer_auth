@@ -3,10 +3,10 @@ package testUtility
 import (
 	entryCompany "github.com/motojouya/geezer_auth/internal/entry/transfer/company"
 	entryCompanyUser "github.com/motojouya/geezer_auth/internal/entry/transfer/companyUser"
-	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
 	shelterCompany "github.com/motojouya/geezer_auth/internal/shelter/company"
-	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
+	shelterText "github.com/motojouya/geezer_auth/internal/shelter/text"
+	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 )
 
 type CompanyCreatorMock struct {

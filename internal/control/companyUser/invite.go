@@ -1,18 +1,18 @@
 package companyUser
 
 import (
-	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
 	authBehavior "github.com/motojouya/geezer_auth/internal/behavior/authorization"
 	companyBehavior "github.com/motojouya/geezer_auth/internal/behavior/company"
+	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
 	roleBehavior "github.com/motojouya/geezer_auth/internal/behavior/role"
-	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
-	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	"github.com/motojouya/geezer_auth/internal/control/utility"
 	"github.com/motojouya/geezer_auth/internal/db"
 	entryCompanyUser "github.com/motojouya/geezer_auth/internal/entry/transfer/companyUser"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
-	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/shelter/authorization"
+	"github.com/motojouya/geezer_auth/internal/shelter/essence"
+	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
+	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 )
 
 type InviteControl struct {
@@ -32,7 +32,7 @@ func NewInviteControl(
 ) *InviteControl {
 	return &InviteControl{
 		TransactionalDatabase: database,
-		authorization:	       authorization,
+		authorization:         authorization,
 		companyGetter:         companyGetter,
 		roleGetter:            roleGetter,
 		inviteTokenIssuer:     inviteTokenIssuer,

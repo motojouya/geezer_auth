@@ -1,27 +1,27 @@
 package companyUser
 
 import (
-	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
 	authBehavior "github.com/motojouya/geezer_auth/internal/behavior/authorization"
-	roleBehavior "github.com/motojouya/geezer_auth/internal/behavior/role"
 	companyBehavior "github.com/motojouya/geezer_auth/internal/behavior/company"
-	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
-	"github.com/motojouya/geezer_auth/internal/shelter/essence"
+	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
+	roleBehavior "github.com/motojouya/geezer_auth/internal/behavior/role"
 	"github.com/motojouya/geezer_auth/internal/control/utility"
 	"github.com/motojouya/geezer_auth/internal/db"
 	entryCompanyUser "github.com/motojouya/geezer_auth/internal/entry/transfer/companyUser"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
-	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/shelter/authorization"
+	"github.com/motojouya/geezer_auth/internal/shelter/essence"
+	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
+	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 )
 
 type AssignControl struct {
 	db.TransactionalDatabase
-	authorization      *authorization.Authorization
-	companyGetter      companyBehavior.CompanyGetter
-	userGetter         companyBehavior.UserGetter
-	roleGetter         roleBehavior.RoleGetter
-	roleAssigner       companyBehavior.RoleAssigner
+	authorization *authorization.Authorization
+	companyGetter companyBehavior.CompanyGetter
+	userGetter    companyBehavior.UserGetter
+	roleGetter    roleBehavior.RoleGetter
+	roleAssigner  companyBehavior.RoleAssigner
 }
 
 func NewAssignControl(
@@ -34,7 +34,7 @@ func NewAssignControl(
 ) *AssignControl {
 	return &AssignControl{
 		TransactionalDatabase: database,
-		authorization:	       authorization,
+		authorization:         authorization,
 		companyGetter:         companyGetter,
 		userGetter:            userGetter,
 		roleGetter:            roleGetter,

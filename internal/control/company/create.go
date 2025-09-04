@@ -1,20 +1,20 @@
 package company
 
 import (
-	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
 	authBehavior "github.com/motojouya/geezer_auth/internal/behavior/authorization"
 	companyBehavior "github.com/motojouya/geezer_auth/internal/behavior/company"
+	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
 	roleBehavior "github.com/motojouya/geezer_auth/internal/behavior/role"
 	userBehavior "github.com/motojouya/geezer_auth/internal/behavior/user"
-	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
-	"github.com/motojouya/geezer_auth/internal/shelter/essence"
-	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/motojouya/geezer_auth/internal/control/utility"
 	"github.com/motojouya/geezer_auth/internal/db"
 	entryCompany "github.com/motojouya/geezer_auth/internal/entry/transfer/company"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
-	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 	"github.com/motojouya/geezer_auth/internal/shelter/authorization"
+	"github.com/motojouya/geezer_auth/internal/shelter/essence"
+	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
+	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
 )
 
 type CreateControl struct {
@@ -36,7 +36,7 @@ func NewCreateControl(
 ) *CreateControl {
 	return &CreateControl{
 		TransactionalDatabase: database,
-		authorization:	       authorization,
+		authorization:         authorization,
 		companyCreator:        companyCreator,
 		roleGetter:            roleGetter,
 		userGetter:            userGetter,

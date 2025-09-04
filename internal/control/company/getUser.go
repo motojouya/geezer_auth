@@ -2,8 +2,8 @@ package company
 
 import (
 	authBehavior "github.com/motojouya/geezer_auth/internal/behavior/authorization"
-	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
 	companyBehavior "github.com/motojouya/geezer_auth/internal/behavior/company"
+	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
 	entryCompany "github.com/motojouya/geezer_auth/internal/entry/transfer/company"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	"github.com/motojouya/geezer_auth/internal/shelter/authorization"

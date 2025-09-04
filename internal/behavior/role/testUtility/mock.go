@@ -1,8 +1,8 @@
 package testUtility
 
 import (
-	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	entryCompanyUser "github.com/motojouya/geezer_auth/internal/entry/transfer/companyUser"
+	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 )
 
 type AllRoleGetterMock struct {
