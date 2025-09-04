@@ -3,8 +3,8 @@ package companyUser_test
 import (
 	"errors"
 	"github.com/google/uuid"
+	userTestUtility "github.com/motojouya/geezer_auth/internal/behavior/user/testUtility"
 	companyTestUtility "github.com/motojouya/geezer_auth/internal/behavior/company/testUtility"
-	roleTestUtility "github.com/motojouya/geezer_auth/internal/behavior/role/testUtility"
 	controlCompanyUser "github.com/motojouya/geezer_auth/internal/control/companyUser"
 	dbTestUtility "github.com/motojouya/geezer_auth/internal/db/testUtility"
 	entryCompany "github.com/motojouya/geezer_auth/internal/entry/transfer/company"
@@ -21,29 +21,35 @@ import (
 	"time"
 )
 
-func getBehaviorForInviteIssue(company *shelterCompany.Company, role *shelterRole.Role, token shelterText.Token) (*companyTestUtility.CompanyGetterMock, *roleTestUtility.RoleGetterMock, *companyTestUtility.InviteTokenIssuerMock) {
+func getBehaviorForAccept(userAuthentic *shelterUser.UserAuthentic, company *shelterCompany.Company, role shelterRole.Role) (*userTestUtility.UserGetterMock, *companyTestUtility.CompanyGetterMock, *companyTestUtility.InviteTokenCheckerMock, *companyTestUtility.RoleAssignerMock) {
+	var userGetter = &userTestUtility.UserGetterMock{
+		FakeExecute: func(identifier pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
+			return userAuthentic, nil
+		},
+	}
+
 	var companyGetter = &companyTestUtility.CompanyGetterMock{
 		FakeExecute: func(entry entryCompany.CompanyGetter) (*shelterCompany.Company, error) {
 			return company, nil
 		},
 	}
 
-	var roleGetter = &roleTestUtility.RoleGetterMock{
-		FakeExecute: func(entry entryCompanyUser.RoleGetter) (*shelterRole.Role, error) {
+	var inviteTokenChecker = &companyTestUtility.InviteTokenCheckerMock{
+		FakeExecute: func(entry entryCompanyUser.InviteTokenGetter, company shelterCompany.Company) (shelterRole.Role, error) {
 			return role, nil
 		},
 	}
 
-	var inviteTokenIssuer = &companyTestUtility.InviteTokenIssuerMock{
-		FakeExecute: func(company shelterCompany.Company, role shelterRole.Role) (shelterText.Token, error) {
-			return token, nil
+	var roleAssigner = &companyTestUtility.RoleAssignerMock{
+		FakeExecute: func(company shelterCompany.Company, userAuthentic *shelterUser.UserAuthentic, role shelterRole.Role) (*shelterUser.UserAuthentic, error) {
+			return userAuthentic, nil
 		},
 	}
 
-	return companyGetter, roleGetter, inviteTokenIssuer
+	return userGetter, companyGetter, inviteTokenChecker, roleAssigner
 }
 
-func getShelterUserAuthenticForCreate(expectId string) *shelterUser.UserAuthentic {
+func getShelterUserAuthenticForAccept(expectId string) *shelterUser.UserAuthentic {
 	var userId uint = 1
 	var userIdentifier, _ = pkgText.NewIdentifier(expectId)
 	var emailId, _ = pkgText.NewEmail("test@example.com")
@@ -71,20 +77,20 @@ func getShelterUserAuthenticForCreate(expectId string) *shelterUser.UserAuthenti
 	return shelterUser.NewUserAuthentic(userValue, companyRole, &email)
 }
 
-func getInviteIssueEntry(expectId string, expectLabel string) entryCompanyUser.CompanyUserInviteRequest {
-	return entryCompanyUser.CompanyUserInviteRequest{
+func getInviteAcceptEntry(expectId string, expectToken string) entryCompanyUser.CompanyUserAcceptRequest {
+	return entryCompanyUser.CompanyUserAcceptRequest{
 		CompanyGetRequest: entryCompany.CompanyGetRequest{
 			CompanyGet: entryCompany.CompanyGet{
 				Identifier: expectId,
 			},
 		},
-		RoleInvite: entryCompanyUser.RoleInvite{
-			RoleLabel: expectLabel,
+		CompanyAccept: entryCompanyUser.CompanyAccept{
+			Token: expectToken,
 		},
 	}
 }
 
-func getAuthorizationForInviteIssue() *shelterAuth.Authorization {
+func getAuthorizationForAccept() *shelterAuth.Authorization {
 	return shelterAuth.NewAuthorization([]shelterRole.RolePermission{
 		shelterRole.AnonymousPermission,
 		shelterRole.RoleLessPermission,
@@ -93,7 +99,7 @@ func getAuthorizationForInviteIssue() *shelterAuth.Authorization {
 	})
 }
 
-func getRoleForInviteIssue(expectLabel string) shelterRole.Role {
+func getRoleForAccept(expectLabel string) shelterRole.Role {
 	var label, _ = pkgText.NewLabel(expectLabel)
 	var name, _ = pkgText.NewName("TestRole")
 	var description, _ = shelterText.NewText("Role for testing")
@@ -102,20 +108,7 @@ func getRoleForInviteIssue(expectLabel string) shelterRole.Role {
 	return shelterRole.NewRole(name, label, description, registeredDate)
 }
 
-func getCompanyRoleForInviteIssue(companyIdentifierStr string, roleLabelStr string) *pkgUser.CompanyRole {
-	var companyIdentifier, _ = pkgText.NewIdentifier(companyIdentifierStr)
-	var companyName, _ = pkgText.NewName("TestCompany")
-	var company = pkgUser.NewCompany(companyIdentifier, companyName)
-
-	var roleLabel, _ = pkgText.NewLabel(roleLabelStr)
-	var roleName, _ = pkgText.NewName("TestRoleName")
-	var role = pkgUser.NewRole(roleLabel, roleName)
-	var roles = []pkgUser.Role{role}
-
-	return pkgUser.NewCompanyRole(company, roles)
-}
-
-func getPkgAuthenticForInviteIssue(expectId string, companyRole *pkgUser.CompanyRole) *pkgUser.Authentic {
+func getPkgAuthenticForAccept(expectId string) *pkgUser.Authentic {
 	var userIdentifier, _ = pkgText.NewIdentifier(expectId)
 	var emailId, _ = pkgText.NewEmail("test@example.com")
 	var email, _ = pkgText.NewEmail("test@example.com")
@@ -123,7 +116,7 @@ func getPkgAuthenticForInviteIssue(expectId string, companyRole *pkgUser.Company
 	var botFlag = false
 	var updateDate = time.Now()
 
-	var userValue = pkgUser.NewUser(userIdentifier, emailId, &email, userName, botFlag, companyRole, updateDate)
+	var userValue = pkgUser.NewUser(userIdentifier, emailId, &email, userName, botFlag, nil, updateDate)
 
 	var issuer = "issuer_id"
 	var subject = "subject_id"
@@ -138,7 +131,7 @@ func getPkgAuthenticForInviteIssue(expectId string, companyRole *pkgUser.Company
 	return pkgUser.NewAuthentic(issuer, subject, audience, expiresAt, notBefore, issuedAt, id.String(), userValue)
 }
 
-func getShelterCompanyForInviteIssue(expectId string) shelterCompany.Company {
+func getShelterCompanyForAccept(expectId string) shelterCompany.Company {
 	var companyIdentifier, _ = pkgText.NewIdentifier(expectId)
 	var companyId uint = 1
 	var companyName, _ = pkgText.NewName("TestCompany")
@@ -147,78 +140,73 @@ func getShelterCompanyForInviteIssue(expectId string) shelterCompany.Company {
 	return shelterCompany.NewCompany(companyId, companyIdentifier, companyName, companyRegisteredDate)
 }
 
-func TestInviteIssue(t *testing.T) {
+func TestAccept(t *testing.T) {
 	var expectUserId = "US-TESTES"
+	var userAuthentic = getShelterUserAuthenticForAccept(expectUserId)
 
 	var expectCompanyId = "CP-TESTES"
-	var company = getShelterCompanyForInviteIssue(expectCompanyId)
+	var company = getShelterCompanyForAccept(expectCompanyId)
 
 	var expectRoleLabel = "EMPLOYEE"
-	var role = getRoleForInviteIssue(expectRoleLabel)
-
-	var expectUUID, _ = uuid.NewUUID()
-	var inviteToken, _ = shelterText.CreateToken(expectUUID)
+	var role = getRoleForAccept(expectRoleLabel)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
-	var authorization = getAuthorizationForInviteIssue()
+	var authorization = getAuthorizationForAccept()
 
-	var companyGetter, roleGetter, inviteTokenIssuer = getBehaviorForInviteIssue(&company, &role, inviteToken)
-	var control = controlCompanyUser.NewInviteControl(
+	var userGetter, companyGetter, inviteTokenChecker, roleAssigner = getBehaviorForAccept(userAuthentic, &company, role)
+	var control = controlCompanyUser.NewAcceptControl(
 		db,
 		authorization,
+		userGetter,
 		companyGetter,
-		roleGetter,
-		inviteTokenIssuer,
+		inviteTokenChecker,
+		roleAssigner,
 	)
 
-	var entry = getInviteIssueEntry(expectCompanyId, expectRoleLabel)
-	var companyRole = getCompanyRoleForInviteIssue(expectCompanyId, "MANAGER")
-	var pkgAuthentic = getPkgAuthenticForInviteIssue(expectUserId, companyRole)
+	var entry = getInviteAcceptEntry(expectCompanyId, "TestToken")
+	var pkgAuthentic = getPkgAuthenticForAccept(expectUserId)
 
-	var companyUserInviteResponse, err = controlCompanyUser.InviteExecute(control, entry, pkgAuthentic)
+	var companyUserAcceptResponse, err = controlCompanyUser.AcceptExecute(control, entry, pkgAuthentic)
 
 	assert.NoError(t, err)
-	assert.Equal(t, string(inviteToken), companyUserInviteResponse.Token)
+	assert.Equal(t, expectUserId, companyUserAcceptResponse.User.Identifier)
 
 	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
 	assert.Equal(t, 1, transactionCalledCount.CommitCalled)
 	assert.Equal(t, 0, transactionCalledCount.RollbackCalled)
 	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 
-	t.Logf("company: %+v", companyUserInviteResponse)
+	t.Logf("company: %+v", companyUserAcceptResponse)
 }
 
-func TestInviteIssueErrAuth(t *testing.T) {
+func TestAcceptErrAuth(t *testing.T) {
 	var expectUserId = "US-TESTES"
+	var userAuthentic = getShelterUserAuthenticForAccept(expectUserId)
 
 	var expectCompanyId = "CP-TESTES"
-	var company = getShelterCompanyForInviteIssue(expectCompanyId)
+	var company = getShelterCompanyForAccept(expectCompanyId)
 
 	var expectRoleLabel = "EMPLOYEE"
-	var role = getRoleForInviteIssue(expectRoleLabel)
-
-	var expectUUID, _ = uuid.NewUUID()
-	var inviteToken, _ = shelterText.CreateToken(expectUUID)
+	var role = getRoleForAccept(expectRoleLabel)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
-	var authorization = getAuthorizationForInviteIssue()
+	var authorization = getAuthorizationForAccept()
 
-	var companyGetter, roleGetter, inviteTokenIssuer = getBehaviorForInviteIssue(&company, &role, inviteToken)
-	var control = controlCompanyUser.NewInviteControl(
+	var userGetter, companyGetter, inviteTokenChecker, roleAssigner = getBehaviorForAccept(userAuthentic, &company, role)
+	var control = controlCompanyUser.NewAcceptControl(
 		db,
 		authorization,
+		userGetter,
 		companyGetter,
-		roleGetter,
-		inviteTokenIssuer,
+		inviteTokenChecker,
+		roleAssigner,
 	)
 
-	var entry = getInviteIssueEntry(expectCompanyId, expectRoleLabel)
-	var companyRole = getCompanyRoleForInviteIssue(expectCompanyId, "EMPLOYEE")
-	var pkgAuthentic = getPkgAuthenticForInviteIssue(expectUserId, companyRole)
+	var entry = getInviteAcceptEntry(expectCompanyId, "TestToken")
 
-	var _, err = controlCompanyUser.InviteExecute(control, entry, pkgAuthentic)
+	var _, err = controlCompanyUser.AcceptExecute(control, entry, nil)
 
 	assert.Error(t, err)
 
@@ -228,39 +216,113 @@ func TestInviteIssueErrAuth(t *testing.T) {
 	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 }
 
-func TestInviteIssueErrGetCompany(t *testing.T) {
+func TestAcceptErrGetUser(t *testing.T) {
 	var expectUserId = "US-TESTES"
+	var userAuthentic = getShelterUserAuthenticForAccept(expectUserId)
 
 	var expectCompanyId = "CP-TESTES"
-	var company = getShelterCompanyForInviteIssue(expectCompanyId)
+	var company = getShelterCompanyForAccept(expectCompanyId)
 
 	var expectRoleLabel = "EMPLOYEE"
-	var role = getRoleForInviteIssue(expectRoleLabel)
-
-	var expectUUID, _ = uuid.NewUUID()
-	var inviteToken, _ = shelterText.CreateToken(expectUUID)
+	var role = getRoleForAccept(expectRoleLabel)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
-	var authorization = getAuthorizationForInviteIssue()
+	var authorization = getAuthorizationForAccept()
 
-	var companyGetter, roleGetter, inviteTokenIssuer = getBehaviorForInviteIssue(&company, &role, inviteToken)
+	var userGetter, companyGetter, inviteTokenChecker, roleAssigner = getBehaviorForAccept(userAuthentic, &company, role)
+	userGetter.FakeExecute = func(identifier pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
+		return nil, errors.New("db error")
+	}
+	var control = controlCompanyUser.NewAcceptControl(
+		db,
+		authorization,
+		userGetter,
+		companyGetter,
+		inviteTokenChecker,
+		roleAssigner,
+	)
+
+	var entry = getInviteAcceptEntry(expectCompanyId, "TestToken")
+	var pkgAuthentic = getPkgAuthenticForAccept(expectUserId)
+
+	var _, err = controlCompanyUser.AcceptExecute(control, entry, pkgAuthentic)
+
+	assert.Error(t, err)
+
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
+}
+
+func TestAcceptErrGetUserNil(t *testing.T) {
+	var expectUserId = "US-TESTES"
+
+	var expectCompanyId = "CP-TESTES"
+	var company = getShelterCompanyForAccept(expectCompanyId)
+
+	var expectRoleLabel = "EMPLOYEE"
+	var role = getRoleForAccept(expectRoleLabel)
+
+	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
+	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+	var authorization = getAuthorizationForAccept()
+
+	var userGetter, companyGetter, inviteTokenChecker, roleAssigner = getBehaviorForAccept(nil, &company, role)
+	var control = controlCompanyUser.NewAcceptControl(
+		db,
+		authorization,
+		userGetter,
+		companyGetter,
+		inviteTokenChecker,
+		roleAssigner,
+	)
+
+	var entry = getInviteAcceptEntry(expectCompanyId, "TestToken")
+	var pkgAuthentic = getPkgAuthenticForAccept(expectUserId)
+
+	var _, err = controlCompanyUser.AcceptExecute(control, entry, pkgAuthentic)
+
+	assert.Error(t, err)
+
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
+}
+
+func TestAcceptErrGetCompany(t *testing.T) {
+	var expectUserId = "US-TESTES"
+	var userAuthentic = getShelterUserAuthenticForAccept(expectUserId)
+
+	var expectCompanyId = "CP-TESTES"
+	var company = getShelterCompanyForAccept(expectCompanyId)
+
+	var expectRoleLabel = "EMPLOYEE"
+	var role = getRoleForAccept(expectRoleLabel)
+
+	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
+	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+	var authorization = getAuthorizationForAccept()
+
+	var userGetter, companyGetter, inviteTokenChecker, roleAssigner = getBehaviorForAccept(userAuthentic, &company, role)
 	companyGetter.FakeExecute = func(entry entryCompany.CompanyGetter) (*shelterCompany.Company, error) {
-		return nil, errors.New("error in get company")
+		return nil, errors.New("db error")
 	}
-	var control = controlCompanyUser.NewInviteControl(
+	var control = controlCompanyUser.NewAcceptControl(
 		db,
 		authorization,
+		userGetter,
 		companyGetter,
-		roleGetter,
-		inviteTokenIssuer,
+		inviteTokenChecker,
+		roleAssigner,
 	)
 
-	var entry = getInviteIssueEntry(expectCompanyId, expectRoleLabel)
-	var companyRole = getCompanyRoleForInviteIssue(expectCompanyId, "MANAGER")
-	var pkgAuthentic = getPkgAuthenticForInviteIssue(expectUserId, companyRole)
+	var entry = getInviteAcceptEntry(expectCompanyId, "TestToken")
+	var pkgAuthentic = getPkgAuthenticForAccept(expectUserId)
 
-	var _, err = controlCompanyUser.InviteExecute(control, entry, pkgAuthentic)
+	var _, err = controlCompanyUser.AcceptExecute(control, entry, pkgAuthentic)
 
 	assert.Error(t, err)
 
@@ -270,35 +332,33 @@ func TestInviteIssueErrGetCompany(t *testing.T) {
 	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 }
 
-func TestInviteIssueErrCompanyNil(t *testing.T) {
+func TestAcceptErrGetCompanyNil(t *testing.T) {
 	var expectUserId = "US-TESTES"
+	var userAuthentic = getShelterUserAuthenticForAccept(expectUserId)
 
 	var expectCompanyId = "CP-TESTES"
 
 	var expectRoleLabel = "EMPLOYEE"
-	var role = getRoleForInviteIssue(expectRoleLabel)
-
-	var expectUUID, _ = uuid.NewUUID()
-	var inviteToken, _ = shelterText.CreateToken(expectUUID)
+	var role = getRoleForAccept(expectRoleLabel)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
-	var authorization = getAuthorizationForInviteIssue()
+	var authorization = getAuthorizationForAccept()
 
-	var companyGetter, roleGetter, inviteTokenIssuer = getBehaviorForInviteIssue(nil, &role, inviteToken)
-	var control = controlCompanyUser.NewInviteControl(
+	var userGetter, companyGetter, inviteTokenChecker, roleAssigner = getBehaviorForAccept(userAuthentic, nil, role)
+	var control = controlCompanyUser.NewAcceptControl(
 		db,
 		authorization,
+		userGetter,
 		companyGetter,
-		roleGetter,
-		inviteTokenIssuer,
+		inviteTokenChecker,
+		roleAssigner,
 	)
 
-	var entry = getInviteIssueEntry(expectCompanyId, expectRoleLabel)
-	var companyRole = getCompanyRoleForInviteIssue(expectCompanyId, "MANAGER")
-	var pkgAuthentic = getPkgAuthenticForInviteIssue(expectUserId, companyRole)
+	var entry = getInviteAcceptEntry(expectCompanyId, "TestToken")
+	var pkgAuthentic = getPkgAuthenticForAccept(expectUserId)
 
-	var _, err = controlCompanyUser.InviteExecute(control, entry, pkgAuthentic)
+	var _, err = controlCompanyUser.AcceptExecute(control, entry, pkgAuthentic)
 
 	assert.Error(t, err)
 
@@ -308,39 +368,37 @@ func TestInviteIssueErrCompanyNil(t *testing.T) {
 	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 }
 
-func TestInviteIssueErrGetRole(t *testing.T) {
+func TestAcceptErrCheck(t *testing.T) {
 	var expectUserId = "US-TESTES"
+	var userAuthentic = getShelterUserAuthenticForAccept(expectUserId)
 
 	var expectCompanyId = "CP-TESTES"
-	var company = getShelterCompanyForInviteIssue(expectCompanyId)
+	var company = getShelterCompanyForAccept(expectCompanyId)
 
 	var expectRoleLabel = "EMPLOYEE"
-	var role = getRoleForInviteIssue(expectRoleLabel)
-
-	var expectUUID, _ = uuid.NewUUID()
-	var inviteToken, _ = shelterText.CreateToken(expectUUID)
+	var role = getRoleForAccept(expectRoleLabel)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
-	var authorization = getAuthorizationForInviteIssue()
+	var authorization = getAuthorizationForAccept()
 
-	var companyGetter, roleGetter, inviteTokenIssuer = getBehaviorForInviteIssue(&company, &role, inviteToken)
-	roleGetter.FakeExecute = func(entry entryCompanyUser.RoleGetter) (*shelterRole.Role, error) {
-		return nil, errors.New("error in get role")
+	var userGetter, companyGetter, inviteTokenChecker, roleAssigner = getBehaviorForAccept(userAuthentic, &company, role)
+	inviteTokenChecker.FakeExecute = func(entry entryCompanyUser.InviteTokenGetter, company shelterCompany.Company) (shelterRole.Role, error) {
+		return shelterRole.Role{}, errors.New("db error")
 	}
-	var control = controlCompanyUser.NewInviteControl(
+	var control = controlCompanyUser.NewAcceptControl(
 		db,
 		authorization,
+		userGetter,
 		companyGetter,
-		roleGetter,
-		inviteTokenIssuer,
+		inviteTokenChecker,
+		roleAssigner,
 	)
 
-	var entry = getInviteIssueEntry(expectCompanyId, expectRoleLabel)
-	var companyRole = getCompanyRoleForInviteIssue(expectCompanyId, "MANAGER")
-	var pkgAuthentic = getPkgAuthenticForInviteIssue(expectUserId, companyRole)
+	var entry = getInviteAcceptEntry(expectCompanyId, "TestToken")
+	var pkgAuthentic = getPkgAuthenticForAccept(expectUserId)
 
-	var _, err = controlCompanyUser.InviteExecute(control, entry, pkgAuthentic)
+	var _, err = controlCompanyUser.AcceptExecute(control, entry, pkgAuthentic)
 
 	assert.Error(t, err)
 
@@ -350,77 +408,37 @@ func TestInviteIssueErrGetRole(t *testing.T) {
 	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
 }
 
-func TestInviteIssueErrRoleNil(t *testing.T) {
+func TestAcceptErrAssign(t *testing.T) {
 	var expectUserId = "US-TESTES"
+	var userAuthentic = getShelterUserAuthenticForAccept(expectUserId)
 
 	var expectCompanyId = "CP-TESTES"
-	var company = getShelterCompanyForInviteIssue(expectCompanyId)
+	var company = getShelterCompanyForAccept(expectCompanyId)
 
 	var expectRoleLabel = "EMPLOYEE"
-
-	var expectUUID, _ = uuid.NewUUID()
-	var inviteToken, _ = shelterText.CreateToken(expectUUID)
+	var role = getRoleForAccept(expectRoleLabel)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
-	var authorization = getAuthorizationForInviteIssue()
+	var authorization = getAuthorizationForAccept()
 
-	var companyGetter, roleGetter, inviteTokenIssuer = getBehaviorForInviteIssue(&company, nil, inviteToken)
-	var control = controlCompanyUser.NewInviteControl(
-		db,
-		authorization,
-		companyGetter,
-		roleGetter,
-		inviteTokenIssuer,
-	)
-
-	var entry = getInviteIssueEntry(expectCompanyId, expectRoleLabel)
-	var companyRole = getCompanyRoleForInviteIssue(expectCompanyId, "MANAGER")
-	var pkgAuthentic = getPkgAuthenticForInviteIssue(expectUserId, companyRole)
-
-	var _, err = controlCompanyUser.InviteExecute(control, entry, pkgAuthentic)
-
-	assert.Error(t, err)
-
-	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
-	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
-	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
-	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
-}
-
-func TestInviteIssueErrIssue(t *testing.T) {
-	var expectUserId = "US-TESTES"
-
-	var expectCompanyId = "CP-TESTES"
-	var company = getShelterCompanyForInviteIssue(expectCompanyId)
-
-	var expectRoleLabel = "EMPLOYEE"
-	var role = getRoleForInviteIssue(expectRoleLabel)
-
-	var expectUUID, _ = uuid.NewUUID()
-	var inviteToken, _ = shelterText.CreateToken(expectUUID)
-
-	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
-	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
-	var authorization = getAuthorizationForInviteIssue()
-
-	var companyGetter, roleGetter, inviteTokenIssuer = getBehaviorForInviteIssue(&company, &role, inviteToken)
-	inviteTokenIssuer.FakeExecute = func(company shelterCompany.Company, role shelterRole.Role) (shelterText.Token, error) {
-		return shelterText.Token(""), errors.New("error in issue token")
+	var userGetter, companyGetter, inviteTokenChecker, roleAssigner = getBehaviorForAccept(userAuthentic, &company, role)
+	roleAssigner.FakeExecute = func(company shelterCompany.Company, userAuthentic *shelterUser.UserAuthentic, role shelterRole.Role) (*shelterUser.UserAuthentic, error) {
+		return nil, errors.New("db error")
 	}
-	var control = controlCompanyUser.NewInviteControl(
+	var control = controlCompanyUser.NewAcceptControl(
 		db,
 		authorization,
+		userGetter,
 		companyGetter,
-		roleGetter,
-		inviteTokenIssuer,
+		inviteTokenChecker,
+		roleAssigner,
 	)
 
-	var entry = getInviteIssueEntry(expectCompanyId, expectRoleLabel)
-	var companyRole = getCompanyRoleForInviteIssue(expectCompanyId, "MANAGER")
-	var pkgAuthentic = getPkgAuthenticForInviteIssue(expectUserId, companyRole)
+	var entry = getInviteAcceptEntry(expectCompanyId, "TestToken")
+	var pkgAuthentic = getPkgAuthenticForAccept(expectUserId)
 
-	var _, err = controlCompanyUser.InviteExecute(control, entry, pkgAuthentic)
+	var _, err = controlCompanyUser.AcceptExecute(control, entry, pkgAuthentic)
 
 	assert.Error(t, err)
 
