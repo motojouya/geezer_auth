@@ -5,8 +5,8 @@ import (
 )
 
 type Company struct {
-	Identifier string
-	Name       string
+	Identifier string `json:"identifier"`
+	Name       string `json:"name"`
 }
 
 func FromShelterCompany(c shelter.Company) Company {

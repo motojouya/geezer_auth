@@ -5,9 +5,9 @@ import (
 )
 
 type Role struct {
-	Label       string
-	Name        string
-	Description string
+	Label       string `json:"label"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 func FromShelterRole(r shelter.Role) Role {

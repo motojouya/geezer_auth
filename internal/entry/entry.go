@@ -13,7 +13,7 @@ type RequestHeader struct {
 	token string `header:"bearer"`
 }
 
-func CreateHandle[C any, I any, O any](createControl func() (C, error), handleControl func(C, I, *pkgUser.Authentic) (O, error)) echo.HandlerFunc {
+func Hand[C any, I any, O any](createControl func() (C, error), handleControl func(C, I, *pkgUser.Authentic) (O, error)) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		var request I

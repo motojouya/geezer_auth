@@ -7,18 +7,18 @@ import (
 )
 
 type CompanyRole struct {
-	Company Company
-	Roles   []Role
+	Company Company `json:"company"`
+	Roles   []Role `json:"roles"`
 }
 
 type User struct {
-	Identifier      string
-	IdentifierEmail string
-	Name            string
-	BotFlag         bool
-	UpdateDate      time.Time
-	CompanyRole     *CompanyRole
-	Email           *string
+	Identifier      string `json:"identifier"`
+	IdentifierEmail string `json:"identifier_email"`
+	Name            string `json:"name"`
+	BotFlag         bool `json:"bot_flag"`
+	UpdateDate      time.Time `json:"update_date"`
+	CompanyRole     *CompanyRole `json:"company_role"`
+	Email           *string `json:"email"`
 }
 
 func FromShelterUser(u *shelter.UserAuthentic) *User {

@@ -32,3 +32,11 @@ type DBAccessGetter interface {
 func (e Environment) GetDBAccess() (config.DBAccess, error) {
 	return env.ParseAs[config.DBAccess]()
 }
+
+type ServerGetter interface {
+	GetServer() (config.Server, error)
+}
+
+func (e Environment) GetServer() (config.Server, error) {
+	return env.ParseAs[config.Server]()
+}
