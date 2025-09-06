@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
+	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
 	"github.com/motojouya/geezer_auth/internal/entry/router"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
-	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
 )
 
 func main() {
