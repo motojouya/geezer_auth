@@ -53,14 +53,6 @@ type AuthLoginRequest struct {
 	AuthLogin
 }
 
-func (a AuthLoginRequest) GetIdentifier() (*pkgText.Identifier, error) {
-	return a.GetIdentifier()
-}
-
-func (a AuthLoginRequest) GetEmailIdentifier() (*pkgText.Email, error) {
-	return a.GetEmailIdentifier()
-}
-
 func (a AuthLoginRequest) GetPassword() (text.Password, error) {
 	return text.NewPassword(a.Password)
 }
