@@ -1,6 +1,16 @@
 services:
   geezerauth:
     image: geezerauth
+    build:
+      context: "."
+      target: final
+      # args:
+      #   - UID
+      #   - GID
+      #   - USERNAME=croaker
+      #   - GROUPNAME=croaker
+      #   - GO_VERSION
+      #   - TARGETARCH
     ports:
       - "8000:80"
     environment:
@@ -19,14 +29,14 @@ services:
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
-      JWT_AUDIENCE: 
-      JWT_VALIDITY_PERIOD_MINUTES: 
-      JWT_ISSUER: 
-      JWT_MYSELF: 
-      JWT_LATEST_KEY_ID: 
-      JWT_LATEST_SECRET: 
-      JWT_OLD_KEY_ID: 
-      JWT_OLD_SECRET: 
+      JWT_AUDIENCE: "${}"
+      JWT_VALIDITY_PERIOD_MINUTES: "${}"
+      JWT_ISSUER: "${}"
+      JWT_MYSELF: "${}"
+      JWT_LATEST_KEY_ID: "${}"
+      JWT_LATEST_SECRET: "${}"
+      JWT_OLD_KEY_ID: "${}"
+      JWT_OLD_SECRET: "${}"
   postgres:
     image: postgres:17.6-bookworm
     container_name: postgres
