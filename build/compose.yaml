@@ -1,0 +1,43 @@
+services:
+  geezerauth:
+    image: geezerauth
+    ports:
+      - "8000:80"
+    environment:
+      - OTEL_LOG_LEVEL=info
+    volumes:
+      - geezerdata:/opt/data
+      - type: tmpfs
+        target: /opt/tmp
+        tmpfs:
+          size: 10000000
+    environment:
+      PORT: 8000
+      DB_DRIVER: postgres
+      DB_NAME: geezerauth
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_AUDIENCE: 
+      JWT_VALIDITY_PERIOD_MINUTES: 
+      JWT_ISSUER: 
+      JWT_MYSELF: 
+      JWT_LATEST_KEY_ID: 
+      JWT_LATEST_SECRET: 
+      JWT_OLD_KEY_ID: 
+      JWT_OLD_SECRET: 
+  postgres:
+    image: postgres:17.6-bookworm
+    container_name: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - db-store:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: geezerauth
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+volumes:
+  geezerdata:
+  db-store:
