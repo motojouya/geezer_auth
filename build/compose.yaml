@@ -21,7 +21,7 @@ services:
       OTEL_LOG_LEVEL: info
       PORT: 8000
       DB_DRIVER: postgres
-      DB_NAME: geezerauth
+      DB_NAME: geezer_auth
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USER: postgres
@@ -42,7 +42,7 @@ services:
     volumes:
       - db-store:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: geezerauth
+      POSTGRES_DB: geezer_auth
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
 volumes:

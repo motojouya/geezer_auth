@@ -370,10 +370,6 @@ create table role (
   description
   registered_date
 );
-insert into role (label     ,name    ,description,registered_date)
-          values ('employee','作業者','作業者'   ,now()          )
-               , ('manager' ,'管理者','管理者'   ,now()          )
-               ;
 
 create table role_permission (
   role_label
@@ -383,12 +379,23 @@ create table role_permission (
   company_edit bool
   primary uint
 );
-insert into role (label     ,self_edit,company_access,company_invite,company_edit,registered_date,primary)
-          values ('employee',true     ,true          ,false         ,false       ,now()          ,5      )
-               , ('manager' ,true     ,true          ,true          ,true        ,now()          ,9      )
+
+insert into role (label     ,name    ,description,register_date)
+          values ('EMPLOYEE','作業者','作業者'   ,now()          )
+               , ('MANAGER' ,'管理者','管理者'   ,now()          )
                ;
+insert into role_permission (role_label,self_edit,company_access,company_invite,company_edit,priority)
+                     values ('EMPLOYEE',true     ,true          ,false         ,false       ,5      )
+                          , ('MANAGER' ,true     ,true          ,true          ,true        ,9      )
+                          ;
 -- defaultの値は、modelが知っているので、ここでは設定しない。
 ```
+
+```sql
+insert into role (label ,name ,description,register_date) values ('EMPLOYEE','作業者','作業者' ,now() ) , ('MANAGER' ,'管理者','管理者' ,now() );
+insert into role_permission (role_label ,self_edit,company_access,company_invite,company_edit,priority) values ('EMPLOYEE',true ,true ,false ,false ,5 ) , ('MANAGER' ,true ,true ,true ,true ,9 ) ;
+```
+
 
 ## Application Modeling
 Rdb Schemaに習う感じだが、そっちで表現しきれないものを記載していく  

@@ -30,3 +30,36 @@
 ### 開発環境
 まだわからない  
 
+
+## 環境構築
+
+install golang-migrate
+https://github.com/golang-migrate/migrate
+
+```shell
+make dockerup
+make migrate
+make postgres
+```
+
+```sql
+insert into role (label     ,name    ,description,register_date)
+          values ('EMPLOYEE','作業者','作業者'   ,now()        )
+               , ('MANAGER' ,'管理者','管理者'   ,now()        )
+               ;
+insert into role_permission (role_label,self_edit,company_access,company_invite,company_edit,priority)
+                     values ('EMPLOYEE',true     ,true          ,false         ,false       ,5       )
+                          , ('MANAGER' ,true     ,true          ,true          ,true        ,9       )
+                          ;
+```
+
+docker稼働確認
+```shell
+curl -X POST -H "Content-Type: application/json" -d '{"Email":"test@example.com","Name":"Test User","Bot":false,"Password ":"password123"}' http://localhost:${port}/user/register
+curl http://localhost:${port}/role
+```
+
+
+
+
+

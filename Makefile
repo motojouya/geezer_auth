@@ -31,3 +31,16 @@ singlet:
 
 migration:
 	migrate create -dir ./scripts/migration -ext sql $(name)
+
+dockerup:
+	docker compose -f build/compose.yaml up -d
+
+docker:
+	docker compose -f build/compose.yaml $(cmd)
+
+postgres:
+	docker compose -f build/compose.yaml exec postgres psql -d geezer_auth -U postgres
+
+migrate:
+	migrate -source file://scripts/migration -database "postgres://postgres:postgres@localhost:5432/geezer_auth?sslmode=disable" up
+
