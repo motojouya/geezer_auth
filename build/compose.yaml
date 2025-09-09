@@ -10,8 +10,6 @@ services:
       #   - TARGETARCH
     ports:
       - "8000:${HOST_PORT}"
-    environment:
-      - OTEL_LOG_LEVEL=info
     volumes:
       - geezerdata:/opt/data
       - type: tmpfs
@@ -19,6 +17,7 @@ services:
         tmpfs:
           size: 10000000
     environment:
+      OTEL_LOG_LEVEL: info
       PORT: 8000
       DB_DRIVER: postgres
       DB_NAME: geezerauth
