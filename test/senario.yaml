@@ -1,0 +1,63 @@
+# シナリオとしては
+# 1.1. 管理ユーザ作成
+# 1.2. 管理ユーザのemail verify
+# 1.3. 管理ユーザの参照
+#
+# 2.1. 管理ユーザでログイン
+# 2.2. 管理ユーザでrefresh
+# 2.3. 管理ユーザの名前変更 最初のaccess tokenで
+# 2.4. 管理ユーザのパスワード変更 次のaccess tokenで
+# 2.5. 管理ユーザのemail変更 最初のaccess tokenで
+# 2.6. 管理ユーザのemail verify 次のaccess tokenで
+# 2.7. 管理ユーザの参照
+#
+# 3.1. 一般ユーザ作成
+# 3.2. 一般ユーザのemail verify
+#
+# 4.1. ロール一覧取得
+#
+# 5.1. 会社作成
+# 5.2. 会社参照
+# 5.3. 会社ユーザの参照
+#
+# 6.1. 会社inviteコード発行
+# 6.2. 会社inviteコードでユーザ登録
+# 6.3. ユーザのアサイン
+# 6.4. 会社ユーザの参照
+#
+# step単位で共通化しよう。一部のシナリオだけ外だしとかは使いづらそう
+
+desc: ログインしてプロジェクト一覧を取得する
+runners:
+  req: https://example.com/api/v1
+  db: mysql://root:mypass@localhost:3306/testdb
+vars:
+  username: alice
+  password: ${TEST_PASS}
+steps:
+  find_user:
+    desc: usernameを条件にユーザ情報をDBから取得
+    db:
+      query: SELECT * FROM users WHERE name = '{{ vars.username }}'
+  login:
+    desc: メールアドレスとパスワードでログイン
+    req:
+      /login:
+        post:
+          body:
+            application/json:
+              email: "{{ steps.find_user.rows[0].email }}"
+              password: "{{ vars.password }}"
+    test: steps.login.res.status == 200
+  list_projects:
+    desc: ログイン状態でプロジェクト一覧を取得
+    req:
+      /projects:
+        get:
+          headers:
+            Authorization: "token {{ steps.login.res.body.session_token }}"
+          body: null
+    test: steps.list_projects.res.status == 200
+  count_projects:
+    desc: プロジェクト情報を取得できていることを確認
+    test: len(steps.list_projects.res.body.projects) > 0
