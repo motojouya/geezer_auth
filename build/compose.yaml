@@ -1,6 +1,5 @@
 services:
   geezerauth:
-    image: geezerauth
     build:
       dockerfile: "build/Dockerfile"
       context: ".."
@@ -10,7 +9,7 @@ services:
       #   - GO_VERSION
       #   - TARGETARCH
     ports:
-      - "8000:${HOST_PORT}"
+      - "${HOST_PORT}:8000"
     volumes:
       - geezerdata:/opt/data
       - type: tmpfs

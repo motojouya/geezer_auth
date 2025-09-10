@@ -44,3 +44,6 @@ postgres:
 migrate:
 	migrate -source file://scripts/migration -database "postgres://postgres:postgres@localhost:5432/geezer_auth?sslmode=disable" up
 
+dockerlog:
+	docker compose -f build/compose.yaml logs geezerauth
+

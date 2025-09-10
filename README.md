@@ -55,8 +55,7 @@ insert into role_permission (role_label,self_edit,company_access,company_invite,
 
 docker稼働確認
 ```shell
-curl -X POST -H "Content-Type: application/json" -d '{"Email":"test@example.com","Name":"Test User","Bot":false,"Password ":"password123"}' http://localhost:${port}/user/register
-curl http://localhost:${port}/role
+curl -X POST -H "Content-Type: application/json" -d '{"Email":"test@example.com","Name":"Test User","Bot":false,"Password":"password123"}' http://localhost:${port}/user/register
 ```
 
 
