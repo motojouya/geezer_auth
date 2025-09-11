@@ -1,95 +1,75 @@
-# シナリオとしては
-# 1.1. 管理ユーザ作成
-# 1.2. 管理ユーザのemail verify
-# 1.3. 管理ユーザの参照
-#
-# 2.1. 管理ユーザでログイン
-# 2.2. 管理ユーザでrefresh
-# 2.3. 管理ユーザの名前変更 最初のaccess tokenで
-# 2.4. 管理ユーザのパスワード変更 次のaccess tokenで
-# 2.5. 管理ユーザのemail変更 最初のaccess tokenで
-# 2.6. 管理ユーザのemail verify 次のaccess tokenで
-# 2.7. 管理ユーザの参照
-#
-# 3.1. 一般ユーザ作成
-# 3.2. 一般ユーザのemail verify
-# 3.3. 一般ユーザの参照
-#
-# 4.1. ロール一覧取得
-#
-# 5.1. 会社作成
-# 5.2. 会社参照
-# 5.3. 会社ユーザの参照
-#
-# 6.1. 会社inviteコード発行
-# 6.2. 会社inviteコードでユーザ登録
-# 6.3. ユーザのアサイン
-# 6.4. 会社ユーザの参照
-#
-# step単位で共通化しよう。一部のシナリオだけ外だしとかは使いづらそう
-# いやシナリオ単位のほうがよさそう。共通化できるのは、ユーザ作成ぐらいなきがするが
-# 参照はところどころに現れるけど、これはテストしたい内容も違う気がするので、単独で書けばいい
-# 基本的には、上記の大きな6つの括りにして、シナリオ作成して、トップレベルから呼び出して全体を実行する感じにする
-# ファイルはトップレベル1つ、ユーザ作成は共通化されるので、子が5つで、合計6つ
-# それぞれは個別で実行できるようにvarsは値を入れておく。んで親から書き換える感じで
-# エラーケースは見ないので、正常系のみ
-# トップレベルのやつはDBレコードのクリアとかもやる
-
-desc: 管理ユーザの作成
-runners:
-  req: https://localhost:${PORT}
-  db: postgres://postgres:postgres@localhost:5432/geezer_auth
+desc: シナリオテスト
 vars:
-  email: test_admin@example.com
-  name: alice
-  bot: false
-  password: password01
+  admin_email: "test01@example.com"
+  admin_name: "Test Admin"
+  admin_password: "password01"
+  update_email: "test02@example.com"
+  update_name: "Test Update"
+  update_password: "password02"
+  normal_email: "test03@example.com"
+  normal_name: "Test Normal"
+  normal_password: "password03"
 steps:
-  register_user:
-    desc: ユーザ登録
-    req:
-      /user/register:
-        post:
-          body:
-            application/json:
-              email: "{{ vars.email }}"
-              name: "{{ vars.name }}"
-              bot: "{{ vars.bot }}"
-              password: "{{ vars.password }}"
-    test: steps.register_user.res.status == 200
-  get_token:
-    desc: ユーザ登録でメール送信されるコードをDBから取得
-    db:
-      query: |
-        SELECT verify_token
-          FROM user_email AS ue
-         INNER JOIN users AS u
-                 ON ue.user_persist_key = u.persist_key
-         WHERE u.identifier = '{{ steps.register_user.res.body.user.identifier }}'
-           AND ue.email = '{{ vars.email }}'
-         LIMIT 1
-  verify_email:
-    desc: メールアドレスの確認
-    req:
-      /user/verify_email:
-        post:
-          headers:
-            Authorization: "Bearer {{ steps.register_user.res.body.access_token }}"
-          body:
-            application/json:
-              email: "{{ vars.email }}"
-              verify_token: "{{ steps.get_token.rows[0].verify_token }}"
-    test: steps.verify_email.res.status == 200
-  get_user:
-    desc: ユーザ情報の取得
-    req:
-      /user/self:
-        get:
-          headers:
-            Authorization: "Bearer {{ steps.register_user.res.body.access_token }}"
-    test: |
-      steps.get_user.res.status == 200
-      steps.get_user.res.body.user.email == "{{ vars.email }}"
-      steps.get_user.res.body.user.name == "{{ vars.name }}"
-      steps.get_user.res.body.user.bot == "{{ vars.bot }}"
-      steps.get_user.res.body.user.email_identifier == "{{ vars.email }}"
+  truncate_db:
+    include:
+      path: truncate.yaml
+  create_admin_user:
+    include:
+      path: createUser.yaml
+      vars:
+        email: "{{ vars.admin_email }}"
+        name: "{{ vars.admin_name }}"
+        password: "{{ vars.admin_password }}"
+  bind_admin_user:
+    bind:
+      admin_identifier: steps.create_admin_user.identifier
+      admin_access_token: steps.create_admin_user.access_token
+      admin_refresh_token: steps.create_admin_user.refresh_token
+  update_admin_user:
+    include:
+      path: updateUser.yaml
+      vars:
+        identifier: "{{ admin_identifier }}"
+        password: "{{ vars.admin_password }}"
+        new_email: "{{ vars.update_email }}"
+        new_name: "{{ vars.update_name }}"
+        new_password: "{{ vars.update_password }}"
+  bind_update_user:
+    bind:
+      update_access_token: steps.update_admin_user.refresh_access_token
+      update_refresh_token: steps.update_admin_user.login_refresh_token
+  get_role:
+    include:
+      path: getRole.yaml
+      vars:
+        access_token: "{{ update_access_token }}"
+  create_company:
+    include:
+      path: createCompany.yaml
+      vars:
+        access_token: "{{ update_access_token }}"
+        name: "Test Company"
+        user_identifier: "{{ admin_identifier }}"
+  bind_company:
+    bind:
+      company_identifier: steps.create_company.identifier
+  create_normal_user:
+    include:
+      path: createUser.yaml
+      vars:
+        email: "{{ vars.normal_email }}"
+        name: "{{ vars.normal_name }}"
+        password: "{{ vars.normal_password }}"
+  bind_normal_user:
+    bind:
+      normal_identifier: steps.create_normal_user.identifier
+      normal_access_token: steps.create_normal_user.access_token
+      normal_refresh_token: steps.create_normal_user.refresh_token
+  assign_company:
+    include:
+      path: companyUser.yaml
+      vars:
+        company_identifier: "{{ company_identifier }}"
+        admin_access_token: "{{ update_access_token }}"
+        user_identifier: "{{ normal_identifier }}"
+        normal_access_token: "{{ normal_access_token }}"

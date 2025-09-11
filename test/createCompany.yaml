@@ -1,0 +1,42 @@
+desc: 企業の作成
+runners:
+  req: https://localhost:${PORT}
+vars:
+  access_token: "dummy"
+  name: "Test Company"
+  user_identifier: "dummy"
+steps:
+  create_company:
+    desc: 企業作成
+    req:
+      /company/create:
+        post:
+          headers:
+            Authorization: "Bearer {{ vars.access_token }}"
+          body:
+            application/json:
+              name: "{{ vars.name }}"
+    test: steps.create_company.res.status == 200
+  bind_company:
+    bind:
+      identifier: steps.create_company.res.body.company.identifier
+  get_company:
+    desc: 企業情報の取得
+    req:
+      /company/{{ identifier }}:
+        get:
+          headers:
+            Authorization: "Bearer {{ vars.access_token }}"
+    test: |
+      steps.get_company.res.status == 200
+      && steps.get_company.res.body.company.name == "{{ vars.name }}"
+  get_user:
+    desc: 企業情報の取得
+    req:
+      /company/{{ identifier }}/user:
+        get:
+          headers:
+            Authorization: "Bearer {{ vars.access_token }}"
+    test: |
+      steps.get_user.res.status == 200
+      && steps.get_user.res.body.users[0].identifier == "{{ vars.user_identifier }}"

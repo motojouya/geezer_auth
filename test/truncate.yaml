@@ -1,0 +1,28 @@
+desc: テストデータ削除
+runners:
+  db: postgres://postgres:postgres@localhost:5432/geezer_auth
+steps:
+  delete_user_access_token:
+    db:
+      query: DELETE FROM user_access_token
+  delete_user_refresh_token:
+    db:
+      query: DELETE FROM user_refresh_token
+  delete_user_password:
+    db:
+      query: DELETE FROM user_password
+  delete_user_email:
+    db:
+      query: DELETE FROM user_email
+  delete_user_company_role:
+    db:
+      query: DELETE FROM user_company_role
+  delete_company_invite:
+    db:
+      query: DELETE FROM company_invite
+  delete_company:
+    db:
+      query: DELETE FROM company
+  delete_user:
+    db:
+      query: DELETE FROM user

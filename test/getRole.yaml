@@ -1,0 +1,17 @@
+desc: ロールの取得
+runners:
+  req: https://localhost:${PORT}
+vars:
+  access_token: "dummy"
+steps:
+  get_role:
+    desc: ロール一覧の取得
+    req:
+      /role:
+        get:
+          headers:
+            Authorization: "Bearer {{ vars.access_token }}"
+    test: |
+      steps.get_role.res.status == 200
+      && steps.get_user.res.body.roles[0].label == "MANAGER"
+      && steps.get_user.res.body.roles[1].label == "EMPLOYEE"

@@ -1,0 +1,106 @@
+desc: ユーザの更新
+runners:
+  req: https://localhost:${PORT}
+  db: postgres://postgres:postgres@localhost:5432/geezer_auth
+vars:
+  identifier: "dummy"
+  password: "dummy"
+  new_email: "test01@example.com"
+  new_name: "Test User"
+  new_password: "password01"
+steps:
+  login:
+    desc: ログイン
+    req:
+      /login:
+        post:
+          body:
+            application/json:
+              identifier: "{{ vars.identifier }}"
+              password: "{{ vars.password }}"
+    test: steps.login.res.status == 200
+  bind_login_token:
+    bind:
+      login_access_token: steps.login.res.body.access_token
+      login_refresh_token: steps.login.res.body.refresh_token
+  refresh:
+    desc: トークンのリフレッシュ
+    req:
+      /refresh:
+        post:
+          body:
+            application/json:
+              refresh_token: "{{ login_refresh_token }}"
+    test: steps.refresh.res.status == 200
+  bind_refresh_token:
+    bind:
+      refresh_access_token: steps.refresh.res.body.access_token
+  change_name:
+    desc: 名前の変更
+    req:
+      /user/change:
+        post:
+          headers:
+            Authorization: "Bearer {{ refresh_access_token }}"
+          body:
+            application/json:
+              name: "{{ vars.new_name }}"
+    test: steps.change_name.res.status == 200
+  change_password:
+    desc: パスワードの変更
+    req:
+      /user/change_password:
+        post:
+          headers:
+            Authorization: "Bearer {{ refresh_access_token }}"
+          body:
+            application/json:
+              name: "{{ vars.new_password }}"
+    test: steps.change_password.res.status == 200
+  change_email:
+    desc: emailの変更
+    req:
+      /user/change_email:
+        post:
+          headers:
+            Authorization: "Bearer {{ refresh_access_token }}"
+          body:
+            application/json:
+              name: "{{ vars.new_email }}"
+    test: steps.change_email.res.status == 200
+  get_token:
+    desc: ユーザ登録でメール送信されるコードをDBから取得
+    db:
+      query: |
+        SELECT verify_token
+          FROM user_email AS ue
+         INNER JOIN users AS u
+                 ON ue.user_persist_key = u.persist_key
+         WHERE u.identifier = '{{ vars.identifier }}'
+           AND ue.email = '{{ vars.new_email }}'
+         LIMIT 1
+  verify_email:
+    desc: メールアドレスの確認
+    req:
+      /user/verify_email:
+        post:
+          headers:
+            Authorization: "Bearer {{ refresh_access_token }}"
+          body:
+            application/json:
+              email: "{{ vars.new_email }}"
+              verify_token: "{{ steps.get_token.rows[0].verify_token }}"
+    test: steps.verify_email.res.status == 200
+  get_user:
+    desc: ユーザ情報の取得
+    req:
+      /user/self:
+        get:
+          headers:
+            Authorization: "Bearer {{ refresh_access_token }}"
+    test: |
+      steps.get_user.res.status == 200
+      && steps.get_user.res.body.user.email == "{{ vars.new_email }}"
+      && steps.get_user.res.body.user.name == "{{ vars.new_name }}"
+      && steps.get_user.res.body.user.bot == "{{ vars.bot }}"
+      && steps.get_user.res.body.user.email_identifier == "{{ vars.email }}"
