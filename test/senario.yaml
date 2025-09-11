@@ -13,6 +13,7 @@
 #
 # 3.1. 一般ユーザ作成
 # 3.2. 一般ユーザのemail verify
+# 3.3. 一般ユーザの参照
 #
 # 4.1. ロール一覧取得
 #
@@ -26,38 +27,68 @@
 # 6.4. 会社ユーザの参照
 #
 # step単位で共通化しよう。一部のシナリオだけ外だしとかは使いづらそう
+# いやシナリオ単位のほうがよさそう。共通化できるのは、ユーザ作成ぐらいなきがするが
+# 参照はところどころに現れるけど、これはテストしたい内容も違う気がするので、単独で書けばいい
+# 基本的には、上記の大きな6つの括りにして、シナリオ作成して、トップレベルから呼び出して全体を実行する感じにする
+# ファイルはトップレベル1つ、ユーザ作成は共通化されるので、子が5つで、合計6つ
+# それぞれは個別で実行できるようにvarsは値を入れておく。んで親から書き換える感じで
+# エラーケースは見ないので、正常系のみ
 
-desc: ログインしてプロジェクト一覧を取得する
+desc: 管理ユーザの作成
 runners:
-  req: https://example.com/api/v1
-  db: mysql://root:mypass@localhost:3306/testdb
+  req: https://localhost:${PORT}
+  db: postgres://postgres:postgres@localhost:5432/geezer_auth
 vars:
-  username: alice
-  password: ${TEST_PASS}
+  email: test_admin@example.com
+  name: alice
+  bot: false
+  password: password01
 steps:
-  find_user:
-    desc: usernameを条件にユーザ情報をDBから取得
-    db:
-      query: SELECT * FROM users WHERE name = '{{ vars.username }}'
-  login:
-    desc: メールアドレスとパスワードでログイン
+  register_user:
+    desc: ユーザ登録
     req:
-      /login:
+      /user/register:
         post:
           body:
             application/json:
-              email: "{{ steps.find_user.rows[0].email }}"
+              email: "{{ vars.email }}"
+              name: "{{ vars.name }}"
+              bot: "{{ vars.bot }}"
               password: "{{ vars.password }}"
-    test: steps.login.res.status == 200
-  list_projects:
-    desc: ログイン状態でプロジェクト一覧を取得
+    test: steps.register_user.res.status == 200
+  get_token:
+    desc: ユーザ登録でメール送信されるコードをDBから取得
+    db:
+      query: |
+        SELECT verify_token
+          FROM user_email AS ue
+         INNER JOIN users AS u
+                 ON ue.user_persist_key = u.persist_key
+         WHERE u.identifier = '{{ steps.register_user.res.body.user.identifier }}'
+           AND ue.email = '{{ vars.email }}'
+         LIMIT 1
+  verify_email:
+    desc: メールアドレスの確認
     req:
-      /projects:
+      /user/verify_email:
+        post:
+          headers:
+            Authorization: "Bearer {{ steps.register_user.res.body.access_token }}"
+          body:
+            application/json:
+              email: "{{ vars.email }}"
+              verify_token: "{{ steps.get_token.rows[0].verify_token }}"
+    test: steps.verify_email.res.status == 200
+  get_user:
+    desc: ユーザ情報の取得
+    req:
+      /user/self:
         get:
           headers:
-            Authorization: "token {{ steps.login.res.body.session_token }}"
-          body: null
-    test: steps.list_projects.res.status == 200
-  count_projects:
-    desc: プロジェクト情報を取得できていることを確認
-    test: len(steps.list_projects.res.body.projects) > 0
+            Authorization: "Bearer {{ steps.register_user.res.body.access_token }}"
+    test: |
+      steps.get_user.res.status == 200
+      steps.get_user.res.body.user.email == "{{ vars.email }}"
+      steps.get_user.res.body.user.name == "{{ vars.name }}"
+      steps.get_user.res.body.user.bot == "{{ vars.bot }}"
+      steps.get_user.res.body.user.email_identifier == "{{ vars.email }}"
