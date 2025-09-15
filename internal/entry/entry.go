@@ -67,12 +67,12 @@ func getAuthentic(header RequestHeader) (*pkgUser.Authentic, error) {
 	var env = localPkg.CreateEnvironment()
 	jwt, err := configBehavior.NewJwtHandlerGet(env).GetJwtHandler()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	token, err := header.GetToken()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	return jwt.Parse(token)
