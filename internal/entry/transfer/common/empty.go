@@ -1,5 +1,3 @@
 package common
 
-type Empty struct {
-	RequestHeader
-}
+type Empty struct {}
