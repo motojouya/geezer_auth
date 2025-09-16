@@ -3,6 +3,7 @@ package company
 import (
 	shelter "github.com/motojouya/geezer_auth/internal/shelter/company"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 	"time"
 )
 
@@ -15,6 +16,7 @@ type CompanyCreate struct {
 }
 
 type CompanyCreateRequest struct {
+	common.RequestHeader
 	CompanyCreate
 }
 

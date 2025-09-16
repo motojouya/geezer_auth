@@ -4,6 +4,7 @@ import (
 	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"time"
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 )
 
 type UserApplyer interface {
@@ -15,6 +16,7 @@ type UserChangeName struct {
 }
 
 type UserChangeNameRequest struct {
+	common.RequestHeader
 	UserChangeName
 }
 

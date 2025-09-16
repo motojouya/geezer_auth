@@ -2,6 +2,7 @@ package user
 
 import (
 	"github.com/motojouya/geezer_auth/internal/shelter/text"
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 )
 
 type PasswordGetter interface {
@@ -13,6 +14,7 @@ type UserChangePassword struct {
 }
 
 type UserChangePasswordRequest struct {
+	common.RequestHeader
 	UserChangePassword
 }
 

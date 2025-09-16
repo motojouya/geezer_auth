@@ -3,6 +3,7 @@ package companyUser
 import (
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/company"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 )
 
 type RoleGetter interface {
@@ -14,6 +15,7 @@ type RoleInvite struct {
 }
 
 type CompanyUserInviteRequest struct {
+	common.RequestHeader
 	company.CompanyGetRequest
 	RoleInvite
 }

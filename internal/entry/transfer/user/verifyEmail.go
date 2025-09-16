@@ -3,6 +3,7 @@ package user
 import (
 	text "github.com/motojouya/geezer_auth/internal/shelter/text"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 )
 
 type EmailVerifier interface {
@@ -16,6 +17,7 @@ type UserVerifyEmail struct {
 }
 
 type UserVerifyEmailRequest struct {
+	common.RequestHeader
 	UserVerifyEmail
 }
 

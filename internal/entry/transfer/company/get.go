@@ -2,6 +2,7 @@ package company
 
 import (
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 )
 
 type CompanyGetter interface {
@@ -13,6 +14,7 @@ type CompanyGet struct {
 }
 
 type CompanyGetRequest struct {
+	common.RequestHeader
 	CompanyGet
 }
 
