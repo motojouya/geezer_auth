@@ -1,9 +1,9 @@
 package companyUser
 
 import (
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/company"
 	"github.com/motojouya/geezer_auth/internal/shelter/text"
-	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 )
 
 type InviteTokenGetter interface {

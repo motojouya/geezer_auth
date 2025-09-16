@@ -1,9 +1,9 @@
 package company
 
 import (
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 	shelter "github.com/motojouya/geezer_auth/internal/shelter/company"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
-	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 	"time"
 )
 

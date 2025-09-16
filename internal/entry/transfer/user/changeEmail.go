@@ -1,8 +1,8 @@
 package user
 
 import (
-	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
 type EmailGetter interface {

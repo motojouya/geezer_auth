@@ -1,13 +1,13 @@
 package entry
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	configBehavior "github.com/motojouya/geezer_auth/internal/behavior/config"
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 	localPkg "github.com/motojouya/geezer_auth/internal/local"
 	"github.com/motojouya/geezer_auth/internal/shelter/essence"
-	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 	pkgUser "github.com/motojouya/geezer_auth/pkg/shelter/user"
-	"fmt"
 )
 
 func Hand[C any, I any, O any](createControl func() (C, error), handleControl func(C, I, *pkgUser.Authentic) (O, error)) echo.HandlerFunc {
@@ -60,7 +60,7 @@ func getAuthentic[I any](request I) (*pkgUser.Authentic, error) {
 
 	header, ok := any(request).(common.BearerTokenGetter)
 	if !ok {
-		return nil, nil;
+		return nil, nil
 	}
 
 	token, err := header.GetBearerToken()

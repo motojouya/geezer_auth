@@ -1,10 +1,10 @@
 package user
 
 import (
+	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"time"
-	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 )
 
 type UserApplyer interface {

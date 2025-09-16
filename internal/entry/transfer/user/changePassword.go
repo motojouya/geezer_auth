@@ -1,8 +1,8 @@
 package user
 
 import (
-	"github.com/motojouya/geezer_auth/internal/shelter/text"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
+	"github.com/motojouya/geezer_auth/internal/shelter/text"
 )
 
 type PasswordGetter interface {
