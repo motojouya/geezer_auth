@@ -70,6 +70,10 @@ func GetRoleUCR(userCompanyRole *UserCompanyRole) role.Role {
 }
 
 func ListToCompanyRole(user User, userCompanyRoles []UserCompanyRole) (*CompanyRole, error) {
+	if len(userCompanyRoles) == 0 {
+		return nil, nil
+	}
+
 	var ptrUCR = essence.ToPtr(userCompanyRoles)
 
 	var allSameUser = essence.Every(ptrUCR, IsUserUCR(user))

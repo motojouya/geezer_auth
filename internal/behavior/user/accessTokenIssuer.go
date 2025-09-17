@@ -70,7 +70,7 @@ func (issuer AccessTokenIssue) Execute(userAuthentic *shelterUser.UserAuthentic)
 
 	dbUserAccessToken := dbUser.FromShelterUserAccessToken(userAccessToken)
 
-	if err = issuer.db.Insert(dbUserAccessToken); err != nil {
+	if err = issuer.db.Insert(&dbUserAccessToken); err != nil {
 		return pkgText.JwtToken(""), err
 	}
 
