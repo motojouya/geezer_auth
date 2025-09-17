@@ -104,7 +104,7 @@ func getLocalerMockForCreate(t *testing.T, idStr string, now time.Time) *localUt
 func getCreateDbMock(t *testing.T, idStr string, firstNow time.Time) userCreatorDBMock {
 	var getUser = func(identifier string) (*dbUser.User, error) {
 		assert.Equal(t, "US-TESTES", identifier, "Expected identifier 'US-TESTES'")
-		return &dbUser.User{}, nil
+		return nil, nil
 	}
 	var insert = func(args ...interface{}) error {
 		assert.Equal(t, 1, len(args), "Expected 1 argument")

@@ -16,13 +16,13 @@ func GetString[T any](createString func() (T, error), checkString func(T) (bool,
 			return zero, err
 		}
 
-		var isExist, checkErr = checkString(str)
+		var ok, checkErr = checkString(str)
 		if checkErr != nil {
 			var zero T
 			return zero, checkErr
 		}
 
-		if !isExist {
+		if ok {
 			return str, nil
 		}
 	}

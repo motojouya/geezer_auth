@@ -24,12 +24,12 @@ func Transact[C db.TransactionalDatabase, E any, R any](callback func(C, E, *pkg
 		result, err := callback(control, entry, authentic)
 
 		if err != nil {
-			if err := control.Rollback(); err != nil {
-				return zero, err
+			if rollbackErr := control.Rollback(); rollbackErr != nil {
+				return zero, rollbackErr
 			}
 		} else {
-			if err := control.Commit(); err != nil {
-				return zero, err
+			if commitErr := control.Commit(); commitErr != nil {
+				return zero, commitErr
 			}
 		}
 

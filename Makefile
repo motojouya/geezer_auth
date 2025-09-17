@@ -48,4 +48,4 @@ dockerlog:
 	docker compose -f build/compose.yaml logs geezerauth
 
 dockerbuild:
-	docker compose -f build/compose.yaml rm geezerauth && docker compose -f build/compose.yaml build --no-cache geezerauth
+	docker compose -f build/compose.yaml rm geezerauth && docker compose -f build/compose.yaml build geezerauth

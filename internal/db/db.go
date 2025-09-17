@@ -59,7 +59,7 @@ type ORP struct {
 	dbMap *gorp.DbMap
 }
 
-func (orp ORP) Close() error {
+func (orp *ORP) Close() error {
 	var insideTransaction = false
 
 	if orp.dbMap != nil {
@@ -94,7 +94,7 @@ func (orp ORP) Close() error {
 	return nil
 }
 
-func (orp ORP) Begin() error {
+func (orp *ORP) Begin() error {
 	var dbMap, ok = orp.SqlExecutor.(*gorp.DbMap)
 	if !ok || orp.dbMap != nil {
 		return essence.CreateInsideTransactionError("transaction is already started")
@@ -111,10 +111,10 @@ func (orp ORP) Begin() error {
 	return nil
 }
 
-func (orp ORP) Commit() error {
+func (orp *ORP) Commit() error {
 	var transaction, ok = orp.SqlExecutor.(*gorp.Transaction)
 	if !ok || orp.dbMap == nil {
-		return essence.CreateOutsideTransactionError("transaction is not started")
+		return essence.CreateOutsideTransactionError("transaction is not started on Commit")
 	}
 
 	var err = transaction.Commit()
@@ -128,10 +128,10 @@ func (orp ORP) Commit() error {
 	return nil
 }
 
-func (orp ORP) Rollback() error {
+func (orp *ORP) Rollback() error {
 	var transaction, ok = orp.SqlExecutor.(*gorp.Transaction)
 	if !ok || orp.dbMap == nil {
-		return essence.CreateOutsideTransactionError("transaction is not started")
+		return essence.CreateOutsideTransactionError("transaction is not started on Rollback")
 	}
 
 	var err = transaction.Rollback()
@@ -145,7 +145,7 @@ func (orp ORP) Rollback() error {
 	return nil
 }
 
-func (orp ORP) checkTransaction() error {
+func (orp *ORP) checkTransaction() error {
 	var _, ok = orp.SqlExecutor.(*gorp.Transaction)
 	if !ok || orp.dbMap == nil {
 		return essence.CreateOutsideTransactionError("transaction is not started")
@@ -154,6 +154,6 @@ func (orp ORP) checkTransaction() error {
 	return nil
 }
 
-func (orp ORP) InsideTransaction() bool {
+func (orp *ORP) InsideTransaction() bool {
 	return orp.dbMap != nil
 }

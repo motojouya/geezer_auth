@@ -58,7 +58,3 @@ docker稼働確認
 curl -X POST -H "Content-Type: application/json" -d '{"Email":"test@example.com","Name":"Test User","Bot":false,"Password":"password123"}' http://localhost:${port}/user/register
 ```
 
-
-
-
-

@@ -35,11 +35,11 @@ func NewDBAccess(
 
 func (dbAccess DBAccess) CreateConnection() (*sql.DB, error) {
 	return sql.Open(dbAccess.Driver, fmt.Sprintf(
-		"%s:%s@tcp(%s:%d)/%s",
-		dbAccess.User,
-		dbAccess.Pass,
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		dbAccess.Host,
 		dbAccess.Port,
+		dbAccess.User,
+		dbAccess.Pass,
 		dbAccess.Name,
 	))
 }
