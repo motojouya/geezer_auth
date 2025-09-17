@@ -72,7 +72,7 @@ func getLocalerMockForAccToken(t *testing.T, expectUUID uuid.UUID, now time.Time
 
 func getAccessTokenIssueDbMock(t *testing.T, expectId string, expectToken string, firstNow time.Time) accessTokenIssuerDBMock {
 	var insert = func(userAccessTokens ...interface{}) error {
-		userAccessToken, ok := userAccessTokens[0].(dbUser.UserAccessToken)
+		userAccessToken, ok := userAccessTokens[0].(*dbUser.UserAccessToken)
 		if !ok {
 			t.Errorf("Expected userAccessTokens[0] to be of type dbUser.UserAccessToken, got %T", userAccessTokens[0])
 			return nil
