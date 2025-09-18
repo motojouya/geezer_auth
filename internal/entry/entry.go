@@ -13,8 +13,8 @@ func Hand[C any, I any, O any](createControl func() (C, error), handleControl fu
 	return func(c echo.Context) error {
 
 		header := common.RequestHeader{}
-		if err := (&echo.DefaultBinder{}).BindHeaders(c, &header); err != nil{
-		    return err
+		if err := (&echo.DefaultBinder{}).BindHeaders(c, &header); err != nil {
+			return err
 		}
 
 		var request I
