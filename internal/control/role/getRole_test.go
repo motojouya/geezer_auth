@@ -116,7 +116,7 @@ func TestGetRole(t *testing.T) {
 		roleGetter,
 	)
 
-	var entry = entryCommon.RequestHeader{}
+	var entry = entryCommon.Empty{}
 	var pkgAuthentic = getPkgAuthenticForGetRole()
 
 	var getRoleResponse, err = controlRole.GetRoleExecute(control, entry, pkgAuthentic)
@@ -148,7 +148,7 @@ func TestGetRoleErrAuth(t *testing.T) {
 		roleGetter,
 	)
 
-	var entry = entryCommon.RequestHeader{}
+	var entry = entryCommon.Empty{}
 
 	var _, err = controlRole.GetRoleExecute(control, entry, nil)
 
@@ -176,7 +176,7 @@ func TestGetRoleErrGet(t *testing.T) {
 		roleGetter,
 	)
 
-	var entry = entryCommon.RequestHeader{}
+	var entry = entryCommon.Empty{}
 	var pkgAuthentic = getPkgAuthenticForGetRole()
 
 	var _, err = controlRole.GetRoleExecute(control, entry, pkgAuthentic)

@@ -1,7 +1,6 @@
 package companyUser
 
 import (
-	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/company"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
@@ -16,7 +15,6 @@ type RoleAssign struct {
 }
 
 type CompanyUserAssignRequest struct {
-	common.RequestHeader
 	company.CompanyGetRequest
 	RoleAssign
 }

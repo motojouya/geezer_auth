@@ -1,7 +1,6 @@
 package user
 
 import (
-	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 	shelter "github.com/motojouya/geezer_auth/internal/shelter/user"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	"time"
@@ -16,7 +15,6 @@ type UserChangeName struct {
 }
 
 type UserChangeNameRequest struct {
-	common.RequestHeader
 	UserChangeName
 }
 

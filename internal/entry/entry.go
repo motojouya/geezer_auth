@@ -12,12 +12,17 @@ import (
 func Hand[C any, I any, O any](createControl func() (C, error), handleControl func(C, I, *pkgUser.Authentic) (O, error)) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
+		header := common.RequestHeader{}
+		if err := (&echo.DefaultBinder{}).BindHeaders(c, &header); err != nil{
+		    return err
+		}
+
 		var request I
 		if err := c.Bind(&request); err != nil {
 			return err
 		}
 
-		authentic, err := getAuthentic(request)
+		authentic, err := getAuthentic(header)
 		if err != nil {
 			return err
 		}
@@ -43,21 +48,20 @@ func Hand[C any, I any, O any](createControl func() (C, error), handleControl fu
 	}
 }
 
-func getAuthentic[I any](request I) (*pkgUser.Authentic, error) {
+func getAuthentic(header common.RequestHeader) (*pkgUser.Authentic, error) {
 	var env = localPkg.CreateEnvironment()
 	jwt, err := configBehavior.NewJwtHandlerGet(env).GetJwtHandler()
 	if err != nil {
 		return nil, err
 	}
 
-	header, ok := any(request).(common.BearerTokenGetter)
-	if !ok {
-		return nil, nil
-	}
-
 	token, err := header.GetBearerToken()
 	if err != nil {
 		return nil, err
+	}
+
+	if token == "" {
+		return nil, nil
 	}
 
 	return jwt.Parse(token)

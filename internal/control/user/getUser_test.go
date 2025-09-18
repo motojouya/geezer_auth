@@ -105,7 +105,7 @@ func TestGetUser(t *testing.T) {
 		userGetter,
 	)
 
-	var entry = entryCommon.RequestHeader{}
+	var entry = entryCommon.Empty{}
 	var pkgAuthentic = getPkgAuthenticForGetUser(expectIdentifier)
 
 	var userUpdateResponse, err = controlUser.GetUserExecute(control, entry, pkgAuthentic)
@@ -131,7 +131,7 @@ func TestGetUserErrAuth(t *testing.T) {
 		userGetter,
 	)
 
-	var entry = entryCommon.RequestHeader{}
+	var entry = entryCommon.Empty{}
 
 	var _, err = controlUser.GetUserExecute(control, entry, nil)
 
@@ -156,7 +156,7 @@ func TestGetUserErrGet(t *testing.T) {
 		userGetter,
 	)
 
-	var entry = entryCommon.RequestHeader{}
+	var entry = entryCommon.Empty{}
 	var pkgAuthentic = getPkgAuthenticForGetUser(expectIdentifier)
 
 	var _, err = controlUser.GetUserExecute(control, entry, pkgAuthentic)

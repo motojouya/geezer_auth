@@ -1,7 +1,6 @@
 package companyUser
 
 import (
-	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 	"github.com/motojouya/geezer_auth/internal/entry/transfer/company"
 	"github.com/motojouya/geezer_auth/internal/shelter/text"
 )
@@ -15,7 +14,6 @@ type CompanyAccept struct {
 }
 
 type CompanyUserAcceptRequest struct {
-	common.RequestHeader
 	company.CompanyGetRequest
 	CompanyAccept
 }

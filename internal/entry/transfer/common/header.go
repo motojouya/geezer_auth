@@ -8,14 +8,19 @@ import (
 var tokenPrefix = "Bearer "
 
 type RequestHeader struct {
-	token string `header:"Authorization"`
+	Token string `header:"Authorization"`
 }
 
 func (r *RequestHeader) GetBearerToken() (string, error) {
-	if !strings.HasPrefix(r.token, tokenPrefix) {
+	if r.Token == "" {
+		return "", nil
+	}
+
+	if !strings.HasPrefix(r.Token, tokenPrefix) {
 		return "", errors.New("invalid token") // TODO 独自エラーにする
 	}
-	return strings.TrimPrefix(r.token, tokenPrefix), nil
+
+	return strings.TrimPrefix(r.Token, tokenPrefix), nil
 }
 
 type BearerTokenGetter struct {

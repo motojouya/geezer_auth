@@ -51,7 +51,7 @@ func CreateGetRoleControl() (*GetRoleControl, error) {
 
 var getRolePermission = shelterRole.NewRequirePermission(true, false, false, false)
 
-func GetRoleExecute(control *GetRoleControl, entry entryCommon.RequestHeader, authentic *pkgUser.Authentic) (*entryCompanyUser.RoleGetResponse, error) {
+func GetRoleExecute(control *GetRoleControl, entry entryCommon.Empty, authentic *pkgUser.Authentic) (*entryCompanyUser.RoleGetResponse, error) {
 
 	if err := control.authorization.Authorize(getRolePermission, authentic); err != nil {
 		return nil, err

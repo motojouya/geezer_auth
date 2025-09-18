@@ -1,7 +1,6 @@
 package user
 
 import (
-	"github.com/motojouya/geezer_auth/internal/entry/transfer/common"
 	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
@@ -14,7 +13,6 @@ type UserChangeEmail struct {
 }
 
 type UserChangeEmailRequest struct {
-	common.RequestHeader
 	UserChangeEmail
 }
 
