@@ -1,6 +1,6 @@
 desc: 企業へのユーザ登録
 runners:
-  req: https://localhost:${PORT}
+  req: http://localhost:${PORT}
 vars:
   company_identifier: "dummy"
   admin_access_token: "dummy"

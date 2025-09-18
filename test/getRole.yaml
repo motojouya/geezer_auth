@@ -1,6 +1,6 @@
 desc: ロールの取得
 runners:
-  req: https://localhost:${PORT}
+  req: http://localhost:${PORT}
 vars:
   access_token: "dummy"
 steps:

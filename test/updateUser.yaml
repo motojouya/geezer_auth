@@ -1,7 +1,7 @@
 desc: ユーザの更新
 runners:
-  req: https://localhost:${PORT}
-  db: postgres://postgres:postgres@localhost:5432/geezer_auth
+  req: http://localhost:${PORT}
+  db: postgres://postgres:postgres@localhost:5432/geezer_auth?sslmode=disable
 vars:
   identifier: "dummy"
   password: "dummy"

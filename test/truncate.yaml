@@ -1,6 +1,6 @@
 desc: テストデータ削除
 runners:
-  db: postgres://postgres:postgres@localhost:5432/geezer_auth
+  db: postgres://postgres:postgres@localhost:5432/geezer_auth?sslmode=disable
 steps:
   delete_user_access_token:
     db:
@@ -25,4 +25,4 @@ steps:
       query: DELETE FROM company
   delete_user:
     db:
-      query: DELETE FROM user
+      query: DELETE FROM users

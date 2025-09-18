@@ -1,6 +1,6 @@
 desc: 企業の作成
 runners:
-  req: https://localhost:${PORT}
+  req: http://localhost:${PORT}
 vars:
   access_token: "dummy"
   name: "Test Company"
