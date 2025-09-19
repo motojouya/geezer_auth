@@ -107,5 +107,7 @@ var CreateExecute = utility.Transact(func(control *CreateControl, entry entryCom
 		return entryCompany.CompanyGetResponse{}, err
 	}
 
+	// TODO call access token issuer
+
 	return entryCompany.FromShelterCompany(company), nil
 })

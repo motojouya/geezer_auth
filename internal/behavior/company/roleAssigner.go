@@ -50,6 +50,14 @@ func (assigner RoleAssign) Execute(company shelterCompany.Company, userAuthentic
 		return nil, err
 	}
 
+	updatedUser := userAuthentic.GetUser().Update(now)
+	var dbUserValue = dbUser.FromShelterUser(updatedUser)
+
+	_, err := assigner.db.Update(&dbUserValue)
+	if err != nil {
+		return nil, err
+	}
+
 	dbUserAuthentic, err := assigner.db.GetUserAuthentic(string(userAuthentic.Identifier), now)
 	if err != nil {
 		return nil, err

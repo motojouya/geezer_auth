@@ -100,5 +100,7 @@ var AcceptExecute = utility.Transact(func(control *AcceptControl, entry entryCom
 		return nil, err
 	}
 
+	// TODO call access token issuer
+
 	return entryCompanyUser.FromShelterUserAuthenticToGetResponse(userAuthentic), nil
 })
