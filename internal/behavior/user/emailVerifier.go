@@ -71,6 +71,8 @@ func (verifier EmailVerify) Execute(entry entryUser.EmailVerifier, userAuthentic
 		return nil, essence.NewInvalidArgumentError("verifyToken", string(verifyToken), "verify token is invalid")
 	}
 
+	userEmail.VerifyDate = &now
+
 	dbUserEmail := dbUser.FromShelterUserEmail(userEmail)
 
 	if _, err = verifier.db.VerifyEmail(dbUserEmail, now); err != nil {

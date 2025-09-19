@@ -31,6 +31,7 @@ steps:
       vars:
         identifier: "{{ admin_identifier }}"
         password: "{{ vars.admin_password }}"
+        email: "{{ vars.admin_email }}"
         new_email: "{{ vars.update_email }}"
         new_name: "{{ vars.update_name }}"
         new_password: "{{ vars.update_password }}"

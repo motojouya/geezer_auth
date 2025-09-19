@@ -13,5 +13,5 @@ steps:
             Authorization: "Bearer {{ vars.access_token }}"
     test: |
       steps.get_role.res.status == 200
-      && steps.get_user.res.body.roles[0].label == "MANAGER"
-      && steps.get_user.res.body.roles[1].label == "EMPLOYEE"
+      && steps.get_role.res.body.roles[0].label == "EMPLOYEE"
+      && steps.get_role.res.body.roles[1].label == "MANAGER"

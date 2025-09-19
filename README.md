@@ -60,6 +60,6 @@ curl -X POST -H "Content-Type: application/json" -d '{"Email":"test@example.com"
 
 test
 ```shell
-PORT=${port} runn run test/index.yaml 
+make runt port=${port}
 ```
 

@@ -57,7 +57,7 @@ steps:
             Authorization: "Bearer {{ access_token }}"
     test: |
       steps.get_user.res.status == 200
-      && steps.get_user.res.body.user.email == "{{ vars.email }}"
-      && steps.get_user.res.body.user.name == "{{ vars.name }}"
-      && steps.get_user.res.body.user.bot == "{{ vars.bot }}"
-      && steps.get_user.res.body.user.email_identifier == "{{ vars.email }}"
+      && steps.get_user.res.body.user.email == vars.email
+      && steps.get_user.res.body.user.name == vars.name
+      && steps.get_user.res.body.user.bot == vars.bot
+      && steps.get_user.res.body.user.identifier_email == vars.email

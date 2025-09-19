@@ -29,7 +29,7 @@ steps:
             Authorization: "Bearer {{ vars.access_token }}"
     test: |
       steps.get_company.res.status == 200
-      && steps.get_company.res.body.company.name == "{{ vars.name }}"
+      && steps.get_company.res.body.company.name == vars.name
   get_user:
     desc: 企業情報の取得
     req:
@@ -39,4 +39,4 @@ steps:
             Authorization: "Bearer {{ vars.access_token }}"
     test: |
       steps.get_user.res.status == 200
-      && steps.get_user.res.body.users[0].identifier == "{{ vars.user_identifier }}"
+      && steps.get_user.res.body.users[0].identifier == vars.user_identifier

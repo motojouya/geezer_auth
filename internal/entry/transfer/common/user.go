@@ -15,7 +15,7 @@ type User struct {
 	Identifier      string       `json:"identifier"`
 	IdentifierEmail string       `json:"identifier_email"`
 	Name            string       `json:"name"`
-	BotFlag         bool         `json:"bot_flag"`
+	BotFlag         bool         `json:"bot"`
 	UpdateDate      time.Time    `json:"update_date"`
 	CompanyRole     *CompanyRole `json:"company_role"`
 	Email           *string      `json:"email"`

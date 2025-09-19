@@ -49,3 +49,6 @@ dockerlog:
 
 dockerbuild:
 	docker compose -f build/compose.yaml rm geezerauth && docker compose -f build/compose.yaml build geezerauth
+
+runt:
+	PORT=${port} runn run test/index.yaml

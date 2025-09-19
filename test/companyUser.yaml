@@ -53,7 +53,7 @@ steps:
     test: |
       steps.get_user.res.status == 200
       && len(steps.get_user.res.body.users) == 2
-      && steps.get_user.res.body.users[0].identifier == "{{ vars.user_identifier }}"
-      && steps.get_user.res.body.users[0].company_role.company.identifier == "{{ vars.company_identifier }}"
-      && steps.get_user.res.body.users[0].company_role.roles[0].label == "{{ vars.role_employee }}"
-      && steps.get_user.res.body.users[0].company_role.roles[1].label == "{{ vars.role_manager }}"
+      && steps.get_user.res.body.users[0].identifier == vars.user_identifier
+      && steps.get_user.res.body.users[0].company_role.company.identifier == vars.company_identifier
+      && steps.get_user.res.body.users[0].company_role.roles[0].label == vars.role_employee
+      && steps.get_user.res.body.users[0].company_role.roles[1].label == vars.role_manager

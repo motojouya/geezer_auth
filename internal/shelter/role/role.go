@@ -31,4 +31,4 @@ func NewRole(
 	}
 }
 
-var RoleAdminLabel = pkgText.Label("ADMINISTRATOR")
+var RoleAdminLabel = pkgText.Label("MANAGER")
