@@ -11,7 +11,6 @@ import (
 )
 
 // FIXME Prepare関数いる？
-// TODO defer dbMap.Db.Close() は、内部にConnectionを持っている場合、自動で呼び出せるように工夫する。これはwebのmiddlewareで行う
 
 type Transactional interface {
 	Begin() error

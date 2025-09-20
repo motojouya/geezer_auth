@@ -21,7 +21,7 @@ import (
 	"time"
 )
 
-func getBehaviorForAccept(userAuthentic *shelterUser.UserAuthentic, company *shelterCompany.Company, role shelterRole.Role) (*userTestUtility.UserGetterMock, *companyTestUtility.CompanyGetterMock, *companyTestUtility.InviteTokenCheckerMock, *companyTestUtility.RoleAssignerMock) {
+func getBehaviorForAccept(userAuthentic *shelterUser.UserAuthentic, company *shelterCompany.Company, role shelterRole.Role, accessToken pkgText.JwtToken) (*userTestUtility.UserGetterMock, *companyTestUtility.CompanyGetterMock, *companyTestUtility.InviteTokenCheckerMock, *companyTestUtility.RoleAssignerMock, *userTestUtility.AccessTokenIssuerMock) {
 	var userGetter = &userTestUtility.UserGetterMock{
 		FakeExecute: func(identifier pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
 			return userAuthentic, nil
@@ -46,7 +46,13 @@ func getBehaviorForAccept(userAuthentic *shelterUser.UserAuthentic, company *she
 		},
 	}
 
-	return userGetter, companyGetter, inviteTokenChecker, roleAssigner
+	var accessTokenIssuer = &userTestUtility.AccessTokenIssuerMock{
+		FakeExecute: func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
+			return accessToken, nil
+		},
+	}
+
+	return userGetter, companyGetter, inviteTokenChecker, roleAssigner, accessTokenIssuer
 }
 
 func getShelterUserAuthenticForAccept(expectId string) *shelterUser.UserAuthentic {
@@ -150,11 +156,14 @@ func TestAccept(t *testing.T) {
 	var expectRoleLabel = "EMPLOYEE"
 	var role = getRoleForAccept(expectRoleLabel)
 
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 	var authorization = getAuthorizationForAccept()
 
-	var userGetter, companyGetter, inviteTokenChecker, roleAssigner = getBehaviorForAccept(userAuthentic, &company, role)
+	var userGetter, companyGetter, inviteTokenChecker, roleAssigner, accessTokenIssuer = getBehaviorForAccept(userAuthentic, &company, role, accessToken)
 	var control = controlCompanyUser.NewAcceptControl(
 		db,
 		authorization,
@@ -162,6 +171,7 @@ func TestAccept(t *testing.T) {
 		companyGetter,
 		inviteTokenChecker,
 		roleAssigner,
+		accessTokenIssuer,
 	)
 
 	var entry = getInviteAcceptEntry(expectCompanyId, "TestToken")
@@ -171,6 +181,7 @@ func TestAccept(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, expectUserId, companyUserAcceptResponse.User.Identifier)
+	assert.Equal(t, expectToken, companyUserAcceptResponse.AccessToken)
 
 	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
 	assert.Equal(t, 1, transactionCalledCount.CommitCalled)
@@ -190,11 +201,14 @@ func TestAcceptErrAuth(t *testing.T) {
 	var expectRoleLabel = "EMPLOYEE"
 	var role = getRoleForAccept(expectRoleLabel)
 
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 	var authorization = getAuthorizationForAccept()
 
-	var userGetter, companyGetter, inviteTokenChecker, roleAssigner = getBehaviorForAccept(userAuthentic, &company, role)
+	var userGetter, companyGetter, inviteTokenChecker, roleAssigner, accessTokenIssuer = getBehaviorForAccept(userAuthentic, &company, role, accessToken)
 	var control = controlCompanyUser.NewAcceptControl(
 		db,
 		authorization,
@@ -202,6 +216,7 @@ func TestAcceptErrAuth(t *testing.T) {
 		companyGetter,
 		inviteTokenChecker,
 		roleAssigner,
+		accessTokenIssuer,
 	)
 
 	var entry = getInviteAcceptEntry(expectCompanyId, "TestToken")
@@ -226,11 +241,14 @@ func TestAcceptErrGetUser(t *testing.T) {
 	var expectRoleLabel = "EMPLOYEE"
 	var role = getRoleForAccept(expectRoleLabel)
 
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 	var authorization = getAuthorizationForAccept()
 
-	var userGetter, companyGetter, inviteTokenChecker, roleAssigner = getBehaviorForAccept(userAuthentic, &company, role)
+	var userGetter, companyGetter, inviteTokenChecker, roleAssigner, accessTokenIssuer = getBehaviorForAccept(userAuthentic, &company, role, accessToken)
 	userGetter.FakeExecute = func(identifier pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
 		return nil, errors.New("db error")
 	}
@@ -241,6 +259,7 @@ func TestAcceptErrGetUser(t *testing.T) {
 		companyGetter,
 		inviteTokenChecker,
 		roleAssigner,
+		accessTokenIssuer,
 	)
 
 	var entry = getInviteAcceptEntry(expectCompanyId, "TestToken")
@@ -265,11 +284,14 @@ func TestAcceptErrGetUserNil(t *testing.T) {
 	var expectRoleLabel = "EMPLOYEE"
 	var role = getRoleForAccept(expectRoleLabel)
 
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 	var authorization = getAuthorizationForAccept()
 
-	var userGetter, companyGetter, inviteTokenChecker, roleAssigner = getBehaviorForAccept(nil, &company, role)
+	var userGetter, companyGetter, inviteTokenChecker, roleAssigner, accessTokenIssuer = getBehaviorForAccept(nil, &company, role, accessToken)
 	var control = controlCompanyUser.NewAcceptControl(
 		db,
 		authorization,
@@ -277,6 +299,7 @@ func TestAcceptErrGetUserNil(t *testing.T) {
 		companyGetter,
 		inviteTokenChecker,
 		roleAssigner,
+		accessTokenIssuer,
 	)
 
 	var entry = getInviteAcceptEntry(expectCompanyId, "TestToken")
@@ -302,11 +325,14 @@ func TestAcceptErrGetCompany(t *testing.T) {
 	var expectRoleLabel = "EMPLOYEE"
 	var role = getRoleForAccept(expectRoleLabel)
 
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 	var authorization = getAuthorizationForAccept()
 
-	var userGetter, companyGetter, inviteTokenChecker, roleAssigner = getBehaviorForAccept(userAuthentic, &company, role)
+	var userGetter, companyGetter, inviteTokenChecker, roleAssigner, accessTokenIssuer = getBehaviorForAccept(userAuthentic, &company, role, accessToken)
 	companyGetter.FakeExecute = func(entry entryCompany.CompanyGetter) (*shelterCompany.Company, error) {
 		return nil, errors.New("db error")
 	}
@@ -317,6 +343,7 @@ func TestAcceptErrGetCompany(t *testing.T) {
 		companyGetter,
 		inviteTokenChecker,
 		roleAssigner,
+		accessTokenIssuer,
 	)
 
 	var entry = getInviteAcceptEntry(expectCompanyId, "TestToken")
@@ -341,11 +368,14 @@ func TestAcceptErrGetCompanyNil(t *testing.T) {
 	var expectRoleLabel = "EMPLOYEE"
 	var role = getRoleForAccept(expectRoleLabel)
 
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 	var authorization = getAuthorizationForAccept()
 
-	var userGetter, companyGetter, inviteTokenChecker, roleAssigner = getBehaviorForAccept(userAuthentic, nil, role)
+	var userGetter, companyGetter, inviteTokenChecker, roleAssigner, accessTokenIssuer = getBehaviorForAccept(userAuthentic, nil, role, accessToken)
 	var control = controlCompanyUser.NewAcceptControl(
 		db,
 		authorization,
@@ -353,6 +383,7 @@ func TestAcceptErrGetCompanyNil(t *testing.T) {
 		companyGetter,
 		inviteTokenChecker,
 		roleAssigner,
+		accessTokenIssuer,
 	)
 
 	var entry = getInviteAcceptEntry(expectCompanyId, "TestToken")
@@ -378,11 +409,14 @@ func TestAcceptErrCheck(t *testing.T) {
 	var expectRoleLabel = "EMPLOYEE"
 	var role = getRoleForAccept(expectRoleLabel)
 
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 	var authorization = getAuthorizationForAccept()
 
-	var userGetter, companyGetter, inviteTokenChecker, roleAssigner = getBehaviorForAccept(userAuthentic, &company, role)
+	var userGetter, companyGetter, inviteTokenChecker, roleAssigner, accessTokenIssuer = getBehaviorForAccept(userAuthentic, &company, role, accessToken)
 	inviteTokenChecker.FakeExecute = func(entry entryCompanyUser.InviteTokenGetter, company shelterCompany.Company) (shelterRole.Role, error) {
 		return shelterRole.Role{}, errors.New("db error")
 	}
@@ -393,6 +427,7 @@ func TestAcceptErrCheck(t *testing.T) {
 		companyGetter,
 		inviteTokenChecker,
 		roleAssigner,
+		accessTokenIssuer,
 	)
 
 	var entry = getInviteAcceptEntry(expectCompanyId, "TestToken")
@@ -418,11 +453,14 @@ func TestAcceptErrAssign(t *testing.T) {
 	var expectRoleLabel = "EMPLOYEE"
 	var role = getRoleForAccept(expectRoleLabel)
 
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 	var authorization = getAuthorizationForAccept()
 
-	var userGetter, companyGetter, inviteTokenChecker, roleAssigner = getBehaviorForAccept(userAuthentic, &company, role)
+	var userGetter, companyGetter, inviteTokenChecker, roleAssigner, accessTokenIssuer = getBehaviorForAccept(userAuthentic, &company, role, accessToken)
 	roleAssigner.FakeExecute = func(company shelterCompany.Company, userAuthentic *shelterUser.UserAuthentic, role shelterRole.Role) (*shelterUser.UserAuthentic, error) {
 		return nil, errors.New("db error")
 	}
@@ -433,6 +471,51 @@ func TestAcceptErrAssign(t *testing.T) {
 		companyGetter,
 		inviteTokenChecker,
 		roleAssigner,
+		accessTokenIssuer,
+	)
+
+	var entry = getInviteAcceptEntry(expectCompanyId, "TestToken")
+	var pkgAuthentic = getPkgAuthenticForAccept(expectUserId)
+
+	var _, err = controlCompanyUser.AcceptExecute(control, entry, pkgAuthentic)
+
+	assert.Error(t, err)
+
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
+}
+
+func TestAcceptErrIssue(t *testing.T) {
+	var expectUserId = "US-TESTES"
+	var userAuthentic = getShelterUserAuthenticForAccept(expectUserId)
+
+	var expectCompanyId = "CP-TESTES"
+	var company = getShelterCompanyForAccept(expectCompanyId)
+
+	var expectRoleLabel = "EMPLOYEE"
+	var role = getRoleForAccept(expectRoleLabel)
+
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+
+	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
+	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+	var authorization = getAuthorizationForAccept()
+
+	var userGetter, companyGetter, inviteTokenChecker, roleAssigner, accessTokenIssuer = getBehaviorForAccept(userAuthentic, &company, role, accessToken)
+	accessTokenIssuer.FakeExecute = func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
+		return "", errors.New("db error")
+	}
+	var control = controlCompanyUser.NewAcceptControl(
+		db,
+		authorization,
+		userGetter,
+		companyGetter,
+		inviteTokenChecker,
+		roleAssigner,
+		accessTokenIssuer,
 	)
 
 	var entry = getInviteAcceptEntry(expectCompanyId, "TestToken")

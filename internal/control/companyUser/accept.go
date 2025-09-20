@@ -22,6 +22,7 @@ type AcceptControl struct {
 	companyGetter      companyBehavior.CompanyGetter
 	inviteTokenChecker companyBehavior.InviteTokenChecker
 	roleAssigner       companyBehavior.RoleAssigner
+	accessTokenIssuer  userBehavior.AccessTokenIssuer
 }
 
 func NewAcceptControl(
@@ -31,6 +32,7 @@ func NewAcceptControl(
 	companyGetter companyBehavior.CompanyGetter,
 	inviteTokenChecker companyBehavior.InviteTokenChecker,
 	roleAssigner companyBehavior.RoleAssigner,
+	accessTokenIssuer userBehavior.AccessTokenIssuer,
 ) *AcceptControl {
 	return &AcceptControl{
 		TransactionalDatabase: database,
@@ -39,6 +41,7 @@ func NewAcceptControl(
 		companyGetter:         companyGetter,
 		inviteTokenChecker:    inviteTokenChecker,
 		roleAssigner:          roleAssigner,
+		accessTokenIssuer:     accessTokenIssuer,
 	}
 }
 
@@ -56,17 +59,23 @@ func CreateAcceptControl() (*AcceptControl, error) {
 		return nil, err
 	}
 
+	jwtHandler, err := configBehavior.NewJwtHandlerGet(env).GetJwtHandler()
+	if err != nil {
+		return nil, err
+	}
+
 	userGetter := userBehavior.NewUserGet(local, database)
 	companyGetter := companyBehavior.NewCompanyGet(database)
 	inviteTokenCheck := companyBehavior.NewInviteTokenCheck(local, database)
 	roleAssigner := companyBehavior.NewRoleAssign(local, database)
+	accessTokenIssuer := userBehavior.NewAccessTokenIssue(local, database, jwtHandler)
 
-	return NewAcceptControl(database, authorization, userGetter, companyGetter, inviteTokenCheck, roleAssigner), nil
+	return NewAcceptControl(database, authorization, userGetter, companyGetter, inviteTokenCheck, roleAssigner, accessTokenIssuer), nil
 }
 
 var acceptCompanyPermission = shelterRole.NewRequirePermission(true, false, false, false)
 
-var AcceptExecute = utility.Transact(func(control *AcceptControl, entry entryCompanyUser.CompanyUserAcceptRequest, authentic *pkgUser.Authentic) (*entryCompanyUser.CompanyUserResponse, error) {
+var AcceptExecute = utility.Transact(func(control *AcceptControl, entry entryCompanyUser.CompanyUserAcceptRequest, authentic *pkgUser.Authentic) (*entryCompanyUser.CompanyUserTokenResponse, error) {
 
 	if err := control.authorization.Authorize(acceptCompanyPermission, authentic); err != nil {
 		return nil, err
@@ -100,7 +109,10 @@ var AcceptExecute = utility.Transact(func(control *AcceptControl, entry entryCom
 		return nil, err
 	}
 
-	// TODO call access token issuer
+	accessToken, err := control.accessTokenIssuer.Execute(userAuthentic)
+	if err != nil {
+		return nil, err
+	}
 
-	return entryCompanyUser.FromShelterUserAuthenticToGetResponse(userAuthentic), nil
+	return entryCompanyUser.FromShelterUserAuthenticToTokenResponse(userAuthentic, accessToken), nil
 })

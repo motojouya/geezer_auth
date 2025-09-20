@@ -22,7 +22,7 @@ import (
 	"time"
 )
 
-func getBehaviorForCreate(t *testing.T, userAuthentic *shelterUser.UserAuthentic, company shelterCompany.Company, role shelterRole.Role) (*companyTestUtility.CompanyCreatorMock, *roleTestUtility.RoleGetterMock, *userTestUtility.UserGetterMock, *companyTestUtility.RoleAssignerMock) {
+func getBehaviorForCreate(t *testing.T, userAuthentic *shelterUser.UserAuthentic, company shelterCompany.Company, role shelterRole.Role, accessToken pkgText.JwtToken) (*companyTestUtility.CompanyCreatorMock, *roleTestUtility.RoleGetterMock, *userTestUtility.UserGetterMock, *companyTestUtility.RoleAssignerMock, *userTestUtility.AccessTokenIssuerMock) {
 	var companyCreator = &companyTestUtility.CompanyCreatorMock{
 		FakeExecute: func(entry entryCompany.CompanyCreator) (shelterCompany.Company, error) {
 			return company, nil
@@ -48,7 +48,13 @@ func getBehaviorForCreate(t *testing.T, userAuthentic *shelterUser.UserAuthentic
 		},
 	}
 
-	return companyCreator, roleGetter, userGetter, RoleAssigner
+	var accessTokenIssuer = &userTestUtility.AccessTokenIssuerMock{
+		FakeExecute: func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
+			return accessToken, nil
+		},
+	}
+
+	return companyCreator, roleGetter, userGetter, RoleAssigner, accessTokenIssuer
 }
 
 func getShelterUserAuthenticForCreate(expectId string) *shelterUser.UserAuthentic {
@@ -143,12 +149,14 @@ func TestCreate(t *testing.T) {
 	var expectCompanyName = "TestCompany"
 	var company = getShelterCompanyForCreate(expectCompanyId, expectCompanyName)
 	var role = getRoleForCreate(shelterRole.RoleAdminLabel)
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 	var authorization = getAuthorizationForCreate()
 
-	var companyCreator, roleGetter, userGetter, roleAssigner = getBehaviorForCreate(t, userAuthentic, company, role)
+	var companyCreator, roleGetter, userGetter, roleAssigner, accessTokenIssuer = getBehaviorForCreate(t, userAuthentic, company, role, accessToken)
 	var control = controlCompany.NewCreateControl(
 		db,
 		authorization,
@@ -156,6 +164,7 @@ func TestCreate(t *testing.T) {
 		roleGetter,
 		userGetter,
 		roleAssigner,
+		accessTokenIssuer,
 	)
 
 	var entry = getCreateEntry(expectCompanyName)
@@ -166,6 +175,7 @@ func TestCreate(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, expectCompanyId, companyCreateResponse.Company.Identifier)
 	assert.Equal(t, expectCompanyName, companyCreateResponse.Company.Name)
+	assert.Equal(t, expectToken, companyCreateResponse.Token)
 
 	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
 	assert.Equal(t, 1, transactionCalledCount.CommitCalled)
@@ -182,12 +192,14 @@ func TestCreateErrAuth(t *testing.T) {
 	var expectCompanyName = "TestCompany"
 	var company = getShelterCompanyForCreate(expectCompanyId, expectCompanyName)
 	var role = getRoleForCreate(shelterRole.RoleAdminLabel)
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 	var authorization = getAuthorizationForCreate()
 
-	var companyCreator, roleGetter, userGetter, roleAssigner = getBehaviorForCreate(t, userAuthentic, company, role)
+	var companyCreator, roleGetter, userGetter, roleAssigner, accessTokenIssuer = getBehaviorForCreate(t, userAuthentic, company, role, accessToken)
 	var control = controlCompany.NewCreateControl(
 		db,
 		authorization,
@@ -195,6 +207,7 @@ func TestCreateErrAuth(t *testing.T) {
 		roleGetter,
 		userGetter,
 		roleAssigner,
+		accessTokenIssuer,
 	)
 
 	var entry = getCreateEntry(expectCompanyName)
@@ -216,12 +229,14 @@ func TestCreateErrCreate(t *testing.T) {
 	var expectCompanyName = "TestCompany"
 	var company = getShelterCompanyForCreate(expectCompanyId, expectCompanyName)
 	var role = getRoleForCreate(shelterRole.RoleAdminLabel)
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 	var authorization = getAuthorizationForCreate()
 
-	var companyCreator, roleGetter, userGetter, roleAssigner = getBehaviorForCreate(t, userAuthentic, company, role)
+	var companyCreator, roleGetter, userGetter, roleAssigner, accessTokenIssuer = getBehaviorForCreate(t, userAuthentic, company, role, accessToken)
 	companyCreator.FakeExecute = func(entry entryCompany.CompanyCreator) (shelterCompany.Company, error) {
 		return shelterCompany.Company{}, errors.New("failed to create company")
 	}
@@ -232,6 +247,7 @@ func TestCreateErrCreate(t *testing.T) {
 		roleGetter,
 		userGetter,
 		roleAssigner,
+		accessTokenIssuer,
 	)
 
 	var entry = getCreateEntry(expectCompanyName)
@@ -254,12 +270,14 @@ func TestCreateErrGetRole(t *testing.T) {
 	var expectCompanyName = "TestCompany"
 	var company = getShelterCompanyForCreate(expectCompanyId, expectCompanyName)
 	var role = getRoleForCreate(shelterRole.RoleAdminLabel)
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 	var authorization = getAuthorizationForCreate()
 
-	var companyCreator, roleGetter, userGetter, roleAssigner = getBehaviorForCreate(t, userAuthentic, company, role)
+	var companyCreator, roleGetter, userGetter, roleAssigner, accessTokenIssuer = getBehaviorForCreate(t, userAuthentic, company, role, accessToken)
 	roleGetter.FakeExecute = func(entry entryCompanyUser.RoleGetter) (*shelterRole.Role, error) {
 		return nil, errors.New("failed to get role")
 	}
@@ -270,6 +288,7 @@ func TestCreateErrGetRole(t *testing.T) {
 		roleGetter,
 		userGetter,
 		roleAssigner,
+		accessTokenIssuer,
 	)
 
 	var entry = getCreateEntry(expectCompanyName)
@@ -292,12 +311,14 @@ func TestCreateErrGetRoleNil(t *testing.T) {
 	var expectCompanyName = "TestCompany"
 	var company = getShelterCompanyForCreate(expectCompanyId, expectCompanyName)
 	var role = getRoleForCreate(shelterRole.RoleAdminLabel)
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 	var authorization = getAuthorizationForCreate()
 
-	var companyCreator, roleGetter, userGetter, roleAssigner = getBehaviorForCreate(t, userAuthentic, company, role)
+	var companyCreator, roleGetter, userGetter, roleAssigner, accessTokenIssuer = getBehaviorForCreate(t, userAuthentic, company, role, accessToken)
 	roleGetter.FakeExecute = func(entry entryCompanyUser.RoleGetter) (*shelterRole.Role, error) {
 		return nil, nil
 	}
@@ -308,6 +329,7 @@ func TestCreateErrGetRoleNil(t *testing.T) {
 		roleGetter,
 		userGetter,
 		roleAssigner,
+		accessTokenIssuer,
 	)
 
 	var entry = getCreateEntry(expectCompanyName)
@@ -330,12 +352,14 @@ func TestCreateErrGetUser(t *testing.T) {
 	var expectCompanyName = "TestCompany"
 	var company = getShelterCompanyForCreate(expectCompanyId, expectCompanyName)
 	var role = getRoleForCreate(shelterRole.RoleAdminLabel)
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 	var authorization = getAuthorizationForCreate()
 
-	var companyCreator, roleGetter, userGetter, roleAssigner = getBehaviorForCreate(t, userAuthentic, company, role)
+	var companyCreator, roleGetter, userGetter, roleAssigner, accessTokenIssuer = getBehaviorForCreate(t, userAuthentic, company, role, accessToken)
 	userGetter.FakeExecute = func(identififer pkgText.Identifier) (*shelterUser.UserAuthentic, error) {
 		return nil, errors.New("failed to get user")
 	}
@@ -346,6 +370,7 @@ func TestCreateErrGetUser(t *testing.T) {
 		roleGetter,
 		userGetter,
 		roleAssigner,
+		accessTokenIssuer,
 	)
 
 	var entry = getCreateEntry(expectCompanyName)
@@ -368,12 +393,14 @@ func TestCreateErrAssign(t *testing.T) {
 	var expectCompanyName = "TestCompany"
 	var company = getShelterCompanyForCreate(expectCompanyId, expectCompanyName)
 	var role = getRoleForCreate(shelterRole.RoleAdminLabel)
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
 
 	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
 	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
 	var authorization = getAuthorizationForCreate()
 
-	var companyCreator, roleGetter, userGetter, roleAssigner = getBehaviorForCreate(t, userAuthentic, company, role)
+	var companyCreator, roleGetter, userGetter, roleAssigner, accessTokenIssuer = getBehaviorForCreate(t, userAuthentic, company, role, accessToken)
 	roleAssigner.FakeExecute = func(company shelterCompany.Company, user *shelterUser.UserAuthentic, role shelterRole.Role) (*shelterUser.UserAuthentic, error) {
 		return nil, errors.New("failed to assign role")
 	}
@@ -384,6 +411,48 @@ func TestCreateErrAssign(t *testing.T) {
 		roleGetter,
 		userGetter,
 		roleAssigner,
+		accessTokenIssuer,
+	)
+
+	var entry = getCreateEntry(expectCompanyName)
+	var pkgAuthentic = getPkgAuthenticForCreate(expectUserId)
+
+	var _, err = controlCompany.CreateExecute(control, entry, pkgAuthentic)
+
+	assert.Error(t, err)
+
+	assert.Equal(t, 1, transactionCalledCount.BeginCalled)
+	assert.Equal(t, 0, transactionCalledCount.CommitCalled)
+	assert.Equal(t, 1, transactionCalledCount.RollbackCalled)
+	assert.Equal(t, 0, transactionCalledCount.CloseCalled)
+}
+
+func TestCreateErrIssuer(t *testing.T) {
+	var expectUserId = "US-TESTES"
+	var userAuthentic = getShelterUserAuthenticForCreate(expectUserId)
+	var expectCompanyId = "CP-TESTES"
+	var expectCompanyName = "TestCompany"
+	var company = getShelterCompanyForCreate(expectCompanyId, expectCompanyName)
+	var role = getRoleForCreate(shelterRole.RoleAdminLabel)
+	var expectToken = "test-access-token"
+	var accessToken = pkgText.JwtToken(expectToken)
+
+	var transactionCalledCount = &dbTestUtility.TransactionCalledCount{}
+	var db = dbTestUtility.GetTransactionalDatabaseMock(transactionCalledCount)
+	var authorization = getAuthorizationForCreate()
+
+	var companyCreator, roleGetter, userGetter, roleAssigner, accessTokenIssuer = getBehaviorForCreate(t, userAuthentic, company, role, accessToken)
+	accessTokenIssuer.FakeExecute = func(user *shelterUser.UserAuthentic) (pkgText.JwtToken, error) {
+		return "", errors.New("failed to issue access token")
+	}
+	var control = controlCompany.NewCreateControl(
+		db,
+		authorization,
+		companyCreator,
+		roleGetter,
+		userGetter,
+		roleAssigner,
+		accessTokenIssuer,
 	)
 
 	var entry = getCreateEntry(expectCompanyName)

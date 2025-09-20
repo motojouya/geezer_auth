@@ -6,11 +6,16 @@ import (
 	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	"github.com/motojouya/geezer_auth/internal/shelter/text"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
 )
 
 type CompanyUserResponse struct {
 	user.UserGetResponse
+}
+
+type CompanyUserTokenResponse struct {
+	user.UserUpdateResponse
 }
 
 type CompanyUserInviteResponse struct {
@@ -34,6 +39,13 @@ func FromShelterUserAuthenticToGetResponse(shelterUser *shelterUser.UserAuthenti
 		UserGetResponse: user.UserGetResponse{
 			User: *commonUser,
 		},
+	}
+}
+
+func FromShelterUserAuthenticToTokenResponse(shelterUser *shelterUser.UserAuthentic, accessToken pkgText.JwtToken) *CompanyUserTokenResponse {
+	var userResponse = user.FromShelterUserAuthenticToUpdateResponse(shelterUser, accessToken)
+	return &CompanyUserTokenResponse{
+		UserUpdateResponse: *userResponse,
 	}
 }
 
