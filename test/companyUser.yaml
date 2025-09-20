@@ -12,7 +12,7 @@ steps:
   invite_company:
     desc: invite token発行
     req:
-      /company/{{ company_identifier }}/invite:
+      /company/{{ vars.company_identifier }}/invite:
         post:
           headers:
             Authorization: "Bearer {{ vars.admin_access_token }}"
@@ -23,7 +23,7 @@ steps:
   accept_company:
     desc: invite accept
     req:
-      /company/{{ company_identifier }}/accept:
+      /company/{{ vars.company_identifier }}/accept:
         post:
           headers:
             Authorization: "Bearer {{ vars.normal_access_token }}"
@@ -34,8 +34,8 @@ steps:
   assign_user:
     desc: 指定してアサイン
     req:
-      /company/{{ company_identifier }}/assign:
-        get:
+      /company/{{ vars.company_identifier }}/assign:
+        post:
           headers:
             Authorization: "Bearer {{ vars.admin_access_token }}"
           body:
@@ -46,14 +46,14 @@ steps:
   get_user:
     desc: 企業情報の取得
     req:
-      /company/{{ company_identifier }}/user:
+      /company/{{ vars.company_identifier }}/user:
         get:
           headers:
             Authorization: "Bearer {{ vars.admin_access_token }}"
     test: |
       steps.get_user.res.status == 200
       && len(steps.get_user.res.body.users) == 2
-      && steps.get_user.res.body.users[0].identifier == vars.user_identifier
-      && steps.get_user.res.body.users[0].company_role.company.identifier == vars.company_identifier
-      && steps.get_user.res.body.users[0].company_role.roles[0].label == vars.role_employee
-      && steps.get_user.res.body.users[0].company_role.roles[1].label == vars.role_manager
+      && steps.get_user.res.body.users[1].identifier == vars.user_identifier
+      && steps.get_user.res.body.users[1].company_role.company.identifier == vars.company_identifier
+      && steps.get_user.res.body.users[1].company_role.roles[0].label == vars.role_employee
+      && steps.get_user.res.body.users[1].company_role.roles[1].label == vars.role_manager

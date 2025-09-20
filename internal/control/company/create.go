@@ -112,11 +112,12 @@ var CreateExecute = utility.Transact(func(control *CreateControl, entry entryCom
 		return entryCompany.CompanyTokenResponse{}, err
 	}
 
-	if _, err = control.roleAssigner.Execute(company, userAuthentic, *role); err != nil {
+	roleAssignedUserAuthentic, err := control.roleAssigner.Execute(company, userAuthentic, *role);
+	if err != nil {
 		return entryCompany.CompanyTokenResponse{}, err
 	}
 
-	accessToken, err := control.accessTokenIssuer.Execute(userAuthentic)
+	accessToken, err := control.accessTokenIssuer.Execute(roleAssignedUserAuthentic)
 	if err != nil {
 		return entryCompany.CompanyTokenResponse{}, err
 	}

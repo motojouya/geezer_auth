@@ -25,6 +25,10 @@ steps:
       admin_identifier: steps.create_admin_user.identifier
       admin_access_token: steps.create_admin_user.access_token
       admin_refresh_token: steps.create_admin_user.refresh_token
+  wait_first:
+    exec:
+      command: "sleep 2"
+      shell: bash
   update_admin_user:
     include:
       path: updateUser.yaml
@@ -44,6 +48,10 @@ steps:
       path: getRole.yaml
       vars:
         access_token: "{{ update_access_token }}"
+  wait_second:
+    exec:
+      command: "sleep 2"
+      shell: bash
   create_company:
     include:
       path: createCompany.yaml
