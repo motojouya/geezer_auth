@@ -34,7 +34,7 @@ func FromShelterCompanyToken(shelterCompany shelterCompany.Company, accessToken 
 		CompanyGetResponse: CompanyGetResponse{
 			Company: commonUser,
 		},
-		Token:     string(accessToken),
+		Token: string(accessToken),
 	}
 }
 

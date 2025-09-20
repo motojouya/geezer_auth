@@ -19,12 +19,12 @@ import (
 
 type CreateControl struct {
 	db.TransactionalDatabase
-	authorization      *authorization.Authorization
-	companyCreator     companyBehavior.CompanyCreator
-	roleGetter         roleBehavior.RoleGetter
-	userGetter         userBehavior.UserGetter
-	roleAssigner       companyBehavior.RoleAssigner
-	accessTokenIssuer  userBehavior.AccessTokenIssuer
+	authorization     *authorization.Authorization
+	companyCreator    companyBehavior.CompanyCreator
+	roleGetter        roleBehavior.RoleGetter
+	userGetter        userBehavior.UserGetter
+	roleAssigner      companyBehavior.RoleAssigner
+	accessTokenIssuer userBehavior.AccessTokenIssuer
 }
 
 func NewCreateControl(

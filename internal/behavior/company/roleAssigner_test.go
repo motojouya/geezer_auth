@@ -163,9 +163,24 @@ func getRoleAssignDbMock(t *testing.T, expectUserId string, expectCompanyId stri
 
 		return nil
 	}
+	var update = func(args ...interface{}) (int64, error) {
+		assert.Equal(t, 1, len(args), "Expected 1 argument")
+
+		user, ok := args[0].(*dbUser.User)
+		if !ok {
+			t.Errorf("Expected first argument to be of type *dbUser.User, got %T", args[0])
+		}
+
+		assert.NotNil(t, user, "Expected user to be not nil")
+		assert.Equal(t, expectUserId, user.Identifier, "Expected user identifier 'US-TESTES'")
+		assert.WithinDuration(t, firstNow, user.UpdateDate, time.Second, "Expected update date to be close to firstNow")
+
+		return 0, nil
+	}
 	return roleAssignerDBMock{
 		SqlExecutorMock: dbUtility.SqlExecutorMock{
 			FakeInsert: insert,
+			FakeUpdate: update,
 		},
 		getUserAuthentic: getUserAuthentic,
 	}

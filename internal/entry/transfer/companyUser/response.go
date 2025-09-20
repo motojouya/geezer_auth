@@ -6,8 +6,8 @@ import (
 	"github.com/motojouya/geezer_auth/internal/shelter/essence"
 	shelterRole "github.com/motojouya/geezer_auth/internal/shelter/role"
 	"github.com/motojouya/geezer_auth/internal/shelter/text"
-	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 	shelterUser "github.com/motojouya/geezer_auth/internal/shelter/user"
+	pkgText "github.com/motojouya/geezer_auth/pkg/shelter/text"
 )
 
 type CompanyUserResponse struct {
