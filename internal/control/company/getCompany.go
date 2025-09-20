@@ -48,7 +48,7 @@ func CreateGetCompanyControl() (*GetCompanyControl, error) {
 	return NewGetCompanyControl(database, authorization, companyGetter), nil
 }
 
-var getCompanyPermission = shelterRole.NewRequirePermission(true, false, false, false)
+var getCompanyPermission = shelterRole.NewRequirePermission(true, true, false, false)
 
 func GetCompanyExecute(control *GetCompanyControl, entry entryCompany.CompanyGetRequest, authentic *pkgUser.Authentic) (entryCompany.CompanyGetResponse, error) {
 
