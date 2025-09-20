@@ -63,3 +63,16 @@ test
 make runt port=${port}
 ```
 
+## やり残し
+- UserAuthenticを集約ルートとすべき関数が中途半端になっている
+  - 具体的にはuser_company_roleの生成時に、UserAuthenticを使っていないので、UserAuthenticが持つビジネスルールの検証ができていない
+  - roleAssigner,userGetterがbehavior/companyにあるのはよくない。これはuserの振る舞い(controlのレイヤではcompanyでいい)
+- 認可ロジックで、アクセスするcompanyがどのcompanyか見てないので、roleさえあれば、どんなcompanyでもアクセスできてしまう
+- user,companyの削除、あるいは無効化ロジックがなく、データモデル上も考慮されていない
+- persist_keyはuuid v7にすればdbで発行しなくていいし、register_dateとかも不要になるのでそうしたい。
+- CIとか。testもmakeからだとdbテストを分離できてるが、shellでするので、ciでも同様に書く必要あり
+- runnの実装をhostからできるようにしてるけど、docker containerからもできるようにしたい
+
+
+
+
