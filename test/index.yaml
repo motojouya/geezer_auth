@@ -54,6 +54,7 @@ steps:
   bind_company:
     bind:
       company_identifier: steps.create_company.identifier
+      company_access_token: steps.create_company.access_token
   create_normal_user:
     include:
       path: createUser.yaml
@@ -71,6 +72,6 @@ steps:
       path: companyUser.yaml
       vars:
         company_identifier: "{{ company_identifier }}"
-        admin_access_token: "{{ update_access_token }}"
+        admin_access_token: "{{ company_access_token }}"
         user_identifier: "{{ normal_identifier }}"
         normal_access_token: "{{ normal_access_token }}"

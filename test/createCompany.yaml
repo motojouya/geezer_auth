@@ -20,13 +20,14 @@ steps:
   bind_company:
     bind:
       identifier: steps.create_company.res.body.company.identifier
+      access_token: steps.create_company.res.body.access_token
   get_company:
     desc: 企業情報の取得
     req:
       /company/{{ identifier }}:
         get:
           headers:
-            Authorization: "Bearer {{ vars.access_token }}"
+            Authorization: "Bearer {{ access_token }}"
     test: |
       steps.get_company.res.status == 200
       && steps.get_company.res.body.company.name == vars.name
@@ -36,7 +37,7 @@ steps:
       /company/{{ identifier }}/user:
         get:
           headers:
-            Authorization: "Bearer {{ vars.access_token }}"
+            Authorization: "Bearer {{ access_token }}"
     test: |
       steps.get_user.res.status == 200
       && steps.get_user.res.body.users[0].identifier == vars.user_identifier
